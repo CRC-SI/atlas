@@ -1,36 +1,40 @@
 define([
+  // Nothing
 ], function () {
-  var geoEntity = {
-    _centroid: null,
-    _area: null,
-    _visible: null,
+  
+  var GeoEntity = function () {
+    var _centroid = null;
+    var _area = null;
+    var _visible = null;
   };
 
-  geoEntity.prototype.getCentroid = function() {
+  GeoEntity.prototype.getCentroid = function() {
     throw new DeveloperError('Can not call method of abstract GeoEntity');
   };
 
-  geoEntity.prototype.getArea = function() {
+  GeoEntity.prototype.getArea = function() {
     throw new DeveloperError('Can not call method of abstract GeoEntity');
   };
 
-  geoEntity.prototype.isVisible = function() {
+  GeoEntity.prototype.isVisible = function() {
     return this._visible;
   };
 
-  geoEntity.prototype.show = function() {
+  GeoEntity.prototype.show = function() {
     throw new DeveloperError('Can not call method of abstract GeoEntity');
   };
 
-  geoEntity.prototype.hide = function() {
+  GeoEntity.prototype.hide = function() {
     throw new DeveloperError('Can not call method of abstract GeoEntity');
   };
 
-  geoEntity.prototype.toggleVisibility = function() {
+  GeoEntity.prototype.toggleVisibility = function() {
     if (this._visible) {
       this.hide();
     } else {
       this.show();
     }
   };
+
+  return GeoEntity;
 });
