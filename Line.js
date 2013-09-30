@@ -4,13 +4,20 @@ define([
 
   /**
    * Constructor for a new Line object.
+   *
    * @param {Vertex} [start=Vertex(0,0,0)] - vertex at start of the line segment.
    * @param {Vertex} [end=Vertex(0,0,0)] - vertex at end of the line segment.
+   *
+   * @extends {GeoEntity}
+   * @alias Line
+   * @constructor
    */
   var Line = function (start, end) {
     this.startVertex = (start || new Vertex(0,0,0));
     this.endVertex =  (end || new Vertex(0,0,0));
   };
+  // Inherit from GeoEntity
+  Line.prototype = new GeoEntity();
 
   /**
    * Returns the length of the Line.

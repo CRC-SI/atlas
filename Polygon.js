@@ -8,10 +8,13 @@ define([
    * rendered within a Atlas scene. Polygons are constructed from a series of Vertices
    * specified in a clockwise order. A {@link Material} and {@link Style} can also be
    * defined when constructing a Polygon.
-   * @alias Polygon 
+   * 
    * @param {Vertex[]} [vertices=[]] The vertices of the Polygon.
    * @param {Style} [style=defaultStyle] The Style to apply to the Polygon.
    * @param {Material} [material=defeaultMaterial] The Material to apply to the polygon.
+   *
+   * @extends {GeoEntity}
+   * @alias Polygon 
    * @constructor
    */
   var Polygon = function(/*Vertex[]*/ vertices, /*Style*/ style, /*Material*/ material) {
@@ -51,6 +54,7 @@ define([
      */
     this.area = null;
   };
+  Polygon.prototype = new GeoEntity();
 
   /**
    * Add a vertex to the polygon.
