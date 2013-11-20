@@ -1,6 +1,7 @@
 define([
-  'Vertex'
-], function (Vertex) {
+  './GeoEntity',
+  './Vertex'
+], function (GeoEntity, Vertex) {
 
   /**
    * Constructor for a new Line object.
@@ -24,9 +25,12 @@ define([
    * @return {number} Length of line.
    */
   Line.prototype.getLength = function () {
-    x2 = Math.abs(this.endVertex.x - this.startVertex.x)^2;
-    y2 = Math.abs(this.endVertex.y - this.startVertex.y)^2;
-    z2 = Math.abs(this.endVertex.z - this.startVertex.z)^2;
+    var x2 = Math.abs(this.endVertex.x - this.startVertex.x);
+    x2 = Math.pow(x2, 2);
+    var y2 = Math.abs(this.endVertex.y - this.startVertex.y);
+    y2 = Math.pow(y2, 2);
+    var z2 = Math.abs(this.endVertex.z - this.startVertex.z);
+    z2 = Math.pow(z2, 2);
     return Math.sqrt(x2 + y2 + z2);
   };
 
