@@ -1,5 +1,4 @@
 define([
-  // Nothing
 ], function () {
   
   /**
@@ -18,8 +17,8 @@ define([
    */
   var GeoEntity = function () {
     this.centroid = null;
-    this.area = null;
-    this.visible = null;
+    this.area = 0;
+    this.visible = false;
   };
 
   /**
@@ -47,7 +46,9 @@ define([
   };
 
   /**
-   * Shot this GeoEntity.
+   * Show this GeoEntity.
+   * Delegated to the RenderManager
+   * @see {RenderManager}.
    */
   GeoEntity.prototype.show = function() {
     throw new DeveloperError('Can not call method of abstract GeoEntity');
@@ -55,6 +56,8 @@ define([
 
   /**
    * Hide this GeoEntity.
+   * Delegated to the RenderManager
+   * @see {RenderManager}.
    */
   GeoEntity.prototype.hide = function() {
     throw new DeveloperError('Can not call method of abstract GeoEntity');
@@ -62,11 +65,16 @@ define([
 
   /**
    * Remove this GeoEntity from the scene (vs. hiding it).
+   * Delegated to the RenderManager
+   * @see {RenderManager}.
    */
   GeoEntity.prototype.remove = function() {
     throw new DeveloperError('Can not call method of abstract GeoEntity');
   };
 
+  /**
+   * Toggle the visibility of this GeoEntity.
+   */
   GeoEntity.prototype.toggleVisibility = function() {
     if (this._visible) {
       this.hide();
