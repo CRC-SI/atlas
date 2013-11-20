@@ -1,6 +1,6 @@
 define([
-  'Vertex',
-  'Line',
+  './Vertex',
+  './Line',
 ], function (Vertex, Line) {
 
   /**
