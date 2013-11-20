@@ -1,69 +1,69 @@
 define([
-  'GeoEntity'
+  './GeoEntity'
 ], function (GeoEntity) {
 
   /**
-   * Constructs a new Artifact artifact. An Artifact represents an entity that can
+   * Constructs a new Feature object. A Feature represents an entity that can
    * be visualised either as a 2D footprint, an 3d extrusion of said footprint,
    * or a 3d model.
    * 
-   * @alias Artifact
+   * @alias Feature
    * @extends {GeoEntity}
    * @constructor
    */
-  var Artifact = function () {
+  var Feature = function () {
     
     /**
-     * The {@link Polygon} 2d footprint of this Artifact.
+     * The {@link Polygon} 2d footprint of this Feature.
      * @type {Polygon}
      */
     this.footprint = null;
 
     /**
-     * 3D {@link Model} for the Artifact.
+     * 3D {@link Model} for this Feature.
      * @type {Model}
      */
     this.model = null;
 
     /**
-     * The extrusion height of this Artifact.
+     * The extrusion height of this Feature.
      * @type {number}
      */
     this.height = 0;
 
     /**
-     * Display mode of this Artifact,
+     * Display mode of this Feature,
      * @type {string}
      */
     this.displayMode = null;
 
     /**
-     * Whether this Artifact is visible.
+     * Whether this Feature is visible.
      * @type {Boolean}
      */
     this.visible = false;
   };
   // Inherit from GeoEntity.
-  Artifact.prototype = new GeoEntity();
+  Feature.prototype = new GeoEntity();
 
   /**
-   * Toggle the Artifact's footprint to be rendered.
+   * Toggle the Feature's footprint to be rendered.
    */
-  Artifact.prototype.toggleFootprintVisibility = function() {
+  Feature.prototype.toggleFootprintVisibility = function() {
     this.displayMode = 'footprint';
   };
 
   /**
-   * Toggle the Artifact's extrusion to be rendered.
+   * Toggle the Feature's extrusion to be rendered.
    */
-  Artifact.prototype.toggleExtrusionVisibility = function() {
+  Feature.prototype.toggleExtrusionVisibility = function() {
     this.displayMode = 'extrusion';
   };
 
   /**
-   * Toggle the Artifact's model to be rendered.
+   * Toggle the Feature's model to be rendered.
    */
-  Artifact.prototype.toggleModelVisibility = function() {
+  Feature.prototype.toggleModelVisibility = function() {
     this.displayMode = 'model';
   };
 });
