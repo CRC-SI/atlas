@@ -1,5 +1,5 @@
 define([
-  'events/EventManager'
+  './EventManager'
 ], function (EventManager) {
   // summary:
   //      EventTarget is a mixin class that provides an object with the ability to dispatch and 
@@ -17,7 +17,7 @@ define([
 
     // parent: EventTarget
     //      The parent object of this EventTarget.
-    parent = null;
+    this.parent = null;
   };
 
   EventTarget.prototype.dispatchEvent = function(event) {
