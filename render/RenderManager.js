@@ -1,7 +1,18 @@
 // RenderManager.js
 define([
-], function () {
+  'atlas/lib/DeveloperError'
+], function (DeveloperError) {
 
+  /**
+   * The RenderManager manages what is render and how it is rendered. The
+   * RenderManager controls
+   *     - the map imageries displayed on the globe
+   *     - the terrain models displayed on the globe
+   *     - the set of entities being displayed in the scene
+   *
+   * @constructor
+   * @alias RenderManager
+   */
   var RenderManager = function () {
     /**
      * This is a map of Entity ID to GeoEntity. These are the entities
@@ -11,6 +22,11 @@ define([
     this.entities = {};
   };
 
+  /**
+   * Convenience function to check if a given object is a GeoEntity.
+   * @param  {Object}  entity The object to check.
+   * @return {Boolean}        Whether the object is a GeoEntity.
+   */
   var isEntity = function (entity) {
     if (! (entity instanceof GeoEntity)) {
       throw new DeveloperError("Can only add subclasses of GeoEntity");
@@ -68,6 +84,35 @@ define([
     }
     return false;
   };
+
+  /**
+   * Function to toggle on rendering of the current terrain model
+   */
+  RenderManager.prototype.showTerrain = function () {
+    throw new DeveloperError("Can not call functions on abstract RenderManager");
+  };
+
+  /**
+   * Function to toggle off rendering the current terrain model.
+   */
+  RenderManager.prototype.hideTerrain = function () {
+    throw new DeveloperError("Can not call functions on abstract RenderManager");
+  };
+
+  /**
+   * Sets the parameters required to render a terrain model.
+   */
+  RenderManager.prototype.setTerrain = function (/*Object*/ terrainParams) {
+    throw new DeveloperError("Can not call functions on abstract RenderManager");
+  };
+
+  /**
+   * Sets the parameters required to render a specific map imagery.
+   */
+  RenderManager.prototype.setMapImagery = function (/*Object*/ mapParams) {
+    throw new DeveloperError("Can not call functions on abstract RenderManager");
+  };
+
   return RenderManager;
 });
 
