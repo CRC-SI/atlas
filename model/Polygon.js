@@ -1,7 +1,11 @@
 define([
+  'atlas/lib/extends',
+  './GeoEntity',
   './Vertex',
   './Line',
-], function (Vertex, Line) {
+  './Style',
+  './Material'
+], function (extend, GeoEntity, Vertex, Line, Style, Material) {
 
   /**
    * Constructs a new Polygon object. A Polygon represents a 2d polygon that can be
@@ -9,20 +13,38 @@ define([
    * specified in a clockwise order. A {@link Material} and {@link Style} can also be
    * defined when constructing a Polygon.
    * 
-   * @param {Vertex[]} [vertices=[]] The vertices of the Polygon.
-   * @param {Style} [style=defaultStyle] The Style to apply to the Polygon.
-   * @param {Material} [material=defeaultMaterial] The Material to apply to the polygon.
+   * @param {Number}    [id] The ID of this Polygon.
+   * @param {GeoEntity} [parent=null] [description]
+   * @param {Vertex[]}  [vertices=[]] The vertices of the Polygon.
+   * @param {Number}    [height=0] The extruded height of the Polygon to form a prism.
+   * @param {Number}    [elevation] The elevation of the base of the Polygon (or prism).
+   * @param {Style}     [style=defaultStyle] The Style to apply to the Polygon.
+   * @param {Material}  [material=defeaultMaterial] The Material to apply to the polygon.
    *
    * @extends {GeoEntity}
-   * @alias Polygon 
+   * @alias atlas/model/Polygon 
    * @constructor
    */
-  var Polygon = function(/*Vertex[]*/ vertices, /*Style*/ style, /*Material*/ material) {
+  var Polygon = function(/*Number*/ id, /*GeoEntity*/ parent, /*Vertex[]*/ vertices, /*Number*/ height, /*Number*/ elevation, /*Style*/ style, /*Material*/ material) {
+    Polygon.base.constructor.call(this, id, parent);
+
     /**
      * Ordered array of vertices constructing polygon.
      * @type {Vertex[]}
      */
     this.vertices = (vertices || []);
+
+    /**
+     * The extruded height of the polygon.
+     * @type {Number}
+     */
+    this.height = (height || 0.0);
+
+    /**
+     * The elevation of the base of the polygon (or prism).
+     * @type {Number}
+     */
+    this.elevation = (elevation || 0.0);
 
     /**
      * The visual style of the polygon.
@@ -54,7 +76,8 @@ define([
      */
     this.area = null;
   };
-  Polygon.prototype = new GeoEntity();
+  // Inherit from GeoEntity
+  extend(GeoEntity, Polygon);
 
   /**
    * Add a vertex to the polygon.
@@ -87,6 +110,22 @@ define([
   Polygon.prototype.removeVertex = function(/*int*/ index) {
     this.area = null;
     return this.vertices.splice(index, 1);
+  };
+
+  /**
+   * Set the extruded height of the polygon to form a prism.
+   * @param {Number} height The extruded height of the building.
+   */
+  Polygon.prototype.setHeight = function (/*Number*/ height) {
+    this.height = height;
+  };
+
+  /**
+   * Set the elevation of the base of the polygon (or prism).
+   * @param {Number} height The elevation of the base of the polygon.
+   */
+  Polygon.prototype.setElevation = function (/*Number*/ elevation) {
+    this.elevation = elevation;
   };
 
   /**
