@@ -5,7 +5,7 @@ define([
   //      EventTarget is a mixin class that provides an object with the ability to dispatch and 
   //      listen to events. This implementation is closer to dojo/on than the DOM Event model.
 
-  var EventTarget = function() {
+  var EventTarget = function(/*EventTarget*/ parent) {
     // eventHandlers: Object
     //      Maps an EventListenerID to a tuple containing the Event type and 
     //      the event handling callback.
@@ -17,7 +17,7 @@ define([
 
     // parent: EventTarget
     //      The parent object of this EventTarget.
-    this.parent = null;
+    this.parent = (parent || null);
   };
 
   EventTarget.prototype.dispatchEvent = function(event) {
