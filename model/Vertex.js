@@ -7,13 +7,13 @@ define([
    * @param {number} [v=0] - the 'y' coordinate.
    * @param {number} [w=0] - the 'z' coordinate.
    *
-   * @alias Vertex
+   * @alias atlas/model/Vertex
    * @constructor
    */
   var Vertex = function (u, v, w) {
-    this.x = (u || 0);
-    this.y = (v || 0);
-    this.z = (w || 0);
+    this.x = (u || 0.0);
+    this.y = (v || 0.0);
+    this.z = (w || 0.0);
   };
 
   return Vertex;
