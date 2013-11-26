@@ -17,8 +17,8 @@ define([
    * @param {Polygon}   footprint The 2d footprint of this Feature
    * @param {Number}    height    The extruded height of this Feature
    * 
-   * @alias atlas.model.Feature
    * @extends {GeoEntity}
+   * @alias atlas/model/Feature
    * @constructor
    */
   var Feature = function (/*Number*/ id, /*GeoEntity*/ parent, /*Mesh*/ mesh, /*Polygon*/ footprint, /*Number*/ height) {

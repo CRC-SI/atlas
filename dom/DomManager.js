@@ -28,20 +28,31 @@ define([
    * @param  {HTMLElement} newElem     The new DOM element to render into.
    * @param  {Boolean}     [show=true] Whether the object should be rendered.
    */
-  // Todo(bpstudds): Enable deferring initial rendering.
   DomManager.prototype.setElement = function (newElem, show) {
     var show_ = (show || true);
     var childDom;
+    // Move existing DOM
     if (this.currentNode !== null) {
       childDom = ChildDom.getChildren(this.currentNode);
       DomChild.appendChildren(newElem, childDom);
     }
     this.currentNode = newElem;
+    // Show in new location if required
     if (show_) {
       DomClass.remove(this.currentNode, "hidden");
     } else {
       DomClass.add(this.currentNode, "hidden");
-    }
+    } 
+  };
+
+  /**
+   * Function to populate the current DOM element with the required data to
+   * render Atlas (Implementation defined).
+   *
+   * @abstract
+   */
+  DomManager.prototype.populateDom = function () {
+    throw new DeveloperError('Can not call abstract method atlas/dom/DomManager.populateDom');
   };
 
   /**

@@ -1,4 +1,7 @@
-/*global define*/
+/**
+ * This module borrowed from the Cesium project
+ * @see {@link cesium.agi.com}
+ */
 define([
 ], function() {
   "use strict";
@@ -13,7 +16,7 @@ define([
    * be thrown at runtime, e.g., out of memory, that the calling code should be prepared
    * to catch.
    *
-   * @alias DeveloperError
+   * @alias atlas/util/DeveloperError
    *
    * @param {String} [message=undefined] The error message for this exception.
    *
