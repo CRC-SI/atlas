@@ -6,7 +6,7 @@ define([
    * A Style object defines the colour and opacity of a polygon's
    * fill and border.
    *
-   * @alias Style
+   * @alias atlas/model/Style
    * @constructor
    */
   var Style = function () {
