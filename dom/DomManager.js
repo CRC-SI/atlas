@@ -11,7 +11,7 @@ define([
    *
    * @param {RenderManager} [rm] The RenderManager used by this DomManager.
    *
-   * @alias atlas.dom.DomManager
+   * @alias atlas/dom/DomManager
    * @constructor
    */
   var DomManager = function (/*RenderManager*/ rm) {
