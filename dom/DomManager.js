@@ -28,7 +28,7 @@ define([
    * @param  {HTMLElement} newElem     The new DOM element to render into.
    * @param  {Boolean}     [show=true] Whether the object should be rendered.
    */
-  DomManager.prototype.setElement = function (newElem, show) {
+  DomManager.prototype.setDom = function (newElem, show) {
     var show_ = (show || true);
     var childDom;
     // Move existing DOM
