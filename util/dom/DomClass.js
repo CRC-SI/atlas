@@ -5,7 +5,7 @@ define([
 ], function () {
 
   /**
-   * A utility class containing static functions for managing a DOM 
+   * A utility class containing static functions for managing a DOM
    * elements classes.
    * @author Brendan Studds
    * @exports atlas/util/dom/DomClass
@@ -18,7 +18,7 @@ define([
      * @param {String} classStr     The class to add to the DOM element
      */
     add: function(element, classStr) {
-      element.class.add(classStr);      
+      element.classList.add(classStr);
     },
 
     /**
@@ -27,7 +27,7 @@ define([
      * @param {String} classStr     The class to remove
      */
     remove: function(element, classStr) {
-      element.class.remove(classStr);      
+      element.classList.remove(classStr);
     },
 
     /**
@@ -36,7 +36,7 @@ define([
      * @param {String} classStr     The class to toggle
      */
     toggle: function(element, classStr) {
-      element.class.toggle(classStr);      
+      element.classList.toggle(classStr);
     },
   };
 
