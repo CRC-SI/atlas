@@ -15,8 +15,8 @@ define([
   var Atlas = function () {
     // In Atlas assume managers are defined. Implementations will include these.
     this.managers = {};
-    this.managers[render] = [];
-    this.managers[dom] = [];
+    this.managers['render'] = [];
+    this.managers['dom'] = [];
   };
 
 
@@ -55,14 +55,17 @@ define([
 
 
   Atlas.prototype.addPolygon = function (params) {
-    if (params.id === undefined) {
-      throw new DeveloperError('Can not create polygon without an ID');
-    }
-    var polygon = new Polygon(params.id, params.parent, params.vertices, params.height, params.elevation, params.style, params.material);
-    this.managers.render.add(polygon);
-    return polygon;
+    throw new DeveloperError('Can not call abstract method on Atlas.');
   };
 
+
+  Atlas.prototype.showEntity = function (id) {
+    this.managers.render.show(id);
+  };
+
+  Atlas.prototype.hideEntity = function (id) {
+    this.managers.render.hide(id);
+  };
 
   return Atlas;
 });
