@@ -1,7 +1,7 @@
 define([
   'atlas/util/DeveloperError',
-  'atlas/util/DomClass',
-  'atlas/util/DomChild'
+  'atlas/util/dom/DomClass',
+  'atlas/util/dom/DomChild'
 ], function(DeveloperError, DomClass, DomChild) {
 
   /**
@@ -15,10 +15,10 @@ define([
    * @constructor
    */
   var DomManager = function (/*RenderManager*/ rm) {
-    this.renderManager = (rm || null);
-    this.currentNode = null;
-    this.rendered = false;
-    this.visible = false;
+    this._renderManager = (rm || null);
+    this._currentNode = null;
+    this._rendered = false;
+    this._visible = false;
   };
 
   /**
@@ -29,20 +29,24 @@ define([
    * @param  {Boolean}     [show=true] Whether the object should be rendered.
    */
   DomManager.prototype.setDom = function (newElem, show) {
-    var show_ = (show || true);
+    var showNow = (show || true);
     var childDom;
     // Move existing DOM
-    if (this.currentNode !== null) {
-      childDom = ChildDom.getChildren(this.currentNode);
+    if (this._currentNode !== null) {
+      childDom = ChildDom.getChildren(this._currentNode);
       DomChild.appendChildren(newElem, childDom);
     }
-    this.currentNode = newElem;
+    this._currentNode = newElem;
     // Show in new location if required
-    if (show_) {
-      DomClass.remove(this.currentNode, "hidden");
+    if (showNow) {
+      DomClass.remove(this._currentNode, "hidden");
+      this._visible = true;
     } else {
-      DomClass.add(this.currentNode, "hidden");
-    } 
+      DomClass.add(this._currentNode, "hidden");
+      this._visible = false;
+    }
+
+    this.populateDom(this._currentNode);
   };
 
   /**
@@ -59,14 +63,20 @@ define([
    * Show the DOM element that Atlas is rendered in.
    */
   DomManager.prototype.show = function () {
-    DomClass.remove(this.currentNode, "hidden");
+    if (!this._visible) {
+      DomClass.remove(this.currentNode, "hidden");
+      this._visible = false;
+    }
   };
 
   /**
    * Hide the DOM element that Atlas is rendered in.
    */
   DomManager.prototype.hide = function () {
-    DomClass.add(this.currentNode, "hidden");
+    if (!this._visible) {
+      DomClass.add(this.currentNode, "hidden");
+      this._visible = true;
+    }
   };
 
   /**
