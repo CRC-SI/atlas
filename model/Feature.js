@@ -1,6 +1,6 @@
 define([
-  'atlas/lib/Extends',
-  'atlas/lib/DeveloperError',
+  'atlas/util/Extends',
+  'atlas/util/DeveloperError',
   './GeoEntity',
   './Polygon'
   //'./Mesh'   // Module to be defined
