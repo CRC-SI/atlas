@@ -1,5 +1,5 @@
 define([
-  'atlas/lib/DeveloperError'
+  'atlas/util/DeveloperError'
 ], function (DeveloperError) {
 
   /**
@@ -41,9 +41,7 @@ define([
    * @param {Number} id The ID of the GeoEntity to remove.
    */
   RenderManager.prototype.remove = function (id) {
-    if (!this._isEntity(entity)) {
-      throw new DeveloperError('Can only add subclass of GeoEntity');
-    } else {
+    if (this.entities[id] !== undefined) {
       delete this.entities[id];
     }
   };
@@ -54,13 +52,7 @@ define([
    * @return {Boolean}       Whether the entity is shown.
    */
   RenderManager.prototype.show = function (entity) {
-    if (entity instanceof Number) {
-      if (typeof this.entities[entity] !== 'undefined') {
-        this.entities[entity].show();
-        return true;
-      }
-    } 
-    return false;
+    throw new DeveloperError('Can not call abstract method of RenderManager');
   };
 
   /**
@@ -69,13 +61,7 @@ define([
    * @return {Boolean}       Whether the entity is hidden.
    */
   RenderManager.prototype.hide = function (entity) {
-    if (entity instanceof Number) {
-      if (typeof this.entities[entity] !== 'undefined') {
-        this.entities[entity].hide();
-        return true;
-      }
-    }
-    return false;
+    throw new DeveloperError('Can not call abstract method of RenderManager');
   };
 
   /**
