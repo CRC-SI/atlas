@@ -9,15 +9,15 @@ define([
    * abstract module that is extended by other atlas entities that specify
    * what is this particular GeoEntity represents (eg. a polygon or a line).
    *
-   * @param {Object} [id]     The ID of this GeoEntity.
+   * @param {Number} [id]     The ID of this GeoEntity.
    * @param {Object} [parent] The parent of the GeoEntity.
    * 
-   * @see{Feature}
-   * @see{Polygon}
-   * @see{Network}
-   * @see{Line}
-   * @see{Vertex}
-   * @see{PointHandle}
+   * @see {Feature}
+   * @see {Polygon}
+   * @see {Network}
+   * @see {Line}
+   * @see {Vertex}
+   * @see {PointHandle}
    *
    * @abstract
    * @extends {EventTarget}
@@ -27,10 +27,47 @@ define([
   var GeoEntity = function (id, parent) {
     GeoEntity.base.constructor.call(this, parent);
 
-    this.id = id;
-    this.centroid = null;
-    this.area = 0;
-    this.visible = false;
+    /**
+     * The ID of the GeoEntity
+     * @type {Number}
+     */
+    this._id = id;
+
+    /**
+     * The geometric centroid of the GeoEntity.
+     * @type {Number}
+     */
+    this._centroid = null;
+
+    /**
+     * The area of the GeoEntity.
+     * @type {Number}
+     */
+    this._area = 0;
+
+    /**
+     * Whether the GeoEntity is visible.
+     * @type {Boolean}
+     */
+    this._visible = false;
+
+    /**
+     * Whether the GeoEntity can be rendered.
+     * @type {Boolean}
+     */
+    this._renderable = false;
+
+    /**
+     * Geometry data for the GeoEntity that allows it to be rendered.
+     * @type {Object}
+     */
+    this._geometry = null;
+
+    /**
+     * Appearance data to modified how the GeoEntity is rendered.
+     * @type {Object}
+     */
+    this._appearance = null;
   };
   // Inherit from EventTarget
   extend(EventTarget, GeoEntity);
@@ -40,7 +77,7 @@ define([
    * @return {number} GeoEntity's footprint centroid.
    */
   GeoEntity.prototype.getCentroid = function() {
-    throw new DeveloperError('Can not call method of abstract GeoEntity');
+    throw new DeveloperError('Can not call abstract method of GeoEntity');
   };
 
   /**
@@ -48,7 +85,7 @@ define([
    * @return {number} Footprint area.
    */
   GeoEntity.prototype.getArea = function() {
-    throw new DeveloperError('Can not call method of abstract GeoEntity');
+    throw new DeveloperError('Can not call abstract method of GeoEntity');
   };
 
   /**
@@ -60,41 +97,42 @@ define([
   };
 
   /**
-   * Show this GeoEntity.
-   * Delegated to the RenderManager
-   * @see {RenderManager}
+   * Returns whether the GeoEntity is renderable.
+   * @return {Boolean} Whether the GeoEntity is renderable.
    */
-  GeoEntity.prototype.show = function() {
-    throw new DeveloperError('Can not call method of abstract GeoEntity');
+  GeoEntity.prototype.isRenderable = function () {
+    return this._renderable;
   };
 
   /**
-   * Hide this GeoEntity.
-   * Delegated to the RenderManager
-   * @see {RenderManager}
+   * Function to build the GeoEntity so it can be rendered.
+   * @abstract
    */
-  GeoEntity.prototype.hide = function() {
-    throw new DeveloperError('Can not call method of abstract GeoEntity');
+  GeoEntity.prototype.build = function() {
+    throw new DeveloperError('Can not call abstract method of GeoEntity.');
+  };
+
+
+  /**
+   * Returns the geometry data for the GeoEntity so it can be rendered.
+   * The <code>build</code> method should be called to construct this geometry
+   * data.
+   * @return {Object} The geometry data.
+   */
+  GeoEntity.prototype.getGeometry = function() {
+    if (this.isRenderable())
+      return this._geometry;
   };
 
   /**
-   * Remove this GeoEntity from the scene (vs. hiding it).
-   * Delegated to the RenderManager
-   * @see {RenderManager}
+   * Returns the appearance data for the GeoEntity so it can be rendered.
+   * The <code>build</code> method should be called to construct this appearance
+   * data.
+   * @return {Object} The appearance data.
    */
-  GeoEntity.prototype.remove = function() {
-    throw new DeveloperError('Can not call method of abstract GeoEntity');
-  };
-
-  /**
-   * Toggle the visibility of this GeoEntity.
-   */
-  GeoEntity.prototype.toggleVisibility = function() {
-    if (this._visible) {
-      this.hide();
-    } else {
-      this.show();
-    }
+  GeoEntity.prototype.getAppearance = function() {
+    if (this.isRenderable())
+      return this._appearance;
   };
 
   return GeoEntity;
