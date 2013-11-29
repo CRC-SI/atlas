@@ -1,5 +1,5 @@
 define([
-  'atlas/lib/extends',
+  'atlas/util/Extends',
   'atlas/events/EventTarget'
 ], function (extend, EventTarget) {
 

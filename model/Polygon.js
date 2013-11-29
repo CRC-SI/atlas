@@ -1,17 +1,18 @@
 define([
-  'atlas/lib/extends',
+  'atlas/util/Extends',
+  'atlas/util/WKT',
   './GeoEntity',
   './Vertex',
   './Style',
   './Material'
-], function (extend, GeoEntity, Vertex, Style, Material) {
+], function (extend, WKT, GeoEntity, Vertex, Style, Material) {
 
   /**
    * Constructs a new Polygon object. A Polygon represents a 2d polygon that can be
    * rendered within a Atlas scene. Polygons are constructed from a series of Vertices
    * specified in a clockwise order. A {@link Material} and {@link Style} can also be
    * defined when constructing a Polygon.
-   * 
+   *
    * @param {Number} id - The ID of this Polygon.
    * @param {Array.<atlas/model/Vertex>} [vertices=[]] - The vertices of the Polygon.
    * @param {Object} [args] - Option arguments describing the Polygon.
@@ -22,7 +23,7 @@ define([
    * @param {atlas/model/Material} [args.material=defeaultMaterial] - The Material to apply to the polygon.
    *
    * @extends {atlas/model/GeoEntity}
-   * @alias atlas/model/Polygon 
+   * @alias atlas/model/Polygon
    * @constructor
    */
    var Polygon = function(/*Number*/ id, /*Vertex[]*/ vertices, /*Object*/ args) {
@@ -60,7 +61,7 @@ define([
      * The material used to render the polygon.
      * @private
      * @type {atlas/model/Material}
-     */ 
+     */
     this._material = (args.material || null);
 
     /**
@@ -86,6 +87,19 @@ define([
   };
   // Inherit from GeoEntity
   extend(GeoEntity, Polygon);
+
+  /**
+   * Generate a new Polygon from a Well Known Text polygon string.
+   * @param  {Number} id - The ID of the Polygon
+   * @param  {String} wkt - The WKT string of the Polygon
+   * @param  {Object} [args] - Option arguments describing the Polygon as per the default constructor.
+   * @return {atlas/model/Polygon} - The new Polygon object.
+   */
+  Polygon.fromWKT = function (id, wkt, args) {
+    var vertices = WKT.wktToVertices(wkt);
+    return new Polygon(id, vertices, args);
+  };
+
 
   /**
    * Add a vertex to the polygon.
@@ -177,7 +191,7 @@ define([
   };
 
   /**
-   * Gets the centroid of the Polygon. Assumes that the polygon is 2d surface, ie. Vertex.z is 
+   * Gets the centroid of the Polygon. Assumes that the polygon is 2d surface, ie. Vertex.z is
    * constant across the polygon.
    * @return {Vertex} The Polygon's centroid.
    * @see {@link http://stackoverflow.com/questions/9692448/how-can-you-find-the-centroid-of-a-concave-irregular-polygon-in-javascript/9939071#9939071}

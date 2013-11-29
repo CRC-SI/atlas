@@ -1,5 +1,5 @@
 define([
-  'atlas/lib/extends',
+  'atlas/util/Extends',
   './GeoEntity',
   './Vertex'
 ], function (extend, GeoEntity, Vertex) {
