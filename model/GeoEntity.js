@@ -2,6 +2,7 @@ define([
   'atlas/util/Extends',
   'atlas/events/EventTarget'
 ], function (extend, EventTarget) {
+  "use strict";
 
   /**
    * A GeoEntity is an abstract class that represents an entity that
@@ -110,6 +111,14 @@ define([
    */
   GeoEntity.prototype.build = function() {
     throw new DeveloperError('Can not call abstract method of GeoEntity.');
+  };
+
+  GeoEntity.prototype._setRenderable = function (render) {
+    if (typeof render !== 'undefined') {
+      this._renderable = render;
+    } else {
+      this._renderable = true;
+    }
   };
 
 
