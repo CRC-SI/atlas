@@ -1,6 +1,7 @@
 define([
-  'atlas/util/DeveloperError'
-], function (DeveloperError) {
+  'atlas/util/DeveloperError',
+  'atlas/model/GeoEntity'
+], function (DeveloperError, GeoEntity) {
 
   /**
    * The RenderManager manages what is render and how it is rendered. The
@@ -20,7 +21,7 @@ define([
      * the RenderManager knows about and is able to cause to be rendered.
      * @type {Object}
      */
-    this.entities = {};
+    this._entities = {};
   };
 
   /**
@@ -32,7 +33,7 @@ define([
     if (!this._isEntity(entity)) {
       throw new DeveloperError('Can only add subclass of GeoEntity');
     } else {
-      this.entities[entity.id] = entity;
+      this._entities[entity.id] = entity;
     }
   };
 
@@ -42,7 +43,7 @@ define([
    */
   RenderManager.prototype.remove = function (id) {
     if (this.entities[id] !== undefined) {
-      delete this.entities[id];
+      delete this._entities[id];
     }
   };
 
