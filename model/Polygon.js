@@ -27,6 +27,7 @@ define([
    * @constructor
    */
    var Polygon = function(/*Number*/ id, /*Vertex[]*/ vertices, /*Object*/ args) {
+    args = (args || {});
     Polygon.base.constructor.call(this, id, args.parent);
 
     /**
@@ -95,7 +96,7 @@ define([
    * @param  {Object} [args] - Option arguments describing the Polygon as per the default constructor.
    * @return {atlas/model/Polygon} - The new Polygon object.
    */
-  Polygon.fromWKT = function (id, wkt, args) {
+  Polygon.prototype.fromWKT = function (id, wkt, args) {
     var vertices = WKT.wktToVertices(wkt);
     return new Polygon(id, vertices, args);
   };
