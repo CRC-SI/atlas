@@ -22,11 +22,13 @@ define([
     this.alpha  = Colour._limit(0.0, 1.0, a);
   };
 
-  Colour.prototype._limit = function(lo, hi, x) {
+  Colour._limit = function(lo, hi, x) {
     if (x < lo) return lo;
     if (x > hi) return hi;
     return x;
   };
+
+  Colour.GREEN = new Colour(0, 1, 0, 0.7);
 
   return Colour;
 });
