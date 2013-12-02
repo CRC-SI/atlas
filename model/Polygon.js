@@ -6,6 +6,7 @@ define([
   './Style',
   './Material'
 ], function (extend, WKT, GeoEntity, Vertex, Style, Material) {
+  "use strict";
 
   /**
    * Constructs a new Polygon object. A Polygon represents a 2d polygon that can be
@@ -35,7 +36,11 @@ define([
      * @private
      * @type {Array.<atlas/model/Vertex>}
      */
-    this._vertices = (vertices || []);
+    if (typeof vertices === 'string' ) {
+      this._vertices = WKT.wktToVertices(vertices)[0];
+    } else {
+      this._vertices = (vertices || []);
+    }
 
     /**
      * The extruded height of the polygon.
@@ -56,14 +61,14 @@ define([
      * @private
      * @type {atlas/model/Style}
      */
-    this._style = (args.style || null);
+    this._style = (args.style || Style.DEFAULT);
 
     /**
      * The material used to render the polygon.
      * @private
      * @type {atlas/model/Material}
      */
-    this._material = (args.material || null);
+    this._material = (args.material || Material.DEFAULT);
 
     /**
      * Whether the Polygon is visible in the scene.
@@ -96,11 +101,10 @@ define([
    * @param  {Object} [args] - Option arguments describing the Polygon as per the default constructor.
    * @return {atlas/model/Polygon} - The new Polygon object.
    */
-  Polygon.prototype.fromWKT = function (id, wkt, args) {
-    var vertices = WKT.wktToVertices(wkt);
-    return new Polygon(id, vertices, args);
-  };
-
+  // Polygon.fromWKT = function (id, wkt, args) {
+  //   var vertices = WKT.wktToVertices(wkt);
+  //   return new Polygon(id, vertices, args);
+  // };
 
   /**
    * Add a vertex to the polygon.
@@ -110,6 +114,7 @@ define([
   Polygon.prototype.addVertex = function(/*Vertex*/ vertex) {
     this._vertices.push(vertex);
     // Invalidate any pre-calculated area and centroid.
+    this._setRenderable(false);
     this._area = null;
     this._centroid = null;
     return this._vertices.length;
@@ -125,6 +130,9 @@ define([
   Polygon.prototype.insertVertex = function(/*int*/ index, /*Vertex*/ vertex) {
     var insertAt = index > vertices.length ? vertices.length : index;
     this.vertices.splice(insertAt, 0, vertex);
+    this._setRenderable(false);
+    this._area = null;
+    this._centroid = null;
     return insertAt;
   };
 
@@ -134,7 +142,10 @@ define([
    * @return {Vertex} The vertex removed.
    */
   Polygon.prototype.removeVertex = function(/*int*/ index) {
+    delete this._vertices[index];
+    this._setRenderable(false);
     this._area = null;
+    this._centroid = null;
     return this._vertices.splice(index, 1);
   };
 
@@ -144,6 +155,7 @@ define([
    */
   Polygon.prototype.setHeight = function (/*Number*/ height) {
     this._height = height;
+    this._setRenderable(false);
   };
 
   /**
@@ -152,6 +164,7 @@ define([
    */
   Polygon.prototype.setElevation = function (/*Number*/ elevation) {
     this._elevation = elevation;
+    this._setRenderable(false);
   };
 
   /**
