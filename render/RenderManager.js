@@ -29,11 +29,12 @@ define([
    * not automatically show the Entity.
    * @param {GeoEntity} entity The GeoEntity to be added to rendering.
    */
-  RenderManager.prototype.add = function (entity) {
+  RenderManager.prototype.addEntity = function (entity) {
     if (!this._isEntity(entity)) {
       throw new DeveloperError('Can only add subclass of GeoEntity');
     } else {
-      this._entities[entity.id] = entity;
+      console.log('adding entity', entity._id);
+      this._entities[entity._id] = entity;
     }
   };
 
@@ -41,7 +42,7 @@ define([
    * Remove a GeoEntity from the RenderManager.
    * @param {Number} id The ID of the GeoEntity to remove.
    */
-  RenderManager.prototype.remove = function (id) {
+  RenderManager.prototype.removeEntity = function (id) {
     if (this.entities[id] !== undefined) {
       delete this._entities[id];
     }
