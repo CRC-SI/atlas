@@ -1,5 +1,5 @@
 define([ 
-  'events/tests/EventManager',
-  'events/tests/EventTarget',
-  'events/tests/Event'
+  'atlas/events/tests/EventManager',
+  'atlas/events/tests/EventTarget',
+  'atlas/events/tests/Event'
 ], 1);

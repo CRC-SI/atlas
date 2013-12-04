@@ -53,23 +53,23 @@ define([
     },
 
     testAddEventListener: function() {
-      var initialEventListenerId = child.nextEventListenerId;
+      var initialEventListenerId = child._nextEventListenerId;
       var listener = child.addEventListener('testEvent', testCallback);
 
       // Ensure that handlers are created properly
       doh.assertEqual('string', typeof(listener.id), 'Event listener created without ID.');
-      doh.assertTrue(child.eventHandlers[listener.id], 'Expected handler not in hashmap');
-      doh.assertEqual('testEvent', child.eventHandlers[listener.id].type, 'Unexpected handler type.');
-      doh.assertTrue(child.eventHandlers[listener.id].callback, 'Unexpected handler callback');
-      doh.assertEqual(1, child.nextEventListenerId - initialEventListenerId, 'Unexpected change in nextListenerId');
+      doh.assertTrue(child._eventHandlers[listener.id], 'Expected handler not in hashmap');
+      doh.assertEqual('testEvent', child._eventHandlers[listener.id].type, 'Unexpected handler type.');
+      doh.assertTrue(child._eventHandlers[listener.id].callback, 'Unexpected handler callback');
+      doh.assertEqual(1, child._nextEventListenerId - initialEventListenerId, 'Unexpected change in nextListenerId');
     },
 
     testRemoveEventHandler: function() {
-      var initialEventListenerId = child.nextEventListenerId;
+      var initialEventListenerId = child._nextEventListenerId;
       var listener = child.addEventListener('testEvent', testCallback);
 
       listener.cancel();
-      doh.assertTrue(!child.eventHandlers[listener.id], 'Event handler not correctly removed.');
+      doh.assertTrue(!child._eventHandlers[listener.id], 'Event handler not correctly removed.');
     },
 
     testHandleEvent: function() {
