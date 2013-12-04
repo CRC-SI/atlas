@@ -1,30 +1,43 @@
 define([
   './EventManager'
 ], function (EventManager) {
+  "use strict";
+
   // summary:
   //      EventTarget is a mixin class that provides an object with the ability to dispatch and 
   //      listen to events. This implementation is closer to dojo/on than the DOM Event model.
+  var EventTarget = function(/*EventManager*/ em, /*EventTarget*/ parent) {
 
-  var EventTarget = function(/*EventTarget*/ parent) {
-    // eventHandlers: Object
-    //      Maps an EventListenerID to a tuple containing the Event type and 
-    //      the event handling callback.
-    this.eventHandlers = {};
-
-    // nextEventListenerId: integer
-    //      Each EventListener needs a unique ID. These are determined from this counter.
-    this.nextEventListenerId = 0;
+    // eventManager: Object
+    //      The global EventManager for this EventTarget.
+    this._eventManager = typeof em !== 'undefined' ? em : null;
 
     // parent: EventTarget
     //      The parent object of this EventTarget.
-    this.parent = (parent || null);
+    this._parent = typeof parent !== 'undefined' ? parent : null;
+
+    // eventHandlers: Object
+    //      Maps an EventListenerID to a tuple containing the Event type and 
+    //      the event handling callback.
+    this._eventHandlers = {};
+
+    // nextEventListenerId: integer
+    //      Each EventListener needs a unique ID. These are determined from this counter.
+    this._nextEventListenerId = 0;
+  };
+
+  EventTarget.prototype.initEventTarget = function (/*EventManager*/ em, /*EventTarget*/ parent) {
+    // summary:
+    //      Initialises the EventTarget post construction.
+    this.eventManager = em;
+    this.parent = typeof parent;
   };
 
   EventTarget.prototype.dispatchEvent = function(event) {
     // summary:
     //      Notify the EventManager that an event has been emitted. The EventManager
     //      then handles bubbling of the event.
-    EventManager.dispatchEvent(event);
+    this.eventManager.dispatchEvent(event);
   };
 
   EventTarget.prototype.addEventListener = function(type, callback) {

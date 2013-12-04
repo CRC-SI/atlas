@@ -1,21 +1,25 @@
 define([
-], function () {
+  'atlas/util/DeveloperError'
+], function (DeveloperError) {
+  "use strict";
   // summary:
   //      Event, like a regular DOM event, is a simple object that
   //      encapsulates the information relevant to the event that occurred
 
   Event = function(/*EventTarget*/ target, /*String*/ type, /*Object?*/ args) {
+    if (typeof target === 'undefined' || typeof type === 'undefined') {
+      throw new DeveloperError('Can not create Event: Event must have both target and type.');
+    }
     // target: Entity
     //      Current target of this event.
+    this.target = target;
+
     // type: String
     //      Type of this event.
+    this.type = type;
+
     // args: Object
     //      Optional event specific arguments or data.
-    if (!target || !type) {
-      throw 'Event must have target and type.';
-    }
-    this.target = target;
-    this.type = type;
     this.args = args;
   };
 
