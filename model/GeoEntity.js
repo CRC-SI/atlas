@@ -1,7 +1,8 @@
 define([
   'atlas/util/Extends',
+  'atlas/util/DeveloperError',
   'atlas/events/EventTarget'
-], function (extend, EventTarget) {
+], function (extend, DeveloperError, EventTarget) {
   "use strict";
 
   /**
@@ -25,8 +26,16 @@ define([
    * @alias atlas/model/GeoEntity
    * @constructor
    */
-  var GeoEntity = function (id, parent) {
-    GeoEntity.base.constructor.call(this, parent);
+  var GeoEntity = function (id, args) {
+    /* Extend from EventTarget */
+    GeoEntity.base.constructor.call(this, args);
+    this.initEventTarget(args.eventManager, args.parent);
+
+    /**
+     * The RenderManager object for this GeoEntity.
+     * @type {RenderManager}
+     */
+    this._renderManager = args.renderManager;
 
     /**
      * The ID of the GeoEntity
@@ -109,7 +118,7 @@ define([
    * Function to build the GeoEntity so it can be rendered.
    * @abstract
    */
-  GeoEntity.prototype.build = function() {
+  GeoEntity.prototype._build = function() {
     throw new DeveloperError('Can not call abstract method of GeoEntity.');
   };
 
@@ -121,6 +130,31 @@ define([
     }
   };
 
+
+  /**
+   * Shows the GeoEntity in the current scene.
+   */
+  GeoEntity.prototype.show = function () {
+    throw new DeveloperError('Can not call abstract method of GeoEntity');
+  };
+
+  /**
+   * Hides the GeoEntity from the current scene.
+   */
+  GeoEntity.prototype.hide = function () {
+    throw new DeveloperError('Can not call abstract method of GeoEntity');
+  };
+
+  /**
+   * Toggles the visibility of the GeoEntity.
+   */
+  GeoEntity.prototype.toggleVisibility = function () {
+    if (this._visible) {
+      this.hide();
+    } else {
+      this.show();
+    }
+  };
 
   /**
    * Returns the geometry data for the GeoEntity so it can be rendered.
