@@ -55,7 +55,13 @@ define([
       parent.callbackFired = 0;
       grandparent.callbackFired = 0;
 
-      eventManager = new EventManager();
+      atlasManagers = {
+        dom: {},
+        event: {},
+        render: {}
+      };
+
+      eventManager = new EventManager(atlasManagers);
 
       // Host would not be an EventTarget, merely a handy object to use to 
       // simulate the host application.
