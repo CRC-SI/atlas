@@ -12,16 +12,42 @@ define([
    * @author Brendan Studds
    * @version 1.0
    *
+   * @param {Object} atlasManagers - A mapping of every manager type in Atlas to the manager instance.
+   *
    * @constructor
    * @alias atlas/render/RenderManager
    */
-  var RenderManager = function () {
+  var RenderManager = function (atlasManagers) {
+
+    /**
+     * A mapping of every manager type in Atlas to the manager instance. This
+     * object is created on Atlas, but the manager instances are set by each
+     * manager upon creation.
+     * @type {Object}
+     */
+    console.debug('in atlas/RenderManager', atlasManagers);
+    this._atlasManagers = atlasManagers;
+    this._atlasManagers.render = this;
+
     /**
      * This is a map of Entity ID to GeoEntity. These are the entities
      * the RenderManager knows about and is able to cause to be rendered.
      * @type {Object}
      */
     this._entities = {};
+  };
+
+  RenderManager.prototype.addFeature = function (id, args) {
+    if (typeof id === 'undefined') {
+      throw new DeveloperError('Can add Feature without specifying id');
+    } else {
+      // Add EventManger to the args for the feature.
+      args.eventManager = this._atlasManagers.event;
+      // Add the RenderManager to the args for the feature.
+      args.renderManager = this;
+      var feature = new Feature(id, args);
+      this.addEntity(feature);
+    }
   };
 
   /**

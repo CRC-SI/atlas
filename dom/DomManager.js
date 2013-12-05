@@ -9,13 +9,22 @@ define([
    * @author Brendan Studds
    * @version 1.0
    *
-   * @param {RenderManager} [rm] The RenderManager used by this DomManager.
+   * @param {Object} atlasManagers - A mapping of every manager type in Atlas to the manager instance.
    *
    * @alias atlas/dom/DomManager
    * @constructor
    */
-  var DomManager = function (/*RenderManager*/ rm) {
-    this._renderManager = (rm || null);
+  var DomManager = function (/*Object*/ atlasManagers) {
+
+    /**
+     * A mapping of every manager type in Atlas to the manager instance. This
+     * object is created on Atlas, but the manager instances are set by each
+     * manager upon creation.
+     * @type {Object}
+     */
+    this._atlasManagers = atlasManagers;
+    this._atlasManagers.dom = this; 
+
     this._currentNode = null;
     this._rendered = false;
     this._visible = false;
@@ -33,6 +42,7 @@ define([
     var childDom;
     // Move existing DOM
     if (this._currentNode !== null) {
+      showNow = true;
       childDom = ChildDom.getChildren(this._currentNode);
       DomChild.appendChildren(newElem, childDom);
     }

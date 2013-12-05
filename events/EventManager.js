@@ -2,12 +2,24 @@ define([
   'atlas/util/DeveloperError'
 ], function (DeveloperError) {
   "use strict";
+
   // summary:
   //      EventManager is a responsible for bubbling internal
   //      events up through the internal event hierarchy, as well as out 
   //      to the host application.
+  // atlasManagers: Object
+  //      A map of manager types to actual manager objects. The map is maintained
+  //      on the main Atlas facade object, but the instances are created by
+  //      each manager object upon creation.
+  var EventManager = function(atlasManagers) {
 
-  var EventManager = function() {
+    // _atlasManagers: Object
+    //      Contains a map of manager types to manager objects. This object
+    //      exists on Atlas.
+    console.debug(atlasManagers);
+    this._atlasManagers = atlasManagers;
+    this._atlasManagers.event = this;
+
     // _hosts: Object
     //      Mapping of a listener object id to the host application callback
     //      Hosts registered here receive every event that occurs.
