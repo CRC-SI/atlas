@@ -1,11 +1,12 @@
 define([
   'atlas/util/Extends',
+  'atlas/util/default',
   'atlas/util/WKT',
   './GeoEntity',
   './Vertex',
   './Style',
   './Material'
-], function (extend, WKT, GeoEntity, Vertex, Style, Material) {
+], function (extend, defaultValue, WKT, GeoEntity, Vertex, Style, Material) {
   "use strict";
 
   /**
@@ -28,8 +29,8 @@ define([
    * @constructor
    */
    var Polygon = function(/*Number*/ id, /*Vertex[]*/ vertices, /*Object*/ args) {
-    args = (args || {});
-    Polygon.base.constructor.call(this, id, args.parent);
+    args = defaultValue(args, {});
+    Polygon.base.constructor.call(this, id, args);
 
     /**
      * Ordered array of vertices constructing polygon.
@@ -39,36 +40,36 @@ define([
     if (typeof vertices === 'string' ) {
       this._vertices = WKT.wktToVertices(vertices)[0];
     } else {
-      this._vertices = (vertices || []);
+      this._vertices = defaultValue(vertices, []);
     }
 
     /**
-     * The extruded height of the polygon.
+     * The extruded height of the polygon (if rendered as extruded polygon).
      * @private
      * @type {Number}
      */
-    this._height = (args.height || 0.0);
+    this._height = defaultValue(args.height, 0.0);
 
     /**
      * The elevation of the base of the polygon (or prism).
      * @private
      * @type {Number}
      */
-    this._elevation = (args.elevation || 0.0);
+    this._elevation = defaultValue(args.elevation, 0.0);
 
     /**
      * The visual style of the polygon.
      * @private
      * @type {atlas/model/Style}
      */
-    this._style = (args.style || Style.DEFAULT);
+    this._style = defaultValue(args.style, Style.DEFAULT);
 
     /**
      * The material used to render the polygon.
      * @private
      * @type {atlas/model/Material}
      */
-    this._material = (args.material || Material.DEFAULT);
+    this._material = defaultValue(args.material, Material.DEFAULT);
 
     /**
      * Whether the Polygon is visible in the scene.
