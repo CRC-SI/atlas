@@ -65,7 +65,17 @@ define([
     return this.wktGeometryToArray(geometry);
   };
 
-  WKT.prototype.wktGeometryToArray = function (geometry, /*Function*/pointConverter) {
+  WKT.prototype.wktGeometryToArray = function (geometry, /*Function*/ pointConverter) {
+    // summary:
+    //      Returns an array of coordinates representing the given geometry object.
+    // geometry: OpenLayers.Geometry.Collection | OpenLayers.Geometry.Point
+    //      The geometry to convert
+    // pointConverter: function(OpenLayers.Geometry.Point)
+    //      Function to convert an OpenLayers point to the desired format.
+    //      Defaults to converting to a 2d array.
+    // returns:
+    //      An array of Points (as defined by pointConverter) forming a closed
+    //      polygon.
     var coords = [];
     pointConverter = (pointConverter || this.wktPointToArray);
     if (geometry instanceof OpenLayers.Geometry.Point) {
@@ -74,7 +84,7 @@ define([
       var components = geometry.components;
       for (var i = 0; i < components.length; i++) {
         var component = components[i];
-        coords.push(this.wktGeometryToArray(component));
+        coords.push(this.wktGeometryToArray(component, pointConverter));
       }
     }
     return coords;
