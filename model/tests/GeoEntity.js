@@ -5,6 +5,7 @@ define([
     '../GeoEntity'
 ], function (doh, TestCase, GeoEntity) {
 
+  var id;
   var geoEntity;
 
   new TestCase({
@@ -13,8 +14,12 @@ define([
     setUp: function() {
       // summary:
       //      Create an GeoEntity object to test presence of functions.
-      geoEntity = new GeoEntity(); 
-      console.error("setup", geoEntity.dispatchEvent);
+      id = 12345;
+      args = {
+        eventManager: 'em',
+        renderManager: 'rm'
+      };
+      geoEntity = new GeoEntity(id, args); 
     },
 
     tearDown: function() {
@@ -22,14 +27,25 @@ define([
     },
 
     testCreateEventManager: function() {
-      doh.assertTrue(geoEntity);
+      doh.assertTrue(geoEntity instanceof GeoEntity);
+      doh.assertEqual(id, geoEntity._id);
     },
 
     testParameters: function() {
-      doh.assertEqual(null, geoEntity.centroid);
-      doh.assertEqual(0, geoEntity.area);
-      doh.assertEqual(false, geoEntity.visible);
-    }
+      doh.assertEqual(null, geoEntity._centroid);
+      doh.assertEqual(0, geoEntity._area);
+      doh.assertEqual(false, geoEntity._visible);
+    },
+
+    testSetRenderable: function() {
+      doh.assertTrue(!geoEntity.isRenderable());
+      geoEntity.setRenderable();
+      doh.assertTrue(geoEntity.isRenderable());
+      geoEntity.setRenderable(true);
+      doh.assertTrue(geoEntity.isRenderable());
+      geoEntity.setRenderable(false);
+      doh.assertTrue(!geoEntity.isRenderable());
+    },
 
     /*
     testEventTargetness: function() {

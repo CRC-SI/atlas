@@ -122,7 +122,7 @@ define([
     throw new DeveloperError('Can not call abstract method of GeoEntity.');
   };
 
-  GeoEntity.prototype._setRenderable = function (render) {
+  GeoEntity.prototype.setRenderable = function (render) {
     if (typeof render !== 'undefined') {
       this._renderable = render;
     } else {
