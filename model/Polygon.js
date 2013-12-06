@@ -2,11 +2,12 @@ define([
   'atlas/util/Extends',
   'atlas/util/default',
   'atlas/util/WKT',
-  './GeoEntity',
   './Vertex',
   './Style',
-  './Material'
-], function (extend, defaultValue, WKT, GeoEntity, Vertex, Style, Material) {
+  './Material',
+  // Base class
+  './GeoEntity'
+], function (extend, defaultValue, WKT, Vertex, Style, Material, GeoEntity) {
   "use strict";
 
   /**
@@ -113,9 +114,11 @@ define([
    * @return {Number} The index at which the vertex was added.
    */
   Polygon.prototype.addVertex = function(/*Vertex*/ vertex) {
+    var v = this._vertices.pop();
     this._vertices.push(vertex);
+    this._vertices.push(v);
     // Invalidate any pre-calculated area and centroid.
-    this._setRenderable(false);
+    this.setRenderable(false);
     this._area = null;
     this._centroid = null;
     return this._vertices.length;
@@ -124,30 +127,51 @@ define([
   /**
    * Inserts a vertex at particular index of the polygon. If the index is larger than the number
    * of vertices in the polygon, it is appended to the polygons vertices.
+   * The last element of _vertices is reserved for a duplicate of the first vertex.
    * @param  {number} index  The index to insert at.
-   * @param  {Vertex} vertex The vertex to be added.
+   * @param  {Vertex} vertex The vertex to be added. '-1' to insert at the end
    * @return {Number}        The index at which vertex was inserted.
    */
   Polygon.prototype.insertVertex = function(/*int*/ index, /*Vertex*/ vertex) {
-    var insertAt = index > vertices.length ? vertices.length : index;
-    this.vertices.splice(insertAt, 0, vertex);
-    this._setRenderable(false);
+    var insertAt = index;
+    if (index < -1) {
+      insertAt = 0;
+    } else if (index == -1 || index > this._vertices.length - 1) {
+      insertAt = this._vertices.length - 1;
+    }
+    this._vertices.splice(insertAt, 0, vertex);
+    // Maintain closed-ness
+    //this._vertices[this._vertices.length - 1] = this._vertices[0];
+    // Clear derived values.
+    this.setRenderable(false);
     this._area = null;
     this._centroid = null;
     return insertAt;
   };
 
   /**
-   * Removes vertex from the polygon.
-   * @param  {Number} index The index of the vertex to remove.
+   * Removes a vertex from the Polygon.
+   * @param  {Number} index The index of the vertex to remove. '-1' for the last vertex.
    * @return {Vertex} The vertex removed.
    */
   Polygon.prototype.removeVertex = function(/*int*/ index) {
-    delete this._vertices[index];
-    this._setRenderable(false);
-    this._area = null;
-    this._centroid = null;
-    return this._vertices.splice(index, 1);
+    if (index == -1) {
+      index = this._vertices.lenght -1;
+    }
+    if (index == this._vertices.length) {
+      index--;
+    }
+    if (0 <= index && index <= this._vertices.length - 1) {
+      var removed = this._vertices.splice(index, 1);
+      // Maintain closed-ness
+      this._vertices[this._vertices.length - 1] = this._vertices[0];
+      // Clear derived values
+      this.setRenderable(false);
+      this._area = null;
+      this._centroid = null;
+      return removed;
+    }
+    return [];
   };
 
   /**
@@ -155,8 +179,10 @@ define([
    * @param {Number} height The extruded height of the building.
    */
   Polygon.prototype.setHeight = function (/*Number*/ height) {
-    this._height = height;
-    this._setRenderable(false);
+    if (typeof height === 'number') {
+      this._height = height;
+      this.setRenderable(false);
+    }
   };
 
   /**
@@ -164,8 +190,10 @@ define([
    * @param {Number} height The elevation of the base of the polygon.
    */
   Polygon.prototype.setElevation = function (/*Number*/ elevation) {
-    this._elevation = elevation;
-    this._setRenderable(false);
+    if (typeof elevation === 'number') {
+      this._elevation = elevation;
+      this.setRenderable(false);
+    }
   };
 
   /**
