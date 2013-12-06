@@ -33,7 +33,7 @@ define([
      * The 2d {@link Polygon} footprint of this Feature.
      * @type {Polygon}
      */
-    this._footprint = null;
+    this._footprint = {};
     if (args.vertices !== 'undefined') {
       this._footprint = new Polygon(id + 'p', args.vertices, args);
     }
@@ -42,7 +42,7 @@ define([
      * 3D {@link Mesh} of this Feature.
      * @type {Mesh}
      */
-    this._mesh = null;
+    this._mesh = {};
     if (args.mesh === 'undefined') {
       this._mesh = new Mesh(id + 'p', args.mesh, args);
     }
@@ -93,22 +93,25 @@ define([
   /**
    * Toggle the Feature's footprint to be rendered.
    */
-  Feature.prototype.toggleFootprintVisibility = function() {
+  Feature.prototype.showAsFootprint = function() {
     this._displayMode = 'footprint';
+    this.show();
   };
 
   /**
    * Toggle the Feature's extrusion to be rendered.
    */
-  Feature.prototype.toggleExtrusionVisibility = function() {
+  Feature.prototype.showAsExtrusion = function() {
     this._displayMode = 'extrusion';
+    this.show();
   };
 
   /**
    * Toggle the Feature's mesh to be rendered.
    */
-  Feature.prototype.toggleMeshVisibility = function() {
+  Feature.prototype.showAsMesh = function() {
     this._displayMode = 'mesh';
+    this.show();
   };
 
   /**
