@@ -25,7 +25,6 @@ define([
      * manager upon creation.
      * @type {Object}
      */
-    console.debug('in atlas/RenderManager', atlasManagers);
     this._atlasManagers = atlasManagers;
     this._atlasManagers.render = this;
 
@@ -37,7 +36,7 @@ define([
     this._entities = {};
   };
 
-  RenderManager.prototype.addFeature = function (id, args) {
+  RenderManager.prototype._addFeature = function (id, args) {
     if (typeof id === 'undefined') {
       throw new DeveloperError('Can add Feature without specifying id');
     } else {

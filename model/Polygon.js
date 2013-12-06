@@ -236,5 +236,13 @@ define([
     return this._centroid;
   };
 
+  Polygon.prototype.show = function () {
+    throw new DeveloperError('Can not call abstract method of Polygon');
+  };
+
+  Polygon.prototype.hide = function () {
+    throw new DeveloperError('Can not call abstract method of Polygon');
+  };
+
   return Polygon;
 });

@@ -84,7 +84,7 @@ define([
    * @param  {Object} [args] - Arguments relevant to the event.
    */
   Atlas.prototype.publish = function (eventName, args) {
-    this._managers.event.handleExternEvent(eventName, args);
+    this._managers.event.handleExternalEvent(eventName, args);
   };
 
   /**

@@ -63,7 +63,7 @@ define([
      * Display mode of this Feature,
      * @type {string}
      */
-    this._displayMode = defaultValue(args.displayMode, "");
+    this._displayMode = defaultValue(args.displayMode, 'footprint');
 
     /**
      * Whether this Feature is visible.
@@ -115,25 +115,30 @@ define([
    * Show this feature.
    */
   Feature.prototype.show = function() {
+    console.debug('trying to show feature', this._displayMode);
+    console.debug('   footprint', this._footprint);
     if (this._displayMode == 'footprint') {
       if (this._mesh) {
         this._mesh.hide();
       }
       if (this._footprint) {
+        console.debug('trying to show footprint');
         this._visible = this._footprint.show();
       }
-    } else if (this.displayMode == 'extrusion') {
+    } else if (this._displayMode == 'extrusion') {
       if (this._mesh) {
         this._mesh.hide();
       }
       if (this._footprint) {
+        console.debug('trying to show extrusion');
         this._visible = this._footprint.show(this._height);
       }
-    } else if (this.displayMode == 'mesh') {
+    } else if (this._displayMode == 'mesh') {
       if (this._footprint) {
         this._footprint.hide();
       }
       if (this._mesh) {
+        console.debug('trying to show mesh');
         this._visible = this._mesh.show();
       }
     }
