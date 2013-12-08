@@ -3,7 +3,8 @@
  */
 define([
 ], function () {
-
+  "use strict";
+  
   /**
    * A utility class containing static functions for managing the child
    * elements on a DOM node.
@@ -22,7 +23,7 @@ define([
         return [];
       }
       var children = [];
-      children.append(element.firstElementChild);
+      children.push(element.firstElementChild);
       var sibling = children[0];
       while ((sibling = sibling.nextElementSibling) !== null) {
         children.push(sibling);

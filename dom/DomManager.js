@@ -1,8 +1,10 @@
 define([
   'atlas/util/DeveloperError',
+  'atlas/util/default',
   'atlas/util/dom/DomClass',
   'atlas/util/dom/DomChild'
-], function(DeveloperError, DomClass, DomChild) {
+], function(DeveloperError, defaultValue, DomClass, DomChild) {
+  "use strict";
 
   /**
    * Object to manage the DOM node that Atlas is render into
@@ -10,11 +12,12 @@ define([
    * @version 1.0
    *
    * @param {Object} atlasManagers - A mapping of every manager type in Atlas to the manager instance.
+   * @param {String} [domId] - The ID of the DOM element to attach Atlas to.
    *
    * @alias atlas/dom/DomManager
    * @constructor
    */
-  var DomManager = function (/*Object*/ atlasManagers) {
+  var DomManager = function (/*Object*/ atlasManagers, /*String*/ domId) {
 
     /**
      * A mapping of every manager type in Atlas to the manager instance. This
@@ -23,40 +26,51 @@ define([
      * @type {Object}
      */
     this._atlasManagers = atlasManagers;
-    this._atlasManagers.dom = this; 
+    this._atlasManagers.dom = this;
 
-    this._currentNode = null;
+    this._currentDomId = defaultValue(domId, "");
     this._rendered = false;
     this._visible = false;
+
+    if (this._currentDomId !== "") {
+      this.setDom(this._currentDomId, true);
+    }
   };
 
   /**
    * Function to change which DOM node Atlas is rendered into. Atlas will always
    * be moved to the new location. The 'show' parameter determines whether it is
    * displayed immediately in this new location.
-   * @param  {HTMLElement} newElem     The new DOM element to render into.
-   * @param  {Boolean}     [show=true] Whether the object should be rendered.
+   * If Atlas is currently displayed changing the DOM automatically causes
+   * it to be re-rendered in the new DOM element.
+   *
+   * @param  {String}  newDomId - The new DOM element to render into.
+   * @param  {Boolean} [show=true] - Whether the object should be rendered.
    */
-  DomManager.prototype.setDom = function (newElem, show) {
-    var showNow = (show || true);
-    var childDom;
+  DomManager.prototype.setDom = function (newDomId, show) {
+    var showNow = defaultValue(show, true);
+    var childDomNode;
+    var newDomNode = document.getElementById(newDomId);
+    var curDomNode;
     // Move existing DOM
-    if (this._currentNode !== null) {
+    if (this._currentDomId !== null) {
+      // Always show if Atlas is being moved.
       showNow = true;
-      childDom = ChildDom.getChildren(this._currentNode);
-      DomChild.appendChildren(newElem, childDom);
+      curDomNode = document.getElementById(this._currentDomId);
+      childDomNode = DomChild.getChildren(curDomNode);
+      DomChild.addChildren(newDomId, childDomNode);
     }
-    this._currentNode = newElem;
+    this._currentDomId = newDomId;
     // Show in new location if required
     if (showNow) {
-      DomClass.remove(this._currentNode, "hidden");
+      DomClass.remove(curDomNode, "hidden");
       this._visible = true;
     } else {
-      DomClass.add(this._currentNode, "hidden");
+      DomClass.add(curDomNode, "hidden");
       this._visible = false;
     }
-
-    this.populateDom(this._currentNode);
+    // Cause the set DOM element to be populated with the Atlas visualisation.
+    this.populateDom(this._currentDomId);
   };
 
   /**
@@ -65,7 +79,7 @@ define([
    *
    * @abstract
    */
-  DomManager.prototype.populateDom = function () {
+  DomManager.prototype.populateDom = function (/*string*/id) {
     throw new DeveloperError('Can not call abstract method atlas/dom/DomManager.populateDom');
   };
 
@@ -74,8 +88,9 @@ define([
    */
   DomManager.prototype.show = function () {
     if (!this._visible) {
-      DomClass.remove(this.currentNode, "hidden");
-      this._visible = false;
+      var domNode = document.getElementById(this._currentDomId);
+      DomClass.remove(domNode, "hidden");
+      this._visible = true;
     }
   };
 
@@ -83,9 +98,10 @@ define([
    * Hide the DOM element that Atlas is rendered in.
    */
   DomManager.prototype.hide = function () {
-    if (!this._visible) {
-      DomClass.add(this.currentNode, "hidden");
-      this._visible = true;
+    if (this._visible) {
+      var domNode = document.getElementById(this._currentDomId);
+      DomClass.add(domNode, "hidden");
+      this._visible = false;
     }
   };
 
@@ -93,7 +109,7 @@ define([
    * Toggles the visiblity of the DOM element Atlas is rendering in.
    */
   DomManager.prototype.toggleVisibility = function () {
-    if (this.visible) {
+    if (this._visible) {
       this.hide();
     } else {
       this.show();
