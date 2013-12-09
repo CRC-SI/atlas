@@ -55,12 +55,11 @@ define([
 
   /**
    * Function to initialise the Atlas instance.
-   * @param {HTMLElement} element The initial DOM element to render in.
+   * @param {string} domId The ID of the DOM element to attach to.
    */
-  Atlas.prototype.initialise = function (element) {
-    console.log(this._managers);
-    this._managers.dom.setDom(element);
-    this._managers.dom.populateDom(element);
+  Atlas.prototype.initialise = function (domId) {
+    this._managers.dom.setDom(domId);
+    this._managers.dom.populateDom(domId);
   };
 
   /**

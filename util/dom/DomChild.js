@@ -19,7 +19,7 @@ define([
      * @return {HTMLElement[]}       A list of all child nodes.
      */
     getChildren: function (element) {
-      if (!element.hasChildNodes()) {
+      if (!element || !element.hasChildNodes()) {
         return [];
       }
       var children = [];

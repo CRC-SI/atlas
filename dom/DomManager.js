@@ -49,24 +49,23 @@ define([
    */
   DomManager.prototype.setDom = function (newDomId, show) {
     var showNow = defaultValue(show, true);
-    var childDomNode;
     var newDomNode = document.getElementById(newDomId);
-    var curDomNode;
-    // Move existing DOM
-    if (this._currentDomId !== null) {
-      // Always show if Atlas is being moved.
+
+    // Move existing DOM if there is one.
+    if (this._currentDomId !== null || this._currentDomId !== "") {
+      // Always show in the new position if Atlas is being moved.
       showNow = true;
-      curDomNode = document.getElementById(this._currentDomId);
-      childDomNode = DomChild.getChildren(curDomNode);
-      DomChild.addChildren(newDomId, childDomNode);
+      var curDomNode = document.getElementById(this._currentDomId);
+      var childDomNode = DomChild.getChildren(curDomNode);
+      DomChild.addChildren(newDomNode, childDomNode);
     }
     this._currentDomId = newDomId;
     // Show in new location if required
     if (showNow) {
-      DomClass.remove(curDomNode, "hidden");
+      DomClass.remove(newDomNode, "hidden");
       this._visible = true;
     } else {
-      DomClass.add(curDomNode, "hidden");
+      DomClass.add(newDomNode, "hidden");
       this._visible = false;
     }
     // Cause the set DOM element to be populated with the Atlas visualisation.
