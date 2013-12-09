@@ -53,7 +53,7 @@ define([
 
     // Move existing DOM if there is one.
     console.debug('setting DOM with current ID', this._currentDomId, 'to', newDomId);
-    if (this._currentDomId !== null || this._currentDomId !== "") {
+    if (this._currentDomId !== null) {
       // Always show in the new position if Atlas is being moved.
       showNow = true;
       console.debug('moving atlas from', this._currentDomId, 'to', newDomId);
