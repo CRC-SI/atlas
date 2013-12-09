@@ -149,7 +149,9 @@ define([
       }(this, eventSource, this._nextHandlerId)
     };
     this._nextHandlerId++;
+    // Add eventType of handlers dictionary if it doesn't exist.
     if (!(eventType in allHandlers)) { allHandlers[eventType] = []; }
+    // Add the handler for the event type.
     allHandlers[eventType].push(newHandler); //= {id: this._nextHandlerId, cb: callback};
     return newHandler;
   };
@@ -179,7 +181,6 @@ define([
   EventManager.prototype._handleEvent = function (/*string*/ eventSource, /*string*/ eventType, /*Object*/ args) {
     // TODO(bpstudds): Need to complete documentation.
     // Retrieve either intern or extern event handlers.
-    console.debug('Handling', eventSource, eventType);
     var allHandlers;
     if (eventSource == 'extern') {
       allHandlers = this._externalEvent_Handlers;
@@ -190,9 +191,8 @@ define([
     }
     // Retrieve the list of event handlers for the given event type. 
     var handlers = allHandlers[eventType];
-    console.debug('   the handlers are', allHandlers);
     if (handlers !== undefined) {
-      for (var i in handlers) {
+      for (var i = 0; i < handlers.length; i++) {
         handlers[i].callback(eventType, args);
       }
     }

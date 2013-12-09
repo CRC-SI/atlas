@@ -124,7 +124,6 @@ define([
         this._mesh.hide();
       }
       if (this._footprint) {
-        console.debug('trying to show footprint');
         this._visible = this._footprint.show();
       }
     } else if (this._displayMode == 'extrusion') {
@@ -132,7 +131,6 @@ define([
         this._mesh.hide();
       }
       if (this._footprint) {
-        console.debug('trying to show extrusion');
         this._visible = this._footprint.show(this._height);
       }
     } else if (this._displayMode == 'mesh') {
@@ -140,7 +138,6 @@ define([
         this._footprint.hide();
       }
       if (this._mesh) {
-        console.debug('trying to show mesh');
         this._visible = this._mesh.show();
       }
     }

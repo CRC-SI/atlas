@@ -66,7 +66,6 @@ define([
     if (!this._isEntity(entity)) {
       throw new DeveloperError('Can only add subclass of GeoEntity');
     } else {
-      console.log('adding entity', entity._id);
       this._entities[entity._id] = entity;
     }
   };
