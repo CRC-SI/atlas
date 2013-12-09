@@ -33,18 +33,18 @@ define([
      * The 2d {@link Polygon} footprint of this Feature.
      * @type {Polygon}
      */
-    this._footprint = {};
+    this._footprint = null;
     if (args.vertices !== 'undefined') {
-      this._footprint = new Polygon(id + 'p', args.vertices, args);
+      this._footprint = new Polygon(id + 'polygon', args.vertices, args);
     }
 
     /**
      * 3D {@link Mesh} of this Feature.
      * @type {Mesh}
      */
-    this._mesh = {};
+    this._mesh = null;
     if (args.mesh === 'undefined') {
-      this._mesh = new Mesh(id + 'p', args.mesh, args);
+      this._mesh = new Mesh(id + 'mesh', args.mesh, args);
     }
 
     /**
@@ -159,5 +159,24 @@ define([
       this._mesh.hide();
     }
   };
+
+
+  /**
+   * Clean up the Feature so it can be deleted permanently.
+   */
+  Feature.prototype.remove = function () {
+    // Remove mesh and footprint.
+    if (this._mesh !== null) {
+      console.debug('attempting to remove mesh', this._mesh);
+      this._mesh.remove();
+      this._mesh = {};
+    }
+    if (this._footprint !== null) {
+      console.debug('attempting to remove footprint', this._footprint);
+      this._footprint.remove();
+      this._footprint = {};
+    }
+  };
+
   return Feature;
 });

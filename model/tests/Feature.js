@@ -10,6 +10,33 @@ define([
   var id;
   var args;
 
+  var mockShowHide = function () {
+    // Mock Mesh show/hide.
+    feature._mesh = {};
+    feature._mesh.show = function () {
+      this._shownMesh = true;
+    };
+    feature._mesh.hide = function () {
+      this._shownMesh = false;
+    };
+    // Mock polygon show/hide.
+    feature._footprint = {};
+    feature._footprint.show = function (h) {
+      if (h === undefined) {
+        this._shownFootprint = true;
+      } else {
+        this._shownExtrusion = true;
+      }
+    };
+    feature._footprint.hide = function (h) {
+      if (h === undefined) {
+        this._shownFootprint = false;
+      } else {
+        this._shownExtrusion = false;
+      }
+    };
+  };
+
   new TestCase({
     name: 'atlas/model/tests/Feature',
 
@@ -55,26 +82,7 @@ define([
     },
 
     testShowFootprint: function () {
-      feature._mesh.show = function () {
-        this._shownMesh = true;
-      };
-      feature._mesh.hide = function () {
-        this._shownMesh = false;
-      };
-      feature._footprint.show = function (h) {
-        if (h === undefined) {
-          this._shownFootprint = true;
-        } else {
-          this._shownExtrusion = true;
-        }
-      };
-      feature._footprint.hide = function (h) {
-        if (h === undefined) {
-          this._shownFootprint = false;
-        } else {
-          this._shownExtrusion = false;
-        }
-      };
+      mockShowHide();
       feature.showAsFootprint();
       doh.assertTrue(feature._footprint._shownFootprint);
       doh.assertTrue(!feature._footprint._shownExtrusion);
@@ -82,26 +90,7 @@ define([
     },
 
     testShowExtrusion: function () {
-      feature._mesh.show = function () {
-        this._shownMesh = true;
-      };
-      feature._mesh.hide = function () {
-        this._shownMesh = false;
-      };
-      feature._footprint.show = function (h) {
-        if (h === undefined) {
-          this._shownFootprint = true;
-        } else {
-          this._shownExtrusion = true;
-        }
-      };
-      feature._footprint.hide = function (h) {
-        if (h === undefined) {
-          this._shownFootprint = false;
-        } else {
-          this._shownExtrusion = false;
-        }
-      };
+      mockShowHide();
       feature.showAsExtrusion();
       doh.assertTrue(!feature._footprint._shownFootprint);
       doh.assertTrue(feature._footprint._shownExtrusion);
@@ -109,26 +98,7 @@ define([
     },
 
     testShowMesh: function () {
-      feature._mesh.show = function () {
-        this._shownMesh = true;
-      };
-      feature._mesh.hide = function () {
-        this._shownMesh = false;
-      };
-      feature._footprint.show = function (h) {
-        if (h === undefined) {
-          this._shownFootprint = true;
-        } else {
-          this._shownExtrusion = true;
-        }
-      };
-      feature._footprint.hide = function (h) {
-        if (h === undefined) {
-          this._shownFootprint = false;
-        } else {
-          this._shownExtrusion = false;
-        }
-      };
+      mockShowHide();
       feature.showAsMesh();
       doh.assertTrue(!feature._footprint._shownFootprint);
       doh.assertTrue(!feature._footprint._shownExtrusion);
