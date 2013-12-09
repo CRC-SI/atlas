@@ -16,7 +16,6 @@ define([
     // _atlasManagers: Object
     //      Contains a map of manager types to manager objects. This object
     //      exists on Atlas.
-    console.debug(atlasManagers);
     this._atlasManagers = atlasManagers;
     this._atlasManagers.event = this;
 

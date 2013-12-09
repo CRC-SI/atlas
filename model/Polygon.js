@@ -1,5 +1,6 @@
 define([
   'atlas/util/Extends',
+  'atlas/util/DeveloperError',
   'atlas/util/default',
   'atlas/util/WKT',
   './Vertex',
@@ -7,7 +8,7 @@ define([
   './Material',
   // Base class
   './GeoEntity'
-], function (extend, defaultValue, WKT, Vertex, Style, Material, GeoEntity) {
+], function (extend, DeveloperError, defaultValue, WKT, Vertex, Style, Material, GeoEntity) {
   "use strict";
 
   /**
@@ -205,11 +206,11 @@ define([
   };
 
   /**
-   * Function to remove the polygon from the scene (vs. hiding it).
+   * Function to permanently remove the polygon from the scene 
+   * (vs. hiding it).
    * @abstract
    */
   Polygon.prototype.remove = function() {
-    throw new DeveloperError('Can not call methods on abstract Polygon.');
   };
 
   /**

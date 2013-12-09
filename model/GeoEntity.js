@@ -27,6 +27,14 @@ define([
    * @constructor
    */
   var GeoEntity = function (id, args) {
+    // Check that an id has been provided.
+    if (typeof id === 'object') {
+      args = id;
+      id = args.id;
+    } 
+    if (id === undefined || typeof id === 'object') {
+      throw new DeveloperError('Can not create instance of GeoEntity without an ID');
+    }
     /* Extend from EventTarget */
     GeoEntity.base.constructor.call(this, args);
     this.initEventTarget(args.eventManager, args.parent);
@@ -130,6 +138,13 @@ define([
     }
   };
 
+  /**
+   * Function to remove the GeoEntity from rendering. This function should
+   * be overridden on subclasses to accomplish any cleanup that 
+   * may be required.
+   */
+  GeoEntity.prototype.remove = function () {
+  };
 
   /**
    * Shows the GeoEntity in the current scene.
@@ -163,7 +178,6 @@ define([
    * @return {Object} The geometry data.
    */
   GeoEntity.prototype.getGeometry = function() {
-    if (this.isRenderable())
       return this._geometry;
   };
 
@@ -174,7 +188,6 @@ define([
    * @return {Object} The appearance data.
    */
   GeoEntity.prototype.getAppearance = function() {
-    if (this.isRenderable())
       return this._appearance;
   };
 
