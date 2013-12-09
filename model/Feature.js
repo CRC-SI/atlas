@@ -118,8 +118,7 @@ define([
    * Show this feature.
    */
   Feature.prototype.show = function() {
-    console.debug('trying to show feature', this._displayMode);
-    console.debug('   footprint', this._footprint);
+    console.debug('trying to show feature', this._id, 'as', this._displayMode);
     if (this._displayMode == 'footprint') {
       if (this._mesh) {
         this._mesh.hide();

@@ -200,12 +200,12 @@ define([
 
   EventManager.prototype.handleInternalEvent = function (/*string*/ type, /*Object*/ args) {
     // TODO(bpstudds): Need to complete documentation.
-    return this._handleEvent('intern', type, args);
+    this._handleEvent('intern', type, args);
   };
 
   EventManager.prototype.handleExternalEvent = function (/*Event*/ type, /*Object*/ args) {
     // TODO(bpstudds): Need to complete documentation.
-    return this._handleEvent('extern', type, args);
+    this._handleEvent('extern', type, args);
   };
 
   return EventManager;
