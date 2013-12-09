@@ -28,11 +28,11 @@ define([
     this._atlasManagers = atlasManagers;
     this._atlasManagers.dom = this;
 
-    this._currentDomId = defaultValue(domId, "");
+    this._currentDomId = defaultValue(domId, null);
     this._rendered = false;
     this._visible = false;
 
-    if (this._currentDomId !== "") {
+    if (this._currentDomId !== null) {
       this.setDom(this._currentDomId, true);
     }
   };
@@ -52,9 +52,11 @@ define([
     var newDomNode = document.getElementById(newDomId);
 
     // Move existing DOM if there is one.
+    console.debug('setting DOM with current ID', this._currentDomId, 'to', newDomId);
     if (this._currentDomId !== null || this._currentDomId !== "") {
       // Always show in the new position if Atlas is being moved.
       showNow = true;
+      console.debug('moving atlas from', this._currentDomId, 'to', newDomId);
       var curDomNode = document.getElementById(this._currentDomId);
       var childDomNode = DomChild.getChildren(curDomNode);
       DomChild.addChildren(newDomNode, childDomNode);
