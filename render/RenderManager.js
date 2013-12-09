@@ -1,7 +1,9 @@
 define([
   'atlas/util/DeveloperError',
+  'atlas/model/Feature',
   'atlas/model/GeoEntity'
-], function (DeveloperError, GeoEntity) {
+], function (DeveloperError, Feature, GeoEntity) {
+  "use strict";
 
   /**
    * The RenderManager manages what is render and how it is rendered. The
@@ -36,9 +38,15 @@ define([
     this._entities = {};
   };
 
-  RenderManager.prototype._addFeature = function (id, args) {
+  RenderManager.prototype.addFeature = function (id, args) {
+    if (typeof id === 'object') {
+      args = id;
+      id = args.id;
+    }
     if (typeof id === 'undefined') {
-      throw new DeveloperError('Can add Feature without specifying id');
+      throw new DeveloperError('Can not add Feature without specifying id');
+    } else if (id in this._entities) {
+      throw new DeveloperError('Can not add Feature with a duplicate ID');
     } else {
       // Add EventManger to the args for the feature.
       args.eventManager = this._atlasManagers.event;
@@ -68,7 +76,9 @@ define([
    * @param {Number} id The ID of the GeoEntity to remove.
    */
   RenderManager.prototype.removeEntity = function (id) {
-    if (this.entities[id] !== undefined) {
+    if (this._entities[id] !== undefined) {
+      console.log('removing entity', this._entities[id]);
+      this._entities[id].remove();
       delete this._entities[id];
     }
   };

@@ -1,9 +1,15 @@
 define([
   'doh/runner',
   'dam/TestCase',
+  'atlas/model/Feature',
   /* Code under test */
   '../RenderManager',
-], function (doh, TestCase, RenderManager) {
+], function (doh, TestCase, Feature, RenderManager) {
+  "use strict";
+
+  var atlasManagers;
+  var renderManager;
+  var args;
 
   /* Begin test case definitions */
   new TestCase({
@@ -17,52 +23,73 @@ define([
         render: {},
         event: {}
       };
-      renderManager = new RenderManager();
+      renderManager = new RenderManager(atlasManagers);
+      args = {
+        renderManager: renderManager,
+        eventManager: atlasManagers.event
+      };
     },
 
     tearDown: function () {
       renderManager = {};
-      var atlasManagers = {
+      atlasManagers = {
         dom: {},
-        event: {},
+        event: {
+          test: "test"
+        },
         render: {}
       };
     },
 
-    testHideTerrain: function() {
-      // summary:
+    testCreate: function () {
+      doh.assertTrue(renderManager instanceof RenderManager);
+      doh.assertEqual(atlasManagers.render, renderManager);
+      doh.assertEqual({}, renderManager._entities);
     },
 
-    testSetTerrain: function() {
-      // summary:
+    testAddFeature: function () {
+
+      var feature = new Feature(0, args);
+      renderManager.addFeature(0, args);
+      doh.assertTrue(renderManager._entities[0] instanceof Feature);
+      doh.assertEqual(renderManager, renderManager._entities[0]._renderManager);
+      doh.assertEqual(atlasManagers.event, renderManager._entities[0]._eventManager);
     },
 
-    testHide: function() {
-      // summary:
+    testAddFeatureObjId: function () {
+      args.id = 'blah';
+      console.log(args);
+      renderManager.addFeature(args); 
+      doh.assertTrue(renderManager._entities[args.id] instanceof Feature);
+      doh.assertEqual(renderManager, renderManager._entities[args.id]._renderManager);
+      doh.assertEqual(atlasManagers.event, renderManager._entities[args.id]._eventManager);
     },
 
-    testShow: function() {
-      // summary:
+    testAddFeatureNoId: function () {
+      var exception = "";
+      try {
+        renderManager.addFeature(args); 
+      } catch (e) {
+        var exception = e;
+      }
+      doh.assertNotEqual("", exception);
     },
 
-    testShowTerrain: function() {
-      // summary:
+    testRemoveEntity: function () {
+      renderManager.addFeature(0, args);
+      console.log(renderManager);
+      renderManager.removeEntity(0);
+      doh.assertEqual(undefined, renderManager._entities[0]);
     },
 
-    testRemove: function() {
-      // summary:
-    },
-
-    testSetMapImagery: function() {
-      // summary:
-    },
-
-    testAdd: function() {
-      // summary:
-    },
-
-    test_isEntity: function() {
-      // summary:
+    testAddFeatureObjNoId: function () {
+      var exception = "";
+      try {
+        renderManager.addFeature({}); 
+      } catch (e) {
+        var exception = e;
+      }
+      doh.assertNotEqual("", exception);
     }
   }).register(doh);
 });
