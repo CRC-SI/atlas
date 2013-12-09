@@ -191,7 +191,7 @@ define([
     // Retrieve the list of event handlers for the given event type. 
     var handlers = allHandlers[eventType];
     console.debug('   the handlers are', allHandlers);
-    if (typeof handlers !== 'undefined') {
+    if (handlers !== undefined) {
       for (var i in handlers) {
         handlers[i].callback(eventType, args);
       }

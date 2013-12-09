@@ -43,7 +43,7 @@ define([
       args = id;
       id = args.id;
     }
-    if (typeof id === 'undefined') {
+    if (id === undefined) {
       throw new DeveloperError('Can not add Feature without specifying id');
     } else if (id in this._entities) {
       throw new DeveloperError('Can not add Feature with a duplicate ID');

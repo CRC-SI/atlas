@@ -1,6 +1,7 @@
 define([
+  'atlas/util/default',
   './EventManager'
-], function (EventManager) {
+], function (defaultValue, EventManager) {
   "use strict";
 
   // summary:
@@ -10,11 +11,11 @@ define([
 
     // _eventManager: Object
     //      The global EventManager for this EventTarget.
-    this._eventManager = typeof em !== 'undefined' ? em : null;
+    this._eventManager = defaultValue(em, null);
 
     // parent: EventTarget
     //      The parent object of this EventTarget.
-    this.parent = typeof parent !== 'undefined' ? parent : null;
+    this.parent = defaultValue(parent, null);
 
     // _eventHandlers: Object
     //      Maps an EventListenerID to a tuple containing the Event type and 

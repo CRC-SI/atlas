@@ -97,7 +97,7 @@ define([
   };
 
   Atlas.prototype.addFeature = function (id, args) {
-    if (typeof id === 'undefined') {
+    if (id === undefined) {
       throw new DeveloperError('Can add Feature without specifying id');
     } else {
       // Add EventManger to the args for the feature.

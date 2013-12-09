@@ -7,7 +7,7 @@ define([
   //      encapsulates the information relevant to the event that occurred
 
   Event = function(/*EventTarget*/ target, /*String*/ type, /*Object?*/ args) {
-    if (typeof target === 'undefined' || typeof type === 'undefined') {
+    if (target === undefined || type === undefined) {
       throw new DeveloperError('Can not create Event: Event must have both target and type.');
     }
     // target: Entity

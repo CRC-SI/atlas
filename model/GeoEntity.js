@@ -131,7 +131,7 @@ define([
   };
 
   GeoEntity.prototype.setRenderable = function (render) {
-    if (typeof render !== 'undefined') {
+    if (render !== undefined) {
       this._renderable = render;
     } else {
       this._renderable = true;

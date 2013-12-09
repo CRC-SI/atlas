@@ -1,7 +1,7 @@
 define([
 ], function () {
   return function(a, b) {
-    if (typeof a !== 'undefined') {
+    if (a !== undefined) {
       return a;
     } else {
       return b;
