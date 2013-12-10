@@ -109,6 +109,19 @@ define([
     delete this._hosts[id];
   };
 
+  EventManager.prototype.addEventHandlers = function (/*object*/ handlers) {
+    // summary:
+    //      Allows for adding an array of EventHandlers.
+    // handlers: [Object]
+    //      An array of Objects describing the handlers to be added. The
+    //      objects should have 'type', 'name' and 'callback' as properties.
+    //      These correspond to the arguments for addEventHandler().
+    handlers.forEach( function (handler) {
+      console.log(handler);
+      this.addEventHandler(handler.type, handler.name, handler.callback);
+    }, this);
+  };
+
   EventManager.prototype.addEventHandler = function (/*string*/ eventSource, /*string*/ eventType, /*function*/ callback) {
     // summary:
     //      Allows for event handlers to be added for an Event. Events can be 
