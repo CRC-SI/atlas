@@ -12,30 +12,33 @@ define([
   "use strict";
 
   /**
-   * Constructs a new Polygon object. A Polygon represents a 2d polygon that can be
-   * rendered within a Atlas scene. Polygons are constructed from a series of Vertices
-   * specified in a clockwise order. A {@link Material} and {@link Style} can also be
-   * defined when constructing a Polygon.
+   * Constructs a new Polygon object. 
+   * @class  A Polygon represents a 2D polygon that can be rendered within an 
+   * Atlas scene. Polygons are constructed from a series of Vertices specified 
+   * in a counter-clockwise order. A {@link atlas/model/Material|Material} 
+   * and {@link atlas/model/Style|Style} can also be defined when 
+   * constructing a Polygon.
    *
    * @param {Number} id - The ID of this Polygon.
-   * @param {Array.<atlas/model/Vertex>} [vertices=[]] - The vertices of the Polygon.
+   * @param {string|Array.<atlas/model/Vertex>} [vertices=[]] - The vertices of the Polygon.
    * @param {Object} [args] - Option arguments describing the Polygon.
    * @param {atlas/model/GeoEntity} [args.parent=null] - The parent entity of the Polygon.
    * @param {Number} [args.height=0] - The extruded height of the Polygon to form a prism.
    * @param {Number} [args.elevation] - The elevation of the base of the Polygon (or prism).
    * @param {atlas/model/Style} [args.style=defaultStyle] - The Style to apply to the Polygon.
    * @param {atlas/model/Material} [args.material=defeaultMaterial] - The Material to apply to the polygon.
+   * @returns {atlas/model/Polygon}
    *
    * @extends {atlas/model/GeoEntity}
    * @alias atlas/model/Polygon
    * @constructor
    */
-   var Polygon = function(/*Number*/ id, /*Vertex[]*/ vertices, /*Object*/ args) {
+   var Polygon = function(/*Number*/ id, vertices, /*Object*/ args) {
     args = defaultValue(args, {});
     Polygon.base.constructor.call(this, id, args);
 
     /**
-     * Ordered array of vertices constructing polygon.
+     * Counter-clockwise ordered array of vertices constructing polygon.
      * @private
      * @type {Array.<atlas/model/Vertex>}
      */
@@ -74,7 +77,7 @@ define([
     this._material = defaultValue(args.material, Material.DEFAULT);
 
     /**
-     * Whether the Polygon is visible in the scene.
+     * Whether the polygon is visible in the scene.
      * @private
      * @type {Boolean}
      */
@@ -98,19 +101,7 @@ define([
   extend(GeoEntity, Polygon);
 
   /**
-   * Generate a new Polygon from a Well Known Text polygon string.
-   * @param  {Number} id - The ID of the Polygon
-   * @param  {String} wkt - The WKT string of the Polygon
-   * @param  {Object} [args] - Option arguments describing the Polygon as per the default constructor.
-   * @return {atlas/model/Polygon} - The new Polygon object.
-   */
-  // Polygon.fromWKT = function (id, wkt, args) {
-  //   var vertices = WKT.wktToVertices(wkt);
-  //   return new Polygon(id, vertices, args);
-  // };
-
-  /**
-   * Add a vertex to the polygon.
+   * Adds a vertex to the polygon end of the list of vertices describing the polygon.
    * @param {Vertex} vertex - vertex to add to the polygon.
    * @return {Number} The index at which the vertex was added.
    */
@@ -126,14 +117,15 @@ define([
   };
 
   /**
-   * Inserts a vertex at particular index of the polygon. If the index is larger than the number
-   * of vertices in the polygon, it is appended to the polygons vertices.
+   * Inserts a vertex at particular index of the polygon. If the index is larger 
+   * than the number of vertices in the polygon, it is appended to the 
+   * polygons vertices as per {@link atlas/model/Polygon#addVertex|addVertex}.
    * The last element of _vertices is reserved for a duplicate of the first vertex.
-   * @param  {number} index  The index to insert at.
-   * @param  {Vertex} vertex The vertex to be added. '-1' to insert at the end
-   * @return {Number}        The index at which vertex was inserted.
+   * @param {number} index - The index to insert at.
+   * @param {Vertex} vertex - The vertex to be added. '-1' to insert at the end
+   * @return {Number} The index at which vertex was inserted.
    */
-  Polygon.prototype.insertVertex = function(/*int*/ index, /*Vertex*/ vertex) {
+  Polygon.prototype.insertVertex = function(/*Number*/ index, /*Vertex*/ vertex) {
     var insertAt = index;
     if (index < -1) {
       insertAt = 0;
@@ -152,10 +144,10 @@ define([
 
   /**
    * Removes a vertex from the Polygon.
-   * @param  {Number} index The index of the vertex to remove. '-1' for the last vertex.
+   * @param {Number} index - The index of the vertex to remove. '-1' for the last vertex.
    * @return {Vertex} The vertex removed.
    */
-  Polygon.prototype.removeVertex = function(/*int*/ index) {
+  Polygon.prototype.removeVertex = function(/*Number*/ index) {
     if (index == -1) {
       index = this._vertices.lenght -1;
     }
@@ -235,7 +227,7 @@ define([
   };
 
   /**
-   * Gets the centroid of the Polygon. Assumes that the polygon is 2d surface, ie. Vertex.z is
+   * Gets the centroid of the Polygon. Assumes that the polygon is 2D surface, ie. Vertex.z is
    * constant across the polygon.
    * @return {Vertex} The Polygon's centroid.
    * @see {@link http://stackoverflow.com/questions/9692448/how-can-you-find-the-centroid-of-a-concave-irregular-polygon-in-javascript/9939071#9939071}

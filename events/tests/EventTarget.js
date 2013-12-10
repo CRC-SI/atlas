@@ -20,8 +20,7 @@ define([
   new TestCase({
     name: 'events/tests/EventTarget',
     setUp: function () {
-      // summary:
-      //      Create an EventTarget hierarchy to test and 2 events to test with.
+      // Create an EventTarget hierarchy to test and 2 events to test with.
       child = new EventTarget();
       parent = new EventTarget();
       grandparent = new EventTarget();
@@ -34,8 +33,7 @@ define([
     },
 
     tearDown: function() {
-      // summary:
-      //      Destroy the created EventTargets and Events.
+      // Destroy the created EventTargets and Events.
       child = null;
       parent = null;
       grandparent = null;

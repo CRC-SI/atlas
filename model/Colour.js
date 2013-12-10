@@ -5,7 +5,7 @@ define([
   /**
    * Constructs a colour specified by red, green, blue and alpha
    * intensity values. The intensities can vary from <code>0.0</code> 
-   * (minimum intensity) to <code>1.0</code> (max intensity).
+   * (minimum intensity) to <code>1.0</code> (maximum intensity).
    * 
    * @param {Number} [r=0.0] Red component.
    * @param {Number} [g=0.0] Green component

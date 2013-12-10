@@ -45,7 +45,7 @@ define([
       //      Create a Feature object.
       id = 12354;
       args = {
-        vertices: "POLYGON ((1 2, 3 4, 5 6, 7 8))",
+        footprint: "POLYGON ((1 2, 3 4, 5 6, 7 8))",
         renderManager: {},
         eventManager: {},
         show: true,

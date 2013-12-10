@@ -5,8 +5,13 @@ define([
   "use strict";
 
   /**
-   * A Style object defines the colour and opacity of a polygon's
+   * Constructs a new Style object.
+   * @class A Style object defines the colour and opacity of a polygon's
    * fill and border.
+   *
+   * @param {atlas/model/Colour} [fillColour] - The fill colour for the polygon.
+   * @param {atlas/model/Colour} [borderColour] - The border colour for the polygon.
+   * @param {Number} [borderWidth=1] - The borderwidth for the polygon in pixels.
    *
    * @alias atlas/model/Style
    * @constructor
@@ -16,7 +21,7 @@ define([
      * Fill colour of this Style.
      * @type {Colour}
      */
-    this.fillColour = (fillColour || Colour.GREEN);
+    this.fillColour = fillColour || Colour.GREEN;
 
     /**
      * Fill opacity of this Style.
@@ -28,7 +33,7 @@ define([
      * Border colour of this Style.
      * @type {Colour}
      */
-    this.borderColour = (fillColour || Colour.GREEN);
+    this.borderColour = fillColour || Colour.GREEN;
 
     /**
      * Border opacity of this Style.
@@ -37,10 +42,10 @@ define([
     // this.borderOpacity = 1.0;
 
     /**
-     * Border width of this Style.
+     * Border width in pixels of this Style.
      * @type {Number}
      */
-    this.borderWidth = (borderWidth || 1.0);
+    this.borderWidth = borderWidth || 1.0;
   };
 
   Style.DEFAULT = new Style(Colour.GREEN, Colour.GREEN, 1);

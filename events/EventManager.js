@@ -3,50 +3,63 @@ define([
 ], function (DeveloperError) {
   "use strict";
 
-  // summary:
-  //      EventManager is a responsible for bubbling internal
-  //      events up through the internal event hierarchy, as well as out 
-  //      to the host application.
-  // atlasManagers: Object
-  //      A map of manager types to actual manager objects. The map is maintained
-  //      on the main Atlas facade object, but the instances are created by
-  //      each manager object upon creation.
-  var EventManager = function(atlasManagers) {
+  /**
+   * Constructs a new EventManager object.
+   * @class EventManager is responsible for bubbling internal events up through the
+   * internal event hierarchy, as well as out to the host application.
+   *
+   *
+   * @param {Object} atlasManagers - A map of manager types to actual manager objects. 
+   *       The map is maintained on the main Atlas facade object, but the instances 
+   *       are created by each manager object upon creation.
+   *
+   * @alias atlas/events/EventManager
+   * @constructor
+   */
+  var EventManager = function (atlasManagers) {
 
-    // _atlasManagers: Object
-    //      Contains a map of manager types to manager objects. This object
-    //      exists on Atlas.
+    /**
+     * Contains a map of manager types to manager objects. This object exists
+     * on the central Atlas instance.
+     * @type {Object}
+     */
     this._atlasManagers = atlasManagers;
     this._atlasManagers.event = this;
 
-    // _hosts: Object
-    //      Mapping of a listener object id to the host application callback
-    //      Hosts registered here receive every event that occurs.
+    /**
+     * Mapping of listener object IDs to the host application callback. Hosts 
+     * registered in this map receive every event that occurs (that is not cancelled).
+     * @type {Object}
+     */
     this._hosts = {};
 
-    // _externalEvent_Handlers: Object
-    //      Mapping of external events to a list of callback functions handling
-    //      the external event.
-    //      handling that EventType.
+    /**
+     * Mapping of extern event names to a list of callback functions handling
+     * the extern event.
+     * @type {Object}
+     */
     this._externalEvent_Handlers = {};
 
 
-    // _internalEvent_Handlers: Object
-    //      Mapping of internal events to a list of callback functions 
-    //      handling that event type. This callback functions may be internal
-    //      or external to Atlas.
+    /**
+     * Mapping of internal event names to a list of callback functions handling
+     * that event type. These callbacks may be internal or external to Atlas.
+     * @type {Object}
+     */
     this._internalEvent_Handlers = {};
 
-    // _nextHandlerId: Integer
-    //        Counter to determine ID of next handler to register.
+    /**
+     * Counter to determine the ID of the next handler that is registered.
+     * @type {Number}
+     */
     this._nextHandlerId = 0;
   };
 
+  /**
+   * Bubbles the given Event through the its <code>target</code> Entity heirarchy.
+   * @param {atlas/events/Event} event - The Event to be propagated.
+   */
   EventManager.prototype.dispatchEvent = function (/*Event*/ event) {
-    // summary:
-    //      Bubble the given event through the EventTarget's Entity heirachy.
-    // event: Event
-    //      Event to be propagated.
     var nextEvent;
     var parent;
     while (event.target !== null) {
@@ -63,90 +76,85 @@ define([
     }
     if (!event.cancelHost) {
       // Propagate the event to the host application.
+      console.debug('in EventManager', 'propagating event to hosts', this._hosts);
       for (var h in this._hosts) {
         if (this._hosts.hasOwnProperty(h)) {
           this._hosts[h].callback(event);
         }
       }
       // 'Publish' the event to any handlers.
+      console.debug('in EventManager', 'publishing event to handlers');
       this.handleInternalEvent(event.type, event.args);
     }
   };
 
-  EventManager.prototype.registerHost = function (context, callback) {
-    // summary:
-    //      Registers a Host application with the EventManager.
-    // context: Object
-    //      The context in which the callback function should execute, ie. the
-    //      'this' variable used in the callback function.
-    // callback: function(Event)
-    //      The event handler function in the registering Host application.
-    // returns:
-    //      An EventListener object which can be used to deregister the host
-    //      from the Event system.
+  /**
+   * Registers a Host application with the EventManager
+   * @param {Function} callback - The event handler function in the registering Host application.
+   * @returns {Object} An EventListener object which can be used to deregister the Host from the event system.
+   */
+  EventManager.prototype.registerHost = function (callback) {
+    // Create the EventListener object.
     var listener = {
       id: 'id' + this._nextHandlerId,
-      cancel: function(EventManager, id) {
+      cancel: function(eventManager, id) {
         return function() {
-          EventManager.deregisterHost(id);
+          eventManager._deregisterHost(id);
         };
       }(this, 'id' + this._nextHandlerId)
     };
     // Add the Host callback to the _hosts map.
     this._hosts[listener.id] = {
-      callback: callback.bind(context)
+      callback: callback
     };
     this._nextHandlerId++;
     return listener;
   };
 
-  EventManager.prototype.deregisterHost = function (/*integer*/ id) {
-    // summary:
-    //      Used to deregister a Host application from the Event system.
-    // id: integer
-    //      The ID of the Host application to deregister. An ID is assigned
-    //      when a Host registers.
+
+  /**
+   * Used to deregister a Host application from the Event system. Called by
+   * the EventListener object returned when registering a Host.
+   * @param  {Number} id - The ID of the Host application to remove.
+   */
+  EventManager.prototype._deregisterHost = function (/*integer*/ id) {
     delete this._hosts[id];
   };
 
+  /**
+   * Allows for adding an array of event handlers.
+   * @param {Object} handlers - An array of Objects describing the handlers to be added.
+   *       The objects should have properties 'source', 'name', and 'callback' as per
+   *       {@link atlas/events/EventManager#addEventHandler}.
+   */
   EventManager.prototype.addEventHandlers = function (/*object*/ handlers) {
-    // summary:
-    //      Allows for adding an array of EventHandlers.
-    // handlers: [Object]
-    //      An array of Objects describing the handlers to be added. The
-    //      objects should have 'type', 'name' and 'callback' as properties.
-    //      These correspond to the arguments for addEventHandler().
     handlers.forEach( function (handler) {
       console.log(handler);
-      this.addEventHandler(handler.type, handler.name, handler.callback);
+      this.addEventHandler(handler.source, handler.name, handler.callback);
     }, this);
   };
 
-  EventManager.prototype.addEventHandler = function (/*string*/ eventSource, /*string*/ eventType, /*function*/ callback) {
-    // summary:
-    //      Allows for event handlers to be added for an Event. Events can be 
-    //      external (Host) or internal (Atlas) events.
-    // description:
-    //      Host level handlers are interested in internal events and Atlas
-    //      handlers are typically interested in external events.
-    // eventSource: string
-    //      Specifies whether the source of the Event is external or internal
-    //      to Atlas. eg. the 'entity/show' event is external, but the
-    //      'entity/show/done' is internal.
-    //      Must be either 'extern' or 'intern'
-    // eventType: string
-    //      The event type to add a handler for.
-    //      see: EventTypes
-    // callback: function(/*string*/ eventType, /*Object*/ args)
-    //       Callback function to handle the Host event.
-    // example:
-    //      constructRenderManager(theEventManager) {
-    //         theEventManager.addEventHandler('extern', 'entity/show', show.bind(this));
-    //      };
+  /**
+   * Allows for event handlers to be added for an Event. Events can be external
+   * (Host) or internal (Atlas) events.
+   *
+   * @param {String} source - The source of the event, either 'extern' or 'intern'.
+   * @package {String} name - The name of the event.
+   * @param {Function(String, Object)} callback - Callback function to handle the event.
+   * @example
+   * <code>
+   * constructRenderManager(theEventManager) {
+   *    theEventManager.addEventHandler('extern', 'entity/show', show.bind(this));
+   * };
+   * </code> 
+   * @returns {Object} An EventListner object that can be used to cancel the EventHandler.
+   */
+  EventManager.prototype.addEventHandler = function (/*string*/ source, /*string*/ name, /*function*/ callback) {
+    // Select the map of event handlers to add to.
     var allHandlers;
-    if (eventSource === 'extern') {
+    if (source === 'extern') {
       allHandlers = this._externalEvent_Handlers;
-    } else if (eventSource === 'intern') {
+    } else if (source === 'intern') {
       allHandlers = this._internalEvent_Handlers;
     } else {
       throw new DeveloperError('Must specify whether event handler is for "intern" or "extern" events.');
@@ -157,26 +165,33 @@ define([
       callback: callback,
       cancel: function(em, es, id) {
         return function() {
-          em.removeEventHandler(es, id);
+          em._removeEventHandler(es, id);
         };
-      }(this, eventSource, this._nextHandlerId)
+      }(this, source, this._nextHandlerId)
     };
     this._nextHandlerId++;
-    // Add eventType of handlers dictionary if it doesn't exist.
-    if (!(eventType in allHandlers)) { allHandlers[eventType] = []; }
+    // Add name of handlers dictionary if it doesn't exist.
+    if (!(name in allHandlers)) { allHandlers[name] = []; }
     // Add the handler for the event type.
-    allHandlers[eventType].push(newHandler); //= {id: this._nextHandlerId, cb: callback};
+    allHandlers[name].push(newHandler); //= {id: this._nextHandlerId, cb: callback};
     return newHandler;
   };
 
-  EventManager.prototype.removeEventHandler = function (eventSource, id) {
-    // TODO(bpstudds): Need to complete documentation.
+
+  /**
+   * Removes the given event handler from the event system. Called by the 
+   *       EventListener object returned by 
+   *       {@link atlas/events/EventManager#addEventListener|addEventListener}.
+   * @param  {String} source - The source of the Event for the EventHandler being removed.
+   * @param  {String} id - The ID of the EventHandler being removed.
+   */
+  EventManager.prototype._removeEventHandler = function (source, id) {
     // TODO(bpstudds): Can this be done in a more efficient manner.
     // Retrieve either intern or extern event handlers.
     var allHandlers;
-    if (eventSource == 'extern') {
+    if (source == 'extern') {
       allHandlers = this._externalEvent_Handlers;
-    } else if (eventSource == 'intern') {
+    } else if (source == 'intern') {
       allHandlers = this._internalEvent_Handlers;
     } else {
       throw new DeveloperError('Can not handle event without specifying "extern" or "intern" event');
@@ -191,34 +206,50 @@ define([
     }
   };
 
-  EventManager.prototype._handleEvent = function (/*string*/ eventSource, /*string*/ eventType, /*Object*/ args) {
-    // TODO(bpstudds): Need to complete documentation.
+  /**
+   * Calls the registered event handlers for the given event.
+   * @param {String} source - The source of the event, either 'extern' or 'intern'.
+   * @param {String} name - The name of the event to handle.
+   * @param {Object} [args] - Optional event arguments that are passed to the event handler callback.
+   */
+  EventManager.prototype._handleEvent = function (/*string*/ source, /*string*/ name, /*Object*/ args) {
     // Retrieve either intern or extern event handlers.
     var allHandlers;
-    if (eventSource == 'extern') {
+    if (source == 'extern') {
       allHandlers = this._externalEvent_Handlers;
-    } else if (eventSource == 'intern') {
+    } else if (source == 'intern') {
       allHandlers = this._internalEvent_Handlers;
     } else {
       throw new DeveloperError('Can not handle event without specifying "extern" or "intern" event');
     }
     // Retrieve the list of event handlers for the given event type. 
-    var handlers = allHandlers[eventType];
+    var handlers = allHandlers[name];
     if (handlers !== undefined) {
+      console.debug('the handlers',handlers);
       for (var i = 0; i < handlers.length; i++) {
-        handlers[i].callback(eventType, args);
+        handlers[i].callback(name, args);
       }
     }
   };
 
-  EventManager.prototype.handleInternalEvent = function (/*string*/ type, /*Object*/ args) {
+  /**
+   * Convenience function to handle an internal event.
+   * @param {String} name - The name of the event.
+   * @param {Object} args - Optional event arguments that are passed to the event handler callback.
+   */
+  EventManager.prototype.handleInternalEvent = function (/*string*/ name, /*Object*/ args) {
     // TODO(bpstudds): Need to complete documentation.
-    this._handleEvent('intern', type, args);
+    this._handleEvent('intern', name, args);
   };
 
-  EventManager.prototype.handleExternalEvent = function (/*Event*/ type, /*Object*/ args) {
+  /**
+   * Convenience function to handle an external event.
+   * @param {String} name - The name of the event.
+   * @param {Object} args - Optional event arguments that are passed to the event handler callback.
+   */
+  EventManager.prototype.handleExternalEvent = function (/*Event*/ name, /*Object*/ args) {
     // TODO(bpstudds): Need to complete documentation.
-    this._handleEvent('extern', type, args);
+    this._handleEvent('extern', name, args);
   };
 
   return EventManager;

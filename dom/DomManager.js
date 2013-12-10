@@ -7,9 +7,8 @@ define([
   "use strict";
 
   /**
-   * Object to manage the DOM node that Atlas is render into
+   * Object to manage the DOM node that Atlas is rendered into.
    * @author Brendan Studds
-   * @version 1.0
    *
    * @param {Object} atlasManagers - A mapping of every manager type in Atlas to the manager instance.
    * @param {String} [domId] - The ID of the DOM element to attach Atlas to.
@@ -38,14 +37,12 @@ define([
   };
 
   /**
-   * Function to change which DOM node Atlas is rendered into. Atlas will always
-   * be moved to the new location. The 'show' parameter determines whether it is
-   * displayed immediately in this new location.
+   * Changes the DOM node which Atlas is displayed in.
    * If Atlas is currently displayed changing the DOM automatically causes
    * it to be re-rendered in the new DOM element.
    *
-   * @param  {String}  newDomId - The new DOM element to render into.
-   * @param  {Boolean} [show=true] - Whether the object should be rendered.
+   * @param {String} newDomId - The new DOM element to render into.
+   * @param {Boolean} [show=true] - Whether the object should be displayed immediately in this new location.
    */
   DomManager.prototype.setDom = function (newDomId, show) {
     var showNow = defaultValue(show, true);
@@ -60,9 +57,10 @@ define([
       var curDomNode = document.getElementById(this._currentDomId);
       var childDomNode = DomChild.getChildren(curDomNode);
       DomChild.addChildren(newDomNode, childDomNode);
+      console.debug('moved atlas into', newDomId);
     }
     this._currentDomId = newDomId;
-    // Show in new location if required
+    // Show in new location if required.
     if (showNow) {
       DomClass.remove(newDomNode, "hidden");
       this._visible = true;
@@ -75,39 +73,38 @@ define([
   };
 
   /**
-   * Function to populate the current DOM element with the required data to
-   * render Atlas (Implementation defined).
-   *
+   * Populates the Atlas DOM element.
+   * Implemenetation defined.
    * @abstract
    */
-  DomManager.prototype.populateDom = function (/*string*/id) {
+  DomManager.prototype.populateDom = function (/*string*/ id) {
     throw new DeveloperError('Can not call abstract method atlas/dom/DomManager.populateDom');
   };
 
   /**
-   * Show the DOM element that Atlas is rendered in.
+   * Shows the Atlas DOM element.
    */
   DomManager.prototype.show = function () {
     if (!this._visible) {
       var domNode = document.getElementById(this._currentDomId);
-      DomClass.remove(domNode, "hidden");
+      DomClass.remove(domNode, 'hidden');
       this._visible = true;
     }
   };
 
   /**
-   * Hide the DOM element that Atlas is rendered in.
+   * Hides the Atlas DOM element.
    */
   DomManager.prototype.hide = function () {
     if (this._visible) {
       var domNode = document.getElementById(this._currentDomId);
-      DomClass.add(domNode, "hidden");
+      DomClass.add(domNode, 'hidden');
       this._visible = false;
     }
   };
 
   /**
-   * Toggles the visiblity of the DOM element Atlas is rendering in.
+   * Toggles the visiblity of the Atlas DOM element.
    */
   DomManager.prototype.toggleVisibility = function () {
     if (this._visible) {

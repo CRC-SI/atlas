@@ -1,7 +1,7 @@
 define([
   'doh/runner',
   'dam/TestCase',
-  /* Code under test */
+  // Code under test
   '../DomManager',
 ], function (doh, TestCase, DomManager) {
   "use strict";
@@ -47,11 +47,12 @@ define([
       };
       // Mock populateDom function on DomManager.
       DomManager.prototype.populateDom = function (id) {
-        console.debug('populating');
+        console.debug('  populating');
         var elem = document.getElementById(id);
         var testDiv = document.createElement('div');
         testDiv.id = 'testDiv';
         elem.appendChild(testDiv);
+        console.debug('  populated');
       };
       // Create DomManager objct.
       domManager = new DomManager(atlasManagers);
@@ -65,21 +66,23 @@ define([
       document.body.removeChild(testBed);
     },
 
+    /**
+     * Tests that the DomManager is correctly initialised when a DOM ID
+     * is not passed to the constructor.
+     */
     testCreateDefault: function () {
-      // summary:
-      //      Tests that the DomManager is correctly initialised when a DOM id
-      //      is not passed to the constructor.
       doh.assertTrue(domManager instanceof DomManager);
       doh.assertTrue(atlasManagers.dom === domManager);
       doh.assertEqual(false, domManager._visible);
-      doh.assertEqual("", domManager._currentDomId);
+      doh.assertEqual(null, domManager._currentDomId);
     },
 
+    /**
+     * Tests that the DomManager correctly initialises when a DOM ID is
+     * passed to the constructor. Tests that the given dom is 'populated'
+     * and is visible.
+     */
     testCreate: function() {
-      // summary:
-      //      Tests that the DomManager correctly initialises when a DOM id is
-      //      passed to the constructor. Tests that the given dom is 'populated'
-      //      and is visible.
       domManager = new DomManager(atlasManagers, 'cesium');
       var cesium = document.getElementById('cesium');
       var testDiv = document.getElementById('testDiv');
@@ -94,6 +97,9 @@ define([
       doh.assertFalse(cesium.classList.contains('hidden'), 'Div should be initially visible');
     },
 
+    /**
+     * Tests that the show and hide functions work.
+     */
     testShowHide: function() {
       var cesium = document.getElementById('cesium');
       domManager = new DomManager(atlasManagers, 'cesium');
@@ -105,6 +111,9 @@ define([
       doh.assertFalse(cesium.classList[0] == 'hidden', 'Div should be visible');
     },
 
+    /**
+     * Tests that the toggleVisisbility function works.
+     */
     testToggleVisibility: function() {
       var cesium = document.getElementById('cesium');
       domManager = new DomManager(atlasManagers, 'cesium');
@@ -115,11 +124,11 @@ define([
       doh.assertFalse(cesium.classList[0] == 'hidden', 'Div should be visible');
     },
 
+    /**
+     * Tests setting Atlas' DOM element. Checks that the test div is placed into
+     * the div with id passed into setDom. Checks that the DOM element is visible.
+     */
     testSetDom: function () {
-      // summary:
-      //      Dom is initially not shown, check that it is shown when the DOM
-      //      is first set.
-
       domManager.setDom('cesium');
       var testDiv = document.getElementById('testDiv');
       doh.assertNotEqual(null, testDiv, 'Test div not created.');
@@ -127,11 +136,35 @@ define([
       doh.assertFalse(cesium.classList.contains('hidden'), 'Div should be visible');
     },
 
+    /**
+     * Tests setting Atlas' DOM element without showing Atlas.
+     */
+    testSetDomHidden: function () {
+      domManager.setDom('cesium', false);
+      var testDiv = document.getElementById('testDiv');
+      doh.assertNotEqual(null, testDiv, 'Test div not created.');
+      doh.assertEqual(testDiv, cesium.children[0], 'Test div not placed correctly');
+      doh.assertTrue(cesium.classList.contains('hidden'), 'Div should not be visible');
+    },
+
+    /**
+     * Tests moving Atlas' DOM element. Checks that the test div is placed into
+     * the new element and removed from the previous. 
+     * Checks that the DOM element is visible.
+     */
     testMoveDom: function () {
-
+      domManager.setDom('cesium');
+      // Initialise DOM in cesium.
+      var testDiv = document.getElementById('testDiv');
+      doh.assertNotEqual(null, testDiv, 'Test div was not created.');
+      doh.assertEqual(testDiv, cesium.children[0], 'Test div not placed correctly before move');
+      // Move DOM into 'earth'.
+      domManager.setDom('earth');
+      doh.assertEqual(undefined, cesium.children[0], 'test div not removed properly');
+      doh.assertEqual(testDiv, earth.children[0], 'test div not placed correctly after move.');
+      doh.assertFalse(earth.classList.contains('hidden'), 'Div should be visible');
     }
-
-
   }).register(doh);
+
 });
 

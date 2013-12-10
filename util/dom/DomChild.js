@@ -57,9 +57,9 @@ define([
      * @param {HTMLElement[]} children The list of nodes to add.
      */
     addChildren: function (element, children) {
-      for (var child in children) {
+      children.forEach( function (child) {
         element.appendChild(child);
-      }
+      });
     }
   };
 

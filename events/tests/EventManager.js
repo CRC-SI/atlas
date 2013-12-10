@@ -46,8 +46,7 @@ define([
   new TestCase({
     name: 'events/tests/EventManager',
     setUp: function() {
-      // summary:
-      //      Create an EventTarget hierarchy to test and 2 events to test with.
+      // Create an EventTarget hierarchy to test and 2 events to test with.
       child = new EventTarget();
       parent = new EventTarget();
       grandparent = new EventTarget();
@@ -80,6 +79,8 @@ define([
       parent = null;
       grandparent = null;
       anEvent = null;
+      eventManager = null;
+      host = null;
     },
 
     testCreateEventManager: function() {
@@ -139,14 +140,14 @@ define([
     },
 
     testRegisterHost: function() {
-      var listener = eventManager.registerHost(host, testHostCallback);
+      var listener = eventManager.registerHost(testHostCallback.bind(host));
 
       doh.assertTrue(listener);
       doh.assertTrue(eventManager._hosts[listener.id]);
     },
 
     testDeregisterHost: function() {
-      var listener = eventManager.registerHost(host, testHostCallback);
+      var listener = eventManager.registerHost(testHostCallback.bind(host));
       listener.cancel();
 
       doh.assertTrue(!eventManager._hosts[listener.id]);      
@@ -156,8 +157,9 @@ define([
       child.addEventListener('testEvent', testCallback);
       parent.addEventListener('testEvent', testCallback);
       grandparent.addEventListener('testEvent', testCallback);
-      eventManager.registerHost(host, testHostCallback);
+      eventManager.registerHost(testHostCallback.bind(host));
       eventManager.dispatchEvent(anEvent);
+      console.debug('5');
 
       // This event should travel all the way up the chain
       doh.assertTrue(child.callbackFired, 'Child did not handle event');
@@ -170,7 +172,7 @@ define([
       child.addEventListener('testEvent', testCallback);
       parent.addEventListener('testEvent', testCancellingCallback);
       grandparent.addEventListener('testEvent', testCallback);
-      eventManager.registerHost(host, testHostCallback);
+      eventManager.registerHost(testHostCallback.bind(host));
       eventManager.dispatchEvent(anEvent);
 
       // This event should not travel past parent. Host should still handle
@@ -185,7 +187,7 @@ define([
       child.addEventListener('testEvent', testCallback);
       parent.addEventListener('testEvent', testCancelHostCallback);
       grandparent.addEventListener('testEvent', testCallback);
-      eventManager.registerHost(host, testHostCallback);
+      eventManager.registerHost(testHostCallback.bind(host));
       eventManager.dispatchEvent(anEvent);
 
       // This event should not travel past parent.
@@ -197,9 +199,9 @@ define([
 
     testMultipleHosts: function() {
       child.addEventListener('testEvent', testCallback);
-      eventManager.registerHost(host, testHostCallback);
-      eventManager.registerHost(host, testHostCallback);
-      eventManager.registerHost(host, testHostCallback);
+      eventManager.registerHost(testHostCallback.bind(host));
+      eventManager.registerHost(testHostCallback.bind(host));
+      eventManager.registerHost(testHostCallback.bind(host));
       eventManager.dispatchEvent(anEvent);
 
       doh.assertEqual(1, child.callbackFired, 'Child did not handle event');

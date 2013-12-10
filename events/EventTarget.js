@@ -4,66 +4,85 @@ define([
 ], function (defaultValue, EventManager) {
   "use strict";
 
-  // summary:
-  //      EventTarget is a mixin class that provides an object with the ability to dispatch and 
-  //      listen to events. This implementation is closer to dojo/on than the DOM Event model.
+  /**
+   * Constructs a new EventTarget object.
+   * @class EventTarget is a mixin class that provides an object with the 
+   * ability to dispatch and listen to events. This implementation is close to
+   * dojo/on than the DOM Event model.
+   *
+   * @param {atlas/events/EventManager} [em=null] - The EventManager object managing the event system.
+   * @param {atlas/events/EventTarget} [parent=null] - The parent of the EventTarget.
+   * @returns {atlas/events/EventTarget}
+
+   * @alias atlas/events/EventTarget
+   * @constructor
+   */
   var EventTarget = function(/*EventManager*/ em, /*EventTarget*/ parent) {
 
-    // _eventManager: Object
-    //      The global EventManager for this EventTarget.
+    /**
+     * The EventManager for this EventTarget.
+     * @type {atlas/events/EventManager}
+     */
     this._eventManager = defaultValue(em, null);
 
-    // parent: EventTarget
-    //      The parent object of this EventTarget.
+    /**
+     * The parent object of the EventTarget.
+     * @type {atlas/events/EventTarget}
+     */
     this.parent = defaultValue(parent, null);
 
-    // _eventHandlers: Object
-    //      Maps an EventListenerID to a tuple containing the Event type and 
-    //      the event handling callback.
+    /**
+     * Maps an EventListnerID to a tuple containing the Event type and
+     * the event handler callback.
+     * @type {Object}
+     */
     this._eventHandlers = {};
 
-    // _nextEventListenerId: integer
-    //      Each EventListener needs a unique ID. These are determined from this counter.
+    /**
+     * Each EventListener needs a unique ID. These are determined from this counter.
+     * @type {Number}
+     */
     this._nextEventListenerId = 0;
   };
 
+  /**
+   * Initialise the EventTarget post-construction.
+   * @param {atlas/events/EventManager} em - The EventManager object managing the event system.
+   * @param {atlas/events/EventTarget} parent - The parent EventTarget of the EventTarget.
+   */
   EventTarget.prototype.initEventTarget = function (/*EventManager*/ em, /*EventTarget*/ parent) {
-    // summary:
-    //      Initialises the EventTarget post construction.
     this._eventManager = em;
     this.parent = typeof parent;
   };
 
+  /**
+   * Notify the EventManager that an event has been emitted. The EventManager
+   * then handles the propagation of the event through the EventTarget hierarchy.
+   * @param  {atlas/events/Event} event - The Event object to be propagated.
+   */
   EventTarget.prototype.dispatchEvent = function(event) {
-    // summary:
-    //      Notify the EventManager that an event has been emitted. The EventManager
-    //      then handles bubbling of the event.
     this._eventManager.dispatchEvent(event);
   };
 
-  EventTarget.prototype.addEventListener = function(type, callback) {
-    // summary:
-    //      Allow an object to register to events emitted from this EventTarget.
-    // type: String
-    //      The type of Event being registered to.
-    // callback: function(Event)
-    //      A callback function to be called when the event occurs.
-    // returns:
-    //      An EventListener object used to de-register the EventListener from
-    //      the EventTarget.
-
+  /**
+   * Allows an object to register to events emmited from the EventTarget.
+   * @param {String} name - The name of the event being registered to.
+   * @param {Function} callback - A callback function to be called when the event occurs.
+   * @returns {Object} An EventListener object used to de-register the EventListener from the event.
+   */
+  EventTarget.prototype.addEventListener = function(name, callback) {
     // Use closure in place of lang.hitch for the cancel() function.
     var listener = {
       id: 'id' + this._nextEventListenerId,
       cancel: function(target, id) {
         return function() {
-          target.removeEventListener(id);
+          target._removeEventListener(id);
         };
       }(this, 'id' + this._nextEventListenerId)
     };
     // Add the EventListener to the eventHandlers map.
     this._eventHandlers[listener.id] = {
-      type: type,
+      name: name,
       callback: callback.bind(this)
     };
     this._nextEventListenerId++;
@@ -71,24 +90,27 @@ define([
   };
 
 
-  EventTarget.prototype.removeEventListener = function(id) {
-    // summary:
-    //      Removes the identified event listerner from the EventTarget.
-    // id: integer
-    //      ID of EventListener to remove (ID assigned at EventListener creation).
+  /**
+   * Removes the identified event listener from the EventTarget. This function
+   * is called by the EventListener object returned by 
+   * {@link atlas/events/EventTarget#addEventListener|addEventListener}.
+   * @param  {Number} id - The ID of the EventListener to remove.
+   */
+  EventTarget.prototype._removeEventListener = function(id) {
     delete this._eventHandlers[id];
   };
 
 
+  /**
+   * Handles events that bubble up to the EventTarget.
+   * @param  {atlas/events/Event} event - The Event to be handled.
+   * @return {atlas/events/Event} The Event to be propagated to the next
+   *       EventTarget in the hierarchy.
+   */
   EventTarget.prototype.handleEvent = function(event) {
-    // summary:
-    //      Handle any events that bubble up to this EventTarget.
-    // event: Event
-    //      The Event that is to be handled.
-
     for (var id in this._eventHandlers) {
       if (this._eventHandlers.hasOwnProperty(id)) {
-        if (this._eventHandlers[id].type == event.type) {
+        if (this._eventHandlers[id].type === event.type) {
           event = this._eventHandlers[id].callback(event) || event;
         }
       }
