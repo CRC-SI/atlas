@@ -169,6 +169,20 @@ define([
   GeoEntity.prototype.hide = function () {
     throw new DeveloperError('Can not call abstract method of GeoEntity');
   };
+  
+  // TODO(bpstudds) This may not need to be abstract if we have a setStyle() that is
+  //      abstract and defined by atlas-cesium.
+  /**
+   * Causes the GeoEntity to be rendered with the selection style.
+   * @abstract;
+   */
+  GeoEntity.prototype.select = function () {};
+  
+  /**
+   * Causes the GeoEntity to be rendered with the default style.
+   * @abstract
+   */
+  GeoEntity.prototype.deselect = function () {};
 
   /**
    * Toggles the visibility of the GeoEntity.
