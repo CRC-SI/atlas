@@ -1,12 +1,46 @@
 define([
     'doh/runner',
     'dam/TestCase',
+    '../Polygon',
     // Code under test.
     '../Feature'
-], function (doh, TestCase, Feature) {
+], function (doh, TestCase, Polygon, Feature) {
 
   var feature;
-  var id = 12345;
+  var id;
+  var args;
+
+  var mockMeshFootprint = function () {
+    // Mock _mesh.
+    feature._mesh = {
+      show: function () {
+        this._shownMesh = true;
+      },
+      hide: function () {
+        this._shownMesh = false;
+      }
+    };
+    // Mock _footprint.
+    feature._footprint = {
+      setHeight: function(h) {
+        this._height = h;
+      },
+      show: function (h) {
+        if (h === undefined) {
+          this._shownFootprint = true;
+        } else {
+          this._shownExtrusion = true;
+        }
+      },
+      hide: function (h) {
+        if (h === undefined) {
+          this._shownFootprint = false;
+        } else {
+          this._shownExtrusion = false;
+        }
+      }
+    };
+  };
 
   new TestCase({
     name: 'atlas/model/tests/Feature',
@@ -14,37 +48,69 @@ define([
     setUp: function() {
       // summary:
       //      Create a Feature object.
-      feature = new Feature(id, null, null, null);
+      id = 12354;
+      args = {
+        footprint: "POLYGON ((1 2, 3 4, 5 6, 7 8))",
+        renderManager: {},
+        eventManager: {},
+        show: true,
+        displayMode: 'extrusion',
+        height: 10,
+        elevation: 20
+      };
+      feature = new Feature(id, args);
     },
 
     tearDown: function() {
       feature = null;
     },
 
-    testCreateFeature: function() {
-      doh.assertTrue(feature);
+    testCreate: function() {
+      doh.assertTrue(feature instanceof Feature);
+    },
+
+    testDefaults: function () {
+      feature = new Feature(id, {renderManager: {}, eventManager: {}});
+      doh.assertEqual(0, feature._height);
+      doh.assertEqual(0, feature._elevation);
+      doh.assertEqual(false, feature._visible);
+      doh.assertEqual('footprint', feature._displayMode);
     },
 
     testParameters: function() {
-      doh.assertEqual(id, feature.id);
-      //doh.assertEqual(0, geoEntity.area);
-      //doh.assertEqual(false, geoEntity.visible);
-    }
+      doh.assertTrue(feature._footprint instanceof Polygon);
+      doh.assertEqual(id, feature._id);
+      doh.assertEqual(10, feature._height);
+      doh.assertEqual(20, feature._elevation);
+      doh.assertEqual(true, feature._visible);
+      doh.assertEqual('extrusion', feature._displayMode);
+    },
 
-    /*
-    testEventTargetness: function() {
-      // Members
-      doh.assertNotEqual('undefined', typeof(geoEntity.eventHandlers));
-      doh.assertNotEqual('undefined', typeof(geoEntity.nextEventListenerId));
-      doh.assertNotEqual('undefined', typeof(geoEntity.parent));
+    testShowFootprint: function () {
+      mockMeshFootprint();
+      feature.showAsFootprint();
+      doh.assertTrue(feature._footprint._shownFootprint);
+      doh.assertTrue(!feature._footprint._shownExtrusion);
+      doh.assertTrue(!feature._mesh._shownMesh);
+      doh.is(0, feature._footprint._height);
+    },
 
-      // Functions
-      doh.assertEqual('function', typeof(geoEntity.dispatchEvent()));
-      doh.assertEqual('function', typeof(geoEntity.addEventListener()));
-      doh.assertEqual('function', typeof(geoEntity.removeEventListener()));
-      doh.assertEqual('function', typeof(geoEntity.handleEvent()));
+    testShowExtrusion: function () {
+      mockMeshFootprint();
+      feature.showAsExtrusion();
+      doh.assertTrue(!feature._footprint._shownFootprint);
+      doh.assertTrue(feature._footprint._shownExtrusion);
+      doh.assertTrue(!feature._mesh._shownMesh);
+      doh.is(args.height, feature._footprint._height);
+    },
+
+    testShowMesh: function () {
+      mockMeshFootprint();
+      feature.showAsMesh();
+      doh.assertTrue(!feature._footprint._shownFootprint);
+      doh.assertTrue(!feature._footprint._shownExtrusion);
+      doh.assertTrue(feature._mesh._shownMesh);
     }
-    */
   }).register(doh);
 
 });

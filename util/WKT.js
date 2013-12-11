@@ -11,61 +11,65 @@ define([
 
   var _instance = null;
 
+  /**
+   * Defines a set of utility methods for working with Well-Known-Text.
+   */
   var WKT = function () {
-    // summary:
-    //      A set of utility methods for working with Well-Known-Text
     this.parser = new OpenLayers.Format.WKT();
   };
 
-  // TODO rename to wktTo
+  /**
+   * Converts a WKT polygon string to a multidimensional array of numbers.
+   * @param {String} poly - The WKT string to convert.
+   * @returns {Array.Number} The converted polygon.
+   */
   WKT.prototype.wktToCoords = function (/*String*/ poly) {
-
     return this.wktToArray(poly);
-
-    // summary:
-    //      Returns an array of coordinates from the WKT Polygon string
-    // description:
-    //      e.g. "POLYGON ((-37.760746002197266 145.15419006347656, ...))"
-
-    // bpstudds: Commented out this code as it's after a return statement
-    // var vector = this.parser.read(poly);
-
-    // // 2D array of coordinates
-    // var coords2D = [];
-
-    // var geometry = vector.geometry;
-
-    // if (geometry instanceof OpenLayers.Geometry.Point) {
-    //   var vertices = geometry.getVertices();
-    //   coords2D.push(vertices);
-    // } else if (geometry instanceof OpenLayers.Geometry.Polygon) {
-    //   var components = geometry.components;
-    //   for (var i = 0; i < components.length; i++) {
-    //     var component = components[i];
-    //   }
-    // }
-    // return coords2D;
   };
 
+  /**
+   * Converts a WKT polygon string to an array of 
+   * {@see atlas/model/Vertex|Vertices}.
+   * @param {String} poly - The WKT string to convert
+   * @returns {Array.atlas/model/Vertex} The convert polygon.
+   */
   WKT.prototype.wktToVertices = function(/*String*/ poly) {
     var geometry = this.parseGeometry(poly).geometry;
     return this.wktGeometryToArray(geometry, this.wktPointToVertex);
   };
 
+  /**
+   * Parses the given WKT string and returns an OpenLayers geometry collection.
+   * @param {String} wktStr - The WKT string to convert
+   * @returns {OpenLayers.Geometry.Collection} 
+   */
   WKT.prototype.parseGeometry = function (wktStr) {
     var geometry = wktStr;
-    if (typeof geometry == 'string') {
+    if (typeof geometry === 'string') {
       geometry = this.parser.read(wktStr);
     }
     return geometry;
   };
 
+  /**
+   * Converts a WKT polygon string to a multidimensional array of numbers.
+   * @param {String} poly - The WKT string to convert.
+   * @returns {Array.Number} The converted polygon.
+   */
   WKT.prototype.wktToArray = function (wktStr) {
     var geometry = this.parseGeometry(wktStr).geometry;
     return this.wktGeometryToArray(geometry);
   };
 
-  WKT.prototype.wktGeometryToArray = function (geometry, /*Function*/pointConverter) {
+  /**
+   * Returns an array of coordinates representing the given geometry object. The
+   * type of coordinate generated depends on the <code>pointConverted</code>
+   * function.
+   * @param  {OpenLayers.Geometry.Collection|OpenLayers.Geometry.Point} geometry - The geometry to convert.
+   * @param  {Function} pointConverter - Function that converts a OpenLayers.Geometry.Point to the desired coordinate format.
+   * @returns {Array} An array of Points (as returned by pointConverter) forming a closed polygon.
+   */
+  WKT.prototype.wktGeometryToArray = function (geometry, /*Function*/ pointConverter) {
     var coords = [];
     pointConverter = (pointConverter || this.wktPointToArray);
     if (geometry instanceof OpenLayers.Geometry.Point) {
@@ -74,23 +78,36 @@ define([
       var components = geometry.components;
       for (var i = 0; i < components.length; i++) {
         var component = components[i];
-        coords.push(this.wktGeometryToArray(component));
+        coords.push(this.wktGeometryToArray(component, pointConverter));
       }
     }
     return coords;
   };
 
+  /**
+   * Converts an OpenLayers.Geometry.Point to an array.
+   * @param  {OpenLayers.Geometry.Point} point - The point to be converted.
+   * @returns {Array.Number} 
+   */
   WKT.prototype.wktPointToArray = function (point) {
     return [point.x, point.y];
   };
 
+  /**
+   * Converts an OpenLayers.Geometry.Point to a {@link atlas/model/Vertex|Vertex}.
+   * @param  {OpenLayers.Geometry.Point} point - The point to be converted.
+   * @returns {atlas/model/Vertex} 
+   */
   WKT.prototype.wktPointToVertex = function (point) {
     return new Vertex(point.x, point.y, 0);
   };
 
+  /**
+   * Returns a WKT Polygon from an array of coordinates.
+   * @param {Array.Number} coords - The coords to convert.
+   * @returns {OpenLayers.Geometry.Polygon}
+   */
   WKT.prototype.coordsToWKTObject = function (/*Array*/ coords) {
-    // summary:
-    //      Returns a WKT Polygon from an array of coordinates
     var points = this.toPoints(coords);
     var ring = new OpenLayers.Geometry.LinearRing(points);
     var len = ring.components.length;
@@ -103,21 +120,32 @@ define([
     return new OpenLayers.Geometry.Polygon([ring]);
   };
 
+  /**
+   * Returns a WKT string from an array of coordinates.
+   * @param {Array.Number} coords - The coords to convert.
+   * @returns {String}
+   */
   WKT.prototype.coordsToWKT = function (/*Array*/ coords) {
-    // summary:
-    //      Returns a WKT string from an array of coordinates
     return this.wktObjectToString(this.coordsToWKTObject(coords));
   };
 
+  /**
+   * Returns a WKT string from a WKT object.
+   * @param  {Object} obj - The WKT object to convert.
+   * @returns {String}
+   */
   WKT.prototype.wktObjectToString = function (/*Object*/ obj) {
     // summary:
     //      Returns a WKT string from a WKT object
     return this.parser.extractGeometry(obj);
   };
 
+  /**
+   * Converts an array of coordinates into an array of Points.
+   * @param {Array.Number} coords - The coordinates to convert.
+   * @returns {Array.OpenLayers.Geometry.Points}
+   */
   WKT.prototype.toPoints = function (/*Array*/ coords) {
-    // summary:
-    //      Converts an array of coordinates into an array of Points
     var points = [];
     for (var i = 0; i < coords.length; i++) {
       var coord = coords[i];

@@ -50,7 +50,6 @@ define([
   DeveloperError.prototype.toString = function() {
     var str = this.name + ': ' + this.message;
 
-    // TODO(bpstudds): Is this good practice?
     if (typeof this.stack !== undefined) {
         str += '\n' + this.stack.toString();
     }

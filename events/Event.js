@@ -6,30 +6,47 @@ define([
   //      Event, like a regular DOM event, is a simple object that
   //      encapsulates the information relevant to the event that occurred
 
+  /**
+   * Event, like a regular DOM event, is a simple object that
+   * encapsulates the information relevatant to the event that occured.
+   * 
+   * @param {atlas/events/EventTarget} target - The target of the Event.
+   * @param {string} type - The type of the Event.
+   * @param {Object} [args] - Arguments relevant to the Event.
+   *
+   * @alias atlas/events/Event
+   * @constructor
+   */
   Event = function(/*EventTarget*/ target, /*String*/ type, /*Object?*/ args) {
-    if (typeof target === 'undefined' || typeof type === 'undefined') {
+    if (target === undefined || type === undefined) {
       throw new DeveloperError('Can not create Event: Event must have both target and type.');
     }
-    // target: Entity
-    //      Current target of this event.
+
+    /**
+     * Current target of this event.
+     * @type {Entity}
+     */
     this.target = target;
 
-    // type: String
-    //      Type of this event.
+    /**
+     * Type of this event.
+     * @type {string}
+     */
     this.type = type;
 
-    // args: Object
-    //      Optional event specific arguments or data.
+    /**
+     * Optional event specific arguments or data.
+     * @type {Object}
+     */
     this.args = args;
   };
 
+  /**
+   * Prevents the Event from being handled by any more EventTargets (a combination
+   * of preventDefault and stopPropagation from the DOM event model).
+   * @param {boolean} [cancelHost=false] - If true, the EventManager will not propagate this Event to the host application.
+   */
   Event.prototype.cancel = function(/*Boolean?*/ cancelHost) {
-    // summary:
-    //      Prevents the Event from being handled by any more EventTargets (combination
-    //      of preventDefault and stopPropagation from DOM event model).
-    // cancelHost: Boolean?
-    //      If true, the EventManager will not propagate this Event to the host application.
-    //      Set to False by default.
     this.cancelHost = this.cancelHost || cancelHost;
     this.cancelled = true;
   };

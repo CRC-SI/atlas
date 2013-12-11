@@ -3,7 +3,8 @@
  */
 define([
 ], function () {
-
+  "use strict";
+  
   /**
    * A utility class containing static functions for managing the child
    * elements on a DOM node.
@@ -18,11 +19,11 @@ define([
      * @return {HTMLElement[]}       A list of all child nodes.
      */
     getChildren: function (element) {
-      if (!element.hasChildNodes()) {
+      if (!element || !element.hasChildNodes()) {
         return [];
       }
       var children = [];
-      children.append(element.firstElementChild);
+      children.push(element.firstElementChild);
       var sibling = children[0];
       while ((sibling = sibling.nextElementSibling) !== null) {
         children.push(sibling);
@@ -56,9 +57,9 @@ define([
      * @param {HTMLElement[]} children The list of nodes to add.
      */
     addChildren: function (element, children) {
-      for (var child in children) {
+      children.forEach(function (child) {
         element.appendChild(child);
-      }
+      });
     }
   };
 

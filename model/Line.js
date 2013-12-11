@@ -1,24 +1,25 @@
 define([
   'atlas/util/Extends',
+  'atlas/util/defaults',
   './GeoEntity',
   './Vertex'
-], function (extend, GeoEntity, Vertex) {
+], function (extend, defaultValue, GeoEntity, Vertex) {
 
   /**
    * Constructor for a new Line object.
    *
-   * @param {Vertex} [start=Vertex(0,0,0)] - vertex at start of the line segment.
-   * @param {Vertex} [end=Vertex(0,0,0)] - vertex at end of the line segment.
+   * @param {atlas/model/Vertex} [start=Vertex(0,0,0)] - Vertex at start of the line segment.
+   * @param {atlas/model/Vertex} [end=Vertex(0,0,0)] - Vertex at end of the line segment.
    *
-   * @extends {GeoEntity}
+   * @extends {atlas/model/GeoEntity}
    * @alias atlas/model/Line
    * @constructor
    */
   var Line = function (start, end) {
     Line.base.constructor.call(this, id, parent);
     
-    this.startVertex = (start || new Vertex(0,0,0));
-    this.endVertex =  (end || new Vertex(0,0,0));
+    this._startVertex = defaultValue(start, new Vertex(0,0,0));
+    this._endVertex =  defaultValue(end, new Vertex(0,0,0));
   };
   // Inherit from GeoEntity
   extend(GeoEntity, Line);
@@ -28,11 +29,11 @@ define([
    * @return {number} Length of line.
    */
   Line.prototype.getLength = function () {
-    var x2 = Math.abs(this.endVertex.x - this.startVertex.x);
+    var x2 = Math.abs(this._endVertex.x - this._startVertex.x);
     x2 = Math.pow(x2, 2);
-    var y2 = Math.abs(this.endVertex.y - this.startVertex.y);
+    var y2 = Math.abs(this._endVertex.y - this._startVertex.y);
     y2 = Math.pow(y2, 2);
-    var z2 = Math.abs(this.endVertex.z - this.startVertex.z);
+    var z2 = Math.abs(this._endVertex.z - this._startVertex.z);
     z2 = Math.pow(z2, 2);
     return Math.sqrt(x2 + y2 + z2);
   };
