@@ -4,19 +4,20 @@ define([
   'atlas/util/default',
   'atlas/util/WKT',
   './Vertex',
+  './Colour',
   './Style',
   './Material',
   // Base class
   './GeoEntity'
-], function (extend, DeveloperError, defaultValue, WKT, Vertex, Style, Material, GeoEntity) {
+], function (extend, DeveloperError, defaultValue, WKT, Vertex, Colour, Style, Material, GeoEntity) {
   "use strict";
 
   /**
-   * Constructs a new Polygon object. 
-   * @class  A Polygon represents a 2D polygon that can be rendered within an 
-   * Atlas scene. Polygons are constructed from a series of Vertices specified 
-   * in a counter-clockwise order. A {@link atlas/model/Material|Material} 
-   * and {@link atlas/model/Style|Style} can also be defined when 
+   * Constructs a new Polygon object.
+   * @class  A Polygon represents a 2D polygon that can be rendered within an
+   * Atlas scene. Polygons are constructed from a series of Vertices specified
+   * in a counter-clockwise order. A {@link atlas/model/Material|Material}
+   * and {@link atlas/model/Style|Style} can also be defined when
    * constructing a Polygon.
    *
    * @param {Number} id - The ID of this Polygon.
@@ -67,13 +68,14 @@ define([
      * @private
      * @type {atlas/model/Style}
      */
-    this._style = defaultValue(args.style, Style.DEFAULT);
+    this._style = defaultValue(args.style, Polygon.DEFAULT_STYLE);
 
     /**
      * The material used to render the polygon.
      * @private
      * @type {atlas/model/Material}
      */
+    // TODO(bpstudds): Create a Polygon specific default Material to use.
     this._material = defaultValue(args.material, Material.DEFAULT);
 
     /**
@@ -100,6 +102,20 @@ define([
   // Inherit from GeoEntity
   extend(GeoEntity, Polygon);
 
+
+  /**
+   * Defines the default style to use when rendering a polygon.
+   * @type {atlas/model/Colour}
+   */
+  Polygon.DEFAULT_STYLE = new Style(Colour.GREEN, Colour.GREEN, 1);
+
+
+  /**
+   * Defines the default style to use when rendering a selected polygon.
+   * @type {atlas/model/Colour}
+   */
+  Polygon.SELECTED_STYLE = new Style(Colour.RED, Colour.RED, 1);
+
   /**
    * Adds a vertex to the polygon end of the list of vertices describing the polygon.
    * @param {Vertex} vertex - vertex to add to the polygon.
@@ -117,8 +133,8 @@ define([
   };
 
   /**
-   * Inserts a vertex at particular index of the polygon. If the index is larger 
-   * than the number of vertices in the polygon, it is appended to the 
+   * Inserts a vertex at particular index of the polygon. If the index is larger
+   * than the number of vertices in the polygon, it is appended to the
    * polygons vertices as per {@link atlas/model/Polygon#addVertex|addVertex}.
    * The last element of _vertices is reserved for a duplicate of the first vertex.
    * @param {number} index - The index to insert at.
@@ -198,7 +214,7 @@ define([
   };
 
   /**
-   * Function to permanently remove the polygon from the scene 
+   * Function to permanently remove the polygon from the scene
    * (vs. hiding it).
    * @abstract
    */
