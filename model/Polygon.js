@@ -129,7 +129,7 @@ define([
     var insertAt = index;
     if (index < -1) {
       insertAt = 0;
-    } else if (index == -1 || index > this._vertices.length - 1) {
+    } else if (index === -1 || index > this._vertices.length - 1) {
       insertAt = this._vertices.length - 1;
     }
     this._vertices.splice(insertAt, 0, vertex);
@@ -148,10 +148,10 @@ define([
    * @return {Vertex} The vertex removed.
    */
   Polygon.prototype.removeVertex = function(/*Number*/ index) {
-    if (index == -1) {
+    if (index === -1) {
       index = this._vertices.lenght -1;
     }
-    if (index == this._vertices.length) {
+    if (index === this._vertices.length) {
       index--;
     }
     if (0 <= index && index <= this._vertices.length - 1) {

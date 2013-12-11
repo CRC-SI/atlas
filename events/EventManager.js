@@ -59,7 +59,7 @@ define([
    * Bubbles the given Event through the its <code>target</code> Entity heirarchy.
    * @param {atlas/events/Event} event - The Event to be propagated.
    */
-  EventManager.prototype.dispatchEvent = function (/*Event*/ event) {
+  EventManager.prototype.dispatchEvent = function (event) {
     var nextEvent;
     var parent;
     while (event.target !== null) {
@@ -89,7 +89,7 @@ define([
   };
 
   /**
-   * Registers a Host application with the EventManager
+   * Registers a Host application with the EventManager.
    * @param {Function} callback - The event handler function in the registering Host application.
    * @returns {Object} An EventListener object which can be used to deregister the Host from the event system.
    */
@@ -117,7 +117,7 @@ define([
    * the EventListener object returned when registering a Host.
    * @param  {Number} id - The ID of the Host application to remove.
    */
-  EventManager.prototype._deregisterHost = function (/*integer*/ id) {
+  EventManager.prototype._deregisterHost = function (id) {
     delete this._hosts[id];
   };
 
@@ -127,8 +127,8 @@ define([
    *       The objects should have properties 'source', 'name', and 'callback' as per
    *       {@link atlas/events/EventManager#addEventHandler}.
    */
-  EventManager.prototype.addEventHandlers = function (/*object*/ handlers) {
-    handlers.forEach( function (handler) {
+  EventManager.prototype.addEventHandlers = function (handlers) {
+    handlers.forEach(function (handler) {
       console.log(handler);
       this.addEventHandler(handler.source, handler.name, handler.callback);
     }, this);
@@ -149,7 +149,7 @@ define([
    * </code> 
    * @returns {Object} An EventListner object that can be used to cancel the EventHandler.
    */
-  EventManager.prototype.addEventHandler = function (/*string*/ source, /*string*/ name, /*function*/ callback) {
+  EventManager.prototype.addEventHandler = function (source, name, callback) {
     // Select the map of event handlers to add to.
     var allHandlers;
     if (source === 'extern') {
@@ -189,16 +189,16 @@ define([
     // TODO(bpstudds): Can this be done in a more efficient manner.
     // Retrieve either intern or extern event handlers.
     var allHandlers;
-    if (source == 'extern') {
+    if (source === 'extern') {
       allHandlers = this._externalEvent_Handlers;
-    } else if (source == 'intern') {
+    } else if (source === 'intern') {
       allHandlers = this._internalEvent_Handlers;
     } else {
       throw new DeveloperError('Can not handle event without specifying "extern" or "intern" event');
     }
     for (var i in allHandlers) {
       for (var j in allHandlers[i]) {
-        if (allHandlers[i][j].id == id) {
+        if (allHandlers[i][j].id === id) {
           delete allHandlers[i][j];
           return;
         }
@@ -212,19 +212,19 @@ define([
    * @param {String} name - The name of the event to handle.
    * @param {Object} [args] - Optional event arguments that are passed to the event handler callback.
    */
-  EventManager.prototype._handleEvent = function (/*string*/ source, /*string*/ name, /*Object*/ args) {
+  EventManager.prototype._handleEvent = function (source, name, args) {
     // Retrieve either intern or extern event handlers.
     var allHandlers;
-    if (source == 'extern') {
+    if (source === 'extern') {
       allHandlers = this._externalEvent_Handlers;
-    } else if (source == 'intern') {
+    } else if (source === 'intern') {
       allHandlers = this._internalEvent_Handlers;
     } else {
       throw new DeveloperError('Can not handle event without specifying "extern" or "intern" event');
     }
     // Retrieve the list of event handlers for the given event type. 
     var handlers = allHandlers[name];
-    if (handlers !== undefined) {
+    if (handlers && handlers.length) {
       console.debug('the handlers',handlers);
       for (var i = 0; i < handlers.length; i++) {
         handlers[i].callback(name, args);
@@ -237,7 +237,7 @@ define([
    * @param {String} name - The name of the event.
    * @param {Object} args - Optional event arguments that are passed to the event handler callback.
    */
-  EventManager.prototype.handleInternalEvent = function (/*string*/ name, /*Object*/ args) {
+  EventManager.prototype.handleInternalEvent = function (name, args) {
     // TODO(bpstudds): Need to complete documentation.
     this._handleEvent('intern', name, args);
   };
@@ -247,7 +247,7 @@ define([
    * @param {String} name - The name of the event.
    * @param {Object} args - Optional event arguments that are passed to the event handler callback.
    */
-  EventManager.prototype.handleExternalEvent = function (/*Event*/ name, /*Object*/ args) {
+  EventManager.prototype.handleExternalEvent = function (name, args) {
     // TODO(bpstudds): Need to complete documentation.
     this._handleEvent('extern', name, args);
   };

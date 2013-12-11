@@ -13,16 +13,17 @@ define([
    * @class A Feature represents an entity that can be visualised either
    * as a 2D footprint, an 3D extrusion of said footprint, or a 3D mesh.
    *
-   * @param {number} id - The ID of this Feature.
-   * @param {object} [args] - Parameters describing the feature.
-   * @param {string|Array.atlas/model/Vertex} [args.footprint=null] - Either a WKT string or array of Vertices describing the footprint polygon.
-   * @param {mesh} [args.mesh=null] - The Mesh object for the Feature.
-   * @param {number} [args.height=0] - The extruded height when displaying as a extruded polygon.
-   * @param {number} [args.elevation=0] - The elevation (from the terrain surface) to the base of the Mesh or Polygon.
-   * @param {boolean} [args.show=false] - Whether the feature should be initially shown when created.
-   * @param {string} [args.displayMode='footprint'] - Initial display mode of feature, one of 'footprint', 'extrusion' or 'mesh'.
+   * @param {Number} id - The ID of this Feature.
+   * @param {Object} args - Parameters describing the feature.
+   * @param {atlas/render/RenderManager} args.renderManager - The RenderManager object responsible for rendering the Feature.
+   * @param {atlas/events/EventManager} args.eventManager - The EventManager object responsible for the event system.
+   * @param {String|Array.atlas/model/Vertex} [args.footprint=null] - Either a WKT string or array of Vertices describing the footprint polygon.
+   * @param {atlas/model/Mesh} [args.mesh=null] - The Mesh object for the Feature.
+   * @param {Number} [args.height=0] - The extruded height when displaying as a extruded polygon.
+   * @param {Number} [args.elevation=0] - The elevation (from the terrain surface) to the base of the Mesh or Polygon.
+   * @param {Boolean} [args.show=false] - Whether the feature should be initially shown when created.
+   * @param {String} [args.displayMode='footprint'] - Initial display mode of feature, one of 'footprint', 'extrusion' or 'mesh'.
    * 
-   * @abstract
    * @extends {GeoEntity}
    * @alias atlas/model/Feature
    * @constructor
@@ -129,6 +130,7 @@ define([
         this._mesh.hide();
       }
       if (this._footprint) {
+        this._footprint.setHeight(0);
         this._visible = this._footprint.show();
       }
     } else if (this._displayMode === 'extrusion') {
@@ -136,6 +138,7 @@ define([
         this._mesh.hide();
       }
       if (this._footprint) {
+        this._footprint.setHeight(this._height);
         this._visible = this._footprint.show(this._height);
       }
     } else if (this._displayMode === 'mesh') {
@@ -163,7 +166,7 @@ define([
 
 
   /**
-   * Clean up the Feature so it can be deleted permanently.
+   * Clean up the Feature so it can be deleted by the RenderManager.
    */
   Feature.prototype.remove = function () {
     // Remove mesh and footprint.

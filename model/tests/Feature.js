@@ -10,29 +10,34 @@ define([
   var id;
   var args;
 
-  var mockShowHide = function () {
-    // Mock Mesh show/hide.
-    feature._mesh = {};
-    feature._mesh.show = function () {
-      this._shownMesh = true;
-    };
-    feature._mesh.hide = function () {
-      this._shownMesh = false;
-    };
-    // Mock polygon show/hide.
-    feature._footprint = {};
-    feature._footprint.show = function (h) {
-      if (h === undefined) {
-        this._shownFootprint = true;
-      } else {
-        this._shownExtrusion = true;
+  var mockMeshFootprint = function () {
+    // Mock _mesh.
+    feature._mesh = {
+      show: function () {
+        this._shownMesh = true;
+      },
+      hide: function () {
+        this._shownMesh = false;
       }
     };
-    feature._footprint.hide = function (h) {
-      if (h === undefined) {
-        this._shownFootprint = false;
-      } else {
-        this._shownExtrusion = false;
+    // Mock _footprint.
+    feature._footprint = {
+      setHeight: function(h) {
+        this._height = h;
+      },
+      show: function (h) {
+        if (h === undefined) {
+          this._shownFootprint = true;
+        } else {
+          this._shownExtrusion = true;
+        }
+      },
+      hide: function (h) {
+        if (h === undefined) {
+          this._shownFootprint = false;
+        } else {
+          this._shownExtrusion = false;
+        }
       }
     };
   };
@@ -82,23 +87,25 @@ define([
     },
 
     testShowFootprint: function () {
-      mockShowHide();
+      mockMeshFootprint();
       feature.showAsFootprint();
       doh.assertTrue(feature._footprint._shownFootprint);
       doh.assertTrue(!feature._footprint._shownExtrusion);
       doh.assertTrue(!feature._mesh._shownMesh);
+      doh.is(0, feature._footprint._height);
     },
 
     testShowExtrusion: function () {
-      mockShowHide();
+      mockMeshFootprint();
       feature.showAsExtrusion();
       doh.assertTrue(!feature._footprint._shownFootprint);
       doh.assertTrue(feature._footprint._shownExtrusion);
       doh.assertTrue(!feature._mesh._shownMesh);
+      doh.is(args.height, feature._footprint._height);
     },
 
     testShowMesh: function () {
-      mockShowHide();
+      mockMeshFootprint();
       feature.showAsMesh();
       doh.assertTrue(!feature._footprint._shownFootprint);
       doh.assertTrue(!feature._footprint._shownExtrusion);

@@ -159,7 +159,6 @@ define([
       grandparent.addEventListener('testEvent', testCallback);
       eventManager.registerHost(testHostCallback.bind(host));
       eventManager.dispatchEvent(anEvent);
-      console.debug('5');
 
       // This event should travel all the way up the chain
       doh.assertTrue(child.callbackFired, 'Child did not handle event');

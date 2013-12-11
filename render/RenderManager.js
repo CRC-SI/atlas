@@ -76,7 +76,7 @@ define([
    */
   RenderManager.prototype.removeEntity = function (id) {
     if (this._entities[id] !== undefined) {
-      console.log('removing entity', this._entities[id]);
+      console.debug('removing entity', this._entities[id]);
       this._entities[id].remove();
       delete this._entities[id];
     }
