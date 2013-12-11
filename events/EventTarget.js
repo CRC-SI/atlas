@@ -17,7 +17,7 @@ define([
    * @alias atlas/events/EventTarget
    * @constructor
    */
-  var EventTarget = function(/*EventManager*/ em, /*EventTarget*/ parent) {
+  var EventTarget = function(em, parent) {
 
     /**
      * The EventManager for this EventTarget.
@@ -50,7 +50,7 @@ define([
    * @param {atlas/events/EventManager} em - The EventManager object managing the event system.
    * @param {atlas/events/EventTarget} parent - The parent EventTarget of the EventTarget.
    */
-  EventTarget.prototype.initEventTarget = function (/*EventManager*/ em, /*EventTarget*/ parent) {
+  EventTarget.prototype.initEventTarget = function (em, parent) {
     this._eventManager = em;
     this.parent = typeof parent;
   };

@@ -28,7 +28,7 @@ define([
    * @alias atlas/model/Feature
    * @constructor
    */
-  var Feature = function (/*Number*/ id, /*Object*/ args) {
+  var Feature = function (id, args) {
     // Construct GeoEntity base class
     Feature.base.constructor.call(this, id, args);
 

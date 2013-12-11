@@ -119,7 +119,7 @@ define([
    * @param {Object} [terrainParams] An object containing the terrain parameters.
    * @abstract
    */
-  RenderManager.prototype.setTerrain = function (/*Object*/ terrainParams) {
+  RenderManager.prototype.setTerrain = function (terrainParams) {
     throw new DeveloperError("Can not call functions on abstract RenderManager");
   };
 
@@ -128,7 +128,7 @@ define([
    * @param {Object} [mapParams] An object containing the map imagery parameters.
    * @abstract
    */
-  RenderManager.prototype.setMapImagery = function (/*Object*/ mapParams) {
+  RenderManager.prototype.setMapImagery = function (mapParams) {
     throw new DeveloperError("Can not call functions on abstract RenderManager");
   };
 

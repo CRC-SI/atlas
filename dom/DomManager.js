@@ -16,7 +16,7 @@ define([
    * @alias atlas/dom/DomManager
    * @constructor
    */
-  var DomManager = function (/*Object*/ atlasManagers, /*String*/ domId) {
+  var DomManager = function (atlasManagers, domId) {
 
     /**
      * A mapping of every manager type in Atlas to the manager instance. This
@@ -77,7 +77,7 @@ define([
    * Implemenetation defined.
    * @abstract
    */
-  DomManager.prototype.populateDom = function (/*string*/ id) {
+  DomManager.prototype.populateDom = function (id) {
     throw new DeveloperError('Can not call abstract method atlas/dom/DomManager.populateDom');
   };
 

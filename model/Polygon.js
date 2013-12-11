@@ -33,7 +33,7 @@ define([
    * @alias atlas/model/Polygon
    * @constructor
    */
-   var Polygon = function(/*Number*/ id, vertices, /*Object*/ args) {
+   var Polygon = function(id, vertices, args) {
     args = defaultValue(args, {});
     Polygon.base.constructor.call(this, id, args);
 
@@ -105,7 +105,7 @@ define([
    * @param {Vertex} vertex - vertex to add to the polygon.
    * @return {Number} The index at which the vertex was added.
    */
-  Polygon.prototype.addVertex = function(/*Vertex*/ vertex) {
+  Polygon.prototype.addVertex = function(vertex) {
     var v = this._vertices.pop();
     this._vertices.push(vertex);
     this._vertices.push(v);
@@ -125,7 +125,7 @@ define([
    * @param {Vertex} vertex - The vertex to be added. '-1' to insert at the end
    * @return {Number} The index at which vertex was inserted.
    */
-  Polygon.prototype.insertVertex = function(/*Number*/ index, /*Vertex*/ vertex) {
+  Polygon.prototype.insertVertex = function(index, vertex) {
     var insertAt = index;
     if (index < -1) {
       insertAt = 0;
@@ -147,7 +147,7 @@ define([
    * @param {Number} index - The index of the vertex to remove. '-1' for the last vertex.
    * @return {Vertex} The vertex removed.
    */
-  Polygon.prototype.removeVertex = function(/*Number*/ index) {
+  Polygon.prototype.removeVertex = function(index) {
     if (index === -1) {
       index = this._vertices.lenght -1;
     }
@@ -171,7 +171,7 @@ define([
    * Set the extruded height of the polygon to form a prism.
    * @param {Number} height The extruded height of the building.
    */
-  Polygon.prototype.setHeight = function (/*Number*/ height) {
+  Polygon.prototype.setHeight = function (height) {
     if (typeof height === 'number') {
       this._height = height;
       this.setRenderable(false);
@@ -182,7 +182,7 @@ define([
    * Set the elevation of the base of the polygon (or prism).
    * @param {Number} height The elevation of the base of the polygon.
    */
-  Polygon.prototype.setElevation = function (/*Number*/ elevation) {
+  Polygon.prototype.setElevation = function (elevation) {
     if (typeof elevation === 'number') {
       this._elevation = elevation;
       this.setRenderable(false);

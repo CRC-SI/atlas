@@ -23,7 +23,7 @@ define([
    * @param {String} poly - The WKT string to convert.
    * @returns {Array.Number} The converted polygon.
    */
-  WKT.prototype.wktToCoords = function (/*String*/ poly) {
+  WKT.prototype.wktToCoords = function (poly) {
     return this.wktToArray(poly);
   };
 
@@ -33,7 +33,7 @@ define([
    * @param {String} poly - The WKT string to convert
    * @returns {Array.atlas/model/Vertex} The convert polygon.
    */
-  WKT.prototype.wktToVertices = function(/*String*/ poly) {
+  WKT.prototype.wktToVertices = function(poly) {
     var geometry = this.parseGeometry(poly).geometry;
     return this.wktGeometryToArray(geometry, this.wktPointToVertex);
   };
@@ -69,7 +69,7 @@ define([
    * @param  {Function} pointConverter - Function that converts a OpenLayers.Geometry.Point to the desired coordinate format.
    * @returns {Array} An array of Points (as returned by pointConverter) forming a closed polygon.
    */
-  WKT.prototype.wktGeometryToArray = function (geometry, /*Function*/ pointConverter) {
+  WKT.prototype.wktGeometryToArray = function (geometry, pointConverter) {
     var coords = [];
     pointConverter = (pointConverter || this.wktPointToArray);
     if (geometry instanceof OpenLayers.Geometry.Point) {
@@ -107,7 +107,7 @@ define([
    * @param {Array.Number} coords - The coords to convert.
    * @returns {OpenLayers.Geometry.Polygon}
    */
-  WKT.prototype.coordsToWKTObject = function (/*Array*/ coords) {
+  WKT.prototype.coordsToWKTObject = function (coords) {
     var points = this.toPoints(coords);
     var ring = new OpenLayers.Geometry.LinearRing(points);
     var len = ring.components.length;
@@ -125,7 +125,7 @@ define([
    * @param {Array.Number} coords - The coords to convert.
    * @returns {String}
    */
-  WKT.prototype.coordsToWKT = function (/*Array*/ coords) {
+  WKT.prototype.coordsToWKT = function (coords) {
     return this.wktObjectToString(this.coordsToWKTObject(coords));
   };
 
@@ -134,7 +134,7 @@ define([
    * @param  {Object} obj - The WKT object to convert.
    * @returns {String}
    */
-  WKT.prototype.wktObjectToString = function (/*Object*/ obj) {
+  WKT.prototype.wktObjectToString = function (obj) {
     // summary:
     //      Returns a WKT string from a WKT object
     return this.parser.extractGeometry(obj);
@@ -145,7 +145,7 @@ define([
    * @param {Array.Number} coords - The coordinates to convert.
    * @returns {Array.OpenLayers.Geometry.Points}
    */
-  WKT.prototype.toPoints = function (/*Array*/ coords) {
+  WKT.prototype.toPoints = function (coords) {
     var points = [];
     for (var i = 0; i < coords.length; i++) {
       var coord = coords[i];

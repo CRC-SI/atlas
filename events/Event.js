@@ -17,7 +17,7 @@ define([
    * @alias atlas/events/Event
    * @constructor
    */
-  Event = function(/*EventTarget*/ target, /*String*/ type, /*Object?*/ args) {
+  Event = function(target, type, args) {
     if (target === undefined || type === undefined) {
       throw new DeveloperError('Can not create Event: Event must have both target and type.');
     }
@@ -46,7 +46,7 @@ define([
    * of preventDefault and stopPropagation from the DOM event model).
    * @param {boolean} [cancelHost=false] - If true, the EventManager will not propagate this Event to the host application.
    */
-  Event.prototype.cancel = function(/*Boolean?*/ cancelHost) {
+  Event.prototype.cancel = function(cancelHost) {
     this.cancelHost = this.cancelHost || cancelHost;
     this.cancelled = true;
   };
