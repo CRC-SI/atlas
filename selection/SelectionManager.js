@@ -20,7 +20,7 @@ define([
      * Contains a map of entity ID to entity of all selected entities.
      * @type {Object}
      */
-    this._selectedEntities = {};
+    this._selection = {};
 
     /**
      * Contains references to all of the currently defined Atlas manager
@@ -51,8 +51,8 @@ define([
         source: 'intern',
         name: 'entity/remove',
         callback: function (name, args) {
-          // If the Entity has been removed, don't need to deselect it, just remove it from _selectedEntities.
-          delete this._selectedEntities[args.id];
+          // If the Entity has been removed, don't need to deselect it, just remove it from _selection.
+          delete this._selection[args.id];
         }.bind(this)
       }
     ];
@@ -72,7 +72,7 @@ define([
     }
     var entity = this._atlasManagers.render.getEntity(id);
     if (entity) {
-      this._selectedEntities[entity._id] = entity;
+      this._selection[entity._id] = entity;
       entity.select();
     }
     console.debug('selected entity', id);
@@ -83,9 +83,9 @@ define([
    * @param {String} id - The ID of the GeoEntity to deselect.
    */
   SelectionManager.prototype.deselectEntity = function (id) {
-    if (id in this._selectedEntities) {
-      this._selectedEntities[id].deselect();
-      delete this._selectedEntities[id];
+    if (id in this._selection) {
+      this._selection[id].deselect();
+      delete this._selection[id];
     }
   };
 
@@ -93,13 +93,13 @@ define([
    * Deselects all currently selected GeoEntities.
    */
   SelectionManager.prototype.clearSelection = function () {
-    console.debug('clearing selection', this._selectedEntities);
-    for (var id in this._selectedEntities) {
-      if (this._selectedEntities.hasOwnProperty(id)) {
-        this._selectedEntities[id].deselect();
+    console.debug('clearing selection', this._selection);
+    for (var id in this._selection) {
+      if (this._selection.hasOwnProperty(id)) {
+        this._selection[id].deselect();
       }
     }
-    this._selectedEntities = {};
+    this._selection = {};
     console.debug('cleared selection');
   };
 
@@ -116,7 +116,7 @@ define([
     for (var i = 0; i < ids.length; i++) {
       var entity = this._atlasManagers.render.getEntity(ids[i]);
       entity.select();
-      this._selectedEntities[entity._id] = entity;
+      this._selection[entity._id] = entity;
     }
     console.debug('selected entities', ids);
   };
@@ -128,6 +128,18 @@ define([
    * @param {Boolean} [keepSelection=false] - If true, the existing selection will be added to rather than cleared.
    */
   SelectionManager.prototype.selectWithinPolygon = function () {
+    throw new 'No idea how to do this yet.';
+  };
+  
+  
+  /**
+   * Selects multiple GeoEntities which are contained by rectangular area.
+   * @param {altas/model/Vertex} start - The first point defining the rectangular selection area.
+   * @param {altas/model/Vertex} finish - The second point defining the rectangular selection area.
+   * @param {Boolean} [intersects=false] - If true, GeoEntities which intersect but are not contained by the <code>boundingBox</code> are also selected.
+   * @param {Boolean} [keepSelection=false] - If true, the existing selection will be added to rather than cleared.
+   */
+  SelectionManager.prototype.selectBox = function () {
     throw new 'No idea how to do this yet.';
   };
 
