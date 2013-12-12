@@ -204,6 +204,19 @@ define([
       this.setRenderable(false);
     }
   };
+  
+  Polygon.prototype.setStyle = function (style) {
+    if (!(style instanceof Style)) {
+      throw new DeveloperError('Style must be a valid atlas Style object');
+    } else {
+      if (this._style !== style) {
+        // Only change style if the new style is different so _previousStyle isn't clobbered.
+        this._previousStyle = this._style;
+        this._style = style;
+        this.setRenderable(false);
+      }
+    }
+  }
 
   /**
    * Function to enable interactive editing of the polygon.
@@ -218,8 +231,7 @@ define([
    * (vs. hiding it).
    * @abstract
    */
-  Polygon.prototype.remove = function() {
-  };
+  Polygon.prototype.remove = function() {};
 
   /**
    * Gets the area of the Polygon, in <tt>unit**2</tt> where <tt>unit</tt> is the
@@ -232,7 +244,7 @@ define([
       return this._area;
     }
     this._area = 0;
-    j = this._vertices.length - 1;  // The last vertex is the 'previous' one to the first
+    var j = this._vertices.length - 1;  // The last vertex is the 'previous' one to the first
     for (i = 0; i < numPoints; i++) {
       this._area = this._area +
           (this._vertices[j].x + this._vertices[i].x) * (this._vertices[j].y - this._vertices[i].y);
@@ -259,8 +271,8 @@ define([
     var x, y, f, twiceArea;
     x = y = f = twiceArea = 0;
     for (var i = 0; i < this._vertices.length - 1; i++) {
-      p1 = this._vertices[i];
-      p2 = this._vertices[i+1];
+      var p1 = this._vertices[i];
+      var p2 = this._vertices[i+1];
       f =  (p1.x * p2.y) - p2.x * p1.y;
       x += (p1.x + p2.x) * f;
       y += (p1.y + p2.y) * f;
@@ -273,13 +285,42 @@ define([
     return this._centroid;
   };
 
+  /**
+   * Shows the Polygon.
+   * @abstract
+   */
   Polygon.prototype.show = function () {
     throw new DeveloperError('Can not call abstract method of Polygon');
   };
 
+  /**
+   * Hides the Polygon.
+   * @abstract
+   */
   Polygon.prototype.hide = function () {
     throw new DeveloperError('Can not call abstract method of Polygon');
   };
-
+  
+  /**
+   * Causes the Polygon to be rendered with the selection style.
+   */
+  Polygon.prototype.select = function () {
+    this.setStyle(Polygon.SELECTED_STYLE);
+    this.show();
+  };
+  
+  /**
+   * Causes the Polygon to be rendered with either the previously set style or
+   * the DEFAULT_STYLE.
+   */
+  Polygon.prototype.deselect = function () {;
+    if (this._previousStyle) {
+      this.setStyle(this._previousStyle);
+    } else {
+      this.setStyle(Polygon.DEFAULT_STYLE);
+    }
+    this.show();
+  }
+  
   return Polygon;
 });
