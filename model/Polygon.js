@@ -302,18 +302,20 @@ define([
   };
   
   /**
+   * Handles the behaviour of the Polygon when it is selected.
    * Causes the Polygon to be rendered with the selection style.
    */
-  Polygon.prototype.select = function () {
+  Polygon.prototype.onSelect = function () {
     this.setStyle(Polygon.SELECTED_STYLE);
     this.show();
   };
   
   /**
+   * Handles the behaviour of the Polygon when it is deselected.
    * Causes the Polygon to be rendered with either the previously set style or
    * the DEFAULT_STYLE.
    */
-  Polygon.prototype.deselect = function () {;
+  Polygon.prototype.onDeselect = function () {;
     if (this._previousStyle) {
       this.setStyle(this._previousStyle);
     } else {

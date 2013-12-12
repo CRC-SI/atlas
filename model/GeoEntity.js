@@ -203,16 +203,16 @@ define([
   };
   
   /**
-   * Causes the GeoEntity to be rendered with the selection style.
+   * Handles the GeoEntities behaviour when it is selected.
    * @abstract;
    */
-  GeoEntity.prototype.select = function () {};
+  GeoEntity.prototype.onSelect = function () {};
   
   /**
-   * Causes the GeoEntity to be rendered with the default style.
+   * Handles the GeoEntities behaviour when it is deselected.
    * @abstract
    */
-  GeoEntity.prototype.deselect = function () {};
+  GeoEntity.prototype.onDeselect = function () {};
 
   return GeoEntity;
 });
