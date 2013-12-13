@@ -130,51 +130,15 @@ define([
   };
 
   /**
-   * Function to build the GeoEntity so it can be rendered.
-   * @abstract
+   * Sets whether the GeoEntity is ready to be rendered in Atlas.
+   * @param {Boolean} [isRenderable=true] - If true, sets the Polygon to be renderable otherwise sets it to be 'un-renderable'.
    */
-  GeoEntity.prototype._build = function() {
-    throw new DeveloperError('Can not call abstract method of GeoEntity.');
-  };
-
   GeoEntity.prototype.setRenderable = function (render) {
     if (render !== undefined) {
       this._renderable = render;
     } else {
       this._renderable = true;
     }
-  };
-
-  /**
-   * Function to remove the GeoEntity from rendering. This function should
-   * be overridden on subclasses to accomplish any cleanup that 
-   * may be required.
-   */
-  GeoEntity.prototype.remove = function () {
-    // Does nothing unless overridden.
-  };
-
-  /**
-   * Shows the GeoEntity in the current scene.
-   * @abstract
-   */
-  GeoEntity.prototype.show = function () {
-    throw new DeveloperError('Can not call abstract method of GeoEntity');
-  };
-
-  /**
-   * Hides the GeoEntity from the current scene.
-   * @abstract
-   */
-  GeoEntity.prototype.hide = function () {
-    throw new DeveloperError('Can not call abstract method of GeoEntity');
-  };
-
-  /**
-   * Toggles the visibility of the GeoEntity.
-   */
-  GeoEntity.prototype.toggleVisibility = function () {
-    this.isVisible() ? this.hide() : this.show();
   };
 
   /**
@@ -196,6 +160,59 @@ define([
   GeoEntity.prototype.getAppearance = function() {
       return this._appearance;
   };
+
+  /**
+   * Function to build the GeoEntity so it can be rendered.
+   * @abstract
+   */
+  GeoEntity.prototype._build = function() {
+    throw new DeveloperError('Can not call abstract method of GeoEntity.');
+  };
+
+  /**
+   * Function to remove the GeoEntity from rendering. This function should
+   * be overridden on subclasses to accomplish any cleanup that 
+   * may be required.
+   * @abstract
+   */
+  GeoEntity.prototype.remove = function () {
+    // Does nothing unless overridden.
+  };
+
+  /**
+   * Shows the GeoEntity in the current scene.
+   * @abstract
+   */
+  GeoEntity.prototype.show = function () {
+    throw new DeveloperError('Can not call abstract method of GeoEntity');
+  };
+
+  /**
+   * Hides the GeoEntity from the current scene.
+   * @abstract
+   */
+  GeoEntity.prototype.hide = function () {
+    throw new DeveloperError('Can not call abstract method of GeoEntity');
+  };
+  
+  /**
+   * Toggles the visibility of the GeoEntity.
+   */
+  GeoEntity.prototype.toggleVisibility = function () {
+    this.isVisible() ? this.hide() : this.show();
+  };
+  
+  /**
+   * Handles the GeoEntities behaviour when it is selected.
+   * @abstract;
+   */
+  GeoEntity.prototype.onSelect = function () {};
+  
+  /**
+   * Handles the GeoEntities behaviour when it is deselected.
+   * @abstract
+   */
+  GeoEntity.prototype.onDeselect = function () {};
 
   return GeoEntity;
 });

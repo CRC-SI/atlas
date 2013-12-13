@@ -4,19 +4,20 @@ define([
   'atlas/util/default',
   'atlas/util/WKT',
   './Vertex',
+  './Colour',
   './Style',
   './Material',
   // Base class
   './GeoEntity'
-], function (extend, DeveloperError, defaultValue, WKT, Vertex, Style, Material, GeoEntity) {
+], function (extend, DeveloperError, defaultValue, WKT, Vertex, Colour, Style, Material, GeoEntity) {
   "use strict";
 
   /**
-   * Constructs a new Polygon object. 
-   * @class  A Polygon represents a 2D polygon that can be rendered within an 
-   * Atlas scene. Polygons are constructed from a series of Vertices specified 
-   * in a counter-clockwise order. A {@link atlas/model/Material|Material} 
-   * and {@link atlas/model/Style|Style} can also be defined when 
+   * Constructs a new Polygon object.
+   * @class  A Polygon represents a 2D polygon that can be rendered within an
+   * Atlas scene. Polygons are constructed from a series of Vertices specified
+   * in a counter-clockwise order. A {@link atlas/model/Material|Material}
+   * and {@link atlas/model/Style|Style} can also be defined when
    * constructing a Polygon.
    *
    * @param {Number} id - The ID of this Polygon.
@@ -67,13 +68,14 @@ define([
      * @private
      * @type {atlas/model/Style}
      */
-    this._style = defaultValue(args.style, Style.DEFAULT);
+    this._style = defaultValue(args.style, Polygon.DEFAULT_STYLE);
 
     /**
      * The material used to render the polygon.
      * @private
      * @type {atlas/model/Material}
      */
+    // TODO(bpstudds): Create a Polygon specific default Material to use.
     this._material = defaultValue(args.material, Material.DEFAULT);
 
     /**
@@ -100,6 +102,20 @@ define([
   // Inherit from GeoEntity
   extend(GeoEntity, Polygon);
 
+
+  /**
+   * Defines the default style to use when rendering a polygon.
+   * @type {atlas/model/Colour}
+   */
+  Polygon.DEFAULT_STYLE = new Style(Colour.GREEN, Colour.GREEN, 1);
+
+
+  /**
+   * Defines the default style to use when rendering a selected polygon.
+   * @type {atlas/model/Colour}
+   */
+  Polygon.SELECTED_STYLE = new Style(Colour.RED, Colour.RED, 1);
+
   /**
    * Adds a vertex to the polygon end of the list of vertices describing the polygon.
    * @param {Vertex} vertex - vertex to add to the polygon.
@@ -117,8 +133,8 @@ define([
   };
 
   /**
-   * Inserts a vertex at particular index of the polygon. If the index is larger 
-   * than the number of vertices in the polygon, it is appended to the 
+   * Inserts a vertex at particular index of the polygon. If the index is larger
+   * than the number of vertices in the polygon, it is appended to the
    * polygons vertices as per {@link atlas/model/Polygon#addVertex|addVertex}.
    * The last element of _vertices is reserved for a duplicate of the first vertex.
    * @param {number} index - The index to insert at.
@@ -188,6 +204,19 @@ define([
       this.setRenderable(false);
     }
   };
+  
+  Polygon.prototype.setStyle = function (style) {
+    if (!(style instanceof Style)) {
+      throw new DeveloperError('Style must be a valid atlas Style object');
+    } else {
+      if (this._style !== style) {
+        // Only change style if the new style is different so _previousStyle isn't clobbered.
+        this._previousStyle = this._style;
+        this._style = style;
+        this.setRenderable(false);
+      }
+    }
+  }
 
   /**
    * Function to enable interactive editing of the polygon.
@@ -198,12 +227,11 @@ define([
   };
 
   /**
-   * Function to permanently remove the polygon from the scene 
+   * Function to permanently remove the polygon from the scene
    * (vs. hiding it).
    * @abstract
    */
-  Polygon.prototype.remove = function() {
-  };
+  Polygon.prototype.remove = function() {};
 
   /**
    * Gets the area of the Polygon, in <tt>unit**2</tt> where <tt>unit</tt> is the
@@ -216,7 +244,7 @@ define([
       return this._area;
     }
     this._area = 0;
-    j = this._vertices.length - 1;  // The last vertex is the 'previous' one to the first
+    var j = this._vertices.length - 1;  // The last vertex is the 'previous' one to the first
     for (i = 0; i < numPoints; i++) {
       this._area = this._area +
           (this._vertices[j].x + this._vertices[i].x) * (this._vertices[j].y - this._vertices[i].y);
@@ -243,8 +271,8 @@ define([
     var x, y, f, twiceArea;
     x = y = f = twiceArea = 0;
     for (var i = 0; i < this._vertices.length - 1; i++) {
-      p1 = this._vertices[i];
-      p2 = this._vertices[i+1];
+      var p1 = this._vertices[i];
+      var p2 = this._vertices[i+1];
       f =  (p1.x * p2.y) - p2.x * p1.y;
       x += (p1.x + p2.x) * f;
       y += (p1.y + p2.y) * f;
@@ -257,13 +285,44 @@ define([
     return this._centroid;
   };
 
+  /**
+   * Shows the Polygon.
+   * @abstract
+   */
   Polygon.prototype.show = function () {
     throw new DeveloperError('Can not call abstract method of Polygon');
   };
 
+  /**
+   * Hides the Polygon.
+   * @abstract
+   */
   Polygon.prototype.hide = function () {
     throw new DeveloperError('Can not call abstract method of Polygon');
   };
-
+  
+  /**
+   * Handles the behaviour of the Polygon when it is selected.
+   * Causes the Polygon to be rendered with the selection style.
+   */
+  Polygon.prototype.onSelect = function () {
+    this.setStyle(Polygon.SELECTED_STYLE);
+    this.show();
+  };
+  
+  /**
+   * Handles the behaviour of the Polygon when it is deselected.
+   * Causes the Polygon to be rendered with either the previously set style or
+   * the DEFAULT_STYLE.
+   */
+  Polygon.prototype.onDeselect = function () {;
+    if (this._previousStyle) {
+      this.setStyle(this._previousStyle);
+    } else {
+      this.setStyle(Polygon.DEFAULT_STYLE);
+    }
+    this.show();
+  }
+  
   return Polygon;
 });
