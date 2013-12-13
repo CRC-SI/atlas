@@ -43,7 +43,7 @@ define([
         name: 'entity/click',
         callback: function (name, args) {
           if (args) {
-            this.selectEntity(args.entity, args.modifieds.contains('shift'));
+            this.selectEntity(args.entity, args.modifiers.contains('shift'));
           }
         }.bind(this)
       },
@@ -63,28 +63,56 @@ define([
   /**
    * Causes an Entity to become selected.
    * @param {String} id - The ID of the GeoEntity to select.
-   * @param {Boolean} [keepSelection=false] - If true, the existing selection will be added to rather than cleared.
+   * @param {Boolean} [keepSelection=false] - If true, the GeoEntity will be added to the current selection. If false, the current selection will be cleared before the GeoEntity is selected.
    */
   SelectionManager.prototype.selectEntity = function (id, keepSelection) {
-    console.debug('selecting entity', id);
-    if (!keepSelection) {
-      this.clearSelection();
-    }
     var entity = this._atlasManagers.render.getEntity(id);
     if (entity) {
+      console.debug('selecting entity', id);
+      if (!keepSelection) {
+        this.clearSelection();
+      }
       this._selection[entity._id] = entity;
-      entity.select();
+      entity.onSelect();
+      console.debug('selected entity', id);
     }
-    console.debug('selected entity', id);
   };
 
+  /**
+   * Selects multiple GeoEntities.
+   * @param {Array.<String>} ids - The IDs of all GeoEntities to be selected.
+   * @param {Boolean} [keepSelection=false] - If true, the GeoEntities will be added to current selection. If false, the current selection will be cleared before the GeoEntities are selected.
+   */
+  SelectionManager.prototype.selectEntities = function (ids, keepSelection) {
+    console.debug('selecting entities', ids);
+    var toBeSelected = [];
+    // Check that all the ids correspond to an entity.
+    for (var i = 0; i < ids.length; i++) {
+      var entity = this._atlasManagers.render.getEntity(ids[i]);
+      if (entity) {
+        toBeSelected.push(entity);
+      }
+    }
+    // Do the actual selection.
+    if (toBeSelected.length > 0) {
+      toBeSelected.forEach(function(entity) {
+        entity.onSelect();
+        this._selection[entity._id] = entity;
+      });
+      if (!keepSelection) {
+        this.clearSelection();
+      }
+    }
+    console.debug('selected entities', ids);
+  };
+  
   /**
    * Removes the given Entity from the current selection.
    * @param {String} id - The ID of the GeoEntity to deselect.
    */
   SelectionManager.prototype.deselectEntity = function (id) {
     if (id in this._selection) {
-      this._selection[id].deselect();
+      this._selection[id].onDeselect();
       delete this._selection[id];
     }
   };
@@ -104,28 +132,10 @@ define([
   };
 
   /**
-   * Selects multiple GeoEntities.
-   * @param {Array.<String>} ids - The IDs of all GeoEntities to be selected.
-   * @param {Boolean} [keepSelection=false] - If true, the existing selection will be added to rather than cleared.
-   */
-  SelectionManager.prototype.selectEntities = function (ids, keepSelection) {
-    console.debug('selecting entities', ids);
-    if (!keepSelection) {
-      this.clearSelection();
-    }
-    for (var i = 0; i < ids.length; i++) {
-      var entity = this._atlasManagers.render.getEntity(ids[i]);
-      entity.select();
-      this._selection[entity._id] = entity;
-    }
-    console.debug('selected entities', ids);
-  };
-
-  /**
    * Selects multiple GeoEntities which are contained by the given Polygon.
    * @param {altas/model/Polygon} boundingBox - The polygon defining the area to select GeoEntities.
    * @param {Boolean} [intersects=false] - If true, GeoEntities which intersect but are not contained by the <code>boundingBox</code> are also selected.
-   * @param {Boolean} [keepSelection=false] - If true, the existing selection will be added to rather than cleared.
+   * @param {Boolean} [keepSelection=false] - If true, the current selection will be added to rather than cleared.
    */
   SelectionManager.prototype.selectWithinPolygon = function () {
     throw new 'No idea how to do this yet.';
@@ -137,7 +147,7 @@ define([
    * @param {altas/model/Vertex} start - The first point defining the rectangular selection area.
    * @param {altas/model/Vertex} finish - The second point defining the rectangular selection area.
    * @param {Boolean} [intersects=false] - If true, GeoEntities which intersect but are not contained by the <code>boundingBox</code> are also selected.
-   * @param {Boolean} [keepSelection=false] - If true, the existing selection will be added to rather than cleared.
+   * @param {Boolean} [keepSelection=false] - If true, the current selection will be added to rather than cleared.
    */
   SelectionManager.prototype.selectBox = function () {
     throw new 'No idea how to do this yet.';

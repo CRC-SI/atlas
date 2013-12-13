@@ -73,8 +73,8 @@ define([
     
     testSelectEntity: function () {
       selectionManager.selectEntity(entity1._id, false);
-      doh.is(entity1, selectionManager._selection[entity1._id], 'Entity not added to selection correctly.');
-      doh.t(entity1.selected, 'Entity was not actually selected');
+      doh.is(entity1, selectionManager._selection[entity1._id], 'Entity1 not added to selection correctly.');
+      doh.t(entity1.selected, 'Entity1 was not actually selected');
     },
     
     testSelectEntity_KeepSelection: function () {
@@ -82,14 +82,14 @@ define([
       selectionManager.selectEntity(entity2._id, true);
       selectionManager.selectEntity(entity3._id, true);
       selectionManager.selectEntity(entity4._id, true);
-      doh.is(entity1, selectionManager._selection[entity1._id], 'Entity not added to selection correctly.');
-      doh.is(entity2, selectionManager._selection[entity2._id], 'Entity not added to selection correctly.');
-      doh.is(entity3, selectionManager._selection[entity3._id], 'Entity not added to selection correctly.');
-      doh.is(entity4, selectionManager._selection[entity4._id], 'Entity not added to selection correctly.');
-      doh.t(entity1.selected, 'Entity was not actually selected');
-      doh.t(entity2.selected, 'Entity was not actually selected');
-      doh.t(entity3.selected, 'Entity was not actually selected');
-      doh.t(entity4.selected, 'Entity was not actually selected');
+      doh.is(entity1, selectionManager._selection[entity1._id], 'Entity1 not added to selection correctly.');
+      doh.is(entity2, selectionManager._selection[entity2._id], 'Entity2 not added to selection correctly.');
+      doh.is(entity3, selectionManager._selection[entity3._id], 'Entity3 not added to selection correctly.');
+      doh.is(entity4, selectionManager._selection[entity4._id], 'Entity4 not added to selection correctly.');
+      doh.t(entity1.selected, 'Entity1 was not actually selected');
+      doh.t(entity2.selected, 'Entity2 was not actually selected');
+      doh.t(entity3.selected, 'Entity3 was not actually selected');
+      doh.t(entity4.selected, 'Entity4 was not actually selected');
     },
     
     testSelectEntity_ClearSelection: function () {
@@ -97,14 +97,14 @@ define([
       selectionManager.selectEntity(entity2._id, true);
       selectionManager.selectEntity(entity3._id, true);
       selectionManager.selectEntity(entity4._id, false);
-      doh.f(selectionManager._selection[entity1._id], 'Entity not deselected correctly.');
-      doh.f(selectionManager._selection[entity2._id], 'Entity not deselected correctly.');
-      doh.f(selectionManager._selection[entity3._id], 'Entity not deselected correctly.');
-      doh.is(entity4, selectionManager._selection[entity4._id], 'Entity not added to selection correctly.');
-      doh.f(entity1.selected, 'Entity was not actually deselected');
-      doh.f(entity2.selected, 'Entity was not actually deselected');
-      doh.f(entity3.selected, 'Entity was not actually deselected');
-      doh.t(entity4.selected, 'Entity was not actually selected');
+      doh.f(selectionManager._selection[entity1._id], 'Entity1 not deselected correctly.');
+      doh.f(selectionManager._selection[entity2._id], 'Entity2 not deselected correctly.');
+      doh.f(selectionManager._selection[entity3._id], 'Entity3 not deselected correctly.');
+      doh.is(entity4, selectionManager._selection[entity4._id], 'Entity4 not added to selection correctly.');
+      doh.f(entity1.selected, 'Entity1 was not actually deselected');
+      doh.f(entity2.selected, 'Entity2 was not actually deselected');
+      doh.f(entity3.selected, 'Entity3 was not actually deselected');
+      doh.t(entity4.selected, 'Entity4 was not actually selected');
     },
     
     testSelectEntity_WrongID: function () {
@@ -114,14 +114,14 @@ define([
     
     testSelectEntities: function () {
       selectionManager.selectEntities([entity1._id, entity2._id, entity3._id, entity4._id]);
-      doh.is(entity1, selectionManager._selection[entity1._id], 'Entity not added to selection correctly.');
-      doh.is(entity2, selectionManager._selection[entity2._id], 'Entity not added to selection correctly.');
-      doh.is(entity3, selectionManager._selection[entity3._id], 'Entity not added to selection correctly.');
-      doh.is(entity4, selectionManager._selection[entity4._id], 'Entity not added to selection correctly.');
-      doh.t(entity1.selected, 'Entity was not actually selected');
-      doh.t(entity2.selected, 'Entity was not actually selected');
-      doh.t(entity3.selected, 'Entity was not actually selected');
-      doh.t(entity4.selected, 'Entity was not actually selected');
+      doh.is(entity1, selectionManager._selection[entity1._id], 'Entity1 not added to selection correctly.');
+      doh.is(entity2, selectionManager._selection[entity2._id], 'Entity2 not added to selection correctly.');
+      doh.is(entity3, selectionManager._selection[entity3._id], 'Entity3 not added to selection correctly.');
+      doh.is(entity4, selectionManager._selection[entity4._id], 'Entity4 not added to selection correctly.');
+      doh.t(entity1.selected, 'Entity1 was not actually selected');
+      doh.t(entity2.selected, 'Entity2 was not actually selected');
+      doh.t(entity3.selected, 'Entity3 was not actually selected');
+      doh.t(entity4.selected, 'Entity4 was not actually selected');
     },
     
     testSelectEntities_KeepSelection: function () {
