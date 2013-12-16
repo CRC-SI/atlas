@@ -10,7 +10,7 @@ define([
    * @version 1.0
    *
    * @abstract
-   * @alias atlas/Atlas
+   * @alias atlas/core/Atlas
    * @constructor
    */
   var Atlas = function () {
