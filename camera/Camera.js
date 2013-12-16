@@ -2,7 +2,7 @@
 define([
   'atlas/util/DeveloperError',
   'atlas/util/default',
-  'atlas/cesium/Vertex'
+  'atlas/model/Vertex'
 ], function (DeveloperError, defaultValue, Vertex) {
 
   /**
@@ -14,7 +14,7 @@ define([
    * @param {atlas/model/Vertex} [position] - The initial position of the Camera.
    * @param {Number} [position.x=-37] - The initial latitude (on the Earth's surface) in decimal degrees in the range [-90, 90].
    * @param {Number} [position.y=144] - The initial longitude (on the Earth's surface) in decimal degrees in the range [-180, 180].
-   * @param {Number} [position.z=20000] - The initial elevation above the Earth's surface.
+   * @param {Number} [position.z=20000] - The initial elevation above the Earth's surface metres.
    * @param {atlas/model/Vertex} [orientation] - The initial orientation of the Camera.
    * @param {Number} [orientation.x=0] - The tilt (or pitch) about the Camera's transverse axis in decimal degrees in the range [0, 180]. At 0 degrees the Camera is pointing at the point directly below it, at 180 degrees it is looking the opposite direction.
    * @param {Number} [orientation.y=0] - The bearing (or yaw) about the normal axis from the surface to the camera in decimal degrees in the range [0, 360]. At 0 (and 360) degrees the Camera is facing North, 90 degrees it is facing East, etc.
@@ -36,7 +36,7 @@ define([
      * The current orientation of the Camera.
      * @type atlas/model/Vertex
      */
-    this._orientation = defaultValue(orientaion, new Vertex(0, 0, 0));
+    this._orientation = defaultValue(orientation, new Vertex(0, 0, 0));
   };
 
   /**
@@ -78,9 +78,9 @@ define([
     var nextCamera = {
       position: position,
       orientation: defaultValue(orientation, new Vertex(0,0,0)),
-      duration: defaultValue(duration, 0.0)
+      duration: defaultValue(duration, 0)
     };
-    this.animateCamera(nextCamera);
+    this._animateCamera(nextCamera);
   };
 
   /**
