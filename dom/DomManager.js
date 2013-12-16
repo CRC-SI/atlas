@@ -41,25 +41,29 @@ define([
    * If Atlas is currently displayed changing the DOM automatically causes
    * it to be re-rendered in the new DOM element.
    *
-   * @param {String} newDomId - The new DOM element to render into.
+   * @param {String|HTMLElement} elem - Either the ID of a DOM element or the element itself.
    * @param {Boolean} [show=true] - Whether the object should be displayed immediately in this new location.
    */
-  DomManager.prototype.setDom = function (newDomId, show) {
+  DomManager.prototype.setDom = function (elem, show) {
     var showNow = defaultValue(show, true);
-    var newDomNode = document.getElementById(newDomId);
+    var newDomNode = typeof elem === 'string' ? document.getElementById(elem) : elem;
+    if (!newDomNode) {
+      throw new DeveloperError('DOM node not found: ' + elem);
+    }
+    var newDomNodeId = newDomNode.id;
 
     // Move existing DOM if there is one.
-    console.debug('setting DOM with current ID', this._currentDomId, 'to', newDomId);
+    console.debug('setting DOM with current ID', this._currentDomId, 'to', newDomNodeId);
     if (this._currentDomId !== null) {
       // Always show in the new position if Atlas is being moved.
       showNow = true;
-      console.debug('moving atlas from', this._currentDomId, 'to', newDomId);
+      console.debug('moving atlas from', this._currentDomId, 'to', newDomNodeId);
       var curDomNode = document.getElementById(this._currentDomId);
       var childDomNode = DomChild.getChildren(curDomNode);
       DomChild.addChildren(newDomNode, childDomNode);
-      console.debug('moved atlas into', newDomId);
+      console.debug('moved atlas into', newDomNodeId);
     }
-    this._currentDomId = newDomId;
+    this._currentDomId = newDomNodeId;
     // Show in new location if required.
     if (showNow) {
       DomClass.remove(newDomNode, "hidden");
