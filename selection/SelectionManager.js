@@ -138,7 +138,7 @@ define([
    * @param {Boolean} [keepSelection=false] - If true, the current selection will be added to rather than cleared.
    */
   SelectionManager.prototype.selectWithinPolygon = function () {
-    throw new 'No idea how to do this yet.';
+    throw 'No idea how to do this yet.';
   };
   
   
@@ -150,7 +150,7 @@ define([
    * @param {Boolean} [keepSelection=false] - If true, the current selection will be added to rather than cleared.
    */
   SelectionManager.prototype.selectBox = function () {
-    throw new 'No idea how to do this yet.';
+    throw 'No idea how to do this yet.';
   };
 
   return SelectionManager;
