@@ -245,7 +245,7 @@ define([
     }
     this._area = 0;
     var j = this._vertices.length - 1;  // The last vertex is the 'previous' one to the first
-    for (i = 0; i < numPoints; i++) {
+    for (var i = 0; i < numPoints; i++) {
       this._area = this._area +
           (this._vertices[j].x + this._vertices[i].x) * (this._vertices[j].y - this._vertices[i].y);
       j = i;  //j is previous vertex to i
