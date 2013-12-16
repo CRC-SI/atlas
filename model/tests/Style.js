@@ -2,7 +2,7 @@ define([
   'doh/runner',
   'dam/TestCase',
   /* Code under test */
-  '../Style',
+  '../Style'
 ], function (doh, TestCase, Style) {
 
   /* Test globals go here */

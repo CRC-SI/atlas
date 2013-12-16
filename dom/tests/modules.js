@@ -1,3 +1,3 @@
 define([
-  'atlas/dom/tests/DomManager',
+  'atlas/dom/tests/DomManager'
 ], 1);

@@ -98,7 +98,7 @@ define([
       toBeSelected.forEach(function(entity) {
         entity.onSelect();
         this._selection[entity._id] = entity;
-      });
+      }.bind(this));
       if (!keepSelection) {
         this.clearSelection();
       }

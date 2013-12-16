@@ -87,13 +87,13 @@ define([
    * @param {String} id - The ID of the GeoEntity object to return.
    * @returns {GeoEntity|Null} The GeoEntity requested or null if it does not exist.
    */
-  RenderManager.prototype.getEntity = function (id) {
+  RenderManager.prototype.getEntity = function(id) {
     if (id in this._entities) {
       return this._entities[id];
     } else {
       return null;
     }
-  }
+  };
 
   /**
    * Show the given entity

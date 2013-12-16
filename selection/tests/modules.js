@@ -1,3 +1,3 @@
 define([
-  'atlas/selection/tests/SelectionManager',
+  'atlas/selection/tests/SelectionManager'
 ], 1);

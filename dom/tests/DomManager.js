@@ -2,7 +2,7 @@ define([
   'doh/runner',
   'dam/TestCase',
   // Code under test
-  '../DomManager',
+  '../DomManager'
 ], function (doh, TestCase, DomManager) {
   "use strict";
 

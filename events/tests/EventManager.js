@@ -23,6 +23,9 @@ define([
   var entityRenderEvent;
   var entityRenderedEvent;
 
+  var atlasManagers;
+  var listener, listener0, listener1, listener2, listener3;
+
 
   var testCallback = function(event) {
     console.debug('testCallback fired', this);

@@ -37,7 +37,7 @@ define([
      */
     toggle: function(element, classStr) {
       element.classList.toggle(classStr);
-    },
+    }
   };
 
   return DomClass;

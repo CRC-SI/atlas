@@ -2,44 +2,44 @@ define([
   'doh/runner',
   'dam/TestCase',
   /* Code under test */
-  '../SelectionManager',
+  '../SelectionManager'
 ], function (doh, TestCase, SelectionManager) {
 
   var atlasManagers;
   var selectionManager;
   
-  var mockEntity = function (id) {
+  var mockEntity = function(id) {
     var entity = {
       _id: id,
       selected: false,
-      select: function () {
+      select: function() {
         this.selected = true;
       },
-      deselect: function () {
+      deselect: function() {
         this.selected = false;
       }
     };
     return entity;
-  }
+  };
   
   var entity1 = new mockEntity(1);
   var entity2 = new mockEntity(2);
   var entity3 = new mockEntity(3);
   var entity4 = new mockEntity(4);
   
-  var mockRenderManager = function () {
+  var mockRenderManager = function() {
     var rm = {
       es: {},
-      getEntity: function (id) {
+      getEntity: function(id) {
         return this.es[id];
       }
-    }
+    };
     rm.es[entity1._id] = entity1;
     rm.es[entity2._id] = entity2;
     rm.es[entity3._id] = entity3;
     rm.es[entity4._id] = entity4;
     return rm;
-  }
+  };
 
   /* Begin test case definitions */
   new TestCase({

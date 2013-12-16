@@ -5,7 +5,7 @@ define([
   'atlas/model/Polygon',
   'atlas/model/Mesh',
   // Base class.
-  './GeoEntity',
+  './GeoEntity'
 ], function (extend, defaultValue, DeveloperError, Polygon, Mesh, GeoEntity) {
 
   /**

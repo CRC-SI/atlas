@@ -5,7 +5,7 @@ define([
   '../Style',
   '../Material',
   /* Code under test */
-  '../Polygon',
+  '../Polygon'
 ], function (doh, TestCase, Vertex, Style, Material, Polygon) {
 
   /* Test globals go here */

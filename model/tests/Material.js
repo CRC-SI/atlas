@@ -2,7 +2,7 @@ define([
   'doh/runner',
   'dam/TestCase',
   /* Code under test */
-  '../Material',
+  '../Material'
 ], function (doh, TestCase, Material) {
 
   /* Test globals go here */
@@ -17,7 +17,7 @@ define([
     setUp: function () {
       // summary:
       material = new Material();
-    },
+    }
   }).register(doh);
 });
 

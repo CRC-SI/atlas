@@ -15,7 +15,7 @@ define([
       // summary:
       //      Create an GeoEntity object to test presence of functions.
       id = 12345;
-      args = {
+      var args = {
         eventManager: 'em',
         renderManager: 'rm'
       };
@@ -45,7 +45,7 @@ define([
       doh.assertTrue(geoEntity.isRenderable());
       geoEntity.setRenderable(false);
       doh.assertTrue(!geoEntity.isRenderable());
-    },
+    }
 
     /*
     testEventTargetness: function() {

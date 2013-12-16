@@ -205,7 +205,7 @@ define([
     }
   };
   
-  Polygon.prototype.setStyle = function (style) {
+  Polygon.prototype.setStyle = function(style) {
     if (!(style instanceof Style)) {
       throw new DeveloperError('Style must be a valid atlas Style object');
     } else {
@@ -216,7 +216,7 @@ define([
         this.setRenderable(false);
       }
     }
-  }
+  };
 
   /**
    * Function to enable interactive editing of the polygon.
@@ -315,14 +315,14 @@ define([
    * Causes the Polygon to be rendered with either the previously set style or
    * the DEFAULT_STYLE.
    */
-  Polygon.prototype.onDeselect = function () {;
+  Polygon.prototype.onDeselect = function() {
     if (this._previousStyle) {
       this.setStyle(this._previousStyle);
     } else {
       this.setStyle(Polygon.DEFAULT_STYLE);
     }
     this.show();
-  }
+  };
   
   return Polygon;
 });

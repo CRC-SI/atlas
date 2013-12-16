@@ -3,7 +3,7 @@ define([
   'dam/TestCase',
   'atlas/model/Feature',
   /* Code under test */
-  '../RenderManager',
+  '../RenderManager'
 ], function (doh, TestCase, Feature, RenderManager) {
   "use strict";
 

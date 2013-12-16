@@ -17,7 +17,7 @@ define([
    * @alias atlas/events/Event
    * @constructor
    */
-  Event = function(target, type, args) {
+  var Event = function(target, type, args) {
     if (target === undefined || type === undefined) {
       throw new DeveloperError('Can not create Event: Event must have both target and type.');
     }

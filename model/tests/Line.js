@@ -11,11 +11,11 @@ define([
     name: 'atlas/model/tests/Line',
 
     setUp: function() {
-      return;
+
     },
 
     tearDown: function() {
-      return;
+
     },
 
     testHasGeoEntity: function() {
@@ -52,7 +52,7 @@ define([
     },
 
     testCreateLine: function() {
-      vertex = new Vertex(1.23,-4,-5.67);
+      var vertex = new Vertex(1.23,-4,-5.67);
 
       doh.assertEqual(1.23, vertex.x);
       doh.assertEqual(-4, vertex.y);
@@ -60,8 +60,8 @@ define([
     },
 
     testGetLength2d: function() {
-      vertex1 = new Vertex();
-      vertex2 = new Vertex(3,4,0);
+      var vertex1 = new Vertex();
+      var vertex2 = new Vertex(3,4,0);
       line = new Line(vertex1, vertex2);
       var length = line.getLength();
 
@@ -69,8 +69,8 @@ define([
     },
 
     testGetLength3d: function() {
-      vertex1 = new Vertex(0,0,1);
-      vertex2 = new Vertex(0,3,5);
+      var vertex1 = new Vertex(0,0,1);
+      var vertex2 = new Vertex(0,3,5);
       line = new Line(vertex1, vertex2);
       var length = line.getLength();
 
