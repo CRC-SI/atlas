@@ -87,8 +87,7 @@ define([
     // TODO(aramk) use "handler" or "listener" and not both?
     var listeners = this._listeners[name];
     for (var event in listeners) {
-      var listener = listeners[event];
-      listener.cancel('intern', listener.id);
+      listeners[event].cancel();
     }
     delete this._enabledModules[name];
   };
