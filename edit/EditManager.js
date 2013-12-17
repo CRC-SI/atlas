@@ -1,5 +1,5 @@
 define([
-  ''
+
 ], function () {
 
   /**
@@ -26,17 +26,19 @@ define([
      * @type {Object.<String,Module>}
      */
     this._modules = {};
+
+    this._listeners = {};
     
     /**
-     * Lists the currently enabled modules.
-     * @type {Array.<String>}
+     * Lists the currently enabled modules by name.
+     * @type {Object.<String>}
      */
-    this._enabledModules = [];
-  }
+    this._enabledModules = {};
+  };
   
   // aram: initialisation that needs to occur after all managers are created.
   /**
-   * Completes all initiali
+   * Completes all initialisation.
    */
   EditManager.prototype.initialise = function () {};
   
@@ -45,37 +47,62 @@ define([
    * desc.
    * @private
    */
-  // THIS BINDS TO 'input/leftclick' 
-  EditManager.prototype._bindEvents = function () {};
+//  // THIS BINDS TO 'input/leftclick'
+//  EditManager.prototype._bindEvents = function () {
+//  };
   
   // aram: adds a new module
   /**
    * desc.
-   * @param {String} moduleName - desc.
+   * @param {String} name - desc.
    * @param {Object} module - desc.
    */
-  EditManager.prototype.addModule = function (moduleName, module) {};
+  EditManager.prototype.addModule = function (name, module) {
+    this._modules[name] = module;
+    this.disableModule(name);
+  };
   
   // aram: enables an existing module, or adds a new one and then enable it.
   /**
    * desc.
-   * @param {String} moduleName - desc.
+   * @param {String} name - desc.
    * @param {Object} [module=null] - desc.
    */
-  EditManager.prototype.enableModule = function (moduleName, module) {};
+  EditManager.prototype.enableModule = function (name, module) {
+    var bindings = this._modules[name].getEventBindings();
+    this._listeners[name] = {};
+    for (var event in bindings) {
+      this._listeners[name][event] = this._atlasManagers.event.addEventHandler('intern', event, bindings[event].bind(this))
+    }
+    this._enabledModules[name] = module;
+  };
   
   /**
    * desc.
    * @param {String} module - desc.
    */
-  EditManager.prototype.disableModule = function (module) {};
-  
-  // I don't know about this name. Maybe rename it.
+  EditManager.prototype.disableModule = function (name) {
+    var bindings = this._modules[name].getEventBindings();
+    // TODO(aramk) use "handler" or "listener" and not both?
+    var listeners = this._listeners[name];
+    for (var event in listeners) {
+      var listener = listeners[event];
+      listener.cancel('intern', listener.id);
+    }
+    delete this._enabledModules[name];
+  };
+
   /**
    * desc.
    * @param {String} module - desc.
    */
-  EditManager.prototype.setModuleEnabled = function (module) {};
+  EditManager.prototype.setIsModuleEnabled = function (name, state) {
+    if (state) {
+      this.enableModule(name);
+    } else {
+      this.disableModule(name);
+    }
+  };
   
   /**
    *

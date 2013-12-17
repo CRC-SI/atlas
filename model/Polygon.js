@@ -117,7 +117,7 @@ define([
   /**
    * Adds a vertex to the polygon end of the list of vertices describing the polygon.
    * @param {Vertex} vertex - vertex to add to the polygon.
-   * @return {Number} The index at which the vertex was added.
+   * @returns {Number} The index at which the vertex was added.
    */
   Polygon.prototype.addVertex = function(vertex) {
     var v = this._vertices.pop();
@@ -137,7 +137,7 @@ define([
    * The last element of _vertices is reserved for a duplicate of the first vertex.
    * @param {number} index - The index to insert at.
    * @param {Vertex} vertex - The vertex to be added. '-1' to insert at the end
-   * @return {Number} The index at which vertex was inserted.
+   * @returns {Number} The index at which vertex was inserted.
    */
   Polygon.prototype.insertVertex = function(index, vertex) {
     var insertAt = index;
@@ -159,7 +159,7 @@ define([
   /**
    * Removes a vertex from the Polygon.
    * @param {Number} index - The index of the vertex to remove. '-1' for the last vertex.
-   * @return {Vertex} The vertex removed.
+   * @returns {Vertex} The vertex removed.
    */
   Polygon.prototype.removeVertex = function(index) {
     if (index === -1) {
@@ -236,7 +236,7 @@ define([
    * Gets the area of the Polygon, in <tt>unit**2</tt> where <tt>unit</tt> is the
    * unit corresponding to the Vertices describing this Polygon.
    * @see {@link http://www.mathopenref.com/coordpolygonarea2.html}
-   * @return {Number} The area of the polygon.
+   * @returns {Number} The area of the polygon.
    */
   Polygon.prototype.getArea = function() {
     if (this._area) {
@@ -256,7 +256,7 @@ define([
   /**
    * Gets the centroid of the Polygon. Assumes that the polygon is 2D surface, ie. Vertex.z is
    * constant across the polygon.
-   * @return {Vertex} The Polygon's centroid.
+   * @returns {Vertex} The Polygon's centroid.
    * @see {@link http://stackoverflow.com/questions/9692448/how-can-you-find-the-centroid-of-a-concave-irregular-polygon-in-javascript/9939071#9939071}
    * @see  {@link http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon}
    */

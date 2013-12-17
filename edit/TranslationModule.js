@@ -1,35 +1,25 @@
 define([
-
-], function () {
+  'atlas/util/Extends',
+  './EditModule'
+], function (extend, EditModule) {
 
   /**
    * Constructs a new TranslationModule.
-   * @class TranslationModule desc ...
+   * @class Handles logic for movement through user interaction.
    *
    * @alias atlas/edit/TranslationModule
    * @constructor
    */
   var TranslationModule = function () {
-    // don't need an enabled state, that's handled by EditManager.
-
-    this._mode = {};
-
     this._entities = {};
-    
     this._originalEntityLocations = {};
   };
 
-  // I don't think we need an initialise()
-
-  TranslationModule.prototype.setMode = function (mode) {};
-
-  TranslationModule.prototype.getMode = function (mode) {};
-
-  // Undo an operation mid way?
-  TranslationModule.prototype.cancel = function (mode) {};
+  // Inherit from TranslationModule.
+  extend(TranslationModule, EditModule);
 
   // Stores Entities being translated, initial location
-  TranslationModule.prototype.start = function (mode) {
+  TranslationModule.prototype.start = function (name, event) {
     // PSUEDO CODE
     /* lastLocation = here
      * for each selected entity
@@ -39,7 +29,7 @@ define([
 
   // Updates 'initial' location, renders entities at current location
   // Have function on GeoEntity to temporarily change location data and re-render
-  TranslationModule.prototype.update = function (mode) {
+  TranslationModule.prototype.update = function (name, event) {
     // PSUEDO CODE
     /* currentLocation = here
      * diff = determineLocationChange
@@ -50,10 +40,10 @@ define([
      * lastLocation = here
      */
   };
-    
+
   // Changes actual location of entities, renders them there.
   // Have function on GeoEntity to permantely update location data and re-render
-  TranslationModule.prototype.end = function (mode) {
+  TranslationModule.prototype.end = function (name, event) {
     // PSUEDO CODE
     /* diff = determineLocationChange
      * for each selected entity

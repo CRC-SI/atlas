@@ -26,7 +26,7 @@ define([
 
   /**
    * Returns the length of the Line.
-   * @return {number} Length of line.
+   * @returns {number} Length of line.
    */
   Line.prototype.getLength = function () {
     var x2 = Math.abs(this._endVertex.x - this._startVertex.x);

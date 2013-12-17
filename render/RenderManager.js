@@ -98,7 +98,7 @@ define([
   /**
    * Show the given entity
    * @param  {Number} entity The ID of the Entity to show.
-   * @return {Boolean}       Whether the entity is shown.
+   * @returns {Boolean}       Whether the entity is shown.
    */
   RenderManager.prototype.show = function (entity) {
     throw new DeveloperError('Can not call abstract method of RenderManager');
@@ -107,7 +107,7 @@ define([
   /**
    * Hide the given entity
    * @param  {Number} entity The ID of the Entity to hide.
-   * @return {Boolean}       Whether the entity is hidden.
+   * @returns {Boolean}       Whether the entity is hidden.
    */
   RenderManager.prototype.hide = function (entity) {
     throw new DeveloperError('Can not call abstract method of RenderManager');
@@ -149,7 +149,7 @@ define([
    * Convenience function to check if a given object is a GeoEntity.
    * @private
    * @param  {Object}  entity The object to check.
-   * @return {Boolean}        Whether the object is a GeoEntity.
+   * @returns {Boolean}        Whether the object is a GeoEntity.
    */
   RenderManager.prototype._isEntity = function (entity) {
     return entity instanceof GeoEntity;
