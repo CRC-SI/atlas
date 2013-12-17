@@ -129,7 +129,6 @@ define([
    */
   EventManager.prototype.addEventHandlers = function (handlers) {
     handlers.forEach(function (handler) {
-      console.log(handler);
       this.addEventHandler(handler.source, handler.name, handler.callback);
     }, this);
   };
@@ -225,7 +224,6 @@ define([
     // Retrieve the list of event handlers for the given event type. 
     var handlers = allHandlers[name];
     if (handlers && handlers.length) {
-      console.debug('the handlers',handlers);
       for (var i = 0; i < handlers.length; i++) {
         handlers[i].callback(name, args);
       }

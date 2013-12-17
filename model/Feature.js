@@ -23,7 +23,7 @@ define([
    * @param {Number} [args.elevation=0] - The elevation (from the terrain surface) to the base of the Mesh or Polygon.
    * @param {Boolean} [args.show=false] - Whether the feature should be initially shown when created.
    * @param {String} [args.displayMode='footprint'] - Initial display mode of feature, one of 'footprint', 'extrusion' or 'mesh'.
-   * 
+   *
    * @extends {GeoEntity}
    * @alias atlas/model/Feature
    * @constructor
@@ -163,6 +163,30 @@ define([
       this._mesh.hide();
     }
   };
+
+  /**
+   * Handles the behaviour of the Feature when it is selected.
+   */
+  Feature.prototype.onSelect = function () {
+    if (this._displayMode === 'footprint' || this._displayMode === 'extrusion') {
+      if (this._footprint.isRenderable) {
+        this._footprint.onSelect();
+      }
+    } else if (this._displayMode === 'mesh') {
+      this._mesh.onSelect();
+    }
+  }
+
+  /**
+   * Handles the behaviour of the Feature when it is deselected.
+   */
+  Feature.prototype.onDeselect = function () {
+    if (this._displayMode === 'footprint' || this._displayMode === 'extrusion') {
+      this._footprint.onDeselect();
+    } else if (this._displayMode === 'mesh') {
+      this._mesh.onDeselect();
+    }
+  }
 
 
   /**

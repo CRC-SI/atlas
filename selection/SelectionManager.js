@@ -105,7 +105,7 @@ define([
     }
     console.debug('selected entities', ids);
   };
-  
+
   /**
    * Removes the given Entity from the current selection.
    * @param {String} id - The ID of the GeoEntity to deselect.
@@ -118,13 +118,21 @@ define([
   };
 
   /**
+   * Returns the map of currently selected GeoEntities.
+   * @returns {Object.<String,atlas/model/GeoEntity>}
+   */
+  SelectionManager.prototype.getSelection = function () {
+    return this._selection;
+  }
+
+  /**
    * Deselects all currently selected GeoEntities.
    */
   SelectionManager.prototype.clearSelection = function () {
     console.debug('clearing selection', this._selection);
     for (var id in this._selection) {
       if (this._selection.hasOwnProperty(id)) {
-        this._selection[id].deselect();
+        this._selection[id].onDeselect();
       }
     }
     this._selection = {};
@@ -140,8 +148,8 @@ define([
   SelectionManager.prototype.selectWithinPolygon = function () {
     throw 'No idea how to do this yet.';
   };
-  
-  
+
+
   /**
    * Selects multiple GeoEntities which are contained by rectangular area.
    * @param {altas/model/Vertex} start - The first point defining the rectangular selection area.
