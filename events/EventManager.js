@@ -56,7 +56,7 @@ define([
   };
 
   /**
-   * Bubbles the given Event through the its <code>target</code> Entity heirarchy.
+   * Bubbles the given Event through its <code>target</code> Entity heirarchy.
    * @param {atlas/events/Event} event - The Event to be propagated.
    */
   EventManager.prototype.dispatchEvent = function (event) {
