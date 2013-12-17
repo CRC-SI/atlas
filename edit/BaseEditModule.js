@@ -1,13 +1,13 @@
 define([], function() {
 
-  var EditModule = function() {
+  var BaseEditModule = function() {
     this._mode = {};
   };
 
   /**
    * @returns {Object} A mapping of event strings to methods which will be used as event handlers.
    */
-  EditModule.prototype.getEventBindings = function() {
+  BaseEditModule.prototype.getEventBindings = function() {
     return {
       'input/leftdown': this.start,
       'input/leftmove': this.update,
@@ -21,23 +21,23 @@ define([], function() {
     }
   };
 
-  EditModule.prototype.setMode = function(mode) {
+  BaseEditModule.prototype.setMode = function(mode) {
   };
 
-  EditModule.prototype.getMode = function() {
+  BaseEditModule.prototype.getMode = function() {
   };
 
-  EditModule.prototype.cancel = function(name, event) {
+  BaseEditModule.prototype.cancel = function(name, event) {
   };
 
-  EditModule.prototype.start = function(name, event) {
+  BaseEditModule.prototype.start = function(name, event) {
   };
 
-  EditModule.prototype.update = function(name, event) {
+  BaseEditModule.prototype.update = function(name, event) {
   };
 
-  EditModule.prototype.end = function(name, event) {
+  BaseEditModule.prototype.end = function(name, event) {
   };
 
-  return EditModule;
+  return BaseEditModule;
 });

@@ -1,8 +1,8 @@
 define([
   'atlas/util/Extends',
-  './EditModule',
+  './BaseEditModule',
   'atlas/model/GeoEntity'
-], function (extend, EditModule, GeoEntity) {
+], function (extend, BaseEditModule, GeoEntity) {
 
   /**
    * Constructs a new TranslationModule.
@@ -17,7 +17,7 @@ define([
   };
 
   // Inherit from TranslationModule.
-  extend(TranslationModule, EditModule);
+  extend(TranslationModule, BaseEditModule);
 
   // Stores Entities being translated, initial location
   TranslationModule.prototype.start = function (name, event) {
