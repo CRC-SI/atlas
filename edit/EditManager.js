@@ -28,22 +28,34 @@ define([
     this._enabledModules = [];
   }
   
+  // aram: initialisation that needs to occur after all managers are created.
   /**
    * desc.
    */
-  EditManager.prototype.initialize = function () {};
+  EditManager.prototype.initialise = function () {};
   
+  // aram: binds handles to events that the editmanager is interested in (on EventManager).
   /**
    * desc.
    * @private
    */
   EditManager.prototype._bindEvents = function () {};
   
+  // aram: adds a new module
   /**
    * desc.
-   * @param {String} module - desc.
+   * @param {String} moduleName - desc.
+   * @param {Object} module - desc.
    */
-  EditManager.prototype.enableModule = function (module) {};
+  EditManager.prototype.addModule = function (moduleName, module) {};
+  
+  // aram: enables an existing module, or adds a new one and then enable it.
+  /**
+   * desc.
+   * @param {String} moduleName - desc.
+   * @param {Object} [module=null] - desc.
+   */
+  EditManager.prototype.enableModule = function (moduleName, module) {};
   
   /**
    * desc.
