@@ -4,7 +4,9 @@ define([
 
   /**
    * Constructs a new EditManager object.
-   * @class EditManager ...
+   * @class The EditManager encapsulates the relationship between user input, and modifying
+   * the placement and geometry of GeoEntities. <code>Modules</code> are defined to contain
+   * the logic of particular modifications, for example translation, scaling, and rotation. 
    *
    * @param {Object} atlasManagers - Contains a mapping of Atlas manager names to manager instance.
    * 
@@ -12,6 +14,10 @@ define([
    * @constructor
    */
   var EditManager = function (atlasManagers) {
+    /**
+     * Contains a mapping of Atlas manager names to the manager instance.
+     * @type {Object.<String,Object>}
+     */
     this._atlasManagers = atlasManagers;
     this._atlasManagers.edit = this;
     
@@ -30,7 +36,7 @@ define([
   
   // aram: initialisation that needs to occur after all managers are created.
   /**
-   * desc.
+   * Completes all initiali
    */
   EditManager.prototype.initialise = function () {};
   
@@ -39,6 +45,7 @@ define([
    * desc.
    * @private
    */
+  // THIS BINDS TO 'input/leftclick' 
   EditManager.prototype._bindEvents = function () {};
   
   // aram: adds a new module
