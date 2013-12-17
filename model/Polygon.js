@@ -102,13 +102,11 @@ define([
   // Inherit from GeoEntity
   extend(GeoEntity, Polygon);
 
-
   /**
    * Defines the default style to use when rendering a polygon.
    * @type {atlas/model/Colour}
    */
   Polygon.DEFAULT_STYLE = new Style(Colour.GREEN, Colour.GREEN, 1);
-
 
   /**
    * Defines the default style to use when rendering a selected polygon.
@@ -210,6 +208,7 @@ define([
       throw new DeveloperError('Style must be a valid atlas Style object');
     } else {
       if (this._style !== style) {
+        console.debug('setting style of entity', this._id, 'to', style);
         // Only change style if the new style is different so _previousStyle isn't clobbered.
         this._previousStyle = this._style;
         this._style = style;
@@ -306,6 +305,7 @@ define([
    * Causes the Polygon to be rendered with the selection style.
    */
   Polygon.prototype.onSelect = function () {
+    console.debug('trying to select entity', this._id);
     this.setStyle(Polygon.SELECTED_STYLE);
     this.show();
   };
@@ -315,7 +315,8 @@ define([
    * Causes the Polygon to be rendered with either the previously set style or
    * the DEFAULT_STYLE.
    */
-  Polygon.prototype.onDeselect = function() {
+  Polygon.prototype.onDeselect = function () {;
+    console.debug('trying to deselect entity', this._id);
     if (this._previousStyle) {
       this.setStyle(this._previousStyle);
     } else {
