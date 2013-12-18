@@ -60,7 +60,6 @@ define([
       var feature = new this._entityTypes.Feature(id, args);
       return feature;
     }
-    return undefined;
   }
 
   /**
@@ -97,10 +96,10 @@ define([
   /**
    * Returns the GeoEntity instance coresponding to the given ID.
    * @param {String} id - The ID of the GeoEntity to return.
-   * @returns {atlas/model/GeoEntity|undefined} The corresponding GeoEntity or <code>undefined</code> if there is no such GeoEntity.
+   * @returns {atlas/model/GeoEntity|undefined} The corresponding GeoEntity or
+   * <code>undefined</code> if there is no such GeoEntity.
    */
   EntityManager.prototype.getById = function (id) {
-    if (!(id in this._entities)) return undefined;
     console.debug('entityManager: got entity', id);
     return this._entities[id];
   };
@@ -108,7 +107,8 @@ define([
   /**
    * Returns the GeoEntity that intersects the given Vertex or undefined.
    * @param {atlas/model/Vertex} point - The point of interest.
-   * @returns {atlas/model/GeoEntity|undefined} The GeoEntity located at the given point, or <code>undefined</code> if there is no such GeoEntity.
+   * @returns {atlas/model/GeoEntity|undefined} The GeoEntity located at the given point, or
+   * <code>undefined</code> if there is no such GeoEntity.
    */
   EntityManager.prototype.getAt = function (point) {
     // TODO
@@ -119,9 +119,12 @@ define([
 
   /**
    * Returns the GeoEntities located within the given Polygon.
-   * @param {atlas/model/Polygon} boundingPoly - The polygon defining the geographic area to retrieve GeoEntities.
-   * @param {Boolean} [intersects] - If true, GeoEntities which intersect the boundingBox are returned as well. Otherwise, only wholly contains GeoEntities are returned.
-   * @returns {atlas/model/GeoEntity|undefined} The GeoEntities located in the bounding box, or <code>undefined</code> if there are no such GeoEntities.
+   * @param {atlas/model/Polygon} boundingPoly - The polygon defining the geographic area to
+   * retrieve GeoEntities.
+   * @param {Boolean} [intersects] - If true, GeoEntities which intersect the boundingBox are
+   * returned as well. Otherwise, only wholly contains GeoEntities are returned.
+   * @returns {atlas/model/GeoEntity|undefined} The GeoEntities located in the bounding box,
+   * or <code>undefined</code> if there are no such GeoEntities.
    */
   EntityManager.prototype.getInPoly = function (boundingPoly, intersects) {
     // TODO
