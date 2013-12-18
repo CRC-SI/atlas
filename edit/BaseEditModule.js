@@ -1,7 +1,21 @@
 define([], function() {
 
+  /**
+   * Constructs a new BaseEditModule object.
+   * @class The BaseEditModule defines the common interface for <code>Modules</code> used in
+   * the {@link atlas/edit/EditManager}.
+   *
+   * @abstract
+   * @alias atlas/edit/BaseEditModule
+   * @constructor
+   */
   var BaseEditModule = function() {
-    this._mode = {};
+    /**
+     * A set of strings as keys in an object which define what modes are enabled
+     * for the module. Modes determine the behaviour of the module and are implementation specific.
+     * @type {Object}
+     */
+    this._modes = {};
   };
 
   /**
@@ -21,22 +35,69 @@ define([], function() {
     }
   };
 
-  BaseEditModule.prototype.setMode = function(mode) {
+  /**
+   * Sets a mode on the module. Invalid modes will be ignored by the module.
+   * @param {String} mode - A string used by the module which determines its behaviour.
+   * @param {Object} [args=null] - Optional arguments associated with the mode.
+   */
+  BaseEditModule.prototype.setMode = function(mode, args) {
+    this._modes[mode] = args || null;
   };
 
-  BaseEditModule.prototype.getMode = function() {
+  /**
+   * @returns {Object} All the enabled modes belonging to this module.
+   */
+  BaseEditModule.prototype.getModes = function() {
+    return this._modes;
   };
 
-  BaseEditModule.prototype.cancel = function(name, event) {
+  /**
+   * @returns {Boolean} Whether this .
+   * @param {String} mode - The mode name.
+   */
+  BaseEditModule.prototype.hasMode = function(mode) {
+    return this._modes[mode] !== undefined;
   };
 
-  BaseEditModule.prototype.start = function(name, event) {
+  /**
+   * Removes the mode with the given name from this module.
+   * @param mode - The name of the mode.
+   */
+  BaseEditModule.prototype.removeMode = function(mode) {
+    delete this._modes[mode];
   };
 
-  BaseEditModule.prototype.update = function(name, event) {
+  /**
+   * An event handler which starts the action this module performs.
+   * @param {String} name - The name of the event.
+   * @param {Object} [args] - Optional event arguments.
+   */
+  BaseEditModule.prototype.start = function(name, args) {
   };
 
-  BaseEditModule.prototype.end = function(name, event) {
+  /**
+   * An event handler which updates the progress of the action this module performs.
+   * @param {String} name - The name of the event.
+   * @param {Object} [args] - Optional event arguments.
+   */
+  BaseEditModule.prototype.update = function(name, args) {
+  };
+
+  /**
+   * An event handler which ends the action this module performs.
+   * @param {String} name - The name of the event.
+   * @param {Object} [args] - Optional event arguments.
+   */
+  BaseEditModule.prototype.end = function(name, args) {
+  };
+
+  /**
+   * Cancels the action performed by this module and returns to the state before
+   * {@link BaseEditModule.start} was called.
+   * @param {String} name - The name of the event.
+   * @param {Object} [args] - Optional event arguments.
+   */
+  BaseEditModule.prototype.cancel = function(name, args) {
   };
 
   return BaseEditModule;

@@ -135,7 +135,7 @@ define([
    */
   SelectionManager.prototype.getSelection = function () {
     return this._selection;
-  }
+  };
 
   /**
    * Deselects all currently selected GeoEntities.

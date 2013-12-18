@@ -15,15 +15,14 @@ define([
     this.y = y || 0.0;
     this.z = z || 0.0;
   };
-  
-  Vertex.prototype.add = function (vertex) {
-    if (!(vertex instanceof Vertex)) return this;
-    
-    this.x += vertex.x;
-    this.y += vertex.y;
-    this.z += vertex.z;
-    return this;
-  }
+
+  Vertex.prototype.add = function (other) {
+    return new Vertex(this.x + other.x, this.y + other.y, this.z + other.z);
+  };
+
+  Vertex.prototype.subtract = function (other) {
+    return new Vertex(this.x - other.x, this.y - other.y, this.z - other.z);
+  };
 
   return Vertex;
 });

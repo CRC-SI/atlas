@@ -2,25 +2,27 @@ define([
 
 ], function () {
 
+  // TODO(aramk) refactor this into abstract atlas/core/ModularManager and use elsewhere (e.g. RenderManager).
+
   /**
    * Constructs a new EditManager object.
    * @class The EditManager encapsulates the relationship between user input, and modifying
    * the placement and geometry of GeoEntities. <code>Modules</code> are defined to contain
-   * the logic of particular modifications, for example translation, scaling, and rotation. 
+   * the logic of particular modifications, for example translation, scaling, and rotation.
    *
    * @param {Object} atlasManagers - Contains a mapping of Atlas manager names to manager instance.
-   * 
+   *
    * @alias atlas/edit/EditManager
    * @constructor
    */
   var EditManager = function (atlasManagers) {
     /**
      * Contains a mapping of Atlas manager names to the manager instance.
-     * @type {Object.<String,Object>}
+     * @type {Object.<String, Object.<String, Object>>}
      */
     this._atlasManagers = atlasManagers;
     this._atlasManagers.edit = this;
-    
+
     /**
      * Contains a mapping of module name to Module object.
      * @type {Object.<String,Module>}
@@ -33,7 +35,7 @@ define([
      * @private
      */
     this._listeners = {};
-    
+
     /**
      * Lists the currently enabled modules by name.
      * @type {Object.<String>}
@@ -45,7 +47,7 @@ define([
    * Initialisation that needs to occur after all managers are created.
    */
   EditManager.prototype.initialise = function () {};
-  
+
   /**
    * Adds a new module with the given name.
    * @param {String} name - The name of the module.
@@ -61,25 +63,26 @@ define([
   };
 
   /**
-   * Enables an existing module, or adds a new one and then enable it.
+   * Enables an existing module, or adds a new one and then enables it.
    * @param {String} name - The name of the module.
-   * @param {Object} [module=null] - The module object.
+   * @param {Object} [module] - The module object.
    */
   EditManager.prototype.enableModule = function (name, module) {
-    var bindings = this.getModule(name).getEventBindings();
+    var module = this.getModule(name);
+    var bindings = module.getEventBindings();
     this._listeners[name] = {};
     for (var event in bindings) {
-      this._listeners[name][event] = this._atlasManagers.event.addEventHandler('intern', event, bindings[event].bind(this))
+      this._listeners[name][event] = this._atlasManagers.event.addEventHandler('intern', event, bindings[event].bind(module));
     }
     var existing = this.getModule(name);
-    if (!existing && module !== undefined) {
+    if (!existing && module) {
       this.addModule(name, module);
     }
     this._enabledModules[name] = this.getModule(name);
   };
-  
+
   /**
-   * Disables the module.
+   * Disables the module with the given name.
    * @param {String} name - The name of the module.
    */
   EditManager.prototype.disableModule = function (name) {
@@ -93,7 +96,7 @@ define([
   };
 
   /**
-   * Enables or disables the module.
+   * Enables or disables the module with the given name.
    * @param {String} name - The name of the module.
    * @param {Boolean} state - Whether the module is active.
    */
@@ -104,16 +107,6 @@ define([
       this.disableModule(name);
     }
   };
-  
-  /**
-   *
-   * @param {String} module - desc.
-   * @param {Object} mode - desc.
-   * @param {Boolean} [unset=false] - desc.
-   */
-  EditManager.prototype.setModuleMode = function (module, mode, unset) {
 
-  };
-  
   return EditManager;
 });
