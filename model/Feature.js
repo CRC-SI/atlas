@@ -206,5 +206,31 @@ define([
     }
   };
 
+  Feature.prototype.getArea = function () {
+    var area = undefined;
+    if (this._displayMode === 'footprint' || this._displayMode === 'extrusion') {
+      area = this._footprint.getArea();
+    } else if (this._displayMode === 'mesh') {
+      area = this._mesh.getArea();
+    }
+    return area;
+  }
+
+  Feature.prototype.getCentroid = function () {
+    var centroid = undefined;
+    if (this._displayMode === 'footprint' || this._displayMode === 'extrusion') {
+      centroid = this._footprint.getCentroid();
+    } else if (this._displayMode === 'mesh') {
+      centroid = this._mesh.getCentroid();
+    }
+    return centroid;
+  }
+  
+  
+  Feature.prototype.translate = function (displacement) {
+    if (this._footprint) this._footprint.translate(displacement);
+    if (this._mesh) this._mesh.translate(displacement);
+  }
+
   return Feature;
 });

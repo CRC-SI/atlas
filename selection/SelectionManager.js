@@ -30,7 +30,10 @@ define([
     this._atlasManagers = atlasManagers;
     this._atlasManagers.selection = this;
   };
-
+  
+  SelectionManager.prototype.initialise = function () {
+    this.bindEvents();
+  };
 
   /**
    * Registers event handlers with the EventManager for relevant events.
@@ -40,10 +43,19 @@ define([
     var handlers = [
       {
         source: 'intern',
-        name: 'entity/click',
+        name: 'input/leftclick',
         callback: function (name, args) {
           if (args) {
-            this.selectEntity(args.entity, args.modifiers.contains('shift'));
+            if (!args.modifiers) args.modifiers = {};
+            // var worldPosition = this._atlasManagers.render.convertScreenCoordsToLatLng(args);
+            // var picked = this._atlasManagers.entity.getAt(worldPosition);
+            console.debug('left click');
+            var pickedPrimitive = this._atlasManagers.render._widget.scene.pick(args);
+            if (pickedPrimitive) {
+              this.selectEntity(pickedPrimitive.id, 'shift' in args.modifiers);
+            } else {
+              this.clearSelection();
+            }
           }
         }.bind(this)
       },
@@ -66,7 +78,7 @@ define([
    * @param {Boolean} [keepSelection=false] - If true, the GeoEntity will be added to the current selection. If false, the current selection will be cleared before the GeoEntity is selected.
    */
   SelectionManager.prototype.selectEntity = function (id, keepSelection) {
-    var entity = this._atlasManagers.render.getEntity(id);
+    var entity = this._atlasManagers.entity.getById(id);
     if (entity) {
       console.debug('selecting entity', id);
       if (!keepSelection) {
@@ -88,7 +100,7 @@ define([
     var toBeSelected = [];
     // Check that all the ids correspond to an entity.
     for (var i = 0; i < ids.length; i++) {
-      var entity = this._atlasManagers.render.getEntity(ids[i]);
+      var entity = this._atlasManagers.entity.getEntity(ids[i]);
       if (entity) {
         toBeSelected.push(entity);
       }
