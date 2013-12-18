@@ -225,6 +225,12 @@ define([
     }
     return centroid;
   }
+  
+  
+  Feature.prototype.translate = function (displacement) {
+    if (this._footprint) this._footprint.translate(displacement);
+    if (this._mesh) this._mesh.translate(displacement);
+  }
 
   return Feature;
 });

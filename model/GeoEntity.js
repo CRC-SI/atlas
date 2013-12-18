@@ -160,6 +160,18 @@ define([
   GeoEntity.prototype.getAppearance = function() {
       return this._appearance;
   };
+  
+  
+  /**
+   * Translates the GeoEntity by the given vector.
+   * @param {atlas/model/Vertex} displacement - The vector to move the GeoEntity by.
+   * @param {Number} displacement.x - The change in latitude to apply.
+   * @param {Number} displacement.y - The change in longitude to apply.
+   * @param {Number} displacement.z - The change in elevation to apply.
+   
+   * @abstract
+   */
+  GeoEntity.prototype.translate = function(displacement) {};
 
   /**
    * Function to build the GeoEntity so it can be rendered.
