@@ -89,7 +89,7 @@ define([
   EntityManager.prototype.remove = function (id) {
     if (id in this._entities) {
       console.debug('entityManager: deleted entity', id);
-      this._entites[id].cleanUp();
+      this._entities[id].cleanUp();
       delete this._entities[id];
     }
   };
@@ -100,7 +100,7 @@ define([
    * @returns {atlas/model/GeoEntity|undefined} The corresponding GeoEntity or <code>undefined</code> if there is no such GeoEntity.
    */
   EntityManager.prototype.getById = function (id) {
-    if (!(id in this._entites)) return undefined;
+    if (!(id in this._entities)) return undefined;
     console.debug('entityManager: got entity', id);
     return this._entities[id];
   };
