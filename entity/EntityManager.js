@@ -58,9 +58,9 @@ define([
       // Add the RenderManager to the args for the feature.
       args.renderManager = this._atlasManagers.render;
       var feature = new this._entityTypes.Feature(id, args);
-      this.add(id, feature);
-      if (args.show) feature.show();
+      return feature;
     }
+    return undefined;
   }
 
   /**
