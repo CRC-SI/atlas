@@ -24,13 +24,14 @@ define([], function() {
   BaseEditModule.prototype.getEventBindings = function() {
     return {
       'input/leftdown': this.start,
-      'input/leftmove': this.update,
+      'input/mousemove': this.update,
       'input/leftup': this.end,
       'input/key': function (name, event) {
         // TODO(aramk) find a nice way to map key codes.
         if (event.keyCode === 27) {
           return this.cancel(name, event);
         }
+        return function () {};
       }
     }
   };
