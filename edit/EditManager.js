@@ -1,6 +1,6 @@
 define([
-
-], function () {
+  'atlas/edit/TranslationModule'
+], function (TranslationModule) {
 
   // TODO(aramk) refactor this into abstract atlas/core/ModularManager and use elsewhere (e.g. RenderManager).
 
@@ -46,7 +46,10 @@ define([
   /**
    * Initialisation that needs to occur after all managers are created.
    */
-  EditManager.prototype.initialise = function () {};
+  EditManager.prototype.initialise = function () {
+    this.addModule('translation', new TranslationModule(this._atlasManagers));
+    this.enableModule('translation');
+  };
 
   /**
    * Adds a new module with the given name.
@@ -63,22 +66,20 @@ define([
   };
 
   /**
-   * Enables an existing module, or adds a new one and then enables it.
+   * Enables an existing module.
    * @param {String} name - The name of the module.
-   * @param {Object} [module] - The module object.
    */
-  EditManager.prototype.enableModule = function (name, module) {
+  EditManager.prototype.enableModule = function (name) {
     var module = this.getModule(name);
+    if (!module) return;
+    
     var bindings = module.getEventBindings();
-    this._listeners[name] = {};
+    if (!this._listeners[name]) this._listeners[name] = {};
     for (var event in bindings) {
+      console.debug('adding handler - name:', event, 'callback', bindings[event]);
       this._listeners[name][event] = this._atlasManagers.event.addEventHandler('intern', event, bindings[event].bind(module));
     }
-    var existing = this.getModule(name);
-    if (!existing && module) {
-      this.addModule(name, module);
-    }
-    this._enabledModules[name] = this.getModule(name);
+    this._enabledModules[name] = module;
   };
 
   /**
