@@ -1,8 +1,9 @@
 define([
   'atlas/util/Extends',
   './BaseEditModule',
-  'atlas/model/GeoEntity'
-], function(extend, BaseEditModule, GeoEntity) {
+  'atlas/model/GeoEntity',
+  'atlas/model/Vertex'
+], function(extend, BaseEditModule, GeoEntity, Vertex) {
 
   /**
    * Constructs a new TranslationModule.
@@ -38,6 +39,8 @@ define([
     if (!target) {
       return;
     }
+    this._lastScreenCoords = {x: args.x, y: args.y};
+    
     this._atlasManagers.camera.lockCamera();
     var id = target._id;
     var cartLocation = this._cartographicLocation(args);
@@ -67,7 +70,11 @@ define([
     //var tics = time - this._lastTranslate;
     //if (tics < 500) return;
     //this._lastTranslate = time;
-
+    var screenDiff = new Vertex(args.x, args.y).subtract({x: this._lastScreenCoords.x, y: this._lastScreenCoords.y}).absolute();
+    if (screenDiff.x < 5 && screenDiff.y < 5) {
+      return;
+    }
+    this._lastScreenCoords = {x: args.x, y: args.y};
     var cartLocation = this._cartographicLocation(args);
     this._translate(this._lastLocation, cartLocation);
     this._lastLocation = cartLocation;
@@ -79,9 +86,9 @@ define([
    */
   TranslationModule.prototype.end = function(name, args) {
     if (!this._entities) return;
-
+    this._lastScreenCoords = {x: args.x, y: args.y};
     var cartLocation = this._cartographicLocation(args);
-    this._translate(this._lastLocation, cartLocation);
+    //this._translate(this._lastLocation, cartLocation);
     this._reset();
     this._atlasManagers.camera.unlockCamera();
   };

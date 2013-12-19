@@ -305,9 +305,7 @@ define([
    * Causes the Polygon to be rendered with the selection style.
    */
   Polygon.prototype.onSelect = function () {
-    console.debug('trying to select entity', this._id);
     this.setStyle(Polygon.SELECTED_STYLE);
-    this.show();
   };
   
   /**
@@ -316,13 +314,11 @@ define([
    * the DEFAULT_STYLE.
    */
   Polygon.prototype.onDeselect = function () {;
-    console.debug('trying to deselect entity', this._id);
     if (this._previousStyle) {
       this.setStyle(this._previousStyle);
     } else {
       this.setStyle(Polygon.DEFAULT_STYLE);
     }
-    this.show();
   };
   
   return Polygon;
