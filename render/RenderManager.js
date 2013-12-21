@@ -31,14 +31,21 @@ define([
     this._atlasManagers.render = this;
 
     /**
+     * @deprecated
+     * This no longer exists, use the EntityManager to access features.
      * This is a map of Entity ID to GeoEntity. These are the entities
      * the RenderManager knows about and is able to cause to be rendered.
      * @type {Object}
      */
-    this._entities = {};
+     //this._entities = {};
   };
 
+  /**
+   * @deprecated
+   * @see {@link atlas/entity/EntityManager#createFeature}
+   */
   RenderManager.prototype.addFeature = function (id, args) {
+    throw new DeveloperError('RenderManger.addFeature is deprecated, use the EntityManager.');
     if (typeof id === 'object') {
       args = id;
       id = args.id;
@@ -58,11 +65,14 @@ define([
   };
 
   /**
+   * @deprecated
+   * @see {@link atlas/entity/EntityManager}
    * Add an Entity to the RenderManager so it can be rendered. This does
    * not automatically show the Entity.
    * @param {GeoEntity} entity The GeoEntity to be added to rendering.
    */
   RenderManager.prototype.addEntity = function (entity) {
+    throw new DeveloperError('RenderManger.addEntity is deprecated, use the EntityManager.');
     if (!this._isEntity(entity)) {
       throw new DeveloperError('Can only add subclass of GeoEntity');
     } else {
@@ -71,10 +81,13 @@ define([
   };
 
   /**
+   * @deprecated
+   * @see {@link atlas/entity/EntityManager}
    * Remove a GeoEntity from the RenderManager.
    * @param {Number} id The ID of the GeoEntity to remove.
    */
   RenderManager.prototype.removeEntity = function (id) {
+    throw new DeveloperError('RenderManger.removeEntity is deprecated, use the EntityManager.');
     if (this._entities[id] !== undefined) {
       console.debug('removing entity', this._entities[id]);
       this._entities[id].remove();
@@ -83,11 +96,14 @@ define([
   };
   
   /**
+   * @deprecated
+   * @see {@link atlas/entity/EntityManager}
    * Returns the Entity with the given ID if it exists.
    * @param {String} id - The ID of the GeoEntity object to return.
    * @returns {GeoEntity|Null} The GeoEntity requested or null if it does not exist.
    */
   RenderManager.prototype.getEntity = function(id) {
+    throw new DeveloperError('RenderManager.getEntity is deprecated, use the EntityManager');
     if (id in this._entities) {
       return this._entities[id];
     } else {
@@ -98,7 +114,7 @@ define([
   /**
    * Show the given entity
    * @param  {Number} entity The ID of the Entity to show.
-   * @return {Boolean}       Whether the entity is shown.
+   * @returns {Boolean}       Whether the entity is shown.
    */
   RenderManager.prototype.show = function (entity) {
     throw new DeveloperError('Can not call abstract method of RenderManager');
@@ -107,7 +123,7 @@ define([
   /**
    * Hide the given entity
    * @param  {Number} entity The ID of the Entity to hide.
-   * @return {Boolean}       Whether the entity is hidden.
+   * @returns {Boolean}       Whether the entity is hidden.
    */
   RenderManager.prototype.hide = function (entity) {
     throw new DeveloperError('Can not call abstract method of RenderManager');
@@ -149,7 +165,7 @@ define([
    * Convenience function to check if a given object is a GeoEntity.
    * @private
    * @param  {Object}  entity The object to check.
-   * @return {Boolean}        Whether the object is a GeoEntity.
+   * @returns {Boolean}        Whether the object is a GeoEntity.
    */
   RenderManager.prototype._isEntity = function (entity) {
     return entity instanceof GeoEntity;

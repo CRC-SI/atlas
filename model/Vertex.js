@@ -16,5 +16,13 @@ define([
     this.z = z || 0.0;
   };
 
+  Vertex.prototype.add = function (other) {
+    return new Vertex(this.x + other.x, this.y + other.y, this.z + other.z);
+  };
+
+  Vertex.prototype.subtract = function (other) {
+    return new Vertex(this.x - other.x, this.y - other.y, this.z - other.z);
+  };
+
   return Vertex;
 });

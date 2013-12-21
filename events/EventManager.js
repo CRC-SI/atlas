@@ -146,7 +146,7 @@ define([
    *    theEventManager.addEventHandler('extern', 'entity/show', show.bind(this));
    * };
    * </code> 
-   * @returns {Object} An EventListner object that can be used to cancel the EventHandler.
+   * @returns {Object} An EventListener object that can be used to cancel the EventHandler.
    */
   EventManager.prototype.addEventHandler = function (source, name, callback) {
     // Select the map of event handlers to add to.
