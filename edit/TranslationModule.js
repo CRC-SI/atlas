@@ -1,6 +1,6 @@
 define([
   'atlas/util/Extends',
-  'atlas/util/Defaults',
+  'atlas/util/default',
   './BaseEditModule',
   'atlas/model/GeoEntity',
   'atlas/model/Vertex'
