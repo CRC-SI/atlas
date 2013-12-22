@@ -56,8 +56,9 @@ define([
   };
 
   /**
-   * Bubbles the given Event through its <code>target</code> Entity heirarchy.
-   * @param {atlas/events/Event} event - The Event to be propagated.
+   * Bubbles the given Event through its <code>target</code> Entity hierarchy.
+   * TODO(bpstudds) Fix the goddamn module names.
+   * @param {atlas/events/Eventa} event - The Event to be propagated.
    */
   EventManager.prototype.dispatchEvent = function (event) {
     var nextEvent;
@@ -126,11 +127,14 @@ define([
    * @param {Object} handlers - An array of Objects describing the handlers to be added.
    *       The objects should have properties 'source', 'name', and 'callback' as per
    *       {@link atlas/events/EventManager#addEventHandler}.
+   * @returns {Object.<String, Object>} The map of event name to EventHandler object.
    */
   EventManager.prototype.addEventHandlers = function (handlers) {
+    var eventHandlers = {};
     handlers.forEach(function (handler) {
-      this.addEventHandler(handler.source, handler.name, handler.callback);
+      eventHandlers[handler.name] = this.addEventHandler(handler.source, handler.name, handler.callback);
     }, this);
+    return eventHandlers;
   };
 
   /**
@@ -138,8 +142,8 @@ define([
    * (Host) or internal (Atlas) events.
    *
    * @param {String} source - The source of the event, either 'extern' or 'intern'.
-   * @package {String} name - The name of the event.
-   * @param {Function(String, Object)} callback - Callback function to handle the event.
+   * @param {String} name - The name of the event.
+   * @param {Function.<String, Object>} callback - Callback function to handle the event.
    * @example
    * <code>
    * constructRenderManager(theEventManager) {
@@ -193,13 +197,15 @@ define([
     } else if (source === 'intern') {
       allHandlers = this._internalEvent_Handlers;
     } else {
-      throw new DeveloperError('Can not handle event without specifying "extern" or "intern" event');
+      throw new DeveloperError('Can not remove event without specifying "extern" or "intern" event');
     }
     for (var i in allHandlers) {
-      for (var j in allHandlers[i]) {
-        if (allHandlers[i][j].id === id) {
-          delete allHandlers[i][j];
-          return;
+      if (allHandlers.hasOwnProperty(i)) {
+        for (var j = 0; j < allHandlers[i].length; j++) {
+          if (allHandlers[i][j].id === id) {
+            delete allHandlers[i][j];
+            return;
+          }
         }
       }
     }
@@ -236,7 +242,6 @@ define([
    * @param {Object} args - Optional event arguments that are passed to the event handler callback.
    */
   EventManager.prototype.handleInternalEvent = function (name, args) {
-    // TODO(bpstudds): Need to complete documentation.
     this._handleEvent('intern', name, args);
   };
 
@@ -246,7 +251,6 @@ define([
    * @param {Object} args - Optional event arguments that are passed to the event handler callback.
    */
   EventManager.prototype.handleExternalEvent = function (name, args) {
-    // TODO(bpstudds): Need to complete documentation.
     this._handleEvent('extern', name, args);
   };
 
