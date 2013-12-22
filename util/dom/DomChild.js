@@ -16,7 +16,7 @@ define([
     /**
      * Gets all of the child elements of the given DOM node.
      * @param  {HTMLElement} element The DOM node.
-     * @return {HTMLElement[]}       A list of all child nodes.
+     * @returns {HTMLElement[]}       A list of all child nodes.
      */
     getChildren: function (element) {
       if (!element || !element.hasChildNodes()) {

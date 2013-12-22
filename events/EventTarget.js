@@ -104,7 +104,7 @@ define([
   /**
    * Handles events that bubble up to the EventTarget.
    * @param  {atlas/events/Event} event - The Event to be handled.
-   * @return {atlas/events/Event} The Event to be propagated to the next
+   * @returns {atlas/events/Event} The Event to be propagated to the next
    *       EventTarget in the hierarchy.
    */
   EventTarget.prototype.handleEvent = function(event) {

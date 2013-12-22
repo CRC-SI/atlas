@@ -59,12 +59,16 @@ define([
   };
   
   CameraManager.prototype.removeBookmark = function () {
-    throw new DeveloperError('CameraManager.createBookmark not yet implemented.');
+    throw new DeveloperError('CameraManager.removeBookmark not yet implemented.');
   };
   
   CameraManager.prototype.gotoBookmark = function () {
-    throw new DeveloperError('CameraManager.createBookmark not yet implemented.');
+    throw new DeveloperError('CameraManager.gotoBookmark not yet implemented.');
   };
+  
+  CameraManager.prototype.lockCamera = function () {};
+  
+  CameraManager.prototype.unlockCamera = function () {};
   
   CameraManager.prototype.xyz = function () {
     throw new DeveloperError('CameraManager.createBookmark not yet implemented.');

@@ -97,7 +97,7 @@ define([
 
   /**
    * Returns the footprint centroid of the GeoEntity.
-   * @return {Number} GeoEntity's footprint centroid.
+   * @returns {Number} GeoEntity's footprint centroid.
    * @abstract
    */
   GeoEntity.prototype.getCentroid = function() {
@@ -106,7 +106,7 @@ define([
 
   /**
    * Returns the footprint area of the GeoEntity.
-   * @return {Number} Footprint area.
+   * @returns {Number} Footprint area.
    * @abstract
    */
   GeoEntity.prototype.getArea = function() {
@@ -115,7 +115,7 @@ define([
 
   /**
    * Returns the visibility of this GeoEntity.
-   * @return {Boolean} Whether the GeoEntity is visible.
+   * @returns {Boolean} Whether the GeoEntity is visible.
    */
   GeoEntity.prototype.isVisible = function() {
     return this._visible;
@@ -123,7 +123,7 @@ define([
 
   /**
    * Returns whether the GeoEntity is renderable.
-   * @return {Boolean} Whether the GeoEntity is renderable.
+   * @returns {Boolean} Whether the GeoEntity is renderable.
    */
   GeoEntity.prototype.isRenderable = function () {
     return this._renderable;
@@ -145,7 +145,7 @@ define([
    * Returns the geometry data for the GeoEntity so it can be rendered.
    * The <code>build</code> method should be called to construct this geometry
    * data.
-   * @return {Object} The geometry data.
+   * @returns {Object} The geometry data.
    */
   GeoEntity.prototype.getGeometry = function() {
       return this._geometry;
@@ -155,11 +155,23 @@ define([
    * Returns the appearance data for the GeoEntity so it can be rendered.
    * The <code>build</code> method should be called to construct this appearance
    * data.
-   * @return {Object} The appearance data.
+   * @returns {Object} The appearance data.
    */
   GeoEntity.prototype.getAppearance = function() {
       return this._appearance;
   };
+  
+  
+  /**
+   * Translates the GeoEntity by the given vector.
+   * @param {atlas/model/Vertex} displacement - The vector to move the GeoEntity by.
+   * @param {Number} displacement.x - The change in latitude to apply.
+   * @param {Number} displacement.y - The change in longitude to apply.
+   * @param {Number} displacement.z - The change in elevation to apply.
+   
+   * @abstract
+   */
+  GeoEntity.prototype.translate = function(displacement) {};
 
   /**
    * Function to build the GeoEntity so it can be rendered.
