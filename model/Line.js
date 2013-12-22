@@ -1,6 +1,6 @@
 define([
   'atlas/util/Extends',
-  'atlas/util/defaults',
+  'atlas/util/default',
   './GeoEntity',
   './Vertex'
 ], function (extend, defaultValue, GeoEntity, Vertex) {

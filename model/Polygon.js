@@ -27,14 +27,14 @@ define([
    * @param {Number} [args.height=0] - The extruded height of the Polygon to form a prism.
    * @param {Number} [args.elevation] - The elevation of the base of the Polygon (or prism).
    * @param {atlas/model/Style} [args.style=defaultStyle] - The Style to apply to the Polygon.
-   * @param {atlas/model/Material} [args.material=defeaultMaterial] - The Material to apply to the polygon.
+   * @param {atlas/model/Material} [args.material=defaultMaterial] - The Material to apply to the polygon.
    * @returns {atlas/model/Polygon}
    *
    * @extends {atlas/model/GeoEntity}
    * @alias atlas/model/Polygon
    * @constructor
    */
-   var Polygon = function(id, vertices, args) {
+   var Polygon = function (id, vertices, args) {
     args = defaultValue(args, {});
     Polygon.base.constructor.call(this, id, args);
 
@@ -159,17 +159,17 @@ define([
   /**
    * Removes a vertex from the Polygon.
    * @param {Number} index - The index of the vertex to remove. '-1' for the last vertex.
-   * @returns {Vertex} The vertex removed.
+   * @returns {Vertex|undefined} The vertex removed, or undefined if <code>index</code> is out of bounds.
    */
   Polygon.prototype.removeVertex = function(index) {
     if (index === -1) {
-      index = this._vertices.lenght -1;
+      index = this._vertices.length -1;
     }
     if (index === this._vertices.length) {
       index--;
     }
     if (0 <= index && index <= this._vertices.length - 1) {
-      var removed = this._vertices.splice(index, 1);
+      var removed = this._vertices.splice(index, 1)[0];
       // Maintain closed-ness
       this._vertices[this._vertices.length - 1] = this._vertices[0];
       // Clear derived values
@@ -178,7 +178,7 @@ define([
       this._centroid = null;
       return removed;
     }
-    return [];
+    return undefined;
   };
 
   /**
@@ -194,7 +194,7 @@ define([
 
   /**
    * Set the elevation of the base of the polygon (or prism).
-   * @param {Number} height The elevation of the base of the polygon.
+   * @param {Number} elevation - The elevation of the base of the polygon.
    */
   Polygon.prototype.setElevation = function (elevation) {
     if (typeof elevation === 'number') {
@@ -244,7 +244,7 @@ define([
     }
     this._area = 0;
     var j = this._vertices.length - 1;  // The last vertex is the 'previous' one to the first
-    for (var i = 0; i < numPoints; i++) {
+    for (var i = 0; i < this._vertices.length; i++) {
       this._area = this._area +
           (this._vertices[j].x + this._vertices[i].x) * (this._vertices[j].y - this._vertices[i].y);
       j = i;  //j is previous vertex to i
@@ -256,7 +256,7 @@ define([
   /**
    * Gets the centroid of the Polygon. Assumes that the polygon is 2D surface, ie. Vertex.z is
    * constant across the polygon.
-   * @returns {Vertex} The Polygon's centroid.
+   * @returns {atlas/model/Vertex} The Polygon's centroid.
    * @see {@link http://stackoverflow.com/questions/9692448/how-can-you-find-the-centroid-of-a-concave-irregular-polygon-in-javascript/9939071#9939071}
    * @see  {@link http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon}
    */
@@ -267,11 +267,11 @@ define([
     // Need a closed set of vertices for the algorithm to work. Temporarily add the first vertex
     // to the end of the list of vertices.
     this._vertices.push(this._vertices[0]);
-    var x, y, f, twiceArea;
+    var x, y, f, twiceArea, p1, p2;
     x = y = f = twiceArea = 0;
     for (var i = 0; i < this._vertices.length - 1; i++) {
-      var p1 = this._vertices[i];
-      var p2 = this._vertices[i+1];
+      p1 = this._vertices[i];
+      p2 = this._vertices[i+1];
       f =  (p1.x * p2.y) - p2.x * p1.y;
       x += (p1.x + p2.x) * f;
       y += (p1.y + p2.y) * f;
@@ -305,9 +305,7 @@ define([
    * Causes the Polygon to be rendered with the selection style.
    */
   Polygon.prototype.onSelect = function () {
-    console.debug('trying to select entity', this._id);
     this.setStyle(Polygon.SELECTED_STYLE);
-    this.show();
   };
   
   /**
@@ -315,14 +313,8 @@ define([
    * Causes the Polygon to be rendered with either the previously set style or
    * the DEFAULT_STYLE.
    */
-  Polygon.prototype.onDeselect = function () {;
-    console.debug('trying to deselect entity', this._id);
-    if (this._previousStyle) {
-      this.setStyle(this._previousStyle);
-    } else {
-      this.setStyle(Polygon.DEFAULT_STYLE);
-    }
-    this.show();
+  Polygon.prototype.onDeselect = function () {
+    this.setStyle(this._previousStyle || Polygon.DEFAULT_STYLE);
   };
   
   return Polygon;

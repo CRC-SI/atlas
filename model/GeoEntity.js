@@ -13,7 +13,8 @@ define([
    * what is this particular GeoEntity represents (eg. a polygon or a line).
    *
    * @param {Number} id - The ID of this GeoEntity.
-   * @param {Object} [args] - Both optional and required construction parameters.
+   * @param {Object} args - Both optional and required construction parameters.
+   * @param {String} args.id - The ID of the GeoEntity.
    * @param {atlas/render/RenderManager} args.renderManager - The RenderManager object responsible for the GeoEntity.
    * @param {atlas/events/EventManager} args.eventManager - The EventManager object responsible for the Event system.
    * @param {atlas/events/EventTarget} [args.parent] - The parent EventTarget object of the GeoEntity.
@@ -36,19 +37,13 @@ define([
     if (typeof id === 'object') {
       args = id;
       id = args.id;
-    } 
+    }
     if (id === undefined || typeof id === 'object') {
       throw new DeveloperError('Can not create instance of GeoEntity without an ID');
     }
-    /* Extend from EventTarget */
+    // Extend from EventTarget.
     GeoEntity.base.constructor.call(this);
     this.initEventTarget(args.eventManager, args.parent);
-
-    /**
-     * The RenderManager object for this GeoEntity.
-     * @type {atlas/render/RenderManager}
-     */
-    this._renderManager = args.renderManager;
 
     /**
      * The ID of the GeoEntity
@@ -57,8 +52,14 @@ define([
     this._id = id;
 
     /**
+     * The RenderManager object for this GeoEntity.
+     * @type {atlas/render/RenderManager}
+     */
+    this._renderManager = args.renderManager;
+
+    /**
      * The geometric centroid of the GeoEntity.
-     * @type {Number}
+     * @type {atlas/model/Vertex}
      */
     this._centroid = null;
 
@@ -133,9 +134,9 @@ define([
    * Sets whether the GeoEntity is ready to be rendered in Atlas.
    * @param {Boolean} [isRenderable=true] - If true, sets the Polygon to be renderable otherwise sets it to be 'un-renderable'.
    */
-  GeoEntity.prototype.setRenderable = function (render) {
-    if (render !== undefined) {
-      this._renderable = render;
+  GeoEntity.prototype.setRenderable = function (isRenderable) {
+    if (isRenderable !== undefined) {
+      this._renderable = isRenderable;
     } else {
       this._renderable = true;
     }
@@ -168,10 +169,13 @@ define([
    * @param {Number} displacement.x - The change in latitude to apply.
    * @param {Number} displacement.y - The change in longitude to apply.
    * @param {Number} displacement.z - The change in elevation to apply.
-   
+   *
    * @abstract
    */
-  GeoEntity.prototype.translate = function(displacement) {};
+  GeoEntity.prototype.translate = function(displacement) {
+    // This is silly.
+    displacement.x += 1;
+  };
 
   /**
    * Function to build the GeoEntity so it can be rendered.
@@ -211,7 +215,11 @@ define([
    * Toggles the visibility of the GeoEntity.
    */
   GeoEntity.prototype.toggleVisibility = function () {
-    this.isVisible() ? this.hide() : this.show();
+    if (this.isVisible()) {
+      this.hide();
+    } else {
+      this.show();
+    }
   };
   
   /**
