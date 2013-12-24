@@ -43,7 +43,7 @@ define([
       {
         source: 'extern',
         name: 'camera/zoomTo',
-        callback: function (name, args) {
+        callback: function (args) {
           if (this._camera === null) {
             this._camera = new Camera();
           }
