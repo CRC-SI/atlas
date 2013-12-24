@@ -70,36 +70,32 @@ define([], function() {
 
   /**
    * An event handler which starts the action this module performs.
-   * @param {String} name - The name of the event.
-   * @param {Object} [args] - Optional event arguments.
+   * @param {Object} args - Event arguments.
+   * @abstract
    */
-  BaseEditModule.prototype.start = function(name, args) {
-  };
+  BaseEditModule.prototype.start = function(args) {};
 
   /**
    * An event handler which updates the progress of the action this module performs.
-   * @param {String} name - The name of the event.
-   * @param {Object} [args] - Optional event arguments.
+   * @param {Object} args - Event arguments.
+   * @abstract
    */
-  BaseEditModule.prototype.update = function(name, args) {
-  };
+  BaseEditModule.prototype.update = function(args) {};
 
   /**
    * An event handler which ends the action this module performs.
-   * @param {String} name - The name of the event.
-   * @param {Object} [args] - Optional event arguments.
+   * @param {Object} args - Event arguments.
+   * @abstract
    */
-  BaseEditModule.prototype.end = function(name, args) {
-  };
+  BaseEditModule.prototype.end = function(args) {};
 
   /**
    * Cancels the action performed by this module and returns to the state before
    * {@link BaseEditModule.start} was called.
-   * @param {String} name - The name of the event.
-   * @param {Object} [args] - Optional event arguments.
+   * @param {Object} args - Event arguments.
+   * @abstract
    */
-  BaseEditModule.prototype.cancel = function(name, args) {
-  };
+  BaseEditModule.prototype.cancel = function(args) {};
 
   return BaseEditModule;
 });

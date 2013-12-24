@@ -44,7 +44,7 @@ define([
       {
         source: 'intern',
         name: 'input/leftclick',
-        callback: function (name, args) {
+        callback: function (args) {
           if (args) {
             if (!args.modifiers) args.modifiers = {};
             // var worldPosition = this._atlasManagers.render.convertScreenCoordsToLatLng(args);
@@ -62,7 +62,7 @@ define([
       {
         source: 'intern',
         name: 'entity/remove',
-        callback: function (name, args) {
+        callback: function (args) {
           // If the Entity has been removed, don't need to deselect it, just remove it from _selection.
           delete this._selection[args.id];
         }.bind(this)
