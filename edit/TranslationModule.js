@@ -62,14 +62,6 @@ define([
     this._entities[id] = target;
     console.debug(this._entities);
     // TODO(bpstudds) Handle multiple selections.
-    //var selection = this._atlasManagers.selection.getSelection();
-    //if (selection[id] !== undefined) {
-    //  for (var selectId in selection) {
-    //    this._entities[selectId] = selection[selectId];
-    //  }
-    //} else {
-    //  this._entities[id] = target;
-    //}
   };
 
   /**
@@ -79,10 +71,6 @@ define([
     if (this._entities === undefined) { return; }
     if (!this._entities) { return; }
 
-    //var time = (new Date()).getTime();
-    //var tics = time - this._lastTranslate;
-    //if (tics < 500) return;
-    //this._lastTranslate = time;
     var screenDiff = new Vertex(args.x, args.y).subtract(this._lastScreenCoords).absolute();
     if (screenDiff.x < this._MOVE_SENSITIVITY && screenDiff.y < this._MOVE_SENSITIVITY) {
       return;
