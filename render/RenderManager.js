@@ -3,16 +3,14 @@ define([
   'atlas/model/Feature',
   'atlas/model/GeoEntity'
 ], function (DeveloperError, Feature, GeoEntity) {
-  "use strict";
 
   /**
    * The RenderManager manages what is render and how it is rendered. The
    * RenderManager controls
-   *     - the map imageries displayed on the globe
+   *     - the map imagery displayed on the globe
    *     - the terrain models displayed on the globe
    *     - the set of entities being displayed in the scene
    * @author Brendan Studds
-   * @version 1.0
    *
    * @param {Object} atlasManagers - A mapping of every manager type in Atlas to the manager instance.
    *
@@ -29,92 +27,13 @@ define([
      */
     this._atlasManagers = atlasManagers;
     this._atlasManagers.render = this;
-
-    /**
-     * @deprecated
-     * This no longer exists, use the EntityManager to access features.
-     * This is a map of Entity ID to GeoEntity. These are the entities
-     * the RenderManager knows about and is able to cause to be rendered.
-     * @type {Object}
-     */
-     //this._entities = {};
-  };
-
-  /**
-   * @deprecated
-   * @see {@link atlas/entity/EntityManager#createFeature}
-   */
-  RenderManager.prototype.addFeature = function (id, args) {
-    throw new DeveloperError('RenderManger.addFeature is deprecated, use the EntityManager.');
-    if (typeof id === 'object') {
-      args = id;
-      id = args.id;
-    }
-    if (id === undefined) {
-      throw new DeveloperError('Can not add Feature without specifying id');
-    } else if (id in this._entities) {
-      throw new DeveloperError('Can not add Feature with a duplicate ID');
-    } else {
-      // Add EventManger to the args for the feature.
-      args.eventManager = this._atlasManagers.event;
-      // Add the RenderManager to the args for the feature.
-      args.renderManager = this;
-      var feature = new Feature(id, args);
-      this.addEntity(feature);
-    }
-  };
-
-  /**
-   * @deprecated
-   * @see {@link atlas/entity/EntityManager}
-   * Add an Entity to the RenderManager so it can be rendered. This does
-   * not automatically show the Entity.
-   * @param {GeoEntity} entity The GeoEntity to be added to rendering.
-   */
-  RenderManager.prototype.addEntity = function (entity) {
-    throw new DeveloperError('RenderManger.addEntity is deprecated, use the EntityManager.');
-    if (!this._isEntity(entity)) {
-      throw new DeveloperError('Can only add subclass of GeoEntity');
-    } else {
-      this._entities[entity._id] = entity;
-    }
-  };
-
-  /**
-   * @deprecated
-   * @see {@link atlas/entity/EntityManager}
-   * Remove a GeoEntity from the RenderManager.
-   * @param {Number} id The ID of the GeoEntity to remove.
-   */
-  RenderManager.prototype.removeEntity = function (id) {
-    throw new DeveloperError('RenderManger.removeEntity is deprecated, use the EntityManager.');
-    if (this._entities[id] !== undefined) {
-      console.debug('removing entity', this._entities[id]);
-      this._entities[id].remove();
-      delete this._entities[id];
-    }
-  };
-  
-  /**
-   * @deprecated
-   * @see {@link atlas/entity/EntityManager}
-   * Returns the Entity with the given ID if it exists.
-   * @param {String} id - The ID of the GeoEntity object to return.
-   * @returns {GeoEntity|Null} The GeoEntity requested or null if it does not exist.
-   */
-  RenderManager.prototype.getEntity = function(id) {
-    throw new DeveloperError('RenderManager.getEntity is deprecated, use the EntityManager');
-    if (id in this._entities) {
-      return this._entities[id];
-    } else {
-      return null;
-    }
   };
 
   /**
    * Show the given entity
-   * @param  {Number} entity The ID of the Entity to show.
+   * @param {Number} entity The ID of the Entity to show.
    * @returns {Boolean}       Whether the entity is shown.
+   * @abstract
    */
   RenderManager.prototype.show = function (entity) {
     throw new DeveloperError('Can not call abstract method of RenderManager');
@@ -124,6 +43,7 @@ define([
    * Hide the given entity
    * @param  {Number} entity The ID of the Entity to hide.
    * @returns {Boolean}       Whether the entity is hidden.
+   * @abstract
    */
   RenderManager.prototype.hide = function (entity) {
     throw new DeveloperError('Can not call abstract method of RenderManager');
@@ -131,6 +51,7 @@ define([
 
   /**
    * Function to toggle on rendering of the current terrain model
+   * @abstract
    */
   RenderManager.prototype.showTerrain = function () {
     throw new DeveloperError("Can not call functions on abstract RenderManager");
@@ -138,6 +59,7 @@ define([
 
   /**
    * Function to toggle off rendering the current terrain model.
+   * @abstract
    */
   RenderManager.prototype.hideTerrain = function () {
     throw new DeveloperError("Can not call functions on abstract RenderManager");
