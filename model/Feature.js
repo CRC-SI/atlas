@@ -37,18 +37,12 @@ define([
      * @type {Polygon}
      */
     this._footprint = null;
-    if (args.footprint !== undefined) {
-      this._footprint = new Polygon(id + 'polygon', args.footprint, args);
-    }
 
     /**
      * 3D {@link Mesh} of this Feature.
      * @type {Mesh}
      */
     this._mesh = null;
-    if (args.mesh !== undefined) {
-      this._mesh = new Mesh(id + 'mesh', args.mesh, args);
-    }
 
     /**
      * The extrusion height of this Feature.
@@ -63,10 +57,13 @@ define([
     this._elevation = defaultValue(args.elevation, 0);
 
     /**
-     * Initial display mode of this Feature,
+     * Initial display mode of this Feature, Mesh trumps Footprint if it's defined in terms of
+     * default behaviour.
      * @type {string}
      */
-    this._displayMode = defaultValue(args.displayMode, 'footprint');
+    this._displayMode = '';
+    this._displayMode = args.footprint ? defaultValue(args.displayMode, 'extrusion') : '';
+    this._displayMode = args.mesh ? 'mesh' : this._displayMode;
 
     /**
      * Whether this Feature is initially visible.
@@ -79,7 +76,7 @@ define([
 
 
   Feature.prototype.setMesh = function (mesh) {
-    if (!footprint instanceof Mesh) {
+    if (!mesh instanceof Mesh) {
       throw new DeveloperError('Can only assign Mesh to mesh.');
     }
     this._mesh = mesh;
@@ -126,25 +123,19 @@ define([
   Feature.prototype.show = function() {
     console.debug('trying to show feature', this._id, 'as', this._displayMode);
     if (this._displayMode === 'footprint') {
-      if (this._mesh) {
-        this._mesh.hide();
-      }
+      this._mesh && this._mesh.hide();
       if (this._footprint) {
         this._footprint.setHeight(0);
         this._visible = this._footprint.show();
       }
     } else if (this._displayMode === 'extrusion') {
-      if (this._mesh) {
-        this._mesh.hide();
-      }
+      this._mesh && this._mesh.hide();
       if (this._footprint) {
         this._footprint.setHeight(this._height);
-        this._visible = this._footprint.show(this._height);
+        this._visible = this._footprint.show();
       }
     } else if (this._displayMode === 'mesh') {
-      if (this._footprint) {
-        this._footprint.hide();
-      }
+      this._footprint && this._footprint.hide();
       if (this._mesh) {
         this._visible = this._mesh.show();
       }
@@ -175,7 +166,7 @@ define([
     } else if (this._displayMode === 'mesh') {
       this._mesh.onSelect();
     }
-  }
+  };
 
   /**
    * Handles the behaviour of the Feature when it is deselected.
@@ -186,7 +177,7 @@ define([
     } else if (this._displayMode === 'mesh') {
       this._mesh.onDeselect();
     }
-  }
+  };
 
 
   /**
@@ -214,7 +205,7 @@ define([
       area = this._mesh.getArea();
     }
     return area;
-  }
+  };
 
   Feature.prototype.getCentroid = function () {
     var centroid = undefined;
@@ -224,13 +215,12 @@ define([
       centroid = this._mesh.getCentroid();
     }
     return centroid;
-  }
-  
-  
+  };
+
   Feature.prototype.translate = function (displacement) {
     if (this._footprint) this._footprint.translate(displacement);
     if (this._mesh) this._mesh.translate(displacement);
-  }
+  };
 
   return Feature;
 });
