@@ -63,10 +63,13 @@ define([
     this._elevation = defaultValue(args.elevation, 0);
 
     /**
-     * Initial display mode of this Feature,
+     * The display mode of the Feature.
+     * Mesh trumps Footprint if they are both defined in terms of which is displayed by default.
      * @type {string}
      */
-    this._displayMode = defaultValue(args.displayMode, 'footprint');
+    this._displayMode = '';
+    this._displayMode = args.footprint ? defaultValue(args.displayMode, 'extrusion') : '';
+    this._displayMode = args.mesh ? defaultValue(args.displayMode, 'mesh') : this._displayMode;
 
     /**
      * Whether this Feature is initially visible.
@@ -79,7 +82,7 @@ define([
 
 
   Feature.prototype.setMesh = function (mesh) {
-    if (!footprint instanceof Mesh) {
+    if (!mesh instanceof Mesh) {
       throw new DeveloperError('Can only assign Mesh to mesh.');
     }
     this._mesh = mesh;
@@ -168,24 +171,16 @@ define([
    * Handles the behaviour of the Feature when it is selected.
    */
   Feature.prototype.onSelect = function () {
-    if (this._displayMode === 'footprint' || this._displayMode === 'extrusion') {
-      if (this._footprint.isRenderable) {
-        this._footprint.onSelect();
-      }
-    } else if (this._displayMode === 'mesh') {
-      this._mesh.onSelect();
-    }
+    this._fooprint && this._footprint.onSelect();
+    this._mesh && this._mesh.onSelect();
   }
 
   /**
    * Handles the behaviour of the Feature when it is deselected.
    */
   Feature.prototype.onDeselect = function () {
-    if (this._displayMode === 'footprint' || this._displayMode === 'extrusion') {
-      this._footprint.onDeselect();
-    } else if (this._displayMode === 'mesh') {
-      this._mesh.onDeselect();
-    }
+    this._footprint && this._footprint.onDeselect();
+    this._mesh && this._mesh.onDeselect();
   }
 
 
@@ -225,8 +220,7 @@ define([
     }
     return centroid;
   }
-  
-  
+
   Feature.prototype.translate = function (displacement) {
     if (this._footprint) this._footprint.translate(displacement);
     if (this._mesh) this._mesh.translate(displacement);
