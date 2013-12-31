@@ -28,6 +28,14 @@ define([
     return x;
   };
 
+  Colour.fromRGBA = function(r, g, b, a) {
+    if (r.length) {
+      return new Colour(r[0] / 255, r[1] / 255, r[2] / 255, r[3] / 255);
+    } else {
+      return new Colour(r / 255, g / 255, b / 255, a / 255);
+    }
+  };
+
   Colour.WHITE = new Colour(1, 1, 1, 1);
   Colour.BLACK = new Colour(0, 0, 0, 1);
   Colour.RED = new Colour(1, 0, 0, 1);
