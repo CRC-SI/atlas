@@ -3,17 +3,23 @@ define([
 
   /**
    * Constructor for a new Vertex object.
-   * @param {number} [x=0] - the 'x' coordinate.
-   * @param {number} [y=0] - the 'y' coordinate.
-   * @param {number} [z=0] - the 'z' coordinate.
+   * @param {Number|Array.<Number>} [x=0] - the 'x' coordinate, or an 3 element array containing the x, y, and z coordinates in the 1st, 2nd, and 3rd index.
+   * @param {Number} [y=0] - the 'y' coordinate.
+   * @param {Number} [z=0] - the 'z' coordinate.
    *
    * @alias atlas/model/Vertex
    * @constructor
    */
   var Vertex = function (x, y, z) {
-    this.x = x || 0.0;
-    this.y = y || 0.0;
-    this.z = z || 0.0;
+    if (x.length) {
+      this.x = x[0];
+      this.y = x[1];
+      this.z = x[2];
+    } else {
+      this.x = x || 0.0;
+      this.y = y || 0.0;
+      this.z = z || 0.0;
+    }
   };
 
   Vertex.prototype.add = function (other) {
