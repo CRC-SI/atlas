@@ -231,7 +231,7 @@ define([
     var handlers = allHandlers[name];
     if (handlers && handlers.length) {
       for (var i = 0; i < handlers.length; i++) {
-        handlers[i].callback(name, args);
+        handlers[i].callback(args);
       }
     }
   };
@@ -256,3 +256,4 @@ define([
 
   return EventManager;
 });
+
