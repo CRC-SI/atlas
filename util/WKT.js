@@ -113,6 +113,21 @@ define([
     return points;
   };
 
+  /**
+   * Scales a polygon formed by a series of Vertices.
+   * @param {Array.<atlas/model/Vertex>} vertices - The vertices to scale.
+   * @param {atlas/model/Vertex} scaleBy - Defines the factors to scale by.
+   * @param {Number} scaleBy.x - The factor to scale the x axis by.
+   * @param {Number} scaleBy.y - The factor to scale the y axis by.
+   * @returns {Array.<atlas/model/Vertex>} The rescaled vertices.
+   */
+  WKT.prototype.scaleVertices = function (vertices, scaleBy) {
+    var polygon = this.openLayersPolygonFromVertices(vertices);
+    var scaleAspectRatio = scaleBy.x / scaleBy.y;
+    polygon.resize(scaleBy.x, polygon.getCentroid, scaleAspectRatio);
+    return this.verticesFromOpenLayersGeometry(polygon);
+  };
+
 
   return (_instance = (_instance || new WKT()));
 

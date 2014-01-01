@@ -305,6 +305,7 @@ define([
    * Causes the Polygon to be rendered with the selection style.
    */
   Polygon.prototype.onSelect = function () {
+    console.debug('this should not be called');
     this.setStyle(Polygon.SELECTED_STYLE);
   };
 
@@ -315,6 +316,46 @@ define([
    */
   Polygon.prototype.onDeselect = function () {
     this.setStyle(this._previousStyle || Polygon.DEFAULT_STYLE);
+  };
+
+  /**
+   * Translates the Polygon.
+   * @param {atlas/model/Vertex} translation - The vector from the Polygon's current location to the desired location.
+   * @param {Number} translation.x - The change in latitude, given in decimal degrees.
+   * @param {Number} translation.y - The change in longitude, given in decimal degrees.
+   * @param {Number} translation.z - The change in altitude, given in metres.
+   */
+  Polygon.prototype.translate = function (translation) {
+    for (var i = 0; i < this._vertices.length; i++) {
+      this._vertices[i] = this._vertices[i].add(translation);
+    }
+    this.setRenderable(false);
+    this.show();
+  };
+
+  /**
+   * Scales the Polygon by the given vector. This scaling can be uniform in all axis or non-uniform.
+   * A scaling factor of <code>1</code> has no effect. Factors lower or higher than <code>1</code>
+   * scale the GeoEntity down or up respectively. ie, <code>0.5</code> is half as big and
+   * <code>2</code> is twice as big.
+   * @param {atlas/model/Vertex} scale - The vector to scale the Polygon by.
+   * @param {Number} scale.x - The scale along the <code>x</code> axis.
+   * @param {Number} scale.y - The scale along the <code>y</code> axis.
+   */
+  Polygon.prototype.scale = function(scale) {
+    return;
+    this._vertices = WKT.scaleVertices(this._vertices, scale);
+    console.debug('the scaled vertices', this._vertices);
+    this.setRenderable(false);
+    this.isVisible() && this.show();
+  };
+
+  /**
+   * Rotates the Polygon by the given angle.
+   * @param {atlas/model/Vertex} rotation - The angle to rotate the Polygon, negative angles rotate clockwise, positive counter-clockwise.
+   */
+  Polygon.prototype.rotate = function (rotation) {
+
   };
 
   return Polygon;
