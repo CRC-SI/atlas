@@ -25,7 +25,7 @@ define([
 
     /**
      * Contains a mapping of module name to Module object.
-     * @type {Object.<String,Module>}
+     * @type {Object.<String,Object>}
      */
     this._modules = {};
 
@@ -72,12 +72,13 @@ define([
   EditManager.prototype.enableModule = function (name) {
     var module = this.getModule(name);
     if (!module) return;
-    
+
     var bindings = module.getEventBindings();
     if (!this._listeners[name]) this._listeners[name] = {};
     for (var event in bindings) {
-      console.debug('adding handler - name:', event, 'callback', bindings[event]);
-      this._listeners[name][event] = this._atlasManagers.event.addEventHandler('intern', event, bindings[event].bind(module));
+      if (bindings.hasOwnProperty(event)) {
+        this._listeners[name][event] = this._atlasManagers.event.addEventHandler('intern', event, bindings[event].bind(module));
+      }
     }
     this._enabledModules[name] = module;
   };
@@ -87,11 +88,12 @@ define([
    * @param {String} name - The name of the module.
    */
   EditManager.prototype.disableModule = function (name) {
-    var bindings = this.getModule(name).getEventBindings();
     // TODO(aramk) use "handler" or "listener" and not both?
     var listeners = this._listeners[name];
     for (var event in listeners) {
-      listeners[event].cancel();
+      if (listeners.hasOwnProperty(event)) {
+        listeners[event].cancel();
+      }
     }
     delete this._enabledModules[name];
   };

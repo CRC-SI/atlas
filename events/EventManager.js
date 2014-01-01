@@ -256,3 +256,4 @@ define([
 
   return EventManager;
 });
+

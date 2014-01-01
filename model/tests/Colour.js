@@ -16,7 +16,7 @@ define([
 
     setUp: function () {
       // summary:
-      colour = new Colour(r, g, b, a);
+      colour = new Colour(1, 1, 1, 1);
     },
 
     test_limit: function() {

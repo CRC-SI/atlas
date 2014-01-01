@@ -49,7 +49,7 @@ define([
       id = args.id;
     }
     if (id === undefined) {
-      throw new DeveloperError('Can not add Feature without specifying id');
+      throw new DeveloperError('Can not add Feature without specifying ID');
     } else if (id in this._entities) {
       throw new DeveloperError('Can not add Feature with a duplicate ID');
     } else {
@@ -57,8 +57,7 @@ define([
       args.eventManager = this._atlasManagers.event;
       // Add the RenderManager to the args for the feature.
       args.renderManager = this._atlasManagers.render;
-      var feature = new this._entityTypes.Feature(id, args);
-      return feature;
+      return new this._entityTypes.Feature(id, args);
     }
   }
 
@@ -70,7 +69,7 @@ define([
    */
   EntityManager.prototype.add = function (id, entity) {
     if (id in this._entities) {
-      console.log('tried to add entity', id, 'which alread exists.');
+      console.log('tried to add entity', id, 'which already exists.');
       return false;
     }
     if (!entity instanceof GeoEntity) {
@@ -94,7 +93,7 @@ define([
   };
 
   /**
-   * Returns the GeoEntity instance coresponding to the given ID.
+   * Returns the GeoEntity instance corresponding to the given ID.
    * @param {String} id - The ID of the GeoEntity to return.
    * @returns {atlas/model/GeoEntity|undefined} The corresponding GeoEntity or
    * <code>undefined</code> if there is no such GeoEntity.
