@@ -44,7 +44,7 @@ define([
      * @type {Array.<atlas/model/Vertex>}
      */
     if (typeof vertices === 'string' ) {
-      this._vertices = WKT.wktToVertices(vertices)[0];
+      this._vertices = WKT.verticesFromWKT(vertices)[0];
     } else {
       this._vertices = defaultValue(vertices, []);
     }
@@ -88,7 +88,7 @@ define([
     /**
      * The centroid of the polygon.
      * @private
-     * @type {Number}
+     * @type {atlas/model/Vertex}
      */
     this._centroid = null;
 
@@ -202,7 +202,7 @@ define([
       this.setRenderable(false);
     }
   };
-  
+
   Polygon.prototype.setStyle = function(style) {
     if (!(style instanceof Style)) {
       throw new DeveloperError('Style must be a valid atlas Style object');
@@ -299,7 +299,7 @@ define([
   Polygon.prototype.hide = function () {
     throw new DeveloperError('Can not call abstract method of Polygon');
   };
-  
+
   /**
    * Handles the behaviour of the Polygon when it is selected.
    * Causes the Polygon to be rendered with the selection style.
@@ -307,7 +307,7 @@ define([
   Polygon.prototype.onSelect = function () {
     this.setStyle(Polygon.SELECTED_STYLE);
   };
-  
+
   /**
    * Handles the behaviour of the Polygon when it is deselected.
    * Causes the Polygon to be rendered with either the previously set style or
@@ -316,6 +316,6 @@ define([
   Polygon.prototype.onDeselect = function () {
     this.setStyle(this._previousStyle || Polygon.DEFAULT_STYLE);
   };
-  
+
   return Polygon;
 });
