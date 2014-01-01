@@ -61,7 +61,6 @@ define([
      * default behaviour.
      * @type {string}
      */
-    this._displayMode = '';
     this._displayMode = args.footprint ? defaultValue(args.displayMode, 'extrusion') : '';
     this._displayMode = args.mesh ? 'mesh' : this._displayMode;
 
