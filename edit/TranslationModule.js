@@ -43,7 +43,7 @@ define([
    * then all selected entities are included in the translation. If no object is selected before
    * translation, only the target entity is translated.
    */
-  TranslationModule.prototype.start = function(name, args) {
+  TranslationModule.prototype.start = function(args) {
     /**
      * The entity which the event occurred on.
      * @type {@link atlas/model/GeoEntity}
@@ -67,7 +67,7 @@ define([
   /**
    * Translates from the last location to the current location of the event for all entities.
    */
-  TranslationModule.prototype.update = function(name, args) {
+  TranslationModule.prototype.update = function(args) {
     if (this._entities === undefined) { return; }
     if (!this._entities) { return; }
 
@@ -85,7 +85,7 @@ define([
    * Translates from the last location to the current location of the event for all entities and then
    * stops translating.
    */
-  TranslationModule.prototype.end = function(name, args) {
+  TranslationModule.prototype.end = function(args) {
     if (!this._entities) { return; }
     this._lastScreenCoords = {x: args.x, y: args.y};
     //var cartLocation = this._cartographicLocation(args);
@@ -97,7 +97,7 @@ define([
   /**
    * Cancels the translation and moves all back to their original locations before translation began.
    */
-  TranslationModule.prototype.cancel = function(name, args) {
+  TranslationModule.prototype.cancel = function(args) {
     if (!this._entities) {
       this._atlasManagers.camera.unlockCamera();
 
