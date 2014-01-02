@@ -28,14 +28,23 @@ define([
     return x;
   };
 
-  Colour.fromRGBA = function(r, g, b, a) {
-    if (r.length) {
-      return new Colour(r[0] / 255, r[1] / 255, r[2] / 255, r[3] / 255);
+  /**
+   * Function that creates a new Colour instance from the given RGBA values.
+   * @param {Number|Array} red - The red value, where 0 is minimum intensity and 255 is maximum intensity. Alternatively, an array of 4 elements containing values for red, green, blue, and alpha in that order.
+   * @param {Number} green - The green value, where 0 is minimum intensity and 255 is maximum intensity.
+   * @param {Number} blue - The blue value, where 0 is minimum intensity and 255 is maximum intensity.
+   * @param {Number} alpha - The alpha value, where 0 is minimum intensity and 255 is maximum intensity.
+   * @returns {Colour}
+   */
+  Colour.fromRGBA = function(red, green, blue, alpha) {
+    if (red.length) {
+      return new Colour(red[0] / 255, red[1] / 255, red[2] / 255, red[3] / 255);
     } else {
-      return new Colour(r / 255, g / 255, b / 255, a / 255);
+      return new Colour(red / 255, green / 255, blue / 255, alpha / 255);
     }
   };
 
+  // Specify some colour constants.
   Colour.WHITE = new Colour(1, 1, 1, 1);
   Colour.BLACK = new Colour(0, 0, 0, 1);
   Colour.RED = new Colour(1, 0, 0, 1);

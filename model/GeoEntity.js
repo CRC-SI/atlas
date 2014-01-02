@@ -18,8 +18,7 @@ define([
    * @param {atlas/render/RenderManager} args.renderManager - The RenderManager object responsible for the GeoEntity.
    * @param {atlas/events/EventManager} args.eventManager - The EventManager object responsible for the Event system.
    * @param {atlas/events/EventTarget} [args.parent] - The parent EventTarget object of the GeoEntity.
-   * @returns {atlas/model/GeoEntity}
-   * 
+   *
    * @see {atlas/model/Feature}
    * @see {atlas/model/Polygon}
    * @see {atlas/model/Network}
@@ -41,9 +40,8 @@ define([
     if (id === undefined || typeof id === 'object') {
       throw new DeveloperError('Can not create instance of GeoEntity without an ID');
     }
-    // Extend from EventTarget.
+    // Call base class EventTarget constructor.
     GeoEntity.base.constructor.call(this);
-    this.initEventTarget(args.eventManager, args.parent);
 
     /**
      * The ID of the GeoEntity
@@ -93,7 +91,7 @@ define([
      */
     this._appearance = null;
   };
-  // Inherit from EventTarget
+  // Extend from EventTarget
   extend(EventTarget, GeoEntity);
 
   /**
@@ -208,13 +206,11 @@ define([
 
   /**
    * Function to remove the GeoEntity from rendering. This function should
-   * be overridden on subclasses to accomplish any cleanup that 
+   * be overridden on subclasses to accomplish any cleanup that
    * may be required.
    * @abstract
    */
-  GeoEntity.prototype.remove = function () {
-    // Does nothing unless overridden.
-  };
+  GeoEntity.prototype.remove = function () {};
 
   /**
    * Shows the GeoEntity in the current scene.
@@ -231,7 +227,7 @@ define([
   GeoEntity.prototype.hide = function () {
     throw new DeveloperError('Can not call abstract method of GeoEntity');
   };
-  
+
   /**
    * Toggles the visibility of the GeoEntity.
    */
@@ -242,13 +238,13 @@ define([
       this.show();
     }
   };
-  
+
   /**
    * Handles the GeoEntities behaviour when it is selected.
    * @abstract;
    */
   GeoEntity.prototype.onSelect = function () {};
-  
+
   /**
    * Handles the GeoEntities behaviour when it is deselected.
    * @abstract

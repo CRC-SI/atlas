@@ -18,32 +18,32 @@ define([
   var CameraManager = function (atlasManagers) {
     this._atlasManagers = atlasManagers;
     this._atlasManagers.camera = this;
-    
+
     /**
      * The current Camera.
      * @type atlas/camera/Camera
      */
     this._current = null;
-    
+
     /**
      * List of currently saved Bookmarks.
      * @type Object
      */
     this._bookmarks = null;
-  }
-  
-  // Does initialisation work after it is guarenteed all managers are created.
+  };
+
+  // Does initialisation work after it is guaranteed all managers are created.
   CameraManager.prototype.initialise = function () {
     this._bindEvents();
   };
-  
+
   // Binds event handlers with the Event Manager
   CameraManager.prototype._bindEvents = function () {
     var handlers = [
       {
         source: 'extern',
         name: 'camera/zoomTo',
-        callback: function (name, args) {
+        callback: function (args) {
           if (this._camera === null) {
             this._camera = new Camera();
           }
@@ -53,26 +53,22 @@ define([
     ];
     this._atlasManagers.event.addEventHandlers(handlers);
   };
-  
+
   CameraManager.prototype.createBookmark = function () {
     throw new DeveloperError('CameraManager.createBookmark not yet implemented.');
   };
-  
+
   CameraManager.prototype.removeBookmark = function () {
     throw new DeveloperError('CameraManager.removeBookmark not yet implemented.');
   };
-  
+
   CameraManager.prototype.gotoBookmark = function () {
     throw new DeveloperError('CameraManager.gotoBookmark not yet implemented.');
   };
-  
+
   CameraManager.prototype.lockCamera = function () {};
-  
+
   CameraManager.prototype.unlockCamera = function () {};
-  
-  CameraManager.prototype.xyz = function () {
-    throw new DeveloperError('CameraManager.createBookmark not yet implemented.');
-  };
 
   return CameraManager;
 });

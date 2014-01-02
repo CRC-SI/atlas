@@ -6,7 +6,7 @@ define([
    * Constructs a new SelectionManager object.
    * @class The SelectionManager maintains a list of the currently
    * selected GeoEntities. It exposes an API to select and deselect
-   * inidividual GeoEntities or a set of entities either specified
+   * individual GeoEntities or a set of entities either specified
    * explicitly or by specifying a geographic area to select from.
    *
    * @param {Object} atlasManagers - A reference to the Atlas manager objects.
@@ -44,7 +44,7 @@ define([
       {
         source: 'intern',
         name: 'input/leftclick',
-        callback: function (name, args) {
+        callback: function (args) {
           if (args) {
             if (!args.modifiers) args.modifiers = {};
             // var worldPosition = this._atlasManagers.render.convertScreenCoordsToLatLng(args);
@@ -62,7 +62,7 @@ define([
       {
         source: 'intern',
         name: 'entity/remove',
-        callback: function (name, args) {
+        callback: function (args) {
           // If the Entity has been removed, don't need to deselect it, just remove it from _selection.
           delete this._selection[args.id];
         }.bind(this)
@@ -151,9 +151,9 @@ define([
     console.debug('cleared selection');
   };
 
-  /**
+  /*
    * Selects multiple GeoEntities which are contained by the given Polygon.
-   * @param {altas/model/Polygon} boundingBox - The polygon defining the area to select GeoEntities.
+   * @param {atlas/model/Polygon} boundingBox - The polygon defining the area to select GeoEntities.
    * @param {Boolean} [intersects=false] - If true, GeoEntities which intersect but are not contained by the <code>boundingBox</code> are also selected.
    * @param {Boolean} [keepSelection=false] - If true, the current selection will be added to rather than cleared.
    */
@@ -162,10 +162,10 @@ define([
   };
 
 
-  /**
+  /*
    * Selects multiple GeoEntities which are contained by rectangular area.
-   * @param {altas/model/Vertex} start - The first point defining the rectangular selection area.
-   * @param {altas/model/Vertex} finish - The second point defining the rectangular selection area.
+   * @param {atlas/model/Vertex} start - The first point defining the rectangular selection area.
+   * @param {atlas/model/Vertex} finish - The second point defining the rectangular selection area.
    * @param {Boolean} [intersects=false] - If true, GeoEntities which intersect but are not contained by the <code>boundingBox</code> are also selected.
    * @param {Boolean} [keepSelection=false] - If true, the current selection will be added to rather than cleared.
    */

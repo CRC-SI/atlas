@@ -43,7 +43,7 @@ define([
    * then all selected entities are included in the translation. If no object is selected before
    * translation, only the target entity is translated.
    */
-  TranslationModule.prototype.start = function(name, args) {
+  TranslationModule.prototype.start = function(args) {
     /**
      * The entity which the event occurred on.
      * @type {@link atlas/model/GeoEntity}
@@ -62,27 +62,15 @@ define([
     this._entities[id] = target;
     console.debug(this._entities);
     // TODO(bpstudds) Handle multiple selections.
-    //var selection = this._atlasManagers.selection.getSelection();
-    //if (selection[id] !== undefined) {
-    //  for (var selectId in selection) {
-    //    this._entities[selectId] = selection[selectId];
-    //  }
-    //} else {
-    //  this._entities[id] = target;
-    //}
   };
 
   /**
    * Translates from the last location to the current location of the event for all entities.
    */
-  TranslationModule.prototype.update = function(name, args) {
+  TranslationModule.prototype.update = function(args) {
     if (this._entities === undefined) { return; }
     if (!this._entities) { return; }
 
-    //var time = (new Date()).getTime();
-    //var tics = time - this._lastTranslate;
-    //if (tics < 500) return;
-    //this._lastTranslate = time;
     var screenDiff = new Vertex(args.x, args.y).subtract(this._lastScreenCoords).absolute();
     if (screenDiff.x < this._MOVE_SENSITIVITY && screenDiff.y < this._MOVE_SENSITIVITY) {
       return;
@@ -97,7 +85,7 @@ define([
    * Translates from the last location to the current location of the event for all entities and then
    * stops translating.
    */
-  TranslationModule.prototype.end = function(name, args) {
+  TranslationModule.prototype.end = function(args) {
     if (!this._entities) { return; }
     this._lastScreenCoords = {x: args.x, y: args.y};
     //var cartLocation = this._cartographicLocation(args);
@@ -109,7 +97,7 @@ define([
   /**
    * Cancels the translation and moves all back to their original locations before translation began.
    */
-  TranslationModule.prototype.cancel = function(name, args) {
+  TranslationModule.prototype.cancel = function(args) {
     if (!this._entities) {
       this._atlasManagers.camera.unlockCamera();
 

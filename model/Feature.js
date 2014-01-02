@@ -37,18 +37,12 @@ define([
      * @type {Polygon}
      */
     this._footprint = null;
-    if (args.footprint !== undefined) {
-      this._footprint = new Polygon(id + 'polygon', args.footprint, args);
-    }
 
     /**
      * 3D {@link Mesh} of this Feature.
      * @type {Mesh}
      */
     this._mesh = null;
-    if (args.mesh !== undefined) {
-      this._mesh = new Mesh(id + 'mesh', args.mesh, args);
-    }
 
     /**
      * The extrusion height of this Feature.
@@ -129,25 +123,19 @@ define([
   Feature.prototype.show = function() {
     console.debug('trying to show feature', this._id, 'as', this._displayMode);
     if (this._displayMode === 'footprint') {
-      if (this._mesh) {
-        this._mesh.hide();
-      }
+      this._mesh && this._mesh.hide();
       if (this._footprint) {
         this._footprint.setHeight(0);
         this._visible = this._footprint.show();
       }
     } else if (this._displayMode === 'extrusion') {
-      if (this._mesh) {
-        this._mesh.hide();
-      }
+      this._mesh && this._mesh.hide();
       if (this._footprint) {
         this._footprint.setHeight(this._height);
-        this._visible = this._footprint.show(this._height);
+        this._visible = this._footprint.show();
       }
     } else if (this._displayMode === 'mesh') {
-      if (this._footprint) {
-        this._footprint.hide();
-      }
+      this._footprint && this._footprint.hide();
       if (this._mesh) {
         this._visible = this._mesh.show();
       }
@@ -171,9 +159,9 @@ define([
    * Handles the behaviour of the Feature when it is selected.
    */
   Feature.prototype.onSelect = function () {
-    this._fooprint && this._footprint.onSelect();
+    this._footprint && this._footprint.onSelect();
     this._mesh && this._mesh.onSelect();
-  }
+  };
 
   /**
    * Handles the behaviour of the Feature when it is deselected.
@@ -181,8 +169,7 @@ define([
   Feature.prototype.onDeselect = function () {
     this._footprint && this._footprint.onDeselect();
     this._mesh && this._mesh.onDeselect();
-  }
-
+  };
 
   /**
    * Clean up the Feature so it can be deleted by the RenderManager.
@@ -209,7 +196,7 @@ define([
       area = this._mesh.getArea();
     }
     return area;
-  }
+  };
 
   Feature.prototype.getCentroid = function () {
     var centroid = undefined;
@@ -219,12 +206,13 @@ define([
       centroid = this._mesh.getCentroid();
     }
     return centroid;
-  }
+  };
+
 
   Feature.prototype.translate = function (displacement) {
     if (this._footprint) this._footprint.translate(displacement);
     if (this._mesh) this._mesh.translate(displacement);
-  }
+  };
 
   return Feature;
 });
