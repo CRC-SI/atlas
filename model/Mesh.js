@@ -106,6 +106,19 @@ define([
   };
 
   /**
+   * Rotates the Mesh by the given vector.
+   * @param {atlas/model/Vertex} rotation - The vector to rotate the Mesh by.
+   * @param {Number} rotation.x - The rotation about the <code>x</code> axis in degrees, negative rotates clockwise, positive rotates anticlockwise.
+   * @param {Number} rotation.y - The rotation about the <code>y</code> axis in degrees, negative rotates clockwise, positive rotates anticlockwise.
+   * @param {Number} rotation.z - The rotation about the <code>z</code> axis in degrees, negative rotates clockwise, positive rotates anticlockwise.
+   */
+  Mesh.prototype.rotate = function (rotation) {
+    this._rotation = this._rotation.add(rotation);
+    this.setRenderable(false);
+    this.isVisible() && this.show();
+  };
+
+  /**
    * Sets the uniform colour used to colour the Mesh. The current <code>_uniformColour</code>
    * is persisted in <code>_previousColour</code> so it can be restored.
    * @param {atlas/model/Colour} colour - The new colour to use.

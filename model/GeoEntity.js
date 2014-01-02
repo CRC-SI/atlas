@@ -188,9 +188,9 @@ define([
   /**
    * Rotates the GeoEntity by the given vector.
    * @param {atlas/model/Vertex} rotation - The vector to rotate the GeoEntity by.
-   * @param {Number} rotation.x - The rotation about the <code>x</code> axis in degrees.
-   * @param {Number} rotation.y - The rotation about the <code>y</code> axis in degrees.
-   * @param {Number} rotation.z - The rotation about the <code>z</code> axis in degrees.
+   * @param {Number} rotation.x - The rotation about the <code>x</code> axis in degrees, negative rotates clockwise, positive rotates anticlockwise.
+   * @param {Number} rotation.y - The rotation about the <code>y</code> axis in degrees, negative rotates clockwise, positive rotates anticlockwise.
+   * @param {Number} rotation.z - The rotation about the <code>z</code> axis in degrees, negative rotates clockwise, positive rotates anticlockwise.
    *
    * @abstract
    */
