@@ -159,7 +159,7 @@ define([
    * Handles the behaviour of the Feature when it is selected.
    */
   Feature.prototype.onSelect = function () {
-    this._fooprint && this._footprint.onSelect();
+    this._footprint && this._footprint.onSelect();
     this._mesh && this._mesh.onSelect();
   };
 
