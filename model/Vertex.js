@@ -32,6 +32,10 @@ define([
 
   Vertex.prototype.absolute = function () {
     return new Vertex(Math.abs(this.x), Math.abs(this.y), Math.abs(this.z))
+  };
+
+  Vertex.prototype.componentWiseMultiply = function (other) {
+    return new Vertex(this.x * other.x, this.y * other.y, this.z * other.z);
   }
 
   return Vertex;

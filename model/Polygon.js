@@ -339,13 +339,17 @@ define([
    * scale the GeoEntity down or up respectively. ie, <code>0.5</code> is half as big and
    * <code>2</code> is twice as big.
    * @param {atlas/model/Vertex} scale - The vector to scale the Polygon by.
-   * @param {Number} scale.x - The scale along the <code>x</code> axis.
-   * @param {Number} scale.y - The scale along the <code>y</code> axis.
+   * @param {Number} scale.x - The scale along the <code>latitude</code> axis.
+   * @param {Number} scale.y - The scale along the <code>longitude</code> axis.
    */
   Polygon.prototype.scale = function(scale) {
-    return;
-    this._vertices = WKT.scaleVertices(this._vertices, scale);
-    console.debug('the scaled vertices', this._vertices);
+    console.debug('scaling polygon', this._id, 'with scale', scale);
+    var centroid = this.getCentroid();
+    this._vertices.forEach(function (vertex, i) {
+      var diff = vertex.subtract(centroid);
+      diff = diff.componentWiseMultiply(scale);
+      this._vertices[i] = diff.add(centroid);
+    }, this);
     this.setRenderable(false);
     this.isVisible() && this.show();
   };
