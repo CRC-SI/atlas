@@ -57,12 +57,13 @@ define([
     this._elevation = defaultValue(args.elevation, 0);
 
     /**
-     * Initial display mode of this Feature, Mesh trumps Footprint if it's defined in terms of
-     * default behaviour.
+     * The display mode of the Feature.
+     * Mesh trumps Footprint if they are both defined in terms of which is displayed by default.
      * @type {string}
      */
+    this._displayMode = '';
     this._displayMode = args.footprint ? defaultValue(args.displayMode, 'extrusion') : '';
-    this._displayMode = args.mesh ? 'mesh' : this._displayMode;
+    this._displayMode = args.mesh ? defaultValue(args.displayMode, 'mesh') : this._displayMode;
 
     /**
      * Whether this Feature is initially visible.
@@ -158,26 +159,17 @@ define([
    * Handles the behaviour of the Feature when it is selected.
    */
   Feature.prototype.onSelect = function () {
-    if (this._displayMode === 'footprint' || this._displayMode === 'extrusion') {
-      if (this._footprint.isRenderable) {
-        this._footprint.onSelect();
-      }
-    } else if (this._displayMode === 'mesh') {
-      this._mesh.onSelect();
-    }
+    this._footprint && this._footprint.onSelect();
+    this._mesh && this._mesh.onSelect();
   };
 
   /**
    * Handles the behaviour of the Feature when it is deselected.
    */
   Feature.prototype.onDeselect = function () {
-    if (this._displayMode === 'footprint' || this._displayMode === 'extrusion') {
-      this._footprint.onDeselect();
-    } else if (this._displayMode === 'mesh') {
-      this._mesh.onDeselect();
-    }
+    this._footprint && this._footprint.onDeselect();
+    this._mesh && this._mesh.onDeselect();
   };
-
 
   /**
    * Clean up the Feature so it can be deleted by the RenderManager.
@@ -215,6 +207,7 @@ define([
     }
     return centroid;
   };
+
 
   Feature.prototype.translate = function (displacement) {
     if (this._footprint) this._footprint.translate(displacement);
