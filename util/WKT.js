@@ -73,12 +73,31 @@ define([
   };
 
   /**
+   * Converts an array of coordinates into an array of Points.
+   * @param {Array.<atlas/model/Vertex>} vertices - The coordinates to convert.
+   * @returns {Array.<OpenLayers.Geometry.Points>}
+   */
+  WKT.prototype.openLayersPointsFromVertices = function (vertices) {
+    throw 'WKT.openLayersPointsFromVertices does not work.';
+
+    var points = [];
+    for (var i = 0; i < vertices.length; i++) {
+      var vertex = vertices[i];
+      var point = new OpenLayers.Geometry.Point(vertex.x, vertex.y);
+      points.push(point);
+    }
+    return points;
+  };
+
+  /**
    * Returns an OpenLayers Polygon from an array of vertices.
    * @param {Array.<atlas/model/Vertex>} vertices - The vertices to convert.
    * @returns {OpenLayers.Geometry.Polygon}
    */
   WKT.prototype.openLayersPolygonFromVertices = function (vertices) {
+    throw 'WKT.openLayersPolygonFromVertices does not work.';
     var points = this.openLayersPointsFromVertices(vertices);
+    console.log('the points', points);
     var ring = new OpenLayers.Geometry.LinearRing(points);
     if (ring.components.length > 1) {
       ring.components.pop();
@@ -100,20 +119,6 @@ define([
   };
 
   /**
-   * Converts an array of coordinates into an array of Points.
-   * @param {Array.<atlas/model/Vertex>} vertices - The coordinates to convert.
-   * @returns {Array.<OpenLayers.Geometry.Points>}
-   */
-  WKT.prototype.openLayersPointsFromVertices = function (vertices) {
-    var points = [];
-    for (var i = 0; i < vertices.length; i++) {
-      var vertex = vertices[i];
-      points.push(new OpenLayers.Geometry.Point(vertex.x, vertex.y));
-    }
-    return points;
-  };
-
-  /**
    * Scales a polygon formed by a series of Vertices.
    * @param {Array.<atlas/model/Vertex>} vertices - The vertices to scale.
    * @param {atlas/model/Vertex} scaleBy - Defines the factors to scale by.
@@ -122,6 +127,7 @@ define([
    * @returns {Array.<atlas/model/Vertex>} The rescaled vertices.
    */
   WKT.prototype.scaleVertices = function (vertices, scaleBy) {
+    throw 'WKT.scaleVertices does not work.'
     var polygon = this.openLayersPolygonFromVertices(vertices);
     var scaleAspectRatio = scaleBy.x / scaleBy.y;
     polygon.resize(scaleBy.x, polygon.getCentroid, scaleAspectRatio);
