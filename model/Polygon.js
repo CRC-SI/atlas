@@ -330,7 +330,7 @@ define([
       this._vertices[i] = this._vertices[i].add(translation);
     }
     this.setRenderable(false);
-    this.show();
+    this.isVisible() && this.show();
   };
 
   /**
