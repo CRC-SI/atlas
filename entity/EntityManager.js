@@ -41,7 +41,7 @@ define([
         this._entityTypes[key] = constructors[key];
       }
     }
-  }
+  };
 
   EntityManager.prototype.createFeature = function (id, args) {
     if (typeof id === 'object') {
@@ -59,7 +59,7 @@ define([
       args.renderManager = this._atlasManagers.render;
       return new this._entityTypes.Feature(id, args);
     }
-  }
+  };
 
   /**
    * Adds a new GeoEntity into the EntityManager.

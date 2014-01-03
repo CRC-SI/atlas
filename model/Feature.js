@@ -91,6 +91,15 @@ define([
   };
 
   /**
+   * Set the extruded height of the Feature to form a prism.
+   * @param {Number} height The extruded height of the feature.
+   */
+  Feature.prototype.setHeight = function (height) {
+    this._height = height;
+    this.show();
+  };
+
+  /**
    * Renders the Feature using its footprint.
    * @see {@link atlas/model/Polygon}
    */
