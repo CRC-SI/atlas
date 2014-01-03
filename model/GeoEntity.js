@@ -50,10 +50,18 @@ define([
     this._id = id;
 
     /**
-     * The RenderManager object for this GeoEntity.
+     * The RenderManager object for the GeoEntity.
      * @type {atlas/render/RenderManager}
+     * @private
      */
     this._renderManager = args.renderManager;
+
+    /**
+     * The EventManager object for the GeoEntity.
+     * @type {atlas/event/EventManager}
+     * @private
+     */
+    this._eventManager = args.eventManager;
 
     /**
      * The geometric centroid of the GeoEntity.
@@ -250,6 +258,35 @@ define([
    * @abstract
    */
   GeoEntity.prototype.onDeselect = function () {};
+
+  /**
+   * Enables 'editing' of the GeoEntity using keyboard input.
+   */
+  GeoEntity.prototype.enableEditing = function () {
+    console.debug('enableEditing called on', this._id);
+    this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keyup', function (args) {
+      console.debug('editing callback called');
+      switch (args.key) {
+        case 189: // minus
+          this.scale({x: 0.95, y: 0.95, z: 0.95});
+          break;
+        case 187: // plus
+          this.scale({x: 1.05, y: 1.05, z: 1.05});
+          break;
+        case 37: // left
+          break;
+        case 39: // right
+          break;
+      }
+    }.bind(this))
+  };
+
+  /**
+   * Disables editing of the GeoEntity.
+   */
+  GeoEntity.prototype.disableEditing = function () {
+    this._editEventHandler.cancel();
+  };
 
   return GeoEntity;
 });
