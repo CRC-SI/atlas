@@ -1,6 +1,8 @@
 define([
-  'atlas/util/DeveloperError'
-], function (DeveloperError) {
+  'atlas/util/DeveloperError',
+  'atlas/events/Event',
+  'atlas/events/EventTarget'
+], function (DeveloperError, Event, EventTarget) {
 
   /**
    * Constructs a new SelectionManager object.
@@ -86,6 +88,10 @@ define([
       }
       this._selection[entity._id] = entity;
       entity.onSelect();
+      var event = new Event(new EventTarget(), 'entity/select', {
+        entity: entity
+      });
+      this._atlasManagers.event.dispatchEvent(event);
       console.debug('selected entity', id);
     }
   };
@@ -109,6 +115,10 @@ define([
     if (toBeSelected.length > 0) {
       toBeSelected.forEach(function(entity) {
         entity.onSelect();
+        var event = new Event(toBeSelected, 'entity/select/multiple', {
+          entities: toBeSelected
+        });
+        this._atlasManagers.event.dispatchEvent(event);
         this._selection[entity._id] = entity;
       }.bind(this));
       if (!keepSelection) {
@@ -124,7 +134,12 @@ define([
    */
   SelectionManager.prototype.deselectEntity = function (id) {
     if (id in this._selection) {
-      this._selection[id].onDeselect();
+      var entity = this._selection[id];
+      entity.onDeselect();
+      var event = new Event(new EventTarget(), 'entity/deselect', {
+        entity: entity
+      });
+      this._atlasManagers.event.dispatchEvent(event);
       delete this._selection[id];
     }
   };
@@ -145,6 +160,8 @@ define([
     for (var id in this._selection) {
       if (this._selection.hasOwnProperty(id)) {
         this._selection[id].onDeselect();
+        // TODO(aramk) handle deselect events - I think this should just call deselectEntity() for
+        // each entity selected. This way logic for de/selection is never repeated.
       }
     }
     this._selection = {};
