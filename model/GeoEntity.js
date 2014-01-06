@@ -95,6 +95,13 @@ define([
   extend(EventTarget, GeoEntity);
 
   /**
+   * @returns {String} The ID of the GeoEntity.
+   */
+  GeoEntity.prototype.getId = function() {
+    return this._id;
+  };
+
+  /**
    * Returns the footprint centroid of the GeoEntity.
    * @returns {Number} GeoEntity's footprint centroid.
    * @abstract

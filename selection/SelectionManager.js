@@ -2,7 +2,7 @@ define([
   'atlas/util/DeveloperError',
   'atlas/events/Event',
   'atlas/events/EventTarget'
-], function (DeveloperError, Event, EventTarget) {
+], function(DeveloperError, Event, EventTarget) {
 
   /**
    * Constructs a new SelectionManager object.
@@ -17,7 +17,7 @@ define([
    * @alias atlas/selection/SelectionManager
    * @constructor
    */
-  var SelectionManager = function (atlasManagers) {
+  var SelectionManager = function(atlasManagers) {
     /**
      * Contains a map of entity ID to entity of all selected entities.
      * @type {Object}
@@ -32,21 +32,21 @@ define([
     this._atlasManagers = atlasManagers;
     this._atlasManagers.selection = this;
   };
-  
-  SelectionManager.prototype.initialise = function () {
+
+  SelectionManager.prototype.initialise = function() {
     this.bindEvents();
   };
 
   /**
    * Registers event handlers with the EventManager for relevant events.
    */
-  SelectionManager.prototype.bindEvents = function () {
+  SelectionManager.prototype.bindEvents = function() {
     // Create event handlers for pertinent events.
     var handlers = [
       {
         source: 'intern',
         name: 'input/leftclick',
-        callback: function (args) {
+        callback: function(args) {
           if (args) {
             if (!args.modifiers) args.modifiers = {};
             // var worldPosition = this._atlasManagers.render.convertScreenCoordsToLatLng(args);
@@ -64,7 +64,7 @@ define([
       {
         source: 'intern',
         name: 'entity/remove',
-        callback: function (args) {
+        callback: function(args) {
           // If the Entity has been removed, don't need to deselect it, just remove it from _selection.
           delete this._selection[args.id];
         }.bind(this)
@@ -79,7 +79,7 @@ define([
    * @param {String} id - The ID of the GeoEntity to select.
    * @param {Boolean} [keepSelection=false] - If true, the GeoEntity will be added to the current selection. If false, the current selection will be cleared before the GeoEntity is selected.
    */
-  SelectionManager.prototype.selectEntity = function (id, keepSelection) {
+  SelectionManager.prototype.selectEntity = function(id, keepSelection) {
     var entity = this._atlasManagers.entity.getById(id);
     if (entity) {
       console.debug('selecting entity', id);
@@ -101,26 +101,18 @@ define([
    * @param {Array.<String>} ids - The IDs of all GeoEntities to be selected.
    * @param {Boolean} [keepSelection=false] - If true, the GeoEntities will be added to current selection. If false, the current selection will be cleared before the GeoEntities are selected.
    */
-  SelectionManager.prototype.selectEntities = function (ids, keepSelection) {
+  SelectionManager.prototype.selectEntities = function(ids, keepSelection) {
     console.debug('selecting entities', ids);
-    var toBeSelected = [];
-    // Check that all the ids correspond to an entity.
-    for (var i = 0; i < ids.length; i++) {
-      var entity = this._atlasManagers.entity.getEntity(ids[i]);
-      if (entity) {
-        toBeSelected.push(entity);
-      }
-    }
-    // Do the actual selection.
-    if (toBeSelected.length > 0) {
-      toBeSelected.forEach(function(entity) {
+    var entities = this._atlasManagers.entity.getByIds(ids);
+    if (entities.length > 0) {
+      entities.forEach(function(entity) {
         entity.onSelect();
-        var event = new Event(toBeSelected, 'entity/select/multiple', {
-          entities: toBeSelected
-        });
-        this._atlasManagers.event.dispatchEvent(event);
         this._selection[entity._id] = entity;
       }.bind(this));
+      var event = new Event(entities, 'entity/select/multiple', {
+        entities: entities
+      });
+      this._atlasManagers.event.dispatchEvent(event);
       if (!keepSelection) {
         this.clearSelection();
       }
@@ -132,40 +124,51 @@ define([
    * Removes the given Entity from the current selection.
    * @param {String} id - The ID of the GeoEntity to deselect.
    */
-  SelectionManager.prototype.deselectEntity = function (id) {
+  SelectionManager.prototype.deselectEntity = function(id) {
     if (id in this._selection) {
       var entity = this._selection[id];
       entity.onDeselect();
-      var event = new Event(new EventTarget(), 'entity/deselect', {
+      this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(), 'entity/deselect', {
         entity: entity
-      });
-      this._atlasManagers.event.dispatchEvent(event);
+      }));
       delete this._selection[id];
     }
+  };
+
+  /**
+   * Deselects multiple GeoEntities.
+   * @param {Array.<String>} ids - The IDs of all GeoEntities to be deselected.
+   */
+  SelectionManager.prototype.deselectEntities = function(ids) {
+    console.debug('selecting entities', ids);
+    var entities = this._atlasManagers.entity.getByIds(ids);
+    if (entities.length > 0) {
+      entities.forEach(function(entity) {
+        entity.onDeselect();
+        delete this._selection[entity._id];
+      }.bind(this));
+      this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(),
+        'entity/deselect/multiple', {
+          entities: entities
+        }));
+    }
+    console.debug('deselected entities', ids);
   };
 
   /**
    * Returns the map of currently selected GeoEntities.
    * @returns {Object.<String,atlas/model/GeoEntity>}
    */
-  SelectionManager.prototype.getSelection = function () {
+  SelectionManager.prototype.getSelection = function() {
     return this._selection;
   };
 
   /**
    * Deselects all currently selected GeoEntities.
    */
-  SelectionManager.prototype.clearSelection = function () {
+  SelectionManager.prototype.clearSelection = function() {
     console.debug('clearing selection', this._selection);
-    for (var id in this._selection) {
-      if (this._selection.hasOwnProperty(id)) {
-        this._selection[id].onDeselect();
-        // TODO(aramk) handle deselect events - I think this should just call deselectEntity() for
-        // each entity selected. This way logic for de/selection is never repeated.
-      }
-    }
-    this._selection = {};
-    console.debug('cleared selection');
+    this.deselectEntities(Object.keys(this._selection));
   };
 
   /*
@@ -174,10 +177,9 @@ define([
    * @param {Boolean} [intersects=false] - If true, GeoEntities which intersect but are not contained by the <code>boundingBox</code> are also selected.
    * @param {Boolean} [keepSelection=false] - If true, the current selection will be added to rather than cleared.
    */
-  SelectionManager.prototype.selectWithinPolygon = function () {
+  SelectionManager.prototype.selectWithinPolygon = function() {
     throw 'No idea how to do this yet.';
   };
-
 
   /*
    * Selects multiple GeoEntities which are contained by rectangular area.
@@ -186,7 +188,7 @@ define([
    * @param {Boolean} [intersects=false] - If true, GeoEntities which intersect but are not contained by the <code>boundingBox</code> are also selected.
    * @param {Boolean} [keepSelection=false] - If true, the current selection will be added to rather than cleared.
    */
-  SelectionManager.prototype.selectBox = function () {
+  SelectionManager.prototype.selectBox = function() {
     throw 'No idea how to do this yet.';
   };
 
