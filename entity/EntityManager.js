@@ -104,6 +104,19 @@ define([
   };
 
   /**
+   * Returns the GeoEntity instances corresponding to the given IDs.
+   * @param {Array<String>} ids - The ID of the GeoEntity to return.
+   * @returns {Array<atlas/model/GeoEntity>} The corresponding GeoEntity instances mapped by their
+   * IDs.
+   */
+  EntityManager.prototype.getByIds = function (ids) {
+    console.debug('entityManager: got entities', ids);
+    return ids.map(function (id) {
+      return this.getById(id);
+    }.bind(this));
+  };
+
+  /**
    * Returns the GeoEntity that intersects the given Vertex or undefined.
    * @param {atlas/model/Vertex} point - The point of interest.
    * @returns {atlas/model/GeoEntity|undefined} The GeoEntity located at the given point, or
