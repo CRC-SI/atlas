@@ -100,7 +100,7 @@ define([
    * @param {Number} scale.z - The scale along the <code>z</code> axis.
    */
   Mesh.prototype.scale = function (scale) {
-    this._scale = this._scale.componentWiseMultiply(scale);
+    this._scale = this._scale.componentwiseMultiply(scale);
     this.setRenderable(false);
     this.isVisible() && this.show();
   };
@@ -108,9 +108,12 @@ define([
   /**
    * Rotates the Mesh by the given vector.
    * @param {atlas/model/Vertex} rotation - The vector to rotate the Mesh by.
-   * @param {Number} rotation.x - The rotation about the <code>x</code> axis in degrees, negative rotates clockwise, positive rotates anticlockwise.
-   * @param {Number} rotation.y - The rotation about the <code>y</code> axis in degrees, negative rotates clockwise, positive rotates anticlockwise.
-   * @param {Number} rotation.z - The rotation about the <code>z</code> axis in degrees, negative rotates clockwise, positive rotates anticlockwise.
+   * @param {Number} rotation.x - The rotation about the <code>x</code> axis in degrees, negative
+   *      rotates clockwise, positive rotates anticlockwise.
+   * @param {Number} rotation.y - The rotation about the <code>y</code> axis in degrees, negative
+   *      rotates clockwise, positive rotates anticlockwise.
+   * @param {Number} rotation.z - The rotation about the <code>z</code> axis in degrees, negative
+   *      rotates clockwise, positive rotates anticlockwise.
    */
   Mesh.prototype.rotate = function (rotation) {
     this._rotation = this._rotation.add(rotation);
@@ -126,14 +129,12 @@ define([
   Mesh.prototype.setUniformColour = function (colour) {
     console.debug('setting uniform colour to', colour);
     if (!(colour instanceof Colour)) {
-      throw new DeveloperError('colour must be a valid atlas Colour object');
-    } else {
-      if (this._uniformColour !== colour) {
-        // Only change colour if the new colour is different so _previousColour isn't clobbered.
-        this._previousColour = this._uniformColour;
-        this._uniformColour = colour;
-        this.setRenderable(false);
-      }
+      throw new DeveloperError('colour must be a valid Atlas Colour object');
+    } else if (this._uniformColour !== colour) {
+      // Only change colour if the new colour is different so _previousColour isn't clobbered.
+      this._previousColour = this._uniformColour;
+      this._uniformColour = colour;
+      this.setRenderable(false);
     }
   };
 

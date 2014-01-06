@@ -210,7 +210,7 @@ define([
 
   /**
    * Translates the Feature.
-   * @see @{link atlas/model/GeoEntity#translate}
+   * @see {@link atlas/model/GeoEntity#translate}
    * @param {atlas/model/Vertex} translation - The vector to translate the Feature by.
    */
   Feature.prototype.translate = function (translation) {
@@ -220,20 +220,20 @@ define([
 
   /**
    * Scales the Feature.
-   * @see @{link atlas/model/GeoEntity#scale}
+   * @see {@link atlas/model/GeoEntity#scale}
    * @param {atlas/model/Vertex} scale - The vector to scale the Feature by.
    */
-  Feature.prototype.translate = function (scale) {
+  Feature.prototype.scale = function (scale) {
     this._footprint && this._footprint.scale(scale);
     this._mesh && this._mesh.scale(scale);
   };
 
   /**
    * Rotates the Feature.
-   * @see @{link atlas/model/GeoEntity#rotate}
+   * @see {@link atlas/model/GeoEntity#rotate}
    * @param {atlas/model/Vertex} rotation - The vector to rotate the Feature by.
    */
-  Feature.prototype.translate = function (rotation) {
+  Feature.prototype.rotate = function (rotation) {
     this._footprint && this._footprint.rotate(rotation);
     this._mesh && this._mesh.rotate(rotation);
   };
