@@ -347,7 +347,7 @@ define([
     var centroid = this.getCentroid();
     this._vertices.forEach(function (vertex, i) {
       var diff = vertex.subtract(centroid);
-      diff = diff.componentWiseMultiply(scale);
+      diff = diff.componentwiseMultiply(scale);
       this._vertices[i] = diff.add(centroid);
     }, this);
     this.setRenderable(false);
@@ -356,7 +356,8 @@ define([
 
   /**
    * Rotates the Polygon by the given angle.
-   * @param {atlas/model/Vertex} rotation - The angle to rotate the Polygon, negative angles rotate clockwise, positive counter-clockwise.
+   * @param {atlas/model/Vertex} rotation - The angle to rotate the Polygon, negative angles
+   *      rotate clockwise, positive counter-clockwise.
    */
   Polygon.prototype.rotate = function (rotation) {
 

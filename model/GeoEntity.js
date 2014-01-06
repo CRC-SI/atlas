@@ -103,6 +103,13 @@ define([
   extend(EventTarget, GeoEntity);
 
   /**
+   * @returns {String} The ID of the GeoEntity.
+   */
+  GeoEntity.prototype.getId = function() {
+    return this._id;
+  };
+
+  /**
    * Returns the footprint centroid of the GeoEntity.
    * @returns {Number} GeoEntity's footprint centroid.
    * @abstract
@@ -196,9 +203,12 @@ define([
   /**
    * Rotates the GeoEntity by the given vector.
    * @param {atlas/model/Vertex} rotation - The vector to rotate the GeoEntity by.
-   * @param {Number} rotation.x - The rotation about the <code>x</code> axis in degrees, negative rotates clockwise, positive rotates anticlockwise.
-   * @param {Number} rotation.y - The rotation about the <code>y</code> axis in degrees, negative rotates clockwise, positive rotates anticlockwise.
-   * @param {Number} rotation.z - The rotation about the <code>z</code> axis in degrees, negative rotates clockwise, positive rotates anticlockwise.
+   * @param {Number} rotation.x - The rotation about the <code>x</code> axis in degrees, negative
+   *      rotates clockwise, positive rotates counterclockwise.
+   * @param {Number} rotation.y - The rotation about the <code>y</code> axis in degrees, negative
+   *        rotates clockwise, positive rotates counterclockwise.
+   * @param {Number} rotation.z - The rotation about the <code>z</code> axis in degrees, negative
+   *      rotates clockwise, positive rotates counterclockwise.
    *
    * @abstract
    */

@@ -41,7 +41,7 @@ define([
         this._entityTypes[key] = constructors[key];
       }
     }
-  }
+  };
 
   EntityManager.prototype.createFeature = function (id, args) {
     if (typeof id === 'object') {
@@ -59,7 +59,7 @@ define([
       args.renderManager = this._atlasManagers.render;
       return new this._entityTypes.Feature(id, args);
     }
-  }
+  };
 
   /**
    * Adds a new GeoEntity into the EntityManager.
@@ -101,6 +101,19 @@ define([
   EntityManager.prototype.getById = function (id) {
     console.debug('entityManager: got entity', id);
     return this._entities[id];
+  };
+
+  /**
+   * Returns the GeoEntity instances corresponding to the given IDs.
+   * @param {Array<String>} ids - The ID of the GeoEntity to return.
+   * @returns {Array<atlas/model/GeoEntity>} The corresponding GeoEntity instances mapped by their
+   * IDs.
+   */
+  EntityManager.prototype.getByIds = function (ids) {
+    console.debug('entityManager: got entities', ids);
+    return ids.map(function (id) {
+      return this.getById(id);
+    }.bind(this));
   };
 
   /**
