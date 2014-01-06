@@ -109,11 +109,11 @@ define([
    * Rotates the Mesh by the given vector.
    * @param {atlas/model/Vertex} rotation - The vector to rotate the Mesh by.
    * @param {Number} rotation.x - The rotation about the <code>x</code> axis in degrees, negative
-   *      rotates clockwise, positive rotates anticlockwise.
+   *      rotates clockwise, positive rotates counterclockwise.
    * @param {Number} rotation.y - The rotation about the <code>y</code> axis in degrees, negative
-   *      rotates clockwise, positive rotates anticlockwise.
+   *      rotates clockwise, positive rotates counterclockwise.
    * @param {Number} rotation.z - The rotation about the <code>z</code> axis in degrees, negative
-   *      rotates clockwise, positive rotates anticlockwise.
+   *      rotates clockwise, positive rotates counterclockwise.
    */
   Mesh.prototype.rotate = function (rotation) {
     this._rotation = this._rotation.add(rotation);
