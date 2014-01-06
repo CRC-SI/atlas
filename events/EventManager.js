@@ -9,8 +9,8 @@ define([
    * internal event hierarchy, as well as out to the host application.
    *
    *
-   * @param {Object} atlasManagers - A map of manager types to actual manager objects. 
-   *       The map is maintained on the main Atlas facade object, but the instances 
+   * @param {Object} atlasManagers - A map of manager types to actual manager objects.
+   *       The map is maintained on the main Atlas facade object, but the instances
    *       are created by each manager object upon creation.
    *
    * @alias atlas/events/EventManager
@@ -27,7 +27,7 @@ define([
     this._atlasManagers.event = this;
 
     /**
-     * Mapping of listener object IDs to the host application callback. Hosts 
+     * Mapping of listener object IDs to the host application callback. Hosts
      * registered in this map receive every event that occurs (that is not cancelled).
      * @type {Object}
      */
@@ -67,8 +67,8 @@ define([
       if (event.cancelled) {
         break;
       }
-      // Handling the event returns a new Event object that is exactly the same 
-      // except for the .target and .cancelled parameters, which may 
+      // Handling the event returns a new Event object that is exactly the same
+      // except for the .target and .cancelled parameters, which may
       // possibly be changed when the target handles the event.
       nextEvent = event.target.handleEvent(event);
       parent = event.target.parent;
@@ -77,14 +77,12 @@ define([
     }
     if (!event.cancelHost) {
       // Propagate the event to the host application.
-      console.debug('in EventManager', 'propagating event to hosts', this._hosts);
       for (var h in this._hosts) {
         if (this._hosts.hasOwnProperty(h)) {
           this._hosts[h].callback(event);
         }
       }
       // 'Publish' the event to any handlers.
-      console.debug('in EventManager', 'publishing event to handlers');
       this.handleInternalEvent(event.type, event.args);
     }
   };
@@ -149,7 +147,7 @@ define([
    * constructRenderManager(theEventManager) {
    *    theEventManager.addEventHandler('extern', 'entity/show', show.bind(this));
    * };
-   * </code> 
+   * </code>
    * @returns {Object} An EventListener object that can be used to cancel the EventHandler.
    */
   EventManager.prototype.addEventHandler = function (source, name, callback) {
@@ -182,8 +180,8 @@ define([
 
 
   /**
-   * Removes the given event handler from the event system. Called by the 
-   *       EventListener object returned by 
+   * Removes the given event handler from the event system. Called by the
+   *       EventListener object returned by
    *       {@link atlas/events/EventManager#addEventListener|addEventListener}.
    * @param  {String} source - The source of the Event for the EventHandler being removed.
    * @param  {String} id - The ID of the EventHandler being removed.
@@ -227,7 +225,7 @@ define([
     } else {
       throw new DeveloperError('Can not handle event without specifying "extern" or "intern" event');
     }
-    // Retrieve the list of event handlers for the given event type. 
+    // Retrieve the list of event handlers for the given event type.
     var handlers = allHandlers[name];
     if (handlers && handlers.length) {
       for (var i = 0; i < handlers.length; i++) {
