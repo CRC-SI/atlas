@@ -217,10 +217,34 @@ define([
     return centroid;
   };
 
+  /**
+   * Translates the Feature.
+   * @see {@link atlas/model/GeoEntity#translate}
+   * @param {atlas/model/Vertex} translation - The vector to translate the Feature by.
+   */
+  Feature.prototype.translate = function (translation) {
+    this._footprint && this._footprint.translate(translation);
+    this._mesh && this._mesh.translate(translation);
+  };
 
-  Feature.prototype.translate = function (displacement) {
-    if (this._footprint) this._footprint.translate(displacement);
-    if (this._mesh) this._mesh.translate(displacement);
+  /**
+   * Scales the Feature.
+   * @see {@link atlas/model/GeoEntity#scale}
+   * @param {atlas/model/Vertex} scale - The vector to scale the Feature by.
+   */
+  Feature.prototype.scale = function (scale) {
+    this._footprint && this._footprint.scale(scale);
+    this._mesh && this._mesh.scale(scale);
+  };
+
+  /**
+   * Rotates the Feature.
+   * @see {@link atlas/model/GeoEntity#rotate}
+   * @param {atlas/model/Vertex} rotation - The vector to rotate the Feature by.
+   */
+  Feature.prototype.rotate = function (rotation) {
+    this._footprint && this._footprint.rotate(rotation);
+    this._mesh && this._mesh.rotate(rotation);
   };
 
   return Feature;

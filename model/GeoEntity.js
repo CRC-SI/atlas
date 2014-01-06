@@ -166,21 +166,42 @@ define([
   GeoEntity.prototype.getAppearance = function() {
       return this._appearance;
   };
-  
-  
+
   /**
    * Translates the GeoEntity by the given vector.
-   * @param {atlas/model/Vertex} displacement - The vector to move the GeoEntity by.
-   * @param {Number} displacement.x - The change in latitude to apply.
-   * @param {Number} displacement.y - The change in longitude to apply.
-   * @param {Number} displacement.z - The change in elevation to apply.
+   * @param {atlas/model/Vertex} translation - The vector to move the GeoEntity by.
+   * @param {Number} translation.x - The change in latitude in decimal degrees to apply.
+   * @param {Number} translation.y - The change in longitude in decimal degrees apply.
+   * @param {Number} translation.z - The change in elevation in metres to apply.
    *
    * @abstract
    */
-  GeoEntity.prototype.translate = function(displacement) {
-    // This is silly.
-    displacement.x += 1;
-  };
+  GeoEntity.prototype.translate = function(translation) {};
+
+  /**
+   * Scales the GeoEntity by the given vector. This scaling can be uniform in all axis or non-uniform.
+   * A scaling factor of <code>1</code> has no effect. Factors lower or higher than <code>1</code>
+   * scale the GeoEntity down or up respectively. ie, <code>0.5</code> is half as big and
+   * <code>2</code> is twice as big.
+   * @param {atlas/model/Vertex} scale - The vector to scale the GeoEntity by.
+   * @param {Number} scale.x - The scale along the <code>x</code> axis of the GeoEntity.
+   * @param {Number} scale.y - The scale along the <code>y</code> axis of the GeoEntity.
+   * @param {Number} scale.z - The scale along the <code>z</code> axis of the GeoEntity.
+   *
+   * @abstract
+   */
+  GeoEntity.prototype.scale = function(scale) {};
+
+  /**
+   * Rotates the GeoEntity by the given vector.
+   * @param {atlas/model/Vertex} rotation - The vector to rotate the GeoEntity by.
+   * @param {Number} rotation.x - The rotation about the <code>x</code> axis in degrees, negative rotates clockwise, positive rotates anticlockwise.
+   * @param {Number} rotation.y - The rotation about the <code>y</code> axis in degrees, negative rotates clockwise, positive rotates anticlockwise.
+   * @param {Number} rotation.z - The rotation about the <code>z</code> axis in degrees, negative rotates clockwise, positive rotates anticlockwise.
+   *
+   * @abstract
+   */
+  GeoEntity.prototype.rotate = function (rotation) {};
 
   /**
    * Function to build the GeoEntity so it can be rendered.
