@@ -1,6 +1,8 @@
 /**
  * Well-Known Text Utility
- * Uses subsets of Open Layers library
+ * Uses subsets of Open Layers library.
+ * Has functionality to convert to and from WKT, OpenLayers geometry, and an atlas-compatible
+ * format. Exposes an API to scale and rotate supported geometries as well.
  * @author aramk
  */
 
@@ -19,98 +21,84 @@ define([
   };
 
   /**
-   * Converts a WKT polygon string to a multidimensional array of numbers.
-   * @param {String} poly - The WKT string to convert.
-   * @returns {Array.Number} The converted polygon.
-   */
-  WKT.prototype.wktToCoords = function (poly) {
-    return this.wktToArray(poly);
-  };
-
-  /**
-   * Converts a WKT polygon string to an array of 
+   * Converts a WKT polygon string to an array of
    * {@see atlas/model/Vertex|Vertices}.
-   * @param {String} poly - The WKT string to convert
-   * @returns {Array.atlas/model/Vertex} The convert polygon.
+   * @param {String} wktStr - The WKT string to convert
+   * @returns {Array.<atlas/model/Vertex>} The convert polygon.
    */
-  WKT.prototype.wktToVertices = function(poly) {
-    var geometry = this.parseGeometry(poly).geometry;
-    return this.wktGeometryToArray(geometry, this.wktPointToVertex);
+  WKT.prototype.verticesFromWKT = function(wktStr) {
+    var geometry = this.openLayersGeometryFromWKT(wktStr).geometry;
+    return this.verticesFromOpenLayersGeometry(geometry);
   };
 
   /**
    * Parses the given WKT string and returns an OpenLayers geometry collection.
    * @param {String} wktStr - The WKT string to convert
-   * @returns {OpenLayers.Geometry.Collection} 
+   * @returns {OpenLayers.Geometry.Collection}
    */
-  WKT.prototype.parseGeometry = function (wktStr) {
-    var geometry = wktStr;
-    if (typeof geometry === 'string') {
+  WKT.prototype.openLayersGeometryFromWKT = function (wktStr) {
+    var geometry;
+    if (typeof wktStr === 'string') {
       geometry = this.parser.read(wktStr);
     }
     return geometry;
   };
 
   /**
-   * Converts a WKT polygon string to a multidimensional array of numbers.
-   * @param {String} poly - The WKT string to convert.
-   * @returns {Array.Number} The converted polygon.
-   */
-  WKT.prototype.wktToArray = function (wktStr) {
-    var geometry = this.parseGeometry(wktStr).geometry;
-    return this.wktGeometryToArray(geometry);
-  };
-
-  /**
-   * Returns an array of coordinates representing the given geometry object. The
-   * type of coordinate generated depends on the <code>pointConverted</code>
-   * function.
+   * Returns an array of Vertices representing the given geometry object.
    * @param  {OpenLayers.Geometry.Collection|OpenLayers.Geometry.Point} geometry - The geometry to convert.
-   * @param  {Function} pointConverter - Function that converts a OpenLayers.Geometry.Point to the desired coordinate format.
-   * @returns {Array} An array of Points (as returned by pointConverter) forming a closed polygon.
+   * @returns {Array.<atlas/model/Vertex>|atlas/model/Vertex} An array of Vertices forming a closed polygon.
    */
-  WKT.prototype.wktGeometryToArray = function (geometry, pointConverter) {
-    var coords = [];
-    pointConverter = (pointConverter || this.wktPointToArray);
+  WKT.prototype.verticesFromOpenLayersGeometry = function (geometry) {
+    var vertices = [];
     if (geometry instanceof OpenLayers.Geometry.Point) {
-      return pointConverter(geometry);
+      return this.vertexFromOpenLayersPoint(geometry);
     } else if (geometry instanceof OpenLayers.Geometry.Collection) {
       var components = geometry.components;
       for (var i = 0; i < components.length; i++) {
         var component = components[i];
-        coords.push(this.wktGeometryToArray(component, pointConverter));
+        vertices.push(this.verticesFromOpenLayersGeometry(component));
       }
     }
-    return coords;
-  };
-
-  /**
-   * Converts an OpenLayers.Geometry.Point to an array.
-   * @param  {OpenLayers.Geometry.Point} point - The point to be converted.
-   * @returns {Array.Number} 
-   */
-  WKT.prototype.wktPointToArray = function (point) {
-    return [point.x, point.y];
+    return vertices;
   };
 
   /**
    * Converts an OpenLayers.Geometry.Point to a {@link atlas/model/Vertex|Vertex}.
    * @param  {OpenLayers.Geometry.Point} point - The point to be converted.
-   * @returns {atlas/model/Vertex} 
+   * @returns {atlas/model/Vertex}
    */
-  WKT.prototype.wktPointToVertex = function (point) {
+  WKT.prototype.vertexFromOpenLayersPoint = function (point) {
     return new Vertex(point.x, point.y, 0);
   };
 
   /**
-   * Returns a WKT Polygon from an array of coordinates.
-   * @param {Array.Number} coords - The coords to convert.
+   * Converts an array of coordinates into an array of Points.
+   * @param {Array.<atlas/model/Vertex>} vertices - The coordinates to convert.
+   * @returns {Array.<OpenLayers.Geometry.Points>}
+   */
+  WKT.prototype.openLayersPointsFromVertices = function (vertices) {
+    throw 'WKT.openLayersPointsFromVertices does not work.';
+
+    var points = [];
+    for (var i = 0; i < vertices.length; i++) {
+      var vertex = vertices[i];
+      var point = new OpenLayers.Geometry.Point(vertex.x, vertex.y);
+      points.push(point);
+    }
+    return points;
+  };
+
+  /**
+   * Returns an OpenLayers Polygon from an array of vertices.
+   * @param {Array.<atlas/model/Vertex>} vertices - The vertices to convert.
    * @returns {OpenLayers.Geometry.Polygon}
    */
-  WKT.prototype.coordsToWKTObject = function (coords) {
-    var points = this.toPoints(coords);
+  WKT.prototype.openLayersPolygonFromVertices = function (vertices) {
+    throw 'WKT.openLayersPolygonFromVertices does not work.';
+    var points = this.openLayersPointsFromVertices(vertices);
+    console.log('the points', points);
     var ring = new OpenLayers.Geometry.LinearRing(points);
-    var len = ring.components.length;
     if (ring.components.length > 1) {
       ring.components.pop();
     }
@@ -121,37 +109,29 @@ define([
   };
 
   /**
-   * Returns a WKT string from an array of coordinates.
-   * @param {Array.Number} coords - The coords to convert.
+   * Returns a WKT string from an array of vertices.
+   * @param {Array.<Number>} vertices - The vertices to convert.
    * @returns {String}
    */
-  WKT.prototype.coordsToWKT = function (coords) {
-    return this.wktObjectToString(this.coordsToWKTObject(coords));
+  WKT.prototype.wktStringFromVertices = function (vertices) {
+    var polygon = this.openLayersPolygonFromVertices(vertices);
+    return this.parse.extractGeometry(polygon);
   };
 
   /**
-   * Returns a WKT string from a WKT object.
-   * @param  {Object} obj - The WKT object to convert.
-   * @returns {String}
+   * Scales a polygon formed by a series of Vertices.
+   * @param {Array.<atlas/model/Vertex>} vertices - The vertices to scale.
+   * @param {atlas/model/Vertex} scaleBy - Defines the factors to scale by.
+   * @param {Number} scaleBy.x - The factor to scale the x axis by.
+   * @param {Number} scaleBy.y - The factor to scale the y axis by.
+   * @returns {Array.<atlas/model/Vertex>} The rescaled vertices.
    */
-  WKT.prototype.wktObjectToString = function (obj) {
-    // summary:
-    //      Returns a WKT string from a WKT object
-    return this.parser.extractGeometry(obj);
-  };
-
-  /**
-   * Converts an array of coordinates into an array of Points.
-   * @param {Array.Number} coords - The coordinates to convert.
-   * @returns {Array.OpenLayers.Geometry.Points}
-   */
-  WKT.prototype.toPoints = function (coords) {
-    var points = [];
-    for (var i = 0; i < coords.length; i++) {
-      var coord = coords[i];
-      points.push(new OpenLayers.Geometry.Point(coord[0], coord[1]));
-    }
-    return points;
+  WKT.prototype.scaleVertices = function (vertices, scaleBy) {
+    throw 'WKT.scaleVertices does not work.'
+    var polygon = this.openLayersPolygonFromVertices(vertices);
+    var scaleAspectRatio = scaleBy.x / scaleBy.y;
+    polygon.resize(scaleBy.x, polygon.getCentroid, scaleAspectRatio);
+    return this.verticesFromOpenLayersGeometry(polygon);
   };
 
 

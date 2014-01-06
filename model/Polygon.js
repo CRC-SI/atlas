@@ -44,7 +44,7 @@ define([
      * @type {Array.<atlas/model/Vertex>}
      */
     if (typeof vertices === 'string' ) {
-      this._vertices = WKT.wktToVertices(vertices)[0];
+      this._vertices = WKT.verticesFromWKT(vertices)[0];
     } else {
       this._vertices = defaultValue(vertices, []);
     }
@@ -88,7 +88,7 @@ define([
     /**
      * The centroid of the polygon.
      * @private
-     * @type {Number}
+     * @type {atlas/model/Vertex}
      */
     this._centroid = null;
 
@@ -202,7 +202,7 @@ define([
       this.setRenderable(false);
     }
   };
-  
+
   Polygon.prototype.setStyle = function(style) {
     if (!(style instanceof Style)) {
       throw new DeveloperError('Style must be a valid atlas Style object');
@@ -299,15 +299,16 @@ define([
   Polygon.prototype.hide = function () {
     throw new DeveloperError('Can not call abstract method of Polygon');
   };
-  
+
   /**
    * Handles the behaviour of the Polygon when it is selected.
    * Causes the Polygon to be rendered with the selection style.
    */
   Polygon.prototype.onSelect = function () {
+    console.debug('this should not be called');
     this.setStyle(Polygon.SELECTED_STYLE);
   };
-  
+
   /**
    * Handles the behaviour of the Polygon when it is deselected.
    * Causes the Polygon to be rendered with either the previously set style or
@@ -316,6 +317,51 @@ define([
   Polygon.prototype.onDeselect = function () {
     this.setStyle(this._previousStyle || Polygon.DEFAULT_STYLE);
   };
-  
+
+  /**
+   * Translates the Polygon.
+   * @param {atlas/model/Vertex} translation - The vector from the Polygon's current location to the desired location.
+   * @param {Number} translation.x - The change in latitude, given in decimal degrees.
+   * @param {Number} translation.y - The change in longitude, given in decimal degrees.
+   * @param {Number} translation.z - The change in altitude, given in metres.
+   */
+  Polygon.prototype.translate = function (translation) {
+    for (var i = 0; i < this._vertices.length; i++) {
+      this._vertices[i] = this._vertices[i].add(translation);
+    }
+    this.setRenderable(false);
+    this.isVisible() && this.show();
+  };
+
+  /**
+   * Scales the Polygon by the given vector. This scaling can be uniform in all axis or non-uniform.
+   * A scaling factor of <code>1</code> has no effect. Factors lower or higher than <code>1</code>
+   * scale the GeoEntity down or up respectively. ie, <code>0.5</code> is half as big and
+   * <code>2</code> is twice as big.
+   * @param {atlas/model/Vertex} scale - The vector to scale the Polygon by.
+   * @param {Number} scale.x - The scale along the <code>latitude</code> axis.
+   * @param {Number} scale.y - The scale along the <code>longitude</code> axis.
+   */
+  Polygon.prototype.scale = function(scale) {
+    console.debug('scaling polygon', this._id, 'with scale', scale);
+    var centroid = this.getCentroid();
+    this._vertices.forEach(function (vertex, i) {
+      var diff = vertex.subtract(centroid);
+      diff = diff.componentwiseMultiply(scale);
+      this._vertices[i] = diff.add(centroid);
+    }, this);
+    this.setRenderable(false);
+    this.isVisible() && this.show();
+  };
+
+  /**
+   * Rotates the Polygon by the given angle.
+   * @param {atlas/model/Vertex} rotation - The angle to rotate the Polygon, negative angles
+   *      rotate clockwise, positive counter-clockwise.
+   */
+  Polygon.prototype.rotate = function (rotation) {
+
+  };
+
   return Polygon;
 });

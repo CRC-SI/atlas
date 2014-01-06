@@ -19,6 +19,13 @@ define([
     // Add a reference to the base class' prototype
     sub.base = base.prototype;
 
+    // Try and copy statics from base class onto sub class.
+    for (var s in base) {
+      if (base.hasOwnProperty(s)) {
+        if (s !== 'base') { sub[s] = base[s]; }
+      }
+    }
+
     return sub;
   };
 
