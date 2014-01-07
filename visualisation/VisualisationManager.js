@@ -11,7 +11,7 @@ define([
     this._effectedEntities = {};
   };
 
-  VisualisationManager.SUPPORTED_ARTIFACTS = ['height'];
+  VisualisationManager.SUPPORTED_ARTIFACTS = Object.keys[VisualisationManager.artifactRenderers];
   VisualisationManager.SUPPORTED_PROJECTIONS = ['continuous'];
 
   /**
@@ -41,6 +41,13 @@ define([
     }
   };
 
+  VisualisationManager.prototype._calculateProjection = function (values) {
+    if (values.length && values[0] === Number ) {
+      // Determine statistical properties for values.
+    }
+    // TODO(bpstudds): Handle non-numeric values.
+  };
+
   /**
    * Renders the effects of the given projection.
    * @param {Object} projection - The projection to render.
@@ -55,7 +62,7 @@ define([
    */
   VisualisationManager.prototype._unrenderProjection = function (projection) {};
 
-  VisualisationManager.prototype.artifacts = {
+  VisualisationManager.prototype.artifactRenderers = {
     'height': {
       render: function (entityId, newHeight) {
         var entity = this._atlasManagers.entity.getById(entityId);
