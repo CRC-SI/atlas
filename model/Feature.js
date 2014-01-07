@@ -93,10 +93,13 @@ define([
   /**
    * Set the extruded height of the Feature to form a prism.
    * @param {Number} height The extruded height of the feature.
+   * @returns {Number} The previous height.
    */
   Feature.prototype.setHeight = function (height) {
+    var oldHeight = this._height;
     this._height = height;
     this.show();
+    return oldHeight;
   };
 
   /**
