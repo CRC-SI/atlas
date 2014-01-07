@@ -137,6 +137,7 @@ define([
         entity: entity
       }));
       delete this._selection[id];
+      console.debug('deselected entity', id);
     }
   };
 
@@ -147,7 +148,7 @@ define([
   SelectionManager.prototype.deselectEntities = function(ids) {
     var entities = this._atlasManagers.entity.getByIds(ids);
     var deselected = [];
-    if (ids > 0) {
+    if (ids.length > 0) {
       entities.forEach(function(entity) {
         //if (entity.id in this._selection) {
           entity.onDeselect();
@@ -159,6 +160,7 @@ define([
         'entity/deselect/multiple', {
           entities: deselected
         }));
+      console.debug('deselected entities', ids);
     }
   };
 
@@ -174,7 +176,7 @@ define([
    * Deselects all currently selected GeoEntities.
    */
   SelectionManager.prototype.clearSelection = function() {
-    if (Object.keys(this._selection) > 0) {
+    if (Object.keys(this._selection).length > 0) {
       console.debug('clearing selection', this._selection);
       this.deselectEntities(Object.keys(this._selection));
     }
