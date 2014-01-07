@@ -55,6 +55,25 @@ define([
    */
   VisualisationManager.prototype._unrenderProjection = function (projection) {};
 
+  VisualisationManager.prototype.artifacts = {
+    'height': {
+      render: function (entityId, newHeight) {
+        var entity = this._atlasManagers.entity.getById(entityId);
+        if (entity) {
+          var oldHeight = entity.setHeight(newHeight);
+          this._projections['height'].effects[entityId] = { old: oldHeight, cur: newHeight };
+        }
+      },
+      unrender: function (entityId) {
+        var entity = this._atlasManagers.entity.getById(entityId);
+        if (entity) {
+          var oldHeight = this._projections['height'].effects[entityId].old;
+          entity.setHeight(oldHeight);
+          delete this._projections['height'].effects[entityId];
+        }
+      }
+    }
+  };
 
   return VisualisationManager;
 });
