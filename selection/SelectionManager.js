@@ -90,10 +90,9 @@ define([
       }
       this._selection[entity._id] = entity;
       entity.onSelect();
-      var event = new Event(new EventTarget(), 'entity/select', {
+      this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(), 'entity/select', {
         entity: entity
-      });
-      this._atlasManagers.event.dispatchEvent(event);
+      }));
       console.debug('selected entity', id);
     }
   };
@@ -117,10 +116,10 @@ define([
         entity.onSelect();
         this._selection[entity._id] = entity;
       }.bind(this));
-      var event = new Event(entities, 'entity/select/multiple', {
+      this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(), 'entity/select/multiple',
+        {
         entities: entities
-      });
-      this._atlasManagers.event.dispatchEvent(event);
+      }));
     }
     console.debug('selected entities', ids);
   };
