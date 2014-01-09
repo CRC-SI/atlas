@@ -34,7 +34,7 @@ define([
     this._effectedEntities = {};
   };
 
-  VisualisationManager.SUPPORTED_ARTIFACTS = Object.keys[VisualisationManager.artifactRenderers];
+  VisualisationManager.SUPPORTED_ARTIFACTS = ['height'];
   VisualisationManager.SUPPORTED_PROJECTIONS = ['continuous'];
 
   /**
@@ -72,7 +72,8 @@ define([
 
   /**
    * Removes the artifacts of the given projection.
-   * @param {Object} projection - The projection to remove.
+   * @param {Projection} projection - The projection object to remove, returned by
+   * <code>addProjection()</code>.
    */
   VisualisationManager.prototype.removeProjection = function (projection) {
     if (projection.artifact in this._projections) {
