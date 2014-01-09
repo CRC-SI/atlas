@@ -184,16 +184,18 @@ define([
    * Clean up the Feature so it can be deleted by the RenderManager.
    */
   Feature.prototype.remove = function () {
+    // TODO(aramk) switch to Resig's Extend.js
+    Feature.base.remove.apply(this, arguments);
     // Remove mesh and footprint.
     if (this._mesh !== null) {
       console.debug('attempting to remove mesh', this._mesh);
       this._mesh.remove();
-      this._mesh = {};
+      this._mesh = null;
     }
     if (this._footprint !== null) {
       console.debug('attempting to remove footprint', this._footprint);
       this._footprint.remove();
-      this._footprint = {};
+      this._footprint = null;
     }
   };
 

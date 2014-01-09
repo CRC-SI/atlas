@@ -1,8 +1,9 @@
 define([
   'atlas/util/Extends',
   'atlas/util/DeveloperError',
+  'atlas/events/Event',
   'atlas/events/EventTarget'
-], function (extend, DeveloperError, EventTarget) {
+], function (extend, DeveloperError, Event, EventTarget) {
   "use strict";
 
   /**
@@ -226,9 +227,13 @@ define([
    * Function to remove the GeoEntity from rendering. This function should
    * be overridden on subclasses to accomplish any cleanup that
    * may be required.
-   * @abstract
    */
-  GeoEntity.prototype.remove = function () {};
+  GeoEntity.prototype.remove = function () {
+    this._eventManager.dispatchEvent(new Event(new EventTarget(),
+      'entity/remove', {
+        id: this.getId()
+      }));
+  };
 
   /**
    * Shows the GeoEntity in the current scene.

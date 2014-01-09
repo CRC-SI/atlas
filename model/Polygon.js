@@ -228,9 +228,11 @@ define([
   /**
    * Function to permanently remove the polygon from the scene
    * (vs. hiding it).
-   * @abstract
    */
-  Polygon.prototype.remove = function() {};
+  Polygon.prototype.remove = function() {
+    // TODO(aramk) switch to Resig's Extend.js
+    Polygon.base.remove.apply(this, arguments);
+  };
 
   /**
    * Gets the area of the Polygon, in <tt>unit**2</tt> where <tt>unit</tt> is the
