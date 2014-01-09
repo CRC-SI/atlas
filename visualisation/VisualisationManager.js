@@ -41,10 +41,45 @@ define([
     }
   };
 
-  VisualisationManager.prototype._calculateProjection = function (values) {
-    if (values.length && values[0] === Number ) {
-      // Determine statistical properties for values.
+  /**
+   * Takes the values for a Projection and calculates the statistical properties
+   * required for the projection. It then calculates the projected values for
+   * each entity.
+   * @param {Projection} projection - The projection to calculate projected values for.
+   * @returns {Object} The statistical data and the projected values, or null if no values are supplied.
+   * @private
+   */
+  VisualisationManager.prototype._calculateProjectedValues = function (projection) {
+    var ids = Object.getOwnPropertyNames(projection.values);
+    if (ids.length > 0) {
+      var data = {'sum': 0};
+      var values = {};
+      data.min = { 'id': ids[0], 'value': projection.values[ids[0]] };
+      data.max = { 'id': ids[0], 'value': projection.values[ids[0]] };
+      data.count = ids.length;
+      // Calculate min, max, and sum values.
+      ids.forEach(function (id) {
+        var thisVal = projection.values[id];
+        data.sum += parseInt(thisVal, 10) || 0;
+        if (thisVal < data.min.value) { data.min = { 'id': id, 'value': thisVal };}
+        if (thisVal > data.max.value) { data.max = { 'id': id, 'value': thisVal };}
+      });
+      data.average = data.sum / data.count;
+      data.valueRange = data.max.value - data.min.value;
+
+      ids.forEach(function (id) {
+        var thisVal = projection.values[id];
+        var value = {'id': id, 'value': thisVal };
+        value.diffFromAverage = thisVal - data.average;
+        value.ratioBetweenMinMax = (thisVal - data.min.value) / (data.valueRange);
+        value.ratioFromAverage = (thisVal - data.average);
+        value.ratioFromAverage /= (value.ratioFromAverage < 0 ?
+            (data.average - data.min.value) : (data.max.value - data.average));
+        values[id] = value;
+      });
+      return {'stats': data, 'values': values };
     }
+    return null;
     // TODO(bpstudds): Handle non-numeric values.
   };
 
