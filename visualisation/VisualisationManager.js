@@ -131,28 +131,43 @@ define([
    * @param {Object} projection - The projection to render.
    * @private
    */
-  VisualisationManager.prototype._renderProjection = function (projection) {};
+  VisualisationManager.prototype._renderProjection = function (projection) {
+    var ids = Object.getOwnPropertyNames(projection.values);
+    ids.forEach(function (id) {
+      // var entity = this._atlasManagers.entity.getById(id);
+      this._artifactRenderers[projection.artifact]
+          .render.bind(this)(id, projection.values[id], projection);
+    }, this);
+  };
 
   /**
    * Unrenders the effects of the given projection.
    * @param {Object} projection - The projection to unrender
    * @private
    */
-  VisualisationManager.prototype._unrenderProjection = function (projection) {};
+  VisualisationManager.prototype._unrenderProjection = function (projection) {
+    var ids = Object.getOwnPropertyNames(projection.values);
+    ids.forEach(function (id) {
+      // var entity = this._atlasManagers.entity.getById(id);
+      this._artifactRenderers[projection.artifact].unrender.bind(this)(id);
+    }, this);
+  };
 
-  VisualisationManager.prototype.artifactRenderers = {
-    'height': {
-      render: function (entityId, newHeight) {
+  VisualisationManager.prototype._artifactRenderers = {
+    height: {
+      render: function (entityId, values, projection) {
         var entity = this._atlasManagers.entity.getById(entityId);
         if (entity) {
+          var newHeight = values.ratioBetweenMinMax * 50 + 50;
           var oldHeight = entity.setHeight(newHeight);
-          this._projections['height'].effects[entityId] = { old: oldHeight, cur: newHeight };
+          this._projections['height'].effects[entityId] = { oldVal: oldHeight, newVal: newHeight };
         }
       },
-      unrender: function (entityId) {
+
+      unrender: function (entityId, projection) {
         var entity = this._atlasManagers.entity.getById(entityId);
         if (entity) {
-          var oldHeight = this._projections['height'].effects[entityId].old;
+          var oldHeight = that._projections['height'].effects[entityId].oldVal;
           entity.setHeight(oldHeight);
           delete this._projections['height'].effects[entityId];
         }
