@@ -31,7 +31,6 @@ define([
      * @private
      */
     this._projections = {};
-    this._effectedEntities = {};
   };
 
   VisualisationManager.SUPPORTED_ARTIFACTS = ['height'];
