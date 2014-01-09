@@ -193,6 +193,13 @@ define([
   };
 
   /**
+   * @returns {Number} The extrusion height of the polygon.
+   */
+  Polygon.prototype.getHeight = function () {
+    return this._height;
+  };
+
+  /**
    * Set the elevation of the base of the polygon (or prism).
    * @param {Number} elevation - The elevation of the base of the polygon.
    */
@@ -201,6 +208,13 @@ define([
       this._elevation = elevation;
       this.setRenderable(false);
     }
+  };
+
+  /**
+   * @returns {Number} The elevation of the base of the polygon (or prism).
+   */
+  Polygon.prototype.getElevation = function () {
+    return this._elevation;
   };
 
   Polygon.prototype.setStyle = function(style) {

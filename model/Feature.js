@@ -91,12 +91,35 @@ define([
   };
 
   /**
-   * Set the extruded height of the Feature to form a prism.
-   * @param {Number} height The extruded height of the feature.
+   * Sets the extruded height of the Feature to form a prism.
+   * @param {Number} height - The extruded height of the feature.
    */
   Feature.prototype.setHeight = function (height) {
     this._height = height;
     this.show();
+  };
+
+  /**
+   * @returns {number} The extruded height of the Feature to form a prism.
+   */
+  Feature.prototype.getHeight = function () {
+    return this._height;
+  };
+
+  /**
+   * Sets the elevation of the base of the feature.
+   * @param {Number} elevation - The elevation of the feature.
+   */
+  Feature.prototype.setElevation = function (elevation) {
+    this._elevation = elevation;
+    this.show();
+  };
+
+  /**
+   * @returns {number} The elevation of the base of the feature.
+   */
+  Feature.prototype.getElevation = function () {
+    return this._elevation;
   };
 
   /**
@@ -131,6 +154,7 @@ define([
    */
   Feature.prototype.show = function() {
     console.debug('trying to show feature', this._id, 'as', this._displayMode);
+    // TODO(aramk) delegate this to the setHeight setElevation.
     if (this._displayMode === 'footprint') {
       this._mesh && this._mesh.hide();
       if (this._footprint) {
@@ -141,6 +165,7 @@ define([
       this._mesh && this._mesh.hide();
       if (this._footprint) {
         this._footprint.setHeight(this._height);
+        this._footprint.setElevation(this._elevation);
         this._visible = this._footprint.show();
       }
     } else if (this._displayMode === 'mesh') {
