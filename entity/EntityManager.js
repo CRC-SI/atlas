@@ -105,8 +105,8 @@ define([
 
   /**
    * Returns the GeoEntity instances corresponding to the given IDs.
-   * @param {Array<String>} ids - The ID of the GeoEntity to return.
-   * @returns {Array<atlas/model/GeoEntity>} The corresponding GeoEntity instances mapped by their
+   * @param {Array.<String>} ids - The ID of the GeoEntity to return.
+   * @returns {Array.<atlas/model/GeoEntity>} The corresponding GeoEntity instances mapped by their
    * IDs.
    */
   EntityManager.prototype.getByIds = function (ids) {
