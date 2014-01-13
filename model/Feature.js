@@ -91,8 +91,8 @@ define([
   };
 
   /**
-   * Set the extruded height of the Feature to form a prism.
-   * @param {Number} height The extruded height of the feature.
+   * Sets the extruded height of the Feature to form a prism.
+   * @param {Number} height - The extruded height of the feature.
    * @returns {Number} The previous height.
    */
   Feature.prototype.setHeight = function (height) {
@@ -100,6 +100,29 @@ define([
     this._height = height;
     this.show();
     return oldHeight;
+  };
+
+  /**
+   * @returns {number} The extruded height of the Feature to form a prism.
+   */
+  Feature.prototype.getHeight = function () {
+    return this._height;
+  };
+
+  /**
+   * Sets the elevation of the base of the feature.
+   * @param {Number} elevation - The elevation of the feature.
+   */
+  Feature.prototype.setElevation = function (elevation) {
+    this._elevation = elevation;
+    this.show();
+  };
+
+  /**
+   * @returns {number} The elevation of the base of the feature.
+   */
+  Feature.prototype.getElevation = function () {
+    return this._elevation;
   };
 
   /**
@@ -134,6 +157,7 @@ define([
    */
   Feature.prototype.show = function() {
     console.debug('trying to show feature', this._id, 'as', this._displayMode);
+    // TODO(aramk) delegate this to the setHeight setElevation.
     if (this._displayMode === 'footprint') {
       this._mesh && this._mesh.hide();
       if (this._footprint) {
@@ -144,6 +168,7 @@ define([
       this._mesh && this._mesh.hide();
       if (this._footprint) {
         this._footprint.setHeight(this._height);
+        this._footprint.setElevation(this._elevation);
         this._visible = this._footprint.show();
       }
     } else if (this._displayMode === 'mesh') {
@@ -187,16 +212,18 @@ define([
    * Clean up the Feature so it can be deleted by the RenderManager.
    */
   Feature.prototype.remove = function () {
+    // TODO(aramk) switch to Resig's Extend.js
+    Feature.base.remove.apply(this, arguments);
     // Remove mesh and footprint.
     if (this._mesh !== null) {
       console.debug('attempting to remove mesh', this._mesh);
       this._mesh.remove();
-      this._mesh = {};
+      this._mesh = null;
     }
     if (this._footprint !== null) {
       console.debug('attempting to remove footprint', this._footprint);
       this._footprint.remove();
-      this._footprint = {};
+      this._footprint = null;
     }
   };
 

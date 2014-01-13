@@ -1,8 +1,9 @@
 define([
   'atlas/util/Extends',
   'atlas/util/DeveloperError',
+  'atlas/events/Event',
   'atlas/events/EventTarget'
-], function (extend, DeveloperError, EventTarget) {
+], function (extend, DeveloperError, Event, EventTarget) {
   "use strict";
 
   /**
@@ -50,10 +51,18 @@ define([
     this._id = id;
 
     /**
-     * The RenderManager object for this GeoEntity.
+     * The RenderManager object for the GeoEntity.
      * @type {atlas/render/RenderManager}
+     * @private
      */
     this._renderManager = args.renderManager;
+
+    /**
+     * The EventManager object for the GeoEntity.
+     * @type {atlas/event/EventManager}
+     * @private
+     */
+    this._eventManager = args.eventManager;
 
     /**
      * The geometric centroid of the GeoEntity.
@@ -218,9 +227,13 @@ define([
    * Function to remove the GeoEntity from rendering. This function should
    * be overridden on subclasses to accomplish any cleanup that
    * may be required.
-   * @abstract
    */
-  GeoEntity.prototype.remove = function () {};
+  GeoEntity.prototype.remove = function () {
+    this._eventManager.dispatchEvent(new Event(new EventTarget(),
+      'entity/remove', {
+        id: this.getId()
+      }));
+  };
 
   /**
    * Shows the GeoEntity in the current scene.
@@ -260,6 +273,38 @@ define([
    * @abstract
    */
   GeoEntity.prototype.onDeselect = function () {};
+
+  /**
+   * Enables 'editing' of the GeoEntity using keyboard input.
+   */
+  GeoEntity.prototype.enableEditing = function () {
+    console.debug('enableEditing called on', this._id);
+    this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keyup', function (args) {
+      if (args.modifiers.length === 0) {
+        switch (args.key) {
+          case 189: // minus
+            this.scale({x: 0.95, y: 0.95, z: 0.95});
+            break;
+          case 187: // plus
+            this.scale({x: 1.05, y: 1.05, z: 1.05});
+            break;
+          case 37: // left
+            this.rotate({x: 0, y: 0, z:5});
+            break;
+          case 39: // right
+            this.rotate({x: 0, y: 0, z:-5});
+            break;
+        }
+      }
+    }.bind(this));
+  };
+
+  /**
+   * Disables editing of the GeoEntity.
+   */
+  GeoEntity.prototype.disableEditing = function () {
+    this._editEventHandler.cancel();
+  };
 
   return GeoEntity;
 });
