@@ -52,7 +52,7 @@ define([
    * @param {atlas.model.Vertex} newCamera.orientation - The new orientation of the Camera.
    * @param {Number} newCamera.orientation.x - The tilt (or pitch) about the Camera's transverse axis in decimal degrees in the range [0, 180]. At 0 degrees the Camera is pointing at the point directly below it, at 180 degrees it is looking the opposite direction.
    * @param {Number} newCamera.orientation.y - The bearing (or yaw) about the normal axis from the surface to the camera in decimal degrees in the range [0, 360]. At 0 (and 360) degrees the Camera is facing North, 90 degrees it is facing East, etc.
-   * @param {Number} newCamera.orientation.z - The rotation (or roll) about the orientation vector of the Camera in decimal degrees in the range [-180, 180].   * @param {atlas.model.Vertex} position - The new position.
+   * @param {Number} newCamera.orientation.z - The rotation (or roll) about the orientation vector of the Camera in decimal degrees in the range [-180, 180].
    * @param {Number} newCamera.duration - The duration of the zoom animation in milliseconds.
    */
   Camera.prototype._animateCamera = function () {

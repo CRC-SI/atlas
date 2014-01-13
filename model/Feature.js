@@ -17,14 +17,14 @@ define([
    * @param {Object} args - Parameters describing the feature.
    * @param {atlas.render.RenderManager} args.renderManager - The RenderManager object responsible for rendering the Feature.
    * @param {atlas.events.EventManager} args.eventManager - The EventManager object responsible for the event system.
-   * @param {String|Array.atlas.model.Vertex} [args.footprint=null] - Either a WKT string or array of Vertices describing the footprint polygon.
+   * @param {String|Array.<atlas.model.Vertex>} [args.footprint=null] - Either a WKT string or array of Vertices describing the footprint polygon.
    * @param {atlas.model.Mesh} [args.mesh=null] - The Mesh object for the Feature.
    * @param {Number} [args.height=0] - The extruded height when displaying as a extruded polygon.
    * @param {Number} [args.elevation=0] - The elevation (from the terrain surface) to the base of the Mesh or Polygon.
    * @param {Boolean} [args.show=false] - Whether the feature should be initially shown when created.
    * @param {String} [args.displayMode='footprint'] - Initial display mode of feature, one of 'footprint', 'extrusion' or 'mesh'.
    *
-   * @extends {GeoEntity}
+   * @extends {atlas.model.GeoEntity}
    * @alias atlas.model.Feature
    * @constructor
    */
