@@ -1,10 +1,11 @@
 define([
-], function () {
+  'atlas/util/DeveloperError'
+], function (DeveloperError) {
   /**
    * An object describing a projection.
-   * @typedef {Object} Projection
+   * @typedef {{}} Projection
    * @property {String} artifact - The artifact to project onto, currently only 'height' supported.
-   * @property {String} projection - The type of projection, currently only 'continuous' supported.
+   * @property {String} type - The type of projection, currently only 'continuous' supported.
    * @property {Object.<String, Number>} values - A map of Entity ID to the values to be projected for the Entity.
    * @property {Object.<String, Object>} effects - A map of Entity ID to the effect the projection has.
    * @property {Object.<String, Object>} effects.oldVal - The value of an Entity's artifact before the projection was applied.
@@ -19,14 +20,17 @@ define([
 
   /**
    * Constructs a new VisualisationManager
-   * @param atlasManagers
+   * @param {Object.<String, Object>} atlasManagers - A map of Atlas manager names to
+   *      the current instance of that manager.
+   *
+   * @alias atlas.visualisation.VisualisationManager
    * @constructor
    */
   var VisualisationManager = function (atlasManagers) {
     this._atlasManagers = atlasManagers;
 
     /**
-     * The defined projections currently effecting Atlas.
+     * The defined projections currently affecting Atlas.
      * @type {Object.<String, Projection>}
      * @private
      */
@@ -47,9 +51,12 @@ define([
    * @returns {Projection|undefined} The Projection object, required to remove the Projection.
    */
   VisualisationManager.prototype.addProjection = function (args) {
-    if (!(args.artifact in this._artifactRenderers)) { return undefined; }
-    // TODO(bpstudds): Get the check for projection type working.
-    //if (VisualisationManager.SUPPORTED_PROJECTIONS.indexOf(args.type) != -1) { return; }
+    if (!args.artifact || !(args.artifact in this._artifactRenderers)) {
+      throw new DeveloperError('Artifact', args.artifact, 'is not supported.');
+    }
+    if (!args.type || VisualisationManager.SUPPORTED_PROJECTIONS.indexOf(args.type) === -1) {
+      throw new DeveloperError('Projection type', args.type, 'is not supported.');
+    }
 
     // Remove any projection already on this artifact.
     if (args.artifact in this._projections) {
@@ -72,14 +79,12 @@ define([
   /**
    * Removes the artifacts of the given projection.
    * @param {Projection} projection - The projection object to remove, returned by
-   * <code>addProjection()</code>.
+   * <code>@link {atlas.visualisation.VisualisationManager#addProjection|addProjection()}</code>.
    */
   VisualisationManager.prototype.removeProjection = function (projection) {
-    if (projection.artifact in this._projections) {
-      if (projection === this._projections[projection.artifact]) {
-        this._unrenderProjection(projection);
-        delete this._projections[projection.artifact];
-      }
+    if (projection && projection === this._projections[projection.artifact]) {
+      this._unrenderProjection(projection);
+      delete this._projections[projection.artifact];
     }
   };
 
@@ -131,9 +136,8 @@ define([
    * @private
    */
   VisualisationManager.prototype._renderProjection = function (projection) {
-    var ids = Object.getOwnPropertyNames(projection.values);
+    var ids = Object.keys(projection.values);
     ids.forEach(function (id) {
-      // var entity = this._atlasManagers.entity.getById(id);
       this._artifactRenderers[projection.artifact]
           .render.bind(this)(id, projection.values[id], projection);
     }, this);
@@ -145,9 +149,8 @@ define([
    * @private
    */
   VisualisationManager.prototype._unrenderProjection = function (projection) {
-    var ids = Object.getOwnPropertyNames(projection.values);
+    var ids = Object.keys(projection.values);
     ids.forEach(function (id) {
-      // var entity = this._atlasManagers.entity.getById(id);
       this._artifactRenderers[projection.artifact].unrender.bind(this)(id);
     }, this);
   };
