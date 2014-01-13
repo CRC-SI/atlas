@@ -296,7 +296,7 @@ define([
             break;
         }
       }
-    }.bind(this))
+    }.bind(this));
   };
 
   /**
