@@ -12,7 +12,7 @@ define([
    * @param {Number} [b=0.0] Blue component
    * @param {Number} [a=0.0] Alpha component
    *
-   * @alias atlas/model/Colour
+   * @alias atlas.model.Colour
    * @constructor
    */
   var Colour = function (r, g, b, a) {

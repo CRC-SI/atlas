@@ -8,15 +8,15 @@ define([
 
   /**
    * Constructs a new TranslationModule.
-   * @class Handles logic for movement of {@link atlas/model/GeoEntity} objects through user
+   * @class Handles logic for movement of {@link atlas.model.GeoEntity} objects through user
    * interaction (e.g. dragging).
    *
    * @param {Object} atlasManagers - A map of Atlas manager types to the manager instance.
    * @param {Object} [args] - Arguments to creating the TranslationModule.
    * @param {Number} [args.moveSensitivity] - Minimum number of screen pixels to move so a drag is recognised.
    *
-   * @extends {atlas/render/BaseEditModule}
-   * @alias atlas/edit/TranslationModule
+   * @extends {atlas.render.BaseEditModule}
+   * @alias atlas.edit.TranslationModule
    * @constructor
    */
   var TranslationModule = function(atlasManagers, args) {
@@ -25,7 +25,7 @@ define([
 
     /**
      * A map of entity ID to entity object to entities currently being dragged.
-     * @type {Object.<String, atlas/model/GeoEntity>}
+     * @type {Object.<String, atlas.model.GeoEntity>}
      * @private
      */
     this._entities = {};
@@ -39,21 +39,21 @@ define([
   extend(BaseEditModule, TranslationModule);
 
   /**
-   * When translation begins, if the event is targeted on a selected {@link atlas/model/GeoEntity},
+   * When translation begins, if the event is targeted on a selected {@link atlas.model.GeoEntity},
    * then all selected entities are included in the translation. If no object is selected before
    * translation, only the target entity is translated.
    */
   TranslationModule.prototype.start = function(args) {
     /**
      * The entity which the event occurred on.
-     * @type {@link atlas/model/GeoEntity}
+     * @type {@link atlas.model.GeoEntity}
      */
     var target = this._atlasManagers.entity.getAt(args)[0];
     if (!target) {
       return;
     }
     this._lastScreenCoords = {x: args.x, y: args.y};
-    
+
     this._atlasManagers.camera.lockCamera();
     var id = target._id;
     var cartLocation = this._cartographicLocation(args);
@@ -110,8 +110,8 @@ define([
 
   /**
    * Translates all entities from one location to another.
-   * @param {atlas/model/Vertex} oldVertex - The starting coordinate.
-   * @param {atlas/model/Vertex} newVertex - The ending coordinate.
+   * @param {atlas.model.Vertex} oldVertex - The starting coordinate.
+   * @param {atlas.model.Vertex} newVertex - The ending coordinate.
    * @private
    */
   TranslationModule.prototype._translate = function(oldVertex, newVertex) {

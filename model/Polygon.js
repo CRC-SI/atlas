@@ -16,22 +16,22 @@ define([
    * Constructs a new Polygon object.
    * @class  A Polygon represents a 2D polygon that can be rendered within an
    * Atlas scene. Polygons are constructed from a series of Vertices specified
-   * in a counter-clockwise order. A {@link atlas/model/Material|Material}
-   * and {@link atlas/model/Style|Style} can also be defined when
+   * in a counter-clockwise order. A {@link atlas.model.Material|Material}
+   * and {@link atlas.model.Style|Style} can also be defined when
    * constructing a Polygon.
    *
    * @param {Number} id - The ID of this Polygon.
-   * @param {string|Array.<atlas/model/Vertex>} [vertices=[]] - The vertices of the Polygon.
+   * @param {string|Array.<atlas.model.Vertex>} [vertices=[]] - The vertices of the Polygon.
    * @param {Object} [args] - Option arguments describing the Polygon.
-   * @param {atlas/model/GeoEntity} [args.parent=null] - The parent entity of the Polygon.
+   * @param {atlas.model.GeoEntity} [args.parent=null] - The parent entity of the Polygon.
    * @param {Number} [args.height=0] - The extruded height of the Polygon to form a prism.
    * @param {Number} [args.elevation] - The elevation of the base of the Polygon (or prism).
-   * @param {atlas/model/Style} [args.style=defaultStyle] - The Style to apply to the Polygon.
-   * @param {atlas/model/Material} [args.material=defaultMaterial] - The Material to apply to the polygon.
-   * @returns {atlas/model/Polygon}
+   * @param {atlas.model.Style} [args.style=defaultStyle] - The Style to apply to the Polygon.
+   * @param {atlas.model.Material} [args.material=defaultMaterial] - The Material to apply to the polygon.
+   * @returns {atlas.model.Polygon}
    *
-   * @extends {atlas/model/GeoEntity}
-   * @alias atlas/model/Polygon
+   * @extends {atlas.model.GeoEntity}
+   * @alias atlas.model.Polygon
    * @constructor
    */
    var Polygon = function (id, vertices, args) {
@@ -41,7 +41,7 @@ define([
     /**
      * Counter-clockwise ordered array of vertices constructing polygon.
      * @private
-     * @type {Array.<atlas/model/Vertex>}
+     * @type {Array.<atlas.model.Vertex>}
      */
     if (typeof vertices === 'string' ) {
       this._vertices = WKT.verticesFromWKT(vertices)[0];
@@ -66,14 +66,14 @@ define([
     /**
      * The visual style of the polygon.
      * @private
-     * @type {atlas/model/Style}
+     * @type {atlas.model.Style}
      */
     this._style = defaultValue(args.style, Polygon.DEFAULT_STYLE);
 
     /**
      * The material used to render the polygon.
      * @private
-     * @type {atlas/model/Material}
+     * @type {atlas.model.Material}
      */
     // TODO(bpstudds): Create a Polygon specific default Material to use.
     this._material = defaultValue(args.material, Material.DEFAULT);
@@ -88,7 +88,7 @@ define([
     /**
      * The centroid of the polygon.
      * @private
-     * @type {atlas/model/Vertex}
+     * @type {atlas.model.Vertex}
      */
     this._centroid = null;
 
@@ -104,13 +104,13 @@ define([
 
   /**
    * Defines the default style to use when rendering a polygon.
-   * @type {atlas/model/Colour}
+   * @type {atlas.model.Colour}
    */
   Polygon.DEFAULT_STYLE = new Style(Colour.GREEN, Colour.GREEN, 1);
 
   /**
    * Defines the default style to use when rendering a selected polygon.
-   * @type {atlas/model/Colour}
+   * @type {atlas.model.Colour}
    */
   Polygon.SELECTED_STYLE = new Style(Colour.RED, Colour.RED, 1);
 
@@ -133,7 +133,7 @@ define([
   /**
    * Inserts a vertex at particular index of the polygon. If the index is larger
    * than the number of vertices in the polygon, it is appended to the
-   * polygons vertices as per {@link atlas/model/Polygon#addVertex|addVertex}.
+   * polygons vertices as per {@link atlas.model.Polygon#addVertex|addVertex}.
    * The last element of _vertices is reserved for a duplicate of the first vertex.
    * @param {number} index - The index to insert at.
    * @param {Vertex} vertex - The vertex to be added. '-1' to insert at the end
@@ -272,7 +272,7 @@ define([
   /**
    * Gets the centroid of the Polygon. Assumes that the polygon is 2D surface, ie. Vertex.z is
    * constant across the polygon.
-   * @returns {atlas/model/Vertex} The Polygon's centroid.
+   * @returns {atlas.model.Vertex} The Polygon's centroid.
    * @see {@link http://stackoverflow.com/questions/9692448/how-can-you-find-the-centroid-of-a-concave-irregular-polygon-in-javascript/9939071#9939071}
    * @see  {@link http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon}
    */
@@ -336,7 +336,7 @@ define([
 
   /**
    * Translates the Polygon.
-   * @param {atlas/model/Vertex} translation - The vector from the Polygon's current location to the desired location.
+   * @param {atlas.model.Vertex} translation - The vector from the Polygon's current location to the desired location.
    * @param {Number} translation.x - The change in latitude, given in decimal degrees.
    * @param {Number} translation.y - The change in longitude, given in decimal degrees.
    * @param {Number} translation.z - The change in altitude, given in metres.
@@ -354,7 +354,7 @@ define([
    * A scaling factor of <code>1</code> has no effect. Factors lower or higher than <code>1</code>
    * scale the GeoEntity down or up respectively. ie, <code>0.5</code> is half as big and
    * <code>2</code> is twice as big.
-   * @param {atlas/model/Vertex} scale - The vector to scale the Polygon by.
+   * @param {atlas.model.Vertex} scale - The vector to scale the Polygon by.
    * @param {Number} scale.x - The scale along the <code>latitude</code> axis.
    * @param {Number} scale.y - The scale along the <code>longitude</code> axis.
    */
@@ -372,7 +372,7 @@ define([
 
   /**
    * Rotates the Polygon by the given angle.
-   * @param {atlas/model/Vertex} rotation - The angle to rotate the Polygon, negative angles
+   * @param {atlas.model.Vertex} rotation - The angle to rotate the Polygon, negative angles
    *      rotate clockwise, positive counter-clockwise.
    */
   Polygon.prototype.rotate = function (rotation) {

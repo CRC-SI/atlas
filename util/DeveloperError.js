@@ -16,7 +16,7 @@ define([
    * be thrown at runtime, e.g., out of memory, that the calling code should be prepared
    * to catch.
    *
-   * @alias atlas/util/DeveloperError
+   * @alias atlas.util.DeveloperError
    *
    * @param {String} [message=undefined] The error message for this exception.
    *

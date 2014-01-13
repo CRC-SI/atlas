@@ -22,9 +22,9 @@ define([
 
   /**
    * Converts a WKT polygon string to an array of
-   * {@see atlas/model/Vertex|Vertices}.
+   * {@see atlas.model.Vertex|Vertices}.
    * @param {String} wktStr - The WKT string to convert
-   * @returns {Array.<atlas/model/Vertex>} The convert polygon.
+   * @returns {Array.<atlas.model.Vertex>} The convert polygon.
    */
   WKT.prototype.verticesFromWKT = function(wktStr) {
     var geometry = this.openLayersGeometryFromWKT(wktStr).geometry;
@@ -47,7 +47,7 @@ define([
   /**
    * Returns an array of Vertices representing the given geometry object.
    * @param  {OpenLayers.Geometry.Collection|OpenLayers.Geometry.Point} geometry - The geometry to convert.
-   * @returns {Array.<atlas/model/Vertex>|atlas/model/Vertex} An array of Vertices forming a closed polygon.
+   * @returns {Array.<atlas.model.Vertex>|atlas.model.Vertex} An array of Vertices forming a closed polygon.
    */
   WKT.prototype.verticesFromOpenLayersGeometry = function (geometry) {
     var vertices = [];
@@ -64,9 +64,9 @@ define([
   };
 
   /**
-   * Converts an OpenLayers.Geometry.Point to a {@link atlas/model/Vertex|Vertex}.
+   * Converts an OpenLayers.Geometry.Point to a {@link atlas.model.Vertex|Vertex}.
    * @param  {OpenLayers.Geometry.Point} point - The point to be converted.
-   * @returns {atlas/model/Vertex}
+   * @returns {atlas.model.Vertex}
    */
   WKT.prototype.vertexFromOpenLayersPoint = function (point) {
     return new Vertex(point.x, point.y, 0);
@@ -74,7 +74,7 @@ define([
 
   /**
    * Converts an array of coordinates into an array of Points.
-   * @param {Array.<atlas/model/Vertex>} vertices - The coordinates to convert.
+   * @param {Array.<atlas.model.Vertex>} vertices - The coordinates to convert.
    * @returns {Array.<OpenLayers.Geometry.Points>}
    */
   WKT.prototype.openLayersPointsFromVertices = function (vertices) {
@@ -91,7 +91,7 @@ define([
 
   /**
    * Returns an OpenLayers Polygon from an array of vertices.
-   * @param {Array.<atlas/model/Vertex>} vertices - The vertices to convert.
+   * @param {Array.<atlas.model.Vertex>} vertices - The vertices to convert.
    * @returns {OpenLayers.Geometry.Polygon}
    */
   WKT.prototype.openLayersPolygonFromVertices = function (vertices) {
@@ -120,11 +120,11 @@ define([
 
   /**
    * Scales a polygon formed by a series of Vertices.
-   * @param {Array.<atlas/model/Vertex>} vertices - The vertices to scale.
-   * @param {atlas/model/Vertex} scaleBy - Defines the factors to scale by.
+   * @param {Array.<atlas.model.Vertex>} vertices - The vertices to scale.
+   * @param {atlas.model.Vertex} scaleBy - Defines the factors to scale by.
    * @param {Number} scaleBy.x - The factor to scale the x axis by.
    * @param {Number} scaleBy.y - The factor to scale the y axis by.
-   * @returns {Array.<atlas/model/Vertex>} The rescaled vertices.
+   * @returns {Array.<atlas.model.Vertex>} The rescaled vertices.
    */
   WKT.prototype.scaleVertices = function (vertices, scaleBy) {
     throw 'WKT.scaleVertices does not work.'

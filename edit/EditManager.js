@@ -2,7 +2,7 @@ define([
   'atlas/edit/TranslationModule'
 ], function (TranslationModule) {
 
-  // TODO(aramk) refactor this into abstract atlas/core/ModularManager and use elsewhere (e.g. RenderManager).
+  // TODO(aramk) refactor this into abstract atlas.core.ModularManager and use elsewhere (e.g. RenderManager).
 
   /**
    * Constructs a new EditManager object.
@@ -12,7 +12,7 @@ define([
    *
    * @param {Object} atlasManagers - Contains a mapping of Atlas manager names to manager instance.
    *
-   * @alias atlas/edit/EditManager
+   * @alias atlas.edit.EditManager
    * @constructor
    */
   var EditManager = function (atlasManagers) {

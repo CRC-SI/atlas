@@ -3,10 +3,10 @@ define([], function() {
   /**
    * Constructs a new BaseEditModule object.
    * @class The BaseEditModule defines the common interface for <code>Modules</code> used in
-   * the {@link atlas/edit/EditManager}.
+   * the {@link atlas.edit.EditManager}.
    *
    * @abstract
-   * @alias atlas/edit/BaseEditModule
+   * @alias atlas.edit.BaseEditModule
    * @constructor
    */
   var BaseEditModule = function() {

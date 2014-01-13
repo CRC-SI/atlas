@@ -15,17 +15,17 @@ define([
    *
    * @param {Number} id - The ID of this Feature.
    * @param {Object} args - Parameters describing the feature.
-   * @param {atlas/render/RenderManager} args.renderManager - The RenderManager object responsible for rendering the Feature.
-   * @param {atlas/events/EventManager} args.eventManager - The EventManager object responsible for the event system.
-   * @param {String|Array.atlas/model/Vertex} [args.footprint=null] - Either a WKT string or array of Vertices describing the footprint polygon.
-   * @param {atlas/model/Mesh} [args.mesh=null] - The Mesh object for the Feature.
+   * @param {atlas.render.RenderManager} args.renderManager - The RenderManager object responsible for rendering the Feature.
+   * @param {atlas.events.EventManager} args.eventManager - The EventManager object responsible for the event system.
+   * @param {String|Array.<atlas.model.Vertex>} [args.footprint=null] - Either a WKT string or array of Vertices describing the footprint polygon.
+   * @param {atlas.model.Mesh} [args.mesh=null] - The Mesh object for the Feature.
    * @param {Number} [args.height=0] - The extruded height when displaying as a extruded polygon.
    * @param {Number} [args.elevation=0] - The elevation (from the terrain surface) to the base of the Mesh or Polygon.
    * @param {Boolean} [args.show=false] - Whether the feature should be initially shown when created.
    * @param {String} [args.displayMode='footprint'] - Initial display mode of feature, one of 'footprint', 'extrusion' or 'mesh'.
    *
-   * @extends {GeoEntity}
-   * @alias atlas/model/Feature
+   * @extends {atlas.model.GeoEntity}
+   * @alias atlas.model.Feature
    * @constructor
    */
   var Feature = function (id, args) {
@@ -127,7 +127,7 @@ define([
 
   /**
    * Renders the Feature using its footprint.
-   * @see {@link atlas/model/Polygon}
+   * @see {@link atlas.model.Polygon}
    */
   Feature.prototype.showAsFootprint = function() {
     this._displayMode = 'footprint';
@@ -136,7 +136,7 @@ define([
 
   /**
    * Renders the Feature using its extruded footprint.
-   * @see {@link atlas/model/Polygon}
+   * @see {@link atlas.model.Polygon}
    */
   Feature.prototype.showAsExtrusion = function() {
     this._displayMode = 'extrusion';
@@ -145,7 +145,7 @@ define([
 
   /**
    * Renders the Feature using its mesh.
-   * @see {@link atlas/model/Mesh}
+   * @see {@link atlas.model.Mesh}
    */
   Feature.prototype.showAsMesh = function() {
     this._displayMode = 'mesh';
@@ -249,8 +249,8 @@ define([
 
   /**
    * Translates the Feature.
-   * @see {@link atlas/model/GeoEntity#translate}
-   * @param {atlas/model/Vertex} translation - The vector to translate the Feature by.
+   * @see {@link atlas.model.GeoEntity#translate}
+   * @param {atlas.model.Vertex} translation - The vector to translate the Feature by.
    */
   Feature.prototype.translate = function (translation) {
     this._footprint && this._footprint.translate(translation);
@@ -259,8 +259,8 @@ define([
 
   /**
    * Scales the Feature.
-   * @see {@link atlas/model/GeoEntity#scale}
-   * @param {atlas/model/Vertex} scale - The vector to scale the Feature by.
+   * @see {@link atlas.model.GeoEntity#scale}
+   * @param {atlas.model.Vertex} scale - The vector to scale the Feature by.
    */
   Feature.prototype.scale = function (scale) {
     this._footprint && this._footprint.scale(scale);
@@ -269,8 +269,8 @@ define([
 
   /**
    * Rotates the Feature.
-   * @see {@link atlas/model/GeoEntity#rotate}
-   * @param {atlas/model/Vertex} rotation - The vector to rotate the Feature by.
+   * @see {@link atlas.model.GeoEntity#rotate}
+   * @param {atlas.model.Vertex} rotation - The vector to rotate the Feature by.
    */
   Feature.prototype.rotate = function (rotation) {
     this._footprint && this._footprint.rotate(rotation);

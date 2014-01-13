@@ -12,7 +12,7 @@ define([
    *
    * @param {Object} atlasManagers - A mapping of Atlas manager types to the Manager instance.
    *
-   * @alias atlas/camera/CameraManager
+   * @alias atlas.camera.CameraManager
    * @constructor
    */
   var CameraManager = function (atlasManagers) {
@@ -21,7 +21,7 @@ define([
 
     /**
      * The current Camera.
-     * @type atlas/camera/Camera
+     * @type atlas.camera.Camera
      */
     this._current = null;
 

@@ -9,11 +9,11 @@ define([
    * @class A Style object defines the colour and opacity of a polygon's
    * fill and border.
    *
-   * @param {atlas/model/Colour} [fillColour] - The fill colour for the polygon.
-   * @param {atlas/model/Colour} [borderColour] - The border colour for the polygon.
+   * @param {atlas.model.Colour} [fillColour] - The fill colour for the polygon.
+   * @param {atlas.model.Colour} [borderColour] - The border colour for the polygon.
    * @param {Number} [borderWidth=1] - The borderwidth for the polygon in pixels.
    *
-   * @alias atlas/model/Style
+   * @alias atlas.model.Style
    * @constructor
    */
   var Style = function (fillColour, borderColour, borderWidth) {

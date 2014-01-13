@@ -4,14 +4,14 @@ define([
 
   /**
    * Facade class for the Atlas API. This class maintains references to all
-   * managers used in the implementation. It exposes an API to the host 
+   * managers used in the implementation. It exposes an API to the host
    * application to control Atlas' behaviour.
    *
    * @author  Brendan Studds
    * @version 1.0
    *
    * @abstract
-   * @alias atlas/core/Atlas
+   * @alias atlas.core.Atlas
    * @constructor
    */
   var Atlas = function () {
@@ -47,7 +47,7 @@ define([
   };
 
   /**
-   * Used to set the DOM element Atlas renders into and to cause Atlas to 
+   * Used to set the DOM element Atlas renders into and to cause Atlas to
    * do the initial render into that element (implementation defined).
    * @param {string} domId - The ID of the DOM element to attach to.
    */

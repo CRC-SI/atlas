@@ -17,12 +17,12 @@ define([
    * @param {Object} meshData - The data required to define what is actually rendered (Implementation defined).
    * @param {Object} args - Both optional and required construction parameters.
    * @param {String} args.id - The ID of the GeoEntity. (Optional if both <code>id</code> and <code>args</code> are provided as arguments)
-   * @param {atlas/render/RenderManager} args.renderManager - The RenderManager object responsible for the GeoEntity.
-   * @param {atlas/events/EventManager} args.eventManager - The EventManager object responsible for the Event system.
-   * @param {atlas/events/EventTarget} [args.parent] - The parent EventTarget object of the GeoEntity.
+   * @param {atlas.render.RenderManager} args.renderManager - The RenderManager object responsible for the GeoEntity.
+   * @param {atlas.events.EventManager} args.eventManager - The EventManager object responsible for the Event system.
+   * @param {atlas.events.EventTarget} [args.parent] - The parent EventTarget object of the GeoEntity.
    *
-   * @alias atlas/model/Mesh
-   * @extends {atlas/model/GeoEntity}
+   * @alias atlas.model.Mesh
+   * @extends {atlas.model.GeoEntity}
    * @constructor
    */
   var Mesh = function (id, meshData, args) {
@@ -31,21 +31,21 @@ define([
 
     /**
      * The location of the mesh object, specified by latitude, longitude, and elevation.
-     * @type {atlas/model/Vertex}
+     * @type {atlas.model.Vertex}
      * @private
      */
     this._geoLocation = {};
 
     /**
      * The scale that is applied to the Mesh when transforming it from model space to world space.
-     * @type {atlas/model/Vertex}
+     * @type {atlas.model.Vertex}
      * @private
      */
     this._scale = {};
 
     /**
      * The rotation that is applied to the MEsh when transforming it from model space to world space.
-     * @type {atlas/model/Vertex}
+     * @type {atlas.model.Vertex}
      * @private
      */
     this._rotation = {};
@@ -61,7 +61,7 @@ define([
     /**
      * The uniform colour to apply to the Mesh if a texture is not defined.
      * TODO(bpstudds): Work out the textures.
-     * @type {atlas/model/Colour}
+     * @type {atlas.model.Colour}
      * @private
      */
     this._uniformColour = Colour.GREEN;
@@ -71,14 +71,14 @@ define([
 
   /**
    * Uniform colour of the Mesh when it is selected.
-   * @type {atlas/model/Colour}
+   * @type {atlas.model.Colour}
    */
   Mesh.SELECTED_COLOUR = Colour.RED;
 
 
   /**
    * Translates the Mesh.
-   * @param {atlas/model/Vertex} translation - The vector from the Mesh's current location to the desired location.
+   * @param {atlas.model.Vertex} translation - The vector from the Mesh's current location to the desired location.
    * @param {Number} translation.x - The change in latitude, given in decimal degrees.
    * @param {Number} translation.y - The change in longitude, given in decimal degrees.
    * @param {Number} translation.z - The change in altitude, given in metres.
@@ -94,7 +94,7 @@ define([
 
   /**
    * Scales the Mesh.
-   * @param {atlas/model/Vertex} scale - The vector to scale the Mesh by.
+   * @param {atlas.model.Vertex} scale - The vector to scale the Mesh by.
    * @param {Number} scale.x - The scale along the <code>x</code> axis.
    * @param {Number} scale.y - The scale along the <code>y</code> axis.
    * @param {Number} scale.z - The scale along the <code>z</code> axis.
@@ -107,7 +107,7 @@ define([
 
   /**
    * Rotates the Mesh by the given vector.
-   * @param {atlas/model/Vertex} rotation - The vector to rotate the Mesh by.
+   * @param {atlas.model.Vertex} rotation - The vector to rotate the Mesh by.
    * @param {Number} rotation.x - The rotation about the <code>x</code> axis in degrees, negative
    *      rotates clockwise, positive rotates counterclockwise.
    * @param {Number} rotation.y - The rotation about the <code>y</code> axis in degrees, negative
@@ -124,7 +124,7 @@ define([
   /**
    * Sets the uniform colour used to colour the Mesh. The current <code>_uniformColour</code>
    * is persisted in <code>_previousColour</code> so it can be restored.
-   * @param {atlas/model/Colour} colour - The new colour to use.
+   * @param {atlas.model.Colour} colour - The new colour to use.
    */
   Mesh.prototype.setUniformColour = function (colour) {
     console.debug('setting uniform colour to', colour);

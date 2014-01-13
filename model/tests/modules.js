@@ -1,8 +1,8 @@
-define([ 
+define([
   /*=====
-  'atlas/model/tests/Network',
-  'atlas/model/tests/PointHandle',
-  'atlas/model/tests/Line',
+  'atlas.model.tests.Network',
+  'atlas.model.tests.PointHandle',
+  'atlas.model.tests.Line',
   =====*/
   'atlas/model/tests/Feature',
   'atlas/model/tests/Polygon',

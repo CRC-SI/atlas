@@ -12,9 +12,9 @@ define([
    * explicitly or by specifying a geographic area to select from.
    *
    * @param {Object} atlasManagers - A reference to the Atlas manager objects.
-   * @returns {atlas/selection/SelectionManager}
+   * @returns {atlas.selection.SelectionManager}
    *
-   * @alias atlas/selection/SelectionManager
+   * @alias atlas.selection.SelectionManager
    * @constructor
    */
   var SelectionManager = function(atlasManagers) {
@@ -165,7 +165,7 @@ define([
 
   /**
    * Returns the map of currently selected GeoEntities.
-   * @returns {Object.<String,atlas/model/GeoEntity>}
+   * @returns {Object.<String,atlas.model.GeoEntity>}
    */
   SelectionManager.prototype.getSelection = function() {
     return this._selection;
@@ -183,7 +183,7 @@ define([
 
   /*
    * Selects multiple GeoEntities which are contained by the given Polygon.
-   * @param {atlas/model/Polygon} boundingBox - The polygon defining the area to select GeoEntities.
+   * @param {atlas.model.Polygon} boundingBox - The polygon defining the area to select GeoEntities.
    * @param {Boolean} [intersects=false] - If true, GeoEntities which intersect but are
    *      not contained by the <code>boundingBox</code> are also selected.
    * @param {Boolean} [keepSelection=false] - If true, the current selection will be added
@@ -195,8 +195,8 @@ define([
 
   /*
    * Selects multiple GeoEntities which are contained by rectangular area.
-   * @param {atlas/model/Vertex} start - The first point defining the rectangular selection area.
-   * @param {atlas/model/Vertex} finish - The second point defining the rectangular selection area.
+   * @param {atlas.model.Vertex} start - The first point defining the rectangular selection area.
+   * @param {atlas.model.Vertex} finish - The second point defining the rectangular selection area.
    * @param {Boolean} [intersects=false] - If true, GeoEntities which intersect but are not
    *      contained by the <code>boundingBox</code> are also selected.
    * @param {Boolean} [keepSelection=false] - If true, the current selection will be added

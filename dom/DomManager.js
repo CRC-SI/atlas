@@ -13,7 +13,7 @@ define([
    * @param {Object} atlasManagers - A mapping of every manager type in Atlas to the manager instance.
    * @param {String} [domId] - The ID of the DOM element to attach Atlas to.
    *
-   * @alias atlas/dom/DomManager
+   * @alias atlas.dom.DomManager
    * @constructor
    */
   var DomManager = function (atlasManagers, domId) {
