@@ -7,7 +7,7 @@ define([
    * @param {Number} [y=0] - the 'y' coordinate.
    * @param {Number} [z=0] - the 'z' coordinate.
    *
-   * @alias atlas/model/Vertex
+   * @alias atlas.model.Vertex
    * @constructor
    */
   var Vertex = function (x, y, z) {

@@ -11,7 +11,7 @@ define([
 
     /**
      * Contains a mapping of ID to GeoEntity of all GeoEntities in atlas.
-     * @type {Object.<String,atlas/model/GeoEntity>}
+     * @type {Object.<String,atlas.model.GeoEntity>}
      */
     this._entities = {};
 
@@ -64,7 +64,7 @@ define([
   /**
    * Adds a new GeoEntity into the EntityManager.
    * @param {String} id - The ID of the new GeoEntity.
-   * @param {atlas/model/GeoEntity} entity - The new GeoEntity;
+   * @param {atlas.model.GeoEntity} entity - The new GeoEntity;
    * @returns {Boolean} True if the GeoEntity was added, false otherwise.
    */
   EntityManager.prototype.add = function (id, entity) {
@@ -95,7 +95,7 @@ define([
   /**
    * Returns the GeoEntity instance corresponding to the given ID.
    * @param {String} id - The ID of the GeoEntity to return.
-   * @returns {atlas/model/GeoEntity|undefined} The corresponding GeoEntity or
+   * @returns {atlas.model.GeoEntity|undefined} The corresponding GeoEntity or
    * <code>undefined</code> if there is no such GeoEntity.
    */
   EntityManager.prototype.getById = function (id) {
@@ -106,7 +106,7 @@ define([
   /**
    * Returns the GeoEntity instances corresponding to the given IDs.
    * @param {Array.<String>} ids - The ID of the GeoEntity to return.
-   * @returns {Array.<atlas/model/GeoEntity>} The corresponding GeoEntity instances mapped by their
+   * @returns {Array.<atlas.model.GeoEntity>} The corresponding GeoEntity instances mapped by their
    * IDs.
    */
   EntityManager.prototype.getByIds = function (ids) {
@@ -118,8 +118,8 @@ define([
 
   /**
    * Returns the GeoEntity that intersects the given Vertex or undefined.
-   * @param {atlas/model/Vertex} point - The point of interest.
-   * @returns {atlas/model/GeoEntity|undefined} The GeoEntity located at the given point, or
+   * @param {atlas.model.Vertex} point - The point of interest.
+   * @returns {atlas.model.GeoEntity|undefined} The GeoEntity located at the given point, or
    * <code>undefined</code> if there is no such GeoEntity.
    */
   EntityManager.prototype.getAt = function (point) {
@@ -131,11 +131,11 @@ define([
 
   /**
    * Returns the GeoEntities located within the given Polygon.
-   * @param {atlas/model/Polygon} boundingPoly - The polygon defining the geographic area to
+   * @param {atlas.model.Polygon} boundingPoly - The polygon defining the geographic area to
    * retrieve GeoEntities.
    * @param {Boolean} [intersects] - If true, GeoEntities which intersect the boundingBox are
    * returned as well. Otherwise, only wholly contains GeoEntities are returned.
-   * @returns {atlas/model/GeoEntity|undefined} The GeoEntities located in the bounding box,
+   * @returns {atlas.model.GeoEntity|undefined} The GeoEntities located in the bounding box,
    * or <code>undefined</code> if there are no such GeoEntities.
    */
   EntityManager.prototype.getInPoly = function (boundingPoly, intersects) {

@@ -13,7 +13,7 @@ define([
    *       The map is maintained on the main Atlas facade object, but the instances
    *       are created by each manager object upon creation.
    *
-   * @alias atlas/events/EventManager
+   * @alias atlas.events.EventManager
    * @constructor
    */
   var EventManager = function (atlasManagers) {
@@ -56,9 +56,15 @@ define([
   };
 
   /**
+   * This callback handles an event when it occurs.
+   * @callback eventCallback
+   * @param {Object} args - Arguments for the event that occurred.
+   */
+
+  /**
    * Bubbles the given Event through its <code>target</code> Entity hierarchy.
    * TODO(bpstudds) Fix the goddamn module names.
-   * @param {atlas/events/Event} event - The Event to be propagated.
+   * @param {atlas.events.Event} event - The Event to be propagated.
    */
   EventManager.prototype.dispatchEvent = function (event) {
     var nextEvent;
@@ -89,7 +95,7 @@ define([
 
   /**
    * Registers a Host application with the EventManager.
-   * @param {Function} callback - The event handler function in the registering Host application.
+   * @param {eventCallback} callback - The event handler function in the registering Host application.
    * @returns {Object} An EventListener object which can be used to deregister the Host from the event system.
    */
   EventManager.prototype.registerHost = function (callback) {
@@ -124,7 +130,7 @@ define([
    * Allows for adding an array of event handlers.
    * @param {Object} handlers - An array of Objects describing the handlers to be added.
    *       The objects should have properties 'source', 'name', and 'callback' as per
-   *       {@link atlas/events/EventManager#addEventHandler}.
+   *       {@link atlas.events.EventManager#addEventHandler}.
    * @returns {Object.<String, Object>} The map of event name to EventHandler object.
    */
   EventManager.prototype.addEventHandlers = function (handlers) {
@@ -141,7 +147,7 @@ define([
    *
    * @param {String} source - The source of the event, either 'extern' or 'intern'.
    * @param {String} name - The name of the event.
-   * @param {Function.<String, Object>} callback - Callback function to handle the event.
+   * @param {eventCallback} callback - Callback function to handle the event.
    * @example
    * <code>
    * constructRenderManager(theEventManager) {
@@ -182,7 +188,7 @@ define([
   /**
    * Removes the given event handler from the event system. Called by the
    *       EventListener object returned by
-   *       {@link atlas/events/EventManager#addEventListener|addEventListener}.
+   *       {@link atlas.events.EventManager#addEventListener|addEventListener}.
    * @param  {String} source - The source of the Event for the EventHandler being removed.
    * @param  {String} id - The ID of the EventHandler being removed.
    */

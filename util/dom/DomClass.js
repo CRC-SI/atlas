@@ -8,7 +8,7 @@ define([
    * A utility class containing static functions for managing a DOM
    * elements classes.
    * @author Brendan Studds
-   * @exports atlas/util/dom/DomClass
+   * @exports atlas.util.dom.DomClass
    */
   var DomClass = {
 

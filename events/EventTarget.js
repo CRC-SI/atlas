@@ -6,28 +6,28 @@ define([
 
   /**
    * Constructs a new EventTarget object.
-   * @class EventTarget is a mixin class that provides an object with the 
+   * @class EventTarget is a mixin class that provides an object with the
    * ability to dispatch and listen to events. This implementation is close to
    * dojo/on than the DOM Event model.
    *
-   * @param {atlas/events/EventManager} [em=null] - The EventManager object managing the event system.
-   * @param {atlas/events/EventTarget} [parent=null] - The parent of the EventTarget.
-   * @returns {atlas/events/EventTarget}
+   * @param {atlas.events.EventManager} [em=null] - The EventManager object managing the event system.
+   * @param {atlas.events.EventTarget} [parent=null] - The parent of the EventTarget.
+   * @returns {atlas.events.EventTarget}
 
-   * @alias atlas/events/EventTarget
+   * @alias atlas.events.EventTarget
    * @constructor
    */
   var EventTarget = function(em, parent) {
 
     /**
      * The EventManager for this EventTarget.
-     * @type {atlas/events/EventManager}
+     * @type {atlas.events.EventManager}
      */
     this._eventManager = defaultValue(em, null);
 
     /**
      * The parent object of the EventTarget.
-     * @type {atlas/events/EventTarget}
+     * @type {atlas.events.EventTarget}
      */
     this.parent = defaultValue(parent, null);
 
@@ -47,8 +47,8 @@ define([
 
   /**
    * Initialise the EventTarget post-construction.
-   * @param {atlas/events/EventManager} em - The EventManager object managing the event system.
-   * @param {atlas/events/EventTarget} parent - The parent EventTarget of the EventTarget.
+   * @param {atlas.events.EventManager} em - The EventManager object managing the event system.
+   * @param {atlas.events.EventTarget} parent - The parent EventTarget of the EventTarget.
    */
   EventTarget.prototype.initEventTarget = function (em, parent) {
     this._eventManager = em;
@@ -58,7 +58,7 @@ define([
   /**
    * Notify the EventManager that an event has been emitted. The EventManager
    * then handles the propagation of the event through the EventTarget hierarchy.
-   * @param  {atlas/events/Event} event - The Event object to be propagated.
+   * @param  {atlas.events.Event} event - The Event object to be propagated.
    */
   EventTarget.prototype.dispatchEvent = function(event) {
     this._eventManager.dispatchEvent(event);
@@ -92,8 +92,8 @@ define([
 
   /**
    * Removes the identified event listener from the EventTarget. This function
-   * is called by the EventListener object returned by 
-   * {@link atlas/events/EventTarget#addEventListener|addEventListener}.
+   * is called by the EventListener object returned by
+   * {@link atlas.events.EventTarget#addEventListener|addEventListener}.
    * @param  {Number} id - The ID of the EventListener to remove.
    */
   EventTarget.prototype._removeEventListener = function(id) {
@@ -103,8 +103,8 @@ define([
 
   /**
    * Handles events that bubble up to the EventTarget.
-   * @param  {atlas/events/Event} event - The Event to be handled.
-   * @returns {atlas/events/Event} The Event to be propagated to the next
+   * @param  {atlas.events.Event} event - The Event to be handled.
+   * @returns {atlas.events.Event} The Event to be propagated to the next
    *       EventTarget in the hierarchy.
    */
   EventTarget.prototype.handleEvent = function(event) {

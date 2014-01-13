@@ -8,16 +8,16 @@ define([
   /**
    * Constructor for a new Line object.
    *
-   * @param {atlas/model/Vertex} [start=Vertex(0,0,0)] - Vertex at start of the line segment.
-   * @param {atlas/model/Vertex} [end=Vertex(0,0,0)] - Vertex at end of the line segment.
+   * @param {atlas.model.Vertex} [start=Vertex(0,0,0)] - Vertex at start of the line segment.
+   * @param {atlas.model.Vertex} [end=Vertex(0,0,0)] - Vertex at end of the line segment.
    *
-   * @extends {atlas/model/GeoEntity}
-   * @alias atlas/model/Line
+   * @extends {atlas.model.GeoEntity}
+   * @alias atlas.model.Line
    * @constructor
    */
   var Line = function (start, end) {
     Line.base.constructor.call(this, id, parent);
-    
+
     this._startVertex = defaultValue(start, new Vertex(0,0,0));
     this._endVertex =  defaultValue(end, new Vertex(0,0,0));
   };

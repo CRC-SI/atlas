@@ -9,12 +9,12 @@ define([
   /**
    * Event, like a regular DOM event, is a simple object that
    * encapsulates the information relevatant to the event that occured.
-   * 
-   * @param {atlas/events/EventTarget} target - The target of the Event.
+   *
+   * @param {atlas.events.EventTarget} target - The target of the Event.
    * @param {string} type - The type of the Event.
    * @param {Object} [args] - Arguments relevant to the Event.
    *
-   * @alias atlas/events/Event
+   * @alias atlas.events.Event
    * @constructor
    */
   var Event = function(target, type, args) {
@@ -50,7 +50,7 @@ define([
     this.cancelHost = this.cancelHost || cancelHost;
     this.cancelled = true;
   };
-  
+
   return Event;
 });
 

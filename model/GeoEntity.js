@@ -16,20 +16,20 @@ define([
    * @param {Number} id - The ID of this GeoEntity.
    * @param {Object} args - Both optional and required construction parameters.
    * @param {String} args.id - The ID of the GeoEntity.
-   * @param {atlas/render/RenderManager} args.renderManager - The RenderManager object responsible for the GeoEntity.
-   * @param {atlas/events/EventManager} args.eventManager - The EventManager object responsible for the Event system.
-   * @param {atlas/events/EventTarget} [args.parent] - The parent EventTarget object of the GeoEntity.
+   * @param {atlas.render.RenderManager} args.renderManager - The RenderManager object responsible for the GeoEntity.
+   * @param {atlas.events.EventManager} args.eventManager - The EventManager object responsible for the Event system.
+   * @param {atlas.events.EventTarget} [args.parent] - The parent EventTarget object of the GeoEntity.
    *
-   * @see {atlas/model/Feature}
-   * @see {atlas/model/Polygon}
-   * @see {atlas/model/Network}
-   * @see {atlas/model/Line}
-   * @see {atlas/model/Vertex}
-   * @see {atlas/model/PointHandle}
+   * @see {atlas.model.Feature}
+   * @see {atlas.model.Polygon}
+   * @see {atlas.model.Network}
+   * @see {atlas.model.Line}
+   * @see {atlas.model.Vertex}
+   * @see {atlas.model.PointHandle}
    *
    * @abstract
-   * @extends {atlas/events/EventTarget}
-   * @alias atlas/model/GeoEntity
+   * @extends {atlas.events.EventTarget}
+   * @alias atlas.model.GeoEntity
    * @constructor
    */
   var GeoEntity = function (id, args) {
@@ -52,21 +52,21 @@ define([
 
     /**
      * The RenderManager object for the GeoEntity.
-     * @type {atlas/render/RenderManager}
+     * @type {atlas.render.RenderManager}
      * @private
      */
     this._renderManager = args.renderManager;
 
     /**
      * The EventManager object for the GeoEntity.
-     * @type {atlas/event/EventManager}
+     * @type {atlas.event.EventManager}
      * @private
      */
     this._eventManager = args.eventManager;
 
     /**
      * The geometric centroid of the GeoEntity.
-     * @type {atlas/model/Vertex}
+     * @type {atlas.model.Vertex}
      */
     this._centroid = null;
 
@@ -178,7 +178,7 @@ define([
 
   /**
    * Translates the GeoEntity by the given vector.
-   * @param {atlas/model/Vertex} translation - The vector to move the GeoEntity by.
+   * @param {atlas.model.Vertex} translation - The vector to move the GeoEntity by.
    * @param {Number} translation.x - The change in latitude in decimal degrees to apply.
    * @param {Number} translation.y - The change in longitude in decimal degrees apply.
    * @param {Number} translation.z - The change in elevation in metres to apply.
@@ -192,7 +192,7 @@ define([
    * A scaling factor of <code>1</code> has no effect. Factors lower or higher than <code>1</code>
    * scale the GeoEntity down or up respectively. ie, <code>0.5</code> is half as big and
    * <code>2</code> is twice as big.
-   * @param {atlas/model/Vertex} scale - The vector to scale the GeoEntity by.
+   * @param {atlas.model.Vertex} scale - The vector to scale the GeoEntity by.
    * @param {Number} scale.x - The scale along the <code>x</code> axis of the GeoEntity.
    * @param {Number} scale.y - The scale along the <code>y</code> axis of the GeoEntity.
    * @param {Number} scale.z - The scale along the <code>z</code> axis of the GeoEntity.
@@ -203,7 +203,7 @@ define([
 
   /**
    * Rotates the GeoEntity by the given vector.
-   * @param {atlas/model/Vertex} rotation - The vector to rotate the GeoEntity by.
+   * @param {atlas.model.Vertex} rotation - The vector to rotate the GeoEntity by.
    * @param {Number} rotation.x - The rotation about the <code>x</code> axis in degrees, negative
    *      rotates clockwise, positive rotates counterclockwise.
    * @param {Number} rotation.y - The rotation about the <code>y</code> axis in degrees, negative
@@ -264,7 +264,7 @@ define([
 
   /**
    * Handles the GeoEntities behaviour when it is selected.
-   * @abstract;
+   * @abstract
    */
   GeoEntity.prototype.onSelect = function () {};
 

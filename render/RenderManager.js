@@ -15,7 +15,7 @@ define([
    * @param {Object} atlasManagers - A mapping of every manager type in Atlas to the manager instance.
    *
    * @constructor
-   * @alias atlas/render/RenderManager
+   * @alias atlas.render.RenderManager
    */
   var RenderManager = function (atlasManagers) {
 
