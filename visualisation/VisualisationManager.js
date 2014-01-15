@@ -27,6 +27,7 @@ define([
    * @constructor
    */
   var VisualisationManager = function (atlasManagers) {
+    // TODO(bpstudds): Refactor this class to 'GeoChartFactory'? or 'ProjectionFactory'?
     this._atlasManagers = atlasManagers;
 
     /**
@@ -51,83 +52,42 @@ define([
    * @returns {Projection|undefined} The Projection object, required to remove the Projection.
    */
   VisualisationManager.prototype.addProjection = function (args) {
-    if (!args.artifact || !(args.artifact in this._artifactRenderers)) {
-      throw new DeveloperError('Artifact', args.artifact, 'is not supported.');
-    }
-    if (!args.type || VisualisationManager.SUPPORTED_PROJECTIONS.indexOf(args.type) === -1) {
-      throw new DeveloperError('Projection type', args.type, 'is not supported.');
-    }
-
-    // Remove any projection already on this artifact.
-    if (args.artifact in this._projections) {
-      this.removeProjection(this._projections[args.artifact]);
-    }
-    var projection = {};
-    projection.artifact = args.artifact;
-    projection.type = args.type;
-    projection.options = {};
-    projection.effects = {};
-    var datas = this._calculateProjectedValues(args);
-    projection.stats = datas.stats;
-    projection.values = datas.values;
-    this._projections[projection.artifact] = projection;
-    this._renderProjection(projection);
-
-    return projection;
+//    if (!args.artifact || !(args.artifact in this._artifactRenderers)) {
+//      throw new DeveloperError('Artifact', args.artifact, 'is not supported.');
+//    }
+//    if (!args.type || VisualisationManager.SUPPORTED_PROJECTIONS.indexOf(args.type) === -1) {
+//      throw new DeveloperError('Projection type', args.type, 'is not supported.');
+//    }
+//
+//    // Remove any projection already on this artifact.
+//    if (args.artifact in this._projections) {
+//      this.removeProjection(this._projections[args.artifact]);
+//    }
+//    var projection = {};
+//    projection.artifact = args.artifact;
+//    projection.type = args.type;
+//    projection.options = {};
+//    projection.effects = {};
+//    var datas = this._calculateProjectedValues(args);
+//    projection.stats = datas.stats;
+//    projection.values = datas.values;
+//    this._projections[projection.artifact] = projection;
+//    this._renderProjection(projection);
+//
+//    return projection;
+    // TODO(bpstudds): Allow the creation of Projections, need to finish HeightProjection first.
   };
 
   /**
-   * Removes the artifacts of the given projection.
-   * @param {Projection} projection - The projection object to remove, returned by
-   * <code>@link {atlas.visualisation.VisualisationManager#addProjection|addProjection()}</code>.
+   * Removes the effects of the given projection.
+   * @param {String} artifact - The artifact of the projection object to be removed.
    */
-  VisualisationManager.prototype.removeProjection = function (projection) {
-    if (projection && projection === this._projections[projection.artifact]) {
-      this._unrenderProjection(projection);
-      delete this._projections[projection.artifact];
+  VisualisationManager.prototype.removeProjection = function (artifact) {
+    if (artifact in this._projections) {
+      var theProjection = this._projections[artifact];
+      theProjection && theProjection.unrender();
+      this._projections[artifact] = null;
     }
-  };
-
-  /**
-   * Takes the values for a Projection and calculates the statistical properties
-   * required for the projection. It then calculates the projected values for
-   * each entity.
-   * @param {Projection} projection - The projection to calculate projected values for.
-   * @returns {Object} The statistical data and the projected values, or null if no values are supplied.
-   * @private
-   */
-  VisualisationManager.prototype._calculateProjectedValues = function (projection) {
-    var ids = Object.getOwnPropertyNames(projection.values);
-    if (ids.length > 0) {
-      var data = {'sum': 0};
-      var values = {};
-      data.min = { 'id': ids[0], 'value': projection.values[ids[0]] };
-      data.max = { 'id': ids[0], 'value': projection.values[ids[0]] };
-      data.count = ids.length;
-      // Calculate min, max, and sum values.
-      ids.forEach(function (id) {
-        var thisVal = projection.values[id];
-        data.sum += parseInt(thisVal, 10) || 0;
-        if (thisVal < data.min.value) { data.min = { 'id': id, 'value': thisVal };}
-        if (thisVal > data.max.value) { data.max = { 'id': id, 'value': thisVal };}
-      });
-      data.average = data.sum / data.count;
-      data.valueRange = data.max.value - data.min.value;
-
-      ids.forEach(function (id) {
-        var thisVal = projection.values[id];
-        var value = {'id': id, 'value': thisVal };
-        value.diffFromAverage = thisVal - data.average;
-        value.ratioBetweenMinMax = (thisVal - data.min.value) / (data.valueRange);
-        value.ratioFromAverage = (thisVal - data.average);
-        value.ratioFromAverage /= (value.ratioFromAverage < 0 ?
-            (data.average - data.min.value) : (data.max.value - data.average));
-        values[id] = value;
-      });
-      return {'stats': data, 'values': values };
-    }
-    return null;
-    // TODO(bpstudds): Handle non-numeric values.
   };
 
   /**
@@ -136,6 +96,7 @@ define([
    * @private
    */
   VisualisationManager.prototype._renderProjection = function (projection) {
+    // TODO(bpstudds): Refactor to render _all_ current projections.
     var ids = Object.keys(projection.values);
     ids.forEach(function (id) {
       this._artifactRenderers[projection.artifact]
@@ -149,32 +110,11 @@ define([
    * @private
    */
   VisualisationManager.prototype._unrenderProjection = function (projection) {
+    // TODO(bpstudds): Refactor to unrender _all_ current projections.
     var ids = Object.keys(projection.values);
     ids.forEach(function (id) {
       this._artifactRenderers[projection.artifact].unrender.bind(this)(id);
     }, this);
-  };
-
-  VisualisationManager.prototype._artifactRenderers = {
-    height: {
-      render: function (entityId, values, projection) {
-        var entity = this._atlasManagers.entity.getById(entityId);
-        if (entity) {
-          var newHeight = values.ratioBetweenMinMax * 50 + 50;
-          var oldHeight = entity.setHeight(newHeight);
-          this._projections['height'].effects[entityId] = { oldVal: oldHeight, newVal: newHeight };
-        }
-      },
-
-      unrender: function (entityId, projection) {
-        var entity = this._atlasManagers.entity.getById(entityId);
-        if (entity) {
-          var oldHeight = that._projections['height'].effects[entityId].oldVal;
-          entity.setHeight(oldHeight);
-          delete this._projections['height'].effects[entityId];
-        }
-      }
-    }
   };
 
   return VisualisationManager;
