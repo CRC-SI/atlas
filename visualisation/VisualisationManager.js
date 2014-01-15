@@ -1,22 +1,7 @@
 define([
+  'atlas/visualisation/AbstractProjection',
   'atlas/util/DeveloperError'
-], function (DeveloperError) {
-  /**
-   * An object describing a projection.
-   * @typedef {{}} Projection
-   * @property {String} artifact - The artifact to project onto, currently only 'height' supported.
-   * @property {String} type - The type of projection, currently only 'continuous' supported.
-   * @property {Object.<String, Number>} values - A map of Entity ID to the values to be projected for the Entity.
-   * @property {Object.<String, Object>} effects - A map of Entity ID to the effect the projection has.
-   * @property {Object.<String, Object>} effects.oldVal - The value of an Entity's artifact before the projection was applied.
-   * @property {Object.<String, Object>} effects.newVal - The value of an Entity's artifact after the projection was applied.
-   * @property {Object} stats - Statistical data of the values.
-   * @property {Number} stats.min - The minimum value.
-   * @property {Number} stats.max - The maximum value.
-   * @property {Number} stats.sum - The sum of all values.
-   * @property {Number} stats.average - The average of the values.
-   * @property {Object} options - Options to configure the exact behaviour of the projection.
-   */
+], function (Projection, DeveloperError) {
 
   /**
    * Constructs a new VisualisationManager
@@ -32,7 +17,7 @@ define([
 
     /**
      * The defined projections currently affecting Atlas.
-     * @type {Object.<String, Projection>}
+     * @type {Object.<String, atlas.visualisation.AbstractProjection>}
      * @private
      */
     this._projections = {};
@@ -49,7 +34,7 @@ define([
    * @param {String} args.type - The type of projection, currently only 'continuous' supported.
    * @param {Object.<String, Number>} args.values - A map of Entity ID to the value to be projected for the Entity.
    * @param {Object} [args.options] - Options to configure the exact behaviour of the projection.
-   * @returns {Projection|undefined} The Projection object, required to remove the Projection.
+   * @returns {atlas.visualisation.AbstractProjection|undefined} The Projection object, required to remove the Projection.
    */
   VisualisationManager.prototype.addProjection = function (args) {
 //    if (!args.artifact || !(args.artifact in this._artifactRenderers)) {
@@ -76,6 +61,7 @@ define([
 //
 //    return projection;
     // TODO(bpstudds): Allow the creation of Projections, need to finish HeightProjection first.
+    // TODO(bpstudds): The VisMan should inject the actual entity object into values when constructing the Projection.
   };
 
   /**
