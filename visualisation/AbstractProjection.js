@@ -1,39 +1,51 @@
 define([
-  'atlas/util/Class'
-], function (Class) {
+  'atlas/util/Class',
+  'atlas/util/DeveloperError',
+  'atlas/util/mixin'
+], function (Class, DeveloperError, mixin) {
 
   /**
+   * Constructs a new AbstractProjection object.
    * @classDesc Describes the interface and generic methods for a Projection. A Projection
    * is used project the value of an Entity's parameter onto some renderable artifact.
+   * @author Brendan Studds
    * @abstract
    * @class atlas.visualisation.AbstractProjection
+   * @param {Object} args - Arguments to construct the AbstractProjection
+   * @param {String} args.type - The type of projection, currently only 'continuous' supported.
+   * @param {Object.<String, Number>} args.values - A map of GeoEntity ID to parameter value to be projected.
+   * @param {Object} args.configuration - Optional configuration of the projection.
    */
   var AbstractProjection = Class.extend(/** @lends atlas.visualisation.AbstractProjection.prototype */ {
 
     /**
      * The type of artifact being projected onto.
+     * @constant
      */
-    artifact: '',
+    ARTIFACT: '',
 
     /**
      * The type of the projection, currently only 'continuous' is supported.
      * @type {String}
+     * @private
      */
-    type: '',
+    _type: '',
 
     /**
      * A map of Entity ID to its parameter value to be projected.
      * @type {Object.<String, Number>}
+     * @private
      */
-    values: {},
+    _values: {},
 
     /**
      * A map of Entity ID to the effect the projection has.
      * @type {Object.<String, Object>}
      * @property {Number} oldVal - The value of an Entity's artifact before this projection was applied.
      * @property {Number} newVal - The value of an Entity's artifact after this projection was applied.
+     * @private
      */
-    effects: {},
+    _effects: {},
 
     /**
      * Contains calculated statistical data for the set of
@@ -42,26 +54,39 @@ define([
      * @property {Number} max - The maximum value.
      * @property {Number} sum - The sum of all values.
      * @property {Number} ave - The average of all values.
+     * @private
      */
-    stats: {
-      min: 0,
-      max: 0,
-      sum: 0,
-      ave: 0
-    },
+    _stats: null,
+
+    /**
+     * Contains a map of Entity ID to parameters required for the projection.
+     * @private
+     */
+    _params: null,
 
     /**
      * Contains options configuring the behaviour of the Projection.
      * @type {Object}
+     * @private
      */
-    options: {},
+    _configuration: {},
 
     /**
      * Constructs a new AbstractProjection
      * @ignore
      */
-    _init: function () {
-      this._super();
+    _init: function (args) {
+      args = mixin({
+        type: 'continuous',
+        values: {},
+        configuration: {}
+      }, args);
+      if (args.type !== 'continuous') {
+        throw new DeveloperError('Tried to instantiate Projection with unsupported type', args.type);
+      }
+      this._type = args.type;
+      this._values = args.values;
+      this._configuration = args.configuration;
     },
 
     /**#@+
@@ -69,23 +94,108 @@ define([
      */
 
     /**
+     * Renders the effects of the Projection.
+     * @abstract
+     */
+    render: function () {
+      throw new DeveloperError('Tried to call abstract method "render" of AbstractProjection.');
+    },
+
+    /**
+     * Unrenders the effects of the Projection.
+     * @abstract
+     */
+    unrender: function () {
+      throw new DeveloperError('Tried to call abstract method "unrender" of AbstractProjection.');
+    },
+
+    /**
+     * Updates the projection with a new set of values and configuration data.
+     * @param {Object} args - The data to update the projection with.
+     * @param {Object.<String, Number>} [args.values] - Updated or new values to project.
+     * @param {Boolean} [args.addToExisting=false] - If true, existing data is updated. If false,
+     *      any existing data related to the updated data is deleted
+     */
+    update: function (args) {
+      args = mixin({addToExisting: false}, args);
+      if (args.values) {
+        delete this._stats;
+        delete this._params;
+        this._values = mixin(this._values, args.values, args.addToExisting);
+      }
+    },
+
+    /**
+     * @returns {String} The type of the Projection.
+     */
+    getType: function () {
+      return this._type;
+    },
+
+    /**
+     * @returns {Object.<String, Number>} The map of Entity ID to value for the Projection.
+     */
+    getValues: function () {
+      return this._values;
+    },
+
+    /**
+     * @returns {Object} The configuration of the Projection.
+     */
+    getConfiguration: function() {
+      return this._configuration
+    },
+
+    /**
      * Calculates the statistical properties for the set of parameter values of this Projection.
      * The statistical properties calculated depend on the
      * {@link atlas.visualisation.AbstractProjection#type|type} of the projection.
-     * @returns {ContinuousStats|DiscreteStats}
+     * @returns {Object}
      */
     _calculateValuesStatistics: function () {
-      // TODO(bpstudds): Fill in this function (Copy/refactor from VisualisationManager).
+      var ids = Object.keys(this._values);
+      var stats = {'sum': 0};
+      if (ids.length > 0) {
+        stats.min = { 'id': ids[0], 'value': this._values[ids[0]] };
+        stats.max = { 'id': ids[0], 'value': this._values[ids[0]] };
+        stats.count = ids.length;
+        // Calculate min, max, and sum values.
+        ids.forEach(function (id) {
+          var thisValue = this._values[id];
+          stats.sum += parseInt(thisValue, 10) || 0;
+          if (thisValue < stats.min.value) { stats.min = { 'id': id, 'value': thisValue };}
+          if (thisValue > stats.max.value) { stats.max = { 'id': id, 'value': thisValue };}
+        }, this);
+        stats.average = stats.sum / stats.count;
+        stats.range = stats.max.value - stats.min.value;
+      }
+      return stats
     },
 
     /**
      * Calculates the projection parameters for each Entity's value in the Projection. The exact
      * parameters calculated depend on the {@link atlas.visualisation.AbstractProjection#type|type}
      * of the projection.
-     * @returns {ContinousParams|DiscreteParams}
+     * @returns {Object}
      */
     _calculateProjectionParameters: function () {
-      // TODO(bpstudds): Fill in the function (Copy/refactor from VisualisationManager).
+      // Update the value statistics if necessary.
+      this._stats = this._stats ? this._stats : this._calculateValuesStatistics();
+      var params = {};
+      var ids = Object.keys(this._values);
+      if (ids.length > 0) {
+        ids.forEach(function (id) {
+          var thisValue = this._values[id];
+          var param = {};
+          param.diffFromAverage = thisValue - this._stats.average;
+          param.ratioBetweenMinMax = (thisValue - this._stats.min.value) / (this._stats.range);
+          param.ratioFromAverage = (thisValue - this._stats.average);
+          param.ratioFromAverage /= (param.ratioFromAverage < 0 ?
+              (this._stats.average - this._stats.min.value) : (this._stats.max.value - this._stats.average));
+          params[id] = param;
+        }, this);
+      }
+      return params;
     }
 
   });
