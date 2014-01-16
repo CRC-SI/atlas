@@ -1,7 +1,7 @@
 define([
-  'atlas/visualisation/AbstractProjection',
-  'atlas/util/DeveloperError'
-], function (Projection, DeveloperError) {
+  'atlas/util/DeveloperError',
+  'atlas/visualisation/AbstractProjection'
+], function (DeveloperError, Projection) {
 
   /**
    * Constructs a new VisualisationManager
@@ -23,84 +23,63 @@ define([
     this._projections = {};
   };
 
-  VisualisationManager.SUPPORTED_ARTIFACTS = ['height'];
-  VisualisationManager.SUPPORTED_PROJECTIONS = ['continuous'];
+  //VisualisationManager.SUPPORTED_ARTIFACTS = {'height'};
+  //VisualisationManager.SUPPORTED_PROJECTIONS = ['continuous'];
 
   /**
-   * Takes a given artifact mapping, generates a projection and applies it to currently
-   * rendered entities.
-   * @param {Object} args - An object describing the projection.
-   * @param {String} args.artifact - The artifact to project onto, currently only 'height' supported.
-   * @param {String} args.type - The type of projection, currently only 'continuous' supported.
-   * @param {Object.<String, Number>} args.values - A map of Entity ID to the value to be projected for the Entity.
-   * @param {Object} [args.options] - Options to configure the exact behaviour of the projection.
-   * @returns {atlas.visualisation.AbstractProjection|undefined} The Projection object, required to remove the Projection.
+   * Adds a Projection to be managed by the VisualisationManager. Only one projection can be active
+   * per artifact. If a Projection that is bound to an artifact that is already in use, the old
+   * Projection is unrendered and removed.
+   * @param {atlas.visualisation.AbstractProjection} projection - The New Projection instance to add.
+   * @returns {atlas.visualisation.AbstractProjection|undefined} The existing Projection bound
+   *    to same artifact as the new Projection, if it exists.
    */
-  VisualisationManager.prototype.addProjection = function (args) {
-//    if (!args.artifact || !(args.artifact in this._artifactRenderers)) {
-//      throw new DeveloperError('Artifact', args.artifact, 'is not supported.');
-//    }
-//    if (!args.type || VisualisationManager.SUPPORTED_PROJECTIONS.indexOf(args.type) === -1) {
-//      throw new DeveloperError('Projection type', args.type, 'is not supported.');
-//    }
-//
-//    // Remove any projection already on this artifact.
-//    if (args.artifact in this._projections) {
-//      this.removeProjection(this._projections[args.artifact]);
-//    }
-//    var projection = {};
-//    projection.artifact = args.artifact;
-//    projection.type = args.type;
-//    projection.options = {};
-//    projection.effects = {};
-//    var datas = this._calculateProjectedValues(args);
-//    projection.stats = datas.stats;
-//    projection.values = datas.values;
-//    this._projections[projection.artifact] = projection;
-//    this._renderProjection(projection);
-//
-//    return projection;
-    // TODO(bpstudds): Allow the creation of Projections, need to finish HeightProjection first.
-    // TODO(bpstudds): The VisMan should inject the actual entity object into values when constructing the Projection.
+  VisualisationManager.prototype.add = function (projection) {
+    var target = projection.ARTIFACT;
+    var ret;
+    if (this._projections[target] !== undefined) {
+      console.debug('Overriding projection on', target, 'with new projection.');
+      this._projections[target].unrender();
+      ret = this._projections[target];
+    }
+    this._projections[target] = projection;
+    this._projections[target].render();
+    return ret;
   };
 
   /**
-   * Removes the effects of the given projection.
+   * Removes the projection affecting the given artifact.
    * @param {String} artifact - The artifact of the projection object to be removed.
+   * @returns {atlas.visualisation.AbstractProjection|null} The Projection removed, or null
+   *    if a projection does not existing for the given artifact.
    */
-  VisualisationManager.prototype.removeProjection = function (artifact) {
-    if (artifact in this._projections) {
-      var theProjection = this._projections[artifact];
-      theProjection && theProjection.unrender();
+  VisualisationManager.prototype.remove = function (artifact) {
+    if (this._projections[artifact] !== null) {
+      var removedProjection = this._projections[artifact];
+      removedProjection.unrender();
       this._projections[artifact] = null;
     }
+    return removedProjection;
   };
 
   /**
-   * Renders the effects of the given projection.
-   * @param {Object} projection - The projection to render.
-   * @private
+   * Renders the effects of the Projection currently Affect the given artifact.
+   * @param {Object} artifact - The artifact to render.
    */
-  VisualisationManager.prototype._renderProjection = function (projection) {
-    // TODO(bpstudds): Refactor to render _all_ current projections.
-    var ids = Object.keys(projection.values);
-    ids.forEach(function (id) {
-      this._artifactRenderers[projection.artifact]
-          .render.bind(this)(id, projection.values[id], projection);
-    }, this);
+  VisualisationManager.prototype.render = function (artifact) {
+    // TODO(bpstudds): Add function to render all currently managed Projections.
+    // TODO(bpstudds): Add support for rendering a subset of entities.
+    this._projections[artifact] && this._projections[artifact].render();
   };
 
   /**
-   * Unrenders the effects of the given projection.
-   * @param {Object} projection - The projection to unrender
-   * @private
+   * Unrenders the effects of the Projection currently affecting the given artifact.
+   * @param {Object} artifact - The artifact to unrender.
    */
-  VisualisationManager.prototype._unrenderProjection = function (projection) {
-    // TODO(bpstudds): Refactor to unrender _all_ current projections.
-    var ids = Object.keys(projection.values);
-    ids.forEach(function (id) {
-      this._artifactRenderers[projection.artifact].unrender.bind(this)(id);
-    }, this);
+  VisualisationManager.prototype.unrender = function (artifact) {
+    // TODO(bpstudds): Add function to unrender all currently managed Projections.
+    // TODO(bpstudds): Add support for unrendering a subset of entities.
+    this._projections[artifact] && this._projections[artifact].render();
   };
 
   return VisualisationManager;
