@@ -95,8 +95,10 @@ define([
         throw new DeveloperError('Tried to instantiate Projection with unsupported type', args.type);
       }
       this._type = args.type;
+      this._entities = args.entities;
       this._values = args.values;
       this._configuration = args.configuration;
+      this._params = this._calculateProjectionParameters();
     },
 
     /* *#@+
@@ -132,6 +134,8 @@ define([
         delete this._stats;
         delete this._params;
         this._values = mixin(this._values, args.values, args.addToExisting);
+        // TODO(bpstudds): Allow for updating a subset of parameters.
+        this._params = this._calculateProjectionParameters();
       }
     },
 
@@ -163,6 +167,7 @@ define([
      * @returns {Object}
      */
     _calculateValuesStatistics: function () {
+      // TODO(bpstudds): Add the ability to specify which IDs to update see HeightProjection#render.
       var ids = Object.keys(this._values);
       var stats = {'sum': 0};
       if (ids.length > 0) {
@@ -189,6 +194,7 @@ define([
      * @returns {Object}
      */
     _calculateProjectionParameters: function () {
+      // TODO(bpstudds): Add the ability to specify which IDs to update see HeightProjection#render.
       // Update the value statistics if necessary.
       this._stats = this._stats ? this._stats : this._calculateValuesStatistics();
       var params = {};
