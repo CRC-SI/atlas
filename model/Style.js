@@ -113,7 +113,9 @@ define([
     return this._borderWidth;
   };
 
-  Style.DEFAULT = new Style(Colour.GREEN, Colour.GREEN, 1);
+  Style.DEFAULT = function () {
+    return new Style(Colour.GREEN, Colour.GREEN, 1);
+  };
 
   return Style;
 });

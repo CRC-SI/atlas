@@ -62,7 +62,7 @@ define([
      * @type {atlas.model.Style}
      * @private
      */
-    this._style = defaultValue(args.style, Style.DEFAULT);
+    this._style = defaultValue(args.style, Style.DEFAULT());
 
     /**
      * The display mode of the Feature.
@@ -142,7 +142,7 @@ define([
    */
   Feature.prototype.modifyStyle = function (args) {
     var oldValues = {};
-    if (!this._style) { this._style = Style.DEFAULT; }
+    if (!this._style) { this._style = Style.DEFAULT(); }
     // Change values
     args.fill && (oldValues.fill = this._style.setFill(args.fill));
     args.border && (oldValues.border = this._style.setBorderColour(args.border));
