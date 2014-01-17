@@ -43,7 +43,6 @@ define([
       ret = this._projections[target];
     }
     this._projections[target] = projection;
-    this._projections[target].render();
     return ret;
   };
 

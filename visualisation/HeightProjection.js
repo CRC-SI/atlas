@@ -67,8 +67,8 @@ define([
       var ids = null;
       var allIds = Object.keys(this._entities);
       // If argument id was provided...
-      if (id && !id.length) { ids = [].push(id); }
-      if (id && id.length > 0) { ids = [].push(id); }
+      if (id && !id.length) { ids = [id]; }
+      if (id && id.length > 0) { ids = id; }
       // ... use the entities it specifies instead of all the entities.
       if (!ids) { ids = allIds; }
       ids.forEach(function(id) {
@@ -80,7 +80,7 @@ define([
         }
       }, this);
       if (toBeDeleted.length > 0) {
-        toBeDeleted.map(function (id) { delete this._effects[id]; });
+        toBeDeleted.map(function (id) { delete this._effects[id]; }, this);
       }
     }
   });
