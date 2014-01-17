@@ -53,7 +53,7 @@ define([
      * @property {Number} newVal - The value of an Entity's artifact after this projection was applied.
      * @protected
      */
-    _effects: {},
+    _effects: null,
 
     /**
      * Contains calculated statistical data for the set of
@@ -77,7 +77,7 @@ define([
      * @type {Object}
      * @protected
      */
-    _configuration: {},
+    _configuration: null,
 
     /**
      * Constructs a new AbstractProjection
@@ -95,6 +95,7 @@ define([
         throw new DeveloperError('Tried to instantiate Projection with unsupported type', args.type);
       }
       this._type = args.type;
+      this._effects = {};
       this._entities = args.entities;
       this._values = args.values;
       this._configuration = args.configuration;
