@@ -40,8 +40,8 @@ define([
         var theParams = this._params[id];
         if (theEntity) {
           // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
-          var newColour = Colour.RED;
-          var oldColour = theEntity.modifyStyle({fill: newColour});
+          var newColour = {fill: Colour.RED};
+          var oldColour = theEntity.modifyStyle(newColour);
           theEntity.showAsExtrusion();
           this._effects[id] = { 'oldValue': oldColour, 'newValue': newColour };
         }
@@ -51,7 +51,21 @@ define([
     /**
      * Unrenders the effect of the Projection.
      */
-    unrender:function () {}
+    unrender:function (id) {
+      var ids = this._constructIdList(id);
+      // Process each entity for the win.
+      ids.forEach(function (id) {
+        var theEntity = this._entities[id];
+        var theParams = this._params[id];
+        if (theEntity) {
+          // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
+          var oldColour = this._effects[id].oldValue;
+          theEntity.modifyStyle(oldColour);
+          theEntity.showAsExtrusion();
+          delete this._effects[id];
+        }
+      }, this);
+    }
   });
 
   return ColourProjection
