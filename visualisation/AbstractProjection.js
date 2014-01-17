@@ -196,6 +196,25 @@ define([
         }, this);
       }
       return params;
+    },
+
+    /**
+     * Constructs a list of IDs that are intended to be projected on. Either no, one, or an array
+     * of IDs can be provided. If IDs are provided, a list of IDs is returned. If no ID is provided
+     * a list of all IDs of Entities specified in the Projection is returned.
+     * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
+     * @returns {Array.<String>} - An array of GeoEntity IDs.
+     * @protected
+     */
+    _constructIdList: function (id) {
+      var ids = null;
+      var allIds = Object.keys(this._entities);
+      // If argument id was provided...
+      if (id && !id.length) { ids = [id]; }
+      if (id && id.length > 0) { ids = id; }
+      // ... use the entities it specifies instead of all the entities.
+      if (!ids) { ids = allIds; }
+      return ids;
     }
 
   });
