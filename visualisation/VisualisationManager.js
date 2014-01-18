@@ -23,9 +23,6 @@ define([
     this._projections = {};
   };
 
-  //VisualisationManager.SUPPORTED_ARTIFACTS = {'height'};
-  //VisualisationManager.SUPPORTED_PROJECTIONS = ['continuous'];
-
   /**
    * Adds a Projection to be managed by the VisualisationManager. Only one projection can be active
    * per artifact. If a Projection that is bound to an artifact that is already in use, the old
@@ -35,12 +32,13 @@ define([
    *    to same artifact as the new Projection, if it exists.
    */
   VisualisationManager.prototype.add = function (projection) {
-    var target = projection.ARTIFACT;
-    var ret;
-    if (this._projections[target] !== undefined) {
+    var target = projection.ARTIFACT,
+        old = this._projections[projection.ARTIFACT],
+        ret;
+    if (old !== undefined) {
       console.debug('Overriding projection on', target, 'with new projection.');
-      this._projections[target].unrender();
-      ret = this._projections[target];
+      old.unrender();
+      ret = old;
     }
     this._projections[target] = projection;
     return ret;
@@ -53,8 +51,8 @@ define([
    *    if a projection does not existing for the given artifact.
    */
   VisualisationManager.prototype.remove = function (artifact) {
-    if (this._projections[artifact] !== null) {
-      var removedProjection = this._projections[artifact];
+    var removedProjection = this._projections[artifact];
+    if (removedProjection) {
       removedProjection.unrender();
       this._projections[artifact] = null;
     }
@@ -68,7 +66,11 @@ define([
   VisualisationManager.prototype.render = function (artifact) {
     // TODO(bpstudds): Add function to render all currently managed Projections.
     // TODO(bpstudds): Add support for rendering a subset of entities.
-    this._projections[artifact] && this._projections[artifact].render();
+    if (!this._projections[artifact]) {
+      throw new DeveloperError('Tried to render projection', artifact, 'without adding a projection object.');
+    } else {
+      this._projections[artifact].render();
+    }
   };
 
   /**
@@ -78,7 +80,11 @@ define([
   VisualisationManager.prototype.unrender = function (artifact) {
     // TODO(bpstudds): Add function to unrender all currently managed Projections.
     // TODO(bpstudds): Add support for unrendering a subset of entities.
-    this._projections[artifact] && this._projections[artifact].render();
+    if (!this._projections[artifact]) {
+      throw new DeveloperError('Tried to unrender projection', artifact, 'without adding a projection object.');
+    } else {
+      this._projections[artifact].unrender();
+    }
   };
 
   return VisualisationManager;
