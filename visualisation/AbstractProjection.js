@@ -17,7 +17,7 @@ define([
    * @param {Object.<String, Number>} args.values - A map of GeoEntity ID to parameter value to be projected.
    * @param {Object} [args.configuration] - Optional configuration of the projection.
    */
-  var AbstractProjection = Class.extend(/** @lends atlas.visualisation.AbstractProjection.prototype */ {
+  return Class.extend(/** @lends atlas.visualisation.AbstractProjection# */ {
 
     /**
      * The type of artifact being projected onto.
@@ -36,7 +36,7 @@ define([
      * A map of GeoEntity ID to GeoEntity instance affected by the Projection. It is
      * assumed that every ID that appears in <code>_entities</code> appears in <code>_values</code>
      */
-    _entities: {},
+    _entities: null,
 
     /**
      * A map of Entity ID to its parameter value to be projected. It is
@@ -44,7 +44,7 @@ define([
      * @type {Object.<String, Number>}
      * @protected
      */
-    _values: {},
+    _values: null,
 
     /**
      * A map of Entity ID to the effect the projection has.
@@ -53,7 +53,7 @@ define([
      * @property {Number} newVal - The value of an Entity's artifact after this projection was applied.
      * @protected
      */
-    _effects: {},
+    _effects: null,
 
     /**
      * Contains calculated statistical data for the set of
@@ -100,10 +100,6 @@ define([
       this._configuration = args.configuration;
       this._params = this._calculateProjectionParameters();
     },
-
-    /* *#@+
-     * @memberOf atlas.visualisation.AbstractProjection
-     */
 
     /**
      * Renders the effects of the Projection.
@@ -157,7 +153,7 @@ define([
      * @returns {Object} The configuration of the Projection.
      */
     getConfiguration: function() {
-      return this._configuration
+      return this._configuration;
     },
 
     /**
@@ -165,14 +161,15 @@ define([
      * The statistical properties calculated depend on the
      * {@link atlas.visualisation.AbstractProjection#type|type} of the projection.
      * @returns {Object}
+     * @protected
      */
     _calculateValuesStatistics: function () {
       // TODO(bpstudds): Add the ability to specify which IDs to update see HeightProjection#render.
       var ids = Object.keys(this._values);
       var stats = {'sum': 0};
       if (ids.length > 0) {
-        stats.min = { 'id': ids[0], 'value': this._values[ids[0]] };
-        stats.max = { 'id': ids[0], 'value': this._values[ids[0]] };
+        stats.min = { id: ids[0], value: this._values[ids[0]] };
+        stats.max = { id: ids[0], value: this._values[ids[0]] };
         stats.count = ids.length;
         // Calculate min, max, and sum values.
         ids.forEach(function (id) {
@@ -184,7 +181,7 @@ define([
         stats.average = stats.sum / stats.count;
         stats.range = stats.max.value - stats.min.value;
       }
-      return stats
+      return stats;
     },
 
     /**
@@ -192,6 +189,7 @@ define([
      * parameters calculated depend on the {@link atlas.visualisation.AbstractProjection#type|type}
      * of the projection.
      * @returns {Object}
+     * @protected
      */
     _calculateProjectionParameters: function () {
       // TODO(bpstudds): Add the ability to specify which IDs to update see HeightProjection#render.
@@ -199,22 +197,18 @@ define([
       this._stats = this._stats ? this._stats : this._calculateValuesStatistics();
       var params = {};
       var ids = Object.keys(this._values);
-      if (ids.length > 0) {
-        ids.forEach(function (id) {
-          var thisValue = this._values[id];
-          var param = {};
-          param.diffFromAverage = thisValue - this._stats.average;
-          param.ratioBetweenMinMax = (thisValue - this._stats.min.value) / (this._stats.range);
-          param.ratioFromAverage = (thisValue - this._stats.average);
-          param.ratioFromAverage /= (param.ratioFromAverage < 0 ?
-              (this._stats.average - this._stats.min.value) : (this._stats.max.value - this._stats.average));
-          params[id] = param;
-        }, this);
-      }
+      ids.forEach(function (id) {
+        var thisValue = this._values[id];
+        var param = {};
+        param.diffFromAverage = thisValue - this._stats.average;
+        param.ratioBetweenMinMax = this._stats.range === 0 ? Number.POSITIVE_INFINITY : (thisValue - this._stats.min.value) / (this._stats.range);
+        param.ratioFromAverage = (thisValue - this._stats.average);
+        param.ratioFromAverage /= (param.ratioFromAverage < 0 ?
+            (this._stats.average - this._stats.min.value) : (this._stats.max.value - this._stats.average));
+        params[id] = param;
+      }, this);
       return params;
     }
 
   });
-
-  return AbstractProjection;
 });
