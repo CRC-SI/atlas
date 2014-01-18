@@ -125,12 +125,12 @@ define([
      *      any existing data related to the updated data is deleted
      */
     update: function (args) {
-      args = mixin({addToExisting: false}, args);
+      args.addToExisting = args.addToExisting === undefined ? false : args.addToExisting;
       if (args.values) {
+        this._values = args.addToExisting ? mixin(this._values, args.values) : args.values;
+        // TODO(bpstudds): Allow for updating a subset of parameters.
         delete this._stats;
         delete this._params;
-        this._values = mixin(this._values, args.values, args.addToExisting);
-        // TODO(bpstudds): Allow for updating a subset of parameters.
         this._params = this._calculateProjectionParameters();
       }
     },
