@@ -4,14 +4,13 @@ define([
 ], function (AbstractProjection) {
 
   /**
-   * Constructs a new HeightProjection object.
-   * @classDesc The HeightProjection represents a projection of Entity parameter values onto
+   * @classdesc The HeightProjection represents a projection of Entity parameter values onto
    * the Entity's height.
    * @author Brendan Studds
    * @class atlas.visualisation.HeightProjection
    * @extends atlas.visualisation.AbstractProjection
    */
-  var HeightProjection = AbstractProjection.extend(/** @lends atlas.visualisation.HeightProjection.prototype */ {
+  return AbstractProjection.extend(/** @lends atlas.visualisation.HeightProjection.prototype */ {
     ARTIFACT: 'height',
 
     /*
@@ -24,22 +23,17 @@ define([
      * _configuration
      */
 
-    _init: function (args) {
-      this._super(args);
-    },
-
-
     /**
      * Renders the effects of the Projection.
      * @param {String|Array.<String>} [id] - Render the effects of the projection on a specific GeoEntity,
-     *    or list of GeoEntities, otherwise all effects are unrendered.
+     *    or list of GeoEntities, otherwise all effects are rendered.
      */
     render: function (id) {
       var ids = null;
       var allIds = Object.keys(this._entities);
       // If argument id was provided...
-      if (id && !id.length) { ids = [id]; }
-      if (id && id.length > 0) { ids = id; }
+      if (id && id === String) { ids = [id]; }
+      if (id && id === Number) { ids = id; }
       // ... use the entities it specifies instead of all the entities.
       if (!ids) { ids = allIds; }
       // Process each entity for the win.
@@ -67,8 +61,8 @@ define([
       var ids = null;
       var allIds = Object.keys(this._entities);
       // If argument id was provided...
-      if (id && !id.length) { ids = [id]; }
-      if (id && id.length > 0) { ids = id; }
+      if (id && id === String) { ids = [id]; }
+      if (id && id === Number) { ids = id; }
       // ... use the entities it specifies instead of all the entities.
       if (!ids) { ids = allIds; }
       ids.forEach(function(id) {
@@ -79,11 +73,9 @@ define([
           toBeDeleted.push(id);
         }
       }, this);
-      if (toBeDeleted.length > 0) {
-        toBeDeleted.map(function (id) { delete this._effects[id]; }, this);
-      }
+      toBeDeleted.forEach(function (id) {
+        delete this._effects[id];
+      }, this);
     }
   });
-
-  return HeightProjection;
 });
