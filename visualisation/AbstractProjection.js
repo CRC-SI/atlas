@@ -23,14 +23,14 @@ define([
      * The type of artifact being projected onto.
      * @constant
      */
-    ARTIFACT: '',
+    ARTIFACT: null,
 
     /**
      * The type of the projection, currently only 'continuous' is supported.
      * @type {String}
      * @protected
      */
-    _type: '',
+    _type: null,
 
     /**
      * A map of GeoEntity ID to GeoEntity instance affected by the Projection. It is
@@ -77,7 +77,7 @@ define([
      * @type {Object}
      * @protected
      */
-    _configuration: {},
+    _configuration: null,
 
     /**
      * Constructs a new AbstractProjection
@@ -95,6 +95,7 @@ define([
         throw new DeveloperError('Tried to instantiate Projection with unsupported type', args.type);
       }
       this._type = args.type;
+      this._effects = {};
       this._entities = args.entities;
       this._values = args.values;
       this._configuration = args.configuration;
@@ -102,19 +103,59 @@ define([
     },
 
     /**
-     * Renders the effects of the Projection.
-     * @abstract
+     * Renders the effects of the Projection on all or a subset of the GeoEntities linked
+     * to this projection.
+     * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
      */
-    render: function () {
-      throw new DeveloperError('Tried to call abstract method "render" of AbstractProjection.');
+    render: function (id) {
+      this._mapToEntitiesById(this._render, id);
     },
 
     /**
-     * Unrenders the effects of the Projection.
-     * @abstract
+     * Renders the effects of the Projection on a single GeoEntity.
+     * @param {atlas.model.GeoEntity} entity - The GeoEntity to render.
+     * @param {Object} params - The parameters of the Projection for the given GeoEntity.
+     * @protected
      */
-    unrender: function () {
-      throw new DeveloperError('Tried to call abstract method "unrender" of AbstractProjection.');
+    _render: function (entity, params) {
+      throw new DeveloperError('Tried to call abstract method "_render" of AbstractProjection.');
+    },
+
+    /**
+     * Renders the effects of the Projection on all or a subset of the GeoEntities linked
+     * to this projection.
+     * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
+     */
+    unrender: function (id) {
+      this._mapToEntitiesById(this._unrender, id);
+    },
+
+    /**
+     * Renders the effects of the Projection on a single GeoEntity.
+     * @param {atlas.model.GeoEntity} entity - The GeoEntity to unrender.
+     * @param {Object} params - The parameters of the Projection for the given GeoEntity.
+     * @protected
+     */
+    _unrender: function (entity, params) {
+      throw new DeveloperError('Tried to call abstract method "_unrender" of AbstractProjection.');
+    },
+
+    /**
+     * Process all (or a subset) of GeoEntities and applies a given function to them.
+     * @param {Function.<atlas.model.GeoEntity, Object>} f - The function to apply to the GeoEntities.
+     * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
+     * @private
+     */
+    _mapToEntitiesById: function (f, id) {
+      var ids = this._constructIdList(id);
+      // Process each entity for the win.
+      ids.forEach(function (id) {
+        var theEntity = this._entities[id];
+        var theParams = this._params[id];
+        if (theEntity) {
+          f.call(this, theEntity, theParams);
+        }
+      }, this);
     },
 
     /**
@@ -131,6 +172,7 @@ define([
         // TODO(bpstudds): Allow for updating a subset of parameters.
         delete this._stats;
         delete this._params;
+        // TODO(bpstudds): Allow for updating a subset of parameters.
         this._params = this._calculateProjectionParameters();
       }
     },
@@ -208,7 +250,25 @@ define([
         params[id] = param;
       }, this);
       return params;
-    }
+    },
 
+    /**
+     * Constructs a list of IDs that are intended to be projected on. Either none, one, or an array
+     * of IDs can be provided. If IDs are provided, a list of these IDs is returned. If no ID
+     * are provided; a list of all IDs of Entities specified in the Projection is returned.
+     * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
+     * @returns {Array.<String>} - An array of GeoEntity IDs.
+     * @protected
+     */
+    _constructIdList: function (id) {
+      var ids = null;
+      var allIds = Object.keys(this._entities);
+      // If argument id was provided...
+      if (id && !id.length) { ids = [id]; }
+      if (id && id.length > 0) { ids = id; }
+      // ... use the entities it specifies instead of all the entities.
+      if (!ids) { ids = allIds; }
+      return ids;
+    }
   });
 });

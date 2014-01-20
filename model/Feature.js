@@ -4,9 +4,10 @@ define([
   'atlas/util/DeveloperError',
   'atlas/model/Polygon',
   'atlas/model/Mesh',
+  'atlas/model/Style',
   // Base class.
   './GeoEntity'
-], function (extend, defaultValue, DeveloperError, Polygon, Mesh, GeoEntity) {
+], function (extend, defaultValue, DeveloperError, Polygon, Mesh, Style, GeoEntity) {
 
   /**
    * Constructs a new Feature object.
@@ -34,32 +35,39 @@ define([
 
     /**
      * The 2D {@link Polygon} footprint of this Feature.
-     * @type {Polygon}
+     * @type {atlas.model.Polygon}
      */
     this._footprint = null;
 
     /**
      * 3D {@link Mesh} of this Feature.
-     * @type {Mesh}
+     * @type {atlas.model.Mesh}
      */
     this._mesh = null;
 
     /**
      * The extrusion height of this Feature.
-     * @type {number}
+     * @type {Number}
      */
     this._height = defaultValue(args.height, 0);
 
     /**
      * The elevation of this Feature.
-     * @type {number}
+     * @type {Number}
      */
     this._elevation = defaultValue(args.elevation, 0);
 
     /**
+     * The Style to apply to this Feature.
+     * @type {atlas.model.Style}
+     * @private
+     */
+    this._style = defaultValue(args.style, Style.DEFAULT());
+
+    /**
      * The display mode of the Feature.
      * Mesh trumps Footprint if they are both defined in terms of which is displayed by default.
-     * @type {string}
+     * @type {String}
      */
     this._displayMode = '';
     this._displayMode = args.footprint ? defaultValue(args.displayMode, 'extrusion') : '';
@@ -123,6 +131,26 @@ define([
    */
   Feature.prototype.getElevation = function () {
     return this._elevation;
+  };
+
+  /**
+   * Modifies specific components of the Feature's style.
+   * @param {Object} args - The new values for the Style components.
+   * @param {atlas.model.Colour} [args.fill] - The new fill colour.
+   * @param {atlas.model.Colour} [args.border] - The new border colour.
+   * @param {Number} [args.borderWidth] - The new border width colour.
+   */
+  Feature.prototype.modifyStyle = function (args) {
+    var oldValues = {};
+    if (!this._style) { this._style = Style.DEFAULT(); }
+    // Change values
+    args.fill && (oldValues.fill = this._style.setFill(args.fill));
+    args.border && (oldValues.border = this._style.setBorderColour(args.border));
+    args.borderWidth && (oldValues.borderWidth = this._style.setBorderWidth(args.borderWidth));
+    // Set Style on footprint and mesh.
+    this._footprint && this._footprint.setStyle(this._style);
+    this._mesh && this._mesh.setStyle(this._style);
+    return oldValues;
   };
 
   /**
