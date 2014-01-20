@@ -61,7 +61,7 @@ define([
     if (!(colour instanceof Colour)) {
       throw new DeveloperError('Feature fill colour only accepts an atlas.model.colour, not', colour);
     }
-    var original = this._fillColour;
+    var original = this.getFill();
     this._fillColour = colour;
     return original;
   };
@@ -75,7 +75,7 @@ define([
     if (!(colour instanceof Colour)) {
       throw new DeveloperError('Feature border colour only accepts an atlas.model.colour, not', colour);
     }
-    var original = this._borderColour;
+    var original = this.getBorderColour;
     this._borderColour = colour;
     return original;
   };
@@ -87,7 +87,7 @@ define([
    */
   Style.prototype.setBorderWidth = function (width) {
     width = parseInt(width, 10) || 1;
-    var original = this._borderWidth;
+    var original = this.getBorderWidth();
     this._borderWidth = width;
     return original;
   };
