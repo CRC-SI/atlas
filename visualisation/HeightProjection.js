@@ -24,58 +24,32 @@ define([
      */
 
     /**
-     * Renders the effects of the Projection.
-     * @param {String|Array.<String>} [id] - Render the effects of the projection on a specific GeoEntity,
-     *    or list of GeoEntities, otherwise all effects are rendered.
+     * Renders the effects of the Projection on a single GeoEntity.
+     * @param {atlas.model.GeoEntity} entity - The GeoEntity to render.
+     * @param {Object} params - The parameters of the Projection for the given GeoEntity.
+     * @private
      */
-    render: function (id) {
-      var ids = null;
-      var allIds = Object.keys(this._entities);
-      // If argument id was provided...
-      if (id && id === String) { ids = [id]; }
-      if (id && id === Number) { ids = id; }
-      // ... use the entities it specifies instead of all the entities.
-      if (!ids) { ids = allIds; }
-      // Process each entity for the win.
-      ids.forEach(function (id) {
-        var theEntity = this._entities[id];
-        var theParams = this._params[id];
-        if (theEntity) {
-          // Hard code the co-domain to vary from 50 to 100 depending on the ratio of the value between min/max
-          // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
-          var newHeight = theParams.ratioBetweenMinMax * 50 + 50;
-          var oldHeight = theEntity.setHeight(newHeight);
-          theEntity.showAsExtrusion();
-          this._effects[id] = { 'oldValue': oldHeight, 'newValue': newHeight };
-        }
-      }, this);
+    _render: function (entity, params) {
+      // Hard code the co-domain to vary from 50 to 100 depending on the ratio of the value between min/max
+      // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
+      var newHeight = params.ratioBetweenMinMax * 50 + 50,
+          oldHeight = entity.setHeight(newHeight);
+      entity.showAsExtrusion();
+      this._effects[entity._id] = { 'oldValue': oldHeight, 'newValue': newHeight };
     },
 
+
     /**
-     * Unrenders the effects of the Projection.
-     * @param {String|Array.<String>} [id] - Unrender the effects of the projection on a specific
-     *    GeoEntity, or list of GeoEntities, otherwise all effects are unrendered.
+     * Unrenders the effects of the Projection on a single GeoEntity.
+     * @param {atlas.model.GeoEntity} entity - The GeoEntity to unrender.
+     * @param {Object} params - The parameters of the Projection for the given GeoEntity.
+     * @private
      */
-    unrender: function (id) {
-      var toBeDeleted = [];
-      var ids = null;
-      var allIds = Object.keys(this._entities);
-      // If argument id was provided...
-      if (id && id === String) { ids = [id]; }
-      if (id && id === Number) { ids = id; }
-      // ... use the entities it specifies instead of all the entities.
-      if (!ids) { ids = allIds; }
-      ids.forEach(function(id) {
-        var theEntity = this._entities[id];
-        if (theEntity) {
-          var oldHeight = this._effects[id].oldValue;
-          theEntity.setHeight(oldHeight);
-          toBeDeleted.push(id);
-        }
-      }, this);
-      toBeDeleted.forEach(function (id) {
-        delete this._effects[id];
-      }, this);
+    _unrender: function (entity, params) {
+      var id = entity._id;
+      var oldHeight = this._effects[id].oldValue;
+      entity.setHeight(oldHeight);
+      delete this._effects[id];
     }
   });
 });

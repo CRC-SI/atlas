@@ -5,69 +5,43 @@ define([
 ], function (Colour, AbstractProjection) {
 
   /**
-   * Constructs a new ColourProjection object.
-   * @classDesc A ColourProjection is used to project GeoEntity parameter values
+   * @classdesc A ColourProjection is used to project GeoEntity parameter values
    * onto the GeoEntity's colour.
    * @class atlas.visualisation.ColourProjection
    * @author Brendan Studds
    * @extends atlas.visualisation.AbstractProjection
    */
-  var ColourProjection = AbstractProjection.extend(/** @lends atlas.visualisation.ColourProjection# */{
+  return AbstractProjection.extend(/** @lends atlas.visualisation.ColourProjection# */{
     ARTIFACT: 'colour',
 
-    /*
-     * Inherited from atlas.visualisation.AbstractVisualisation
-     * _type
-     * _values
-     * _effects
-     * _stats
-     * _params
-     * _configuration
+    /**
+     * Renders the effects of the Projection on a single GeoEntity.
+     * @param {atlas.model.GeoEntity} entity - The GeoEntity to render.
+     * @param {Object} params - The parameters of the Projection for the given GeoEntity.
+     * @private
      */
-
-    _init: function (args) {
-      this._super(args);
+    _render: function (entity, params) {
+      // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
+      var newColour = {fill: Colour.RED};
+      var oldColour = entity.modifyStyle(newColour);
+      entity.showAsExtrusion();
+      this._effects[entity._id] = { 'oldValue': oldColour, 'newValue': newColour };
     },
 
     /**
-     * Renders the effect of the Projection.
+     * Unrenders the effects of the Projection on a single GeoEntity.
+     * @param {atlas.model.GeoEntity} entity - The GeoEntity to unrender.
+     * @param {Object} params - The parameters of the Projection for the given GeoEntity.
+     * @private
      */
-    render: function (id) {
-      var ids = this._constructIdList(id);
-      // Process each entity for the win.
-      ids.forEach(function (id) {
-        var theEntity = this._entities[id];
-        var theParams = this._params[id];
-        if (theEntity) {
-          // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
-          var newColour = {fill: Colour.RED};
-          var oldColour = theEntity.modifyStyle(newColour);
-          theEntity.showAsExtrusion();
-          this._effects[id] = { 'oldValue': oldColour, 'newValue': newColour };
-        }
-      }, this);
-    },
-
-    /**
-     * Unrenders the effect of the Projection.
-     */
-    unrender:function (id) {
-      var ids = this._constructIdList(id);
-      // Process each entity for the win.
-      ids.forEach(function (id) {
-        var theEntity = this._entities[id];
-        var theParams = this._params[id];
-        if (theEntity) {
-          // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
-          var oldColour = this._effects[id].oldValue;
-          theEntity.modifyStyle(oldColour);
-          theEntity.showAsExtrusion();
-          delete this._effects[id];
-        }
-      }, this);
+    _unrender:function (entity, params) {
+      // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
+      var id = entity._id,
+          oldColour = this._effects[id].oldValue;
+      entity.modifyStyle(oldColour);
+      entity.showAsExtrusion();
+      delete this._effects[id];
     }
   });
-
-  return ColourProjection
 });
 

@@ -103,19 +103,59 @@ define([
     },
 
     /**
-     * Renders the effects of the Projection.
-     * @abstract
+     * Renders the effects of the Projection on all or a subset of the GeoEntities linked
+     * to this projection.
+     * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
      */
-    render: function () {
-      throw new DeveloperError('Tried to call abstract method "render" of AbstractProjection.');
+    render: function (id) {
+      this._mapToEntitiesById(this._render, id);
     },
 
     /**
-     * Unrenders the effects of the Projection.
-     * @abstract
+     * Renders the effects of the Projection on a single GeoEntity.
+     * @param {atlas.model.GeoEntity} entity - The GeoEntity to render.
+     * @param {Object} params - The parameters of the Projection for the given GeoEntity.
+     * @protected
      */
-    unrender: function () {
-      throw new DeveloperError('Tried to call abstract method "unrender" of AbstractProjection.');
+    _render: function (entity, params) {
+      throw new DeveloperError('Tried to call abstract method "_render" of AbstractProjection.');
+    },
+
+    /**
+     * Renders the effects of the Projection on all or a subset of the GeoEntities linked
+     * to this projection.
+     * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
+     */
+    unrender: function (id) {
+      this._mapToEntitiesById(this._unrender, id);
+    },
+
+    /**
+     * Renders the effects of the Projection on a single GeoEntity.
+     * @param {atlas.model.GeoEntity} entity - The GeoEntity to unrender.
+     * @param {Object} params - The parameters of the Projection for the given GeoEntity.
+     * @protected
+     */
+    _unrender: function (entity, params) {
+      throw new DeveloperError('Tried to call abstract method "_unrender" of AbstractProjection.');
+    },
+
+    /**
+     * Process all (or a subset) of GeoEntities and applies a given function to them.
+     * @param {Function.<atlas.model.GeoEntity, Object>} f - The function to apply to the GeoEntities.
+     * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
+     * @private
+     */
+    _mapToEntitiesById: function (f, id) {
+      var ids = this._constructIdList(id);
+      // Process each entity for the win.
+      ids.forEach(function (id) {
+        var theEntity = this._entities[id];
+        var theParams = this._params[id];
+        if (theEntity) {
+          f.call(this, theEntity, theParams);
+        }
+      }, this);
     },
 
     /**
@@ -213,9 +253,9 @@ define([
     },
 
     /**
-     * Constructs a list of IDs that are intended to be projected on. Either no, one, or an array
-     * of IDs can be provided. If IDs are provided, a list of IDs is returned. If no ID is provided
-     * a list of all IDs of Entities specified in the Projection is returned.
+     * Constructs a list of IDs that are intended to be projected on. Either none, one, or an array
+     * of IDs can be provided. If IDs are provided, a list of these IDs is returned. If no ID
+     * are provided; a list of all IDs of Entities specified in the Projection is returned.
      * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
      * @returns {Array.<String>} - An array of GeoEntity IDs.
      * @protected
@@ -230,6 +270,5 @@ define([
       if (!ids) { ids = allIds; }
       return ids;
     }
-
   });
 });
