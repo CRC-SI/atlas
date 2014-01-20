@@ -99,6 +99,8 @@ define([
    * <code>undefined</code> if there is no such GeoEntity.
    */
   EntityManager.prototype.getById = function (id) {
+    // TODO(bpstudds): Accept either a single id or an array of IDs and return an either a
+    //      single entity or an array or Entities
     console.debug('entityManager: got entity', id);
     return this._entities[id];
   };
