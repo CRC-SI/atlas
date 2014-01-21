@@ -10,7 +10,7 @@ define([
   'atlas/lib/open-layers',
   'atlas/model/Vertex'
 ], function (OpenLayers, Vertex) {
-
+  OpenLayers = OpenLayers || window.OpenLayers;
   var _instance = null;
 
   /**
