@@ -93,7 +93,7 @@ define([
 
     _init: function (id, args) {
       // Call the superclass' (EventTarget) constructor.
-      this._super();
+      this._super(args.eventManager, args.parent);
 
       if (typeof id === 'object') {
         args = id;

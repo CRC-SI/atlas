@@ -15,7 +15,7 @@ define([
 
    * @class atlas.events.EventTarget
    */
-  return Class.Extend(/** @lends atlas.events.EventTarget# */ {
+  return Class.extend(/** @lends atlas.events.EventTarget# */ {
 
     /**
      * The EventManager for this EventTarget.

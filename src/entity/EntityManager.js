@@ -1,9 +1,10 @@
 define([
+  'atlas/util/DeveloperError',
   'atlas/model/GeoEntity',
   'atlas/model/Feature',
   'atlas/model/Polygon',
   'atlas/model/Mesh'
-], function (GeoEntity, Feature, Polygon, Mesh) {
+], function (DeveloperError, GeoEntity, Feature, Polygon, Mesh) {
 
   var EntityManager = function (atlasManagers) {
     this._atlasManagers = atlasManagers;
