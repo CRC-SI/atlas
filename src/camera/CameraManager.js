@@ -33,7 +33,7 @@ define([
   };
 
   // Does initialisation work after it is guaranteed all managers are created.
-  CameraManager.prototype.initialise = function () {
+  CameraManager.prototype.setup = function () {
     this._bindEvents();
   };
 

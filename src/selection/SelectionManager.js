@@ -33,7 +33,7 @@ define([
     this._atlasManagers.selection = this;
   };
 
-  SelectionManager.prototype.initialise = function() {
+  SelectionManager.prototype.setup = function() {
     this.bindEvents();
   };
 
