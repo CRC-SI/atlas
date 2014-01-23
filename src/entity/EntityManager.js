@@ -1,9 +1,11 @@
 define([
+  'atlas/util/DeveloperError',
+  'atlas/util/mixin',
   'atlas/model/GeoEntity',
   'atlas/model/Feature',
   'atlas/model/Polygon',
   'atlas/model/Mesh'
-], function (GeoEntity, Feature, Polygon, Mesh) {
+], function (DeveloperError, mixin, GeoEntity, Feature, Polygon, Mesh) {
 
   var EntityManager = function (atlasManagers) {
     this._atlasManagers = atlasManagers;
@@ -28,10 +30,19 @@ define([
     };
   };
 
-  EntityManager.prototype.initialise = function (args) {
+  EntityManager.prototype.bindEvents = function () {
+    console.debug('atlas/entity/EntityManager', 'Binding events');
+    this._atlasManagers.event.addEventHandler('extern', 'entity/bulk/show', function (args) {
+      console.debug('A entity/bulk/show is being handled.');
+      this.bulkCreate(args.features);
+    }.bind(this));
+  };
+
+  EntityManager.prototype.setup = function (args) {
     if (args.constructors) {
       this.setGeoEntityTypes(args.constructors);
     }
+    this.bindEvents();
   };
 
   // Allows overriding of the default atlas GeoEntity types with implementation specific ones.
@@ -49,19 +60,96 @@ define([
       id = args.id;
     }
     if (id === undefined) {
-      throw new DeveloperError('Can not add Feature without specifying ID');
+      throw new DeveloperError('Can not create Feature without specifying ID');
     } else if (id in this._entities) {
-      throw new DeveloperError('Can not add Feature with a duplicate ID');
+      throw new DeveloperError('Can not create Feature with a duplicate ID');
     } else {
       // Add EventManger to the args for the feature.
       args.eventManager = this._atlasManagers.event;
       // Add the RenderManager to the args for the feature.
       args.renderManager = this._atlasManagers.render;
-      return new this._entityTypes.Feature(id, args);
+      console.debug('Creating entity', id);
+      return (this._entities[id] = new this._entityTypes.Feature(id, args));
     }
   };
 
   /**
+   * Allows for creation of multiple Features.
+   * @param {Array} c3mls - An array of objects, with each object containing
+   *    an entity description conforming to the C3ML standard.
+   */
+  EntityManager.prototype.bulkCreate = function (c3mls) {
+    c3mls.forEach(function (c3ml) {
+      var id = c3ml.id;
+      var args = EntityManager._parseC3ML(c3ml);
+      this._entities[id] = this.createFeature(id, args);
+      this._entities[id].show();
+    }, this);
+  };
+
+  /**
+   * Takes a object conforming to C3ML and converts it to a format expected by
+   * Atlas.
+   * @param {Object} c3ml - The C3ML object.
+   * @returns {Object} An Atlas readable object representing the C3ML object.
+   * @protected
+   */
+  EntityManager._parseC3ML = function (c3ml) {
+    var geometry = {};
+    // Map of C3ML type to parse of that type.
+    var parsers = {
+      mesh: EntityManager._parseC3MLmesh,
+      polygon: EntityManager._parseC3MLpolygon
+    };
+    // Generate the Geometry for the C3ML type if it is supported.
+    parsers[c3ml.type] && (geometry = parse[c3ml.type](c3ml));
+    return mixin({
+      id: c3ml.id,
+      type: c3ml.type,
+      parent: c3ml.parent,
+      children: c3ml.children
+    }, geometry);
+  };
+
+  /**
+   * Parses a C3ML polygon object to an format supported by Atlas.
+   * @param {Object} c3ml - The C3ML object to be parsed
+   * @returns {Object} The parsed C3ML.
+   * @private
+   */
+  EntityManager._parseC3MLpolygon = function (c3ml) {
+    return {
+      footprint: {
+        vertices: c3ml.coordinates,
+        color: c3ml.color,
+        height: c3ml.height,
+        elevation: c3ml.altitude
+      }
+    }
+  };
+
+  /**
+   * Parses a C3ML mesh object to an format supported by Atlas.
+   * @param {Object} c3ml - The C3ML object to be parsed
+   * @returns {Object} The parsed C3ML.
+   * @private
+   */
+  EntityManager._parseC3MLmesh = function (c3ml) {
+    return {
+      mesh: {
+        positions: c3ml.positions,
+        normals: c3ml.normals,
+        triangles: c3ml.triangles,
+        color: c3ml.color,
+        geoLocation: c3ml.geoLocation,
+        scale: c3ml.scale,
+        rotation: c3ml.rotation
+      }
+    }
+  };
+
+  /**
+   * @deprecated <code>EntityManager#createFeature</code> adds new Feature as it creates them.
    * Adds a new GeoEntity into the EntityManager.
    * @param {String} id - The ID of the new GeoEntity.
    * @param {atlas.model.GeoEntity} entity - The new GeoEntity;

@@ -46,7 +46,7 @@ define([
   /**
    * Initialisation that needs to occur after all managers are created.
    */
-  EditManager.prototype.initialise = function () {
+  EditManager.prototype.setup = function () {
     this.addModule('translation', new TranslationModule(this._atlasManagers));
     this.enableModule('translation');
   };
