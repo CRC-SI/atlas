@@ -1,5 +1,5 @@
 define([
-  'atlas/util/Extends',
+  'atlas/util/Class',
   'atlas/util/default',
   'atlas/util/DeveloperError',
   'atlas/model/Polygon',
@@ -7,11 +7,10 @@ define([
   'atlas/model/Style',
   // Base class.
   './GeoEntity'
-], function (extend, defaultValue, DeveloperError, Polygon, Mesh, Style, GeoEntity) {
+], function (Class, defaultValue, DeveloperError, Polygon, Mesh, Style, GeoEntity) {
 
   /**
-   * Constructs a new Feature object.
-   * @class A Feature represents an entity that can be visualised either
+   * @classdesc A Feature represents an entity that can be visualised either
    * as a 2D footprint, an 3D extrusion of said footprint, or a 3D mesh.
    *
    * @param {Number} id - The ID of this Feature.
@@ -25,285 +24,301 @@ define([
    * @param {Boolean} [args.show=false] - Whether the feature should be initially shown when created.
    * @param {String} [args.displayMode='footprint'] - Initial display mode of feature, one of 'footprint', 'extrusion' or 'mesh'.
    *
-   * @extends {atlas.model.GeoEntity}
-   * @alias atlas.model.Feature
-   * @constructor
+   * @see {@link atlas.model.Polygon}
+   * @see {@link atlas.model.Mesh}
+   *
+   * @class atlas.model.Feature
+   * @extends atlas.model.GeoEntity
    */
-  var Feature = function (id, args) {
-    // Construct GeoEntity base class
-    Feature.base.constructor.call(this, id, args);
+  //var Feature = function (id, args) {
+  return GeoEntity.extend( /** @lends atlas.model.Feature# */ {
 
     /**
      * The 2D {@link Polygon} footprint of this Feature.
      * @type {atlas.model.Polygon}
+     * @protected
      */
-    this._footprint = null;
+    _footprint: null,
 
     /**
-     * 3D {@link Mesh} of this Feature.
+     * 3D {@link Mesh} of the Feature.
      * @type {atlas.model.Mesh}
+     * @protected
      */
-    this._mesh = null;
+    _mesh: null,
 
     /**
-     * The extrusion height of this Feature.
+     * The extrusion height of the Feature.
      * @type {Number}
+     * @protected
      */
-    this._height = defaultValue(args.height, 0);
+    _height: null,
 
     /**
-     * The elevation of this Feature.
+     * The elevation of the Feature.
      * @type {Number}
+     * @protected
      */
-    this._elevation = defaultValue(args.elevation, 0);
+    _elevation: null,
 
     /**
-     * The Style to apply to this Feature.
+     * The Style to apply to the Feature.
      * @type {atlas.model.Style}
-     * @private
+     * @protected
      */
-    this._style = defaultValue(args.style, Style.DEFAULT());
+    _style: null,
 
     /**
      * The display mode of the Feature.
      * Mesh trumps Footprint if they are both defined in terms of which is displayed by default.
      * @type {String}
+     * @protected
      */
-    this._displayMode = '';
-    this._displayMode = args.footprint ? defaultValue(args.displayMode, 'extrusion') : '';
-    this._displayMode = args.mesh ? defaultValue(args.displayMode, 'mesh') : this._displayMode;
+    _displayMode: null,
 
     /**
-     * Whether this Feature is initially visible.
+     * Whether the Feature is initially visible.
      * @type {Boolean}
+     * @protected
      */
-    this._visible = defaultValue(args.show, false);
-  };
-  // Inherit from GeoEntity.
-  extend(GeoEntity, Feature);
+    _visible: false,
 
+    _init: function (id, args) {
+      this._visible = defaultValue(args.show, false);
+      this._displayMode = args.footprint ? defaultValue(args.displayMode, 'extrusion') : '';
+      this._displayMode = args.mesh ? defaultValue(args.displayMode, 'mesh') : this._displayMode;
+      this._height = parseFloat(args.height) || 0.0;
+      this._elevation = parseFloat(args.elevation) || 0.0;
+    },
 
-  Feature.prototype.setMesh = function (mesh) {
-    if (!mesh instanceof Mesh) {
-      throw new DeveloperError('Can only assign Mesh to mesh.');
-    }
-    this._mesh = mesh;
-  };
+//////
+// GETTERS AND SETTERS
 
-
-  Feature.prototype.setFootprint = function (footprint) {
-    if (!footprint instanceof Polygon) {
-      throw new DeveloperError('Can only assign Polygon to footprint');
-    }
-    this._footprint = footprint;
-  };
-
-  /**
-   * Sets the extruded height of the Feature to form a prism.
-   * @param {Number} height - The extruded height of the feature.
-   * @returns {Number} The previous height.
-   */
-  Feature.prototype.setHeight = function (height) {
-    var oldHeight = this._height;
-    this._height = height;
-    this.show();
-    return oldHeight;
-  };
-
-  /**
-   * @returns {number} The extruded height of the Feature to form a prism.
-   */
-  Feature.prototype.getHeight = function () {
-    return this._height;
-  };
-
-  /**
-   * Sets the elevation of the base of the feature.
-   * @param {Number} elevation - The elevation of the feature.
-   */
-  Feature.prototype.setElevation = function (elevation) {
-    this._elevation = elevation;
-    this.show();
-  };
-
-  /**
-   * @returns {number} The elevation of the base of the feature.
-   */
-  Feature.prototype.getElevation = function () {
-    return this._elevation;
-  };
-
-  /**
-   * Modifies specific components of the Feature's style.
-   * @param {Object} args - The new values for the Style components.
-   * @param {atlas.model.Colour} [args.fill] - The new fill colour.
-   * @param {atlas.model.Colour} [args.border] - The new border colour.
-   * @param {Number} [args.borderWidth] - The new border width colour.
-   */
-  Feature.prototype.modifyStyle = function (args) {
-    var oldValues = {};
-    if (!this._style) { this._style = Style.DEFAULT(); }
-    // Change values
-    args.fill && (oldValues.fill = this._style.setFill(args.fill));
-    args.border && (oldValues.border = this._style.setBorderColour(args.border));
-    args.borderWidth && (oldValues.borderWidth = this._style.setBorderWidth(args.borderWidth));
-    // Set Style on footprint and mesh.
-    this._footprint && this._footprint.setStyle(this._style);
-    this._mesh && this._mesh.setStyle(this._style);
-    return oldValues;
-  };
-
-  /**
-   * Renders the Feature using its footprint.
-   * @see {@link atlas.model.Polygon}
-   */
-  Feature.prototype.showAsFootprint = function() {
-    this._displayMode = 'footprint';
-    this.show();
-  };
-
-  /**
-   * Renders the Feature using its extruded footprint.
-   * @see {@link atlas.model.Polygon}
-   */
-  Feature.prototype.showAsExtrusion = function() {
-    this._displayMode = 'extrusion';
-    this.show();
-  };
-
-  /**
-   * Renders the Feature using its mesh.
-   * @see {@link atlas.model.Mesh}
-   */
-  Feature.prototype.showAsMesh = function() {
-    this._displayMode = 'mesh';
-    this.show();
-  };
-
-  /**
-   * Shows the Feature depending on its current <code>_displayMode</code>.
-   */
-  Feature.prototype.show = function() {
-    console.debug('trying to show feature', this._id, 'as', this._displayMode);
-    // TODO(aramk) delegate this to the setHeight setElevation.
-    if (this._displayMode === 'footprint') {
-      this._mesh && this._mesh.hide();
-      if (this._footprint) {
-        this._footprint.setHeight(0);
-        this._visible = this._footprint.show();
+    getArea: function () {
+      var area = undefined;
+      if (this._displayMode === 'footprint' || this._displayMode === 'extrusion') {
+        area = this._footprint.getArea();
+      } else if (this._displayMode === 'mesh') {
+        area = this._mesh.getArea();
       }
-    } else if (this._displayMode === 'extrusion') {
-      this._mesh && this._mesh.hide();
-      if (this._footprint) {
-        this._footprint.setHeight(this._height);
-        this._footprint.setElevation(this._elevation);
-        this._visible = this._footprint.show();
+      return area;
+    },
+
+    getCentroid: function () {
+      var centroid = undefined;
+      if (this._displayMode === 'footprint' || this._displayMode === 'extrusion') {
+        centroid = this._footprint.getCentroid();
+      } else if (this._displayMode === 'mesh') {
+        centroid = this._mesh.getCentroid();
       }
-    } else if (this._displayMode === 'mesh') {
-      this._footprint && this._footprint.hide();
+      return centroid;
+    },
+
+    /**
+     * Sets the elevation of the base of the feature.
+     * @param {Number} elevation - The elevation of the feature.
+     */
+    setElevation: function (elevation) {
+      this._elevation = elevation;
+      this.show();
+    },
+
+    /**
+     * @returns {number} The elevation of the base of the feature.
+     */
+    getElevation: function () {
+      return this._elevation;
+    },
+
+    setFootprint: function (footprint) {
+      if (!footprint instanceof Polygon) {
+        throw new DeveloperError('Can only assign Polygon to footprint');
+      }
+      this._footprint = footprint;
+    },
+
+    /**
+     * Sets the extruded height of the Feature to form a prism.
+     * @param {Number} height - The extruded height of the feature.
+     * @returns {Number} The previous height.
+     */
+    setHeight: function (height) {
+      var oldHeight = this._height;
+      this._height = height;
+      this.show();
+      return oldHeight;
+    },
+
+    /**
+     * @returns {number} The extruded height of the Feature to form a prism.
+     */
+    getHeight: function () {
+      return this._height;
+    },
+
+    setMesh: function (mesh) {
+      if (!mesh instanceof Mesh) {
+        throw new DeveloperError('Can only assign Mesh to mesh.');
+      }
+      this._mesh = mesh;
+    },
+
+//////
+// MODIFIERS
+
+    /**
+     * Modifies specific components of the Feature's style.
+     * @param {Object} args - The new values for the Style components.
+     * @param {atlas.model.Colour} [args.fill] - The new fill colour.
+     * @param {atlas.model.Colour} [args.border] - The new border colour.
+     * @param {Number} [args.borderWidth] - The new border width colour.
+     */
+    modifyStyle: function (args) {
+      var oldValues = {};
+      if (!this._style) { this._style = Style.DEFAULT(); }
+      // Change values
+      args.fill && (oldValues.fill = this._style.setFill(args.fill));
+      args.border && (oldValues.border = this._style.setBorderColour(args.border));
+      args.borderWidth && (oldValues.borderWidth = this._style.setBorderWidth(args.borderWidth));
+      // Set Style on footprint and mesh.
+      this._footprint && this._footprint.setStyle(this._style);
+      this._mesh && this._mesh.setStyle(this._style);
+      return oldValues;
+    },
+
+    /**
+     * Renders the Feature using its footprint.
+     * @see {@link atlas.model.Polygon}
+     */
+    showAsFootprint: function() {
+      this._displayMode = 'footprint';
+      this.show();
+    },
+
+    /**
+     * Renders the Feature using its extruded footprint.
+     * @see {@link atlas.model.Polygon}
+     */
+    showAsExtrusion: function() {
+      this._displayMode = 'extrusion';
+      this.show();
+    },
+
+    /**
+     * Renders the Feature using its mesh.
+     * @see {@link atlas.model.Mesh}
+     */
+    showAsMesh: function() {
+      this._displayMode = 'mesh';
+      this.show();
+    },
+
+    /**
+     * Translates the Feature.
+     * @see {@link atlas.model.GeoEntity#translate}
+     * @param {atlas.model.Vertex} translation - The vector to translate the Feature by.
+     */
+    translate: function (translation) {
+      this._footprint && this._footprint.translate(translation);
+      this._mesh && this._mesh.translate(translation);
+    },
+
+    /**
+     * Scales the Feature.
+     * @see {@link atlas.model.GeoEntity#scale}
+     * @param {atlas.model.Vertex} scale - The vector to scale the Feature by.
+     */
+    scale: function (scale) {
+      this._footprint && this._footprint.scale(scale);
+      this._mesh && this._mesh.scale(scale);
+    },
+
+    /**
+     * Rotates the Feature.
+     * @see {@link atlas.model.GeoEntity#rotate}
+     * @param {atlas.model.Vertex} rotation - The vector to rotate the Feature by.
+     */
+    rotate: function (rotation) {
+      this._footprint && this._footprint.rotate(rotation);
+      this._mesh && this._mesh.rotate(rotation);
+    },
+
+    /**
+     * Clean up the Feature so it can be deleted by the RenderManager.
+     */
+    remove: function () {
+      // TODO(aramk) switch to Resig's Extend.js
+      Feature.base.remove.apply(this, arguments);
+      // Remove mesh and footprint.
+      if (this._mesh !== null) {
+        console.debug('attempting to remove mesh', this._mesh);
+        this._mesh.remove();
+        this._mesh = null;
+      }
+      if (this._footprint !== null) {
+        console.debug('attempting to remove footprint', this._footprint);
+        this._footprint.remove();
+        this._footprint = null;
+      }
+    },
+
+//////
+// BEHAVIOUR
+
+    /**
+     * Handles the behaviour of the Feature when it is selected.
+     */
+    onSelect: function () {
+      this._footprint && this._footprint.onSelect();
+      this._mesh && this._mesh.onSelect();
+    },
+
+    /**
+     * Handles the behaviour of the Feature when it is deselected.
+     */
+    onDeselect: function () {
+      this._footprint && this._footprint.onDeselect();
+      this._mesh && this._mesh.onDeselect();
+    },
+
+    /**
+     * Shows the Feature depending on its current <code>_displayMode</code>.
+     */
+    show: function() {
+      console.debug('trying to show feature', this._id, 'as', this._displayMode);
+      // TODO(aramk) delegate this to the setHeight setElevation.
+      if (this._displayMode === 'footprint') {
+        this._mesh && this._mesh.hide();
+        if (this._footprint) {
+          this._footprint.setHeight(0);
+          this._visible = this._footprint.show();
+        }
+      } else if (this._displayMode === 'extrusion') {
+        this._mesh && this._mesh.hide();
+        if (this._footprint) {
+          this._footprint.setHeight(this._height);
+          this._footprint.setElevation(this._elevation);
+          this._visible = this._footprint.show();
+        }
+      } else if (this._displayMode === 'mesh') {
+        this._footprint && this._footprint.hide();
+        if (this._mesh) {
+          this._visible = this._mesh.show();
+        }
+      }
+    },
+
+    /**
+     * Hides the Feature.
+     */
+    hide: function() {
+      this._visible = false;
+      if (this._footprint) {
+        this._footprint.hide();
+      }
       if (this._mesh) {
-        this._visible = this._mesh.show();
+        this._mesh.hide();
       }
     }
-  };
-
-  /**
-   * Hides the Feature.
-   */
-  Feature.prototype.hide = function() {
-    this._visible = false;
-    if (this._footprint) {
-      this._footprint.hide();
-    }
-    if (this._mesh) {
-      this._mesh.hide();
-    }
-  };
-
-  /**
-   * Handles the behaviour of the Feature when it is selected.
-   */
-  Feature.prototype.onSelect = function () {
-    this._footprint && this._footprint.onSelect();
-    this._mesh && this._mesh.onSelect();
-  };
-
-  /**
-   * Handles the behaviour of the Feature when it is deselected.
-   */
-  Feature.prototype.onDeselect = function () {
-    this._footprint && this._footprint.onDeselect();
-    this._mesh && this._mesh.onDeselect();
-  };
-
-  /**
-   * Clean up the Feature so it can be deleted by the RenderManager.
-   */
-  Feature.prototype.remove = function () {
-    // TODO(aramk) switch to Resig's Extend.js
-    Feature.base.remove.apply(this, arguments);
-    // Remove mesh and footprint.
-    if (this._mesh !== null) {
-      console.debug('attempting to remove mesh', this._mesh);
-      this._mesh.remove();
-      this._mesh = null;
-    }
-    if (this._footprint !== null) {
-      console.debug('attempting to remove footprint', this._footprint);
-      this._footprint.remove();
-      this._footprint = null;
-    }
-  };
-
-  Feature.prototype.getArea = function () {
-    var area = undefined;
-    if (this._displayMode === 'footprint' || this._displayMode === 'extrusion') {
-      area = this._footprint.getArea();
-    } else if (this._displayMode === 'mesh') {
-      area = this._mesh.getArea();
-    }
-    return area;
-  };
-
-  Feature.prototype.getCentroid = function () {
-    var centroid = undefined;
-    if (this._displayMode === 'footprint' || this._displayMode === 'extrusion') {
-      centroid = this._footprint.getCentroid();
-    } else if (this._displayMode === 'mesh') {
-      centroid = this._mesh.getCentroid();
-    }
-    return centroid;
-  };
-
-  /**
-   * Translates the Feature.
-   * @see {@link atlas.model.GeoEntity#translate}
-   * @param {atlas.model.Vertex} translation - The vector to translate the Feature by.
-   */
-  Feature.prototype.translate = function (translation) {
-    this._footprint && this._footprint.translate(translation);
-    this._mesh && this._mesh.translate(translation);
-  };
-
-  /**
-   * Scales the Feature.
-   * @see {@link atlas.model.GeoEntity#scale}
-   * @param {atlas.model.Vertex} scale - The vector to scale the Feature by.
-   */
-  Feature.prototype.scale = function (scale) {
-    this._footprint && this._footprint.scale(scale);
-    this._mesh && this._mesh.scale(scale);
-  };
-
-  /**
-   * Rotates the Feature.
-   * @see {@link atlas.model.GeoEntity#rotate}
-   * @param {atlas.model.Vertex} rotation - The vector to rotate the Feature by.
-   */
-  Feature.prototype.rotate = function (rotation) {
-    this._footprint && this._footprint.rotate(rotation);
-    this._mesh && this._mesh.rotate(rotation);
-  };
-
-  return Feature;
+  });
 });
