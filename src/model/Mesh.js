@@ -48,7 +48,7 @@ define([
     /**
      * An array of normal vectors for each vertex defined in <code>Mesh._positions</code>.
      * @type {Float64Array}
-     * @private
+     * @protected
      */
     _normals: null,
 
