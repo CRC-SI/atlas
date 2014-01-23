@@ -1,5 +1,3 @@
-// vim: tabstop:2,shiftwidth:2
-
 module.exports = function(grunt) {
   // Load grunt tasks automatically
   require('load-grunt-tasks')(grunt);
@@ -29,6 +27,9 @@ module.exports = function(grunt) {
                   'echo "----- Installing bower dependencies -----"']
             .join('&&')
       },
+      jsDoc: {
+        command: 'jsdoc -c jsdoc.conf.json -l'
+      }
     },
 
     copy: {
@@ -38,18 +39,9 @@ module.exports = function(grunt) {
          {src: './lib/Openlayers/index.js', dest: './lib/open-layers.js'}
        ]
      }
-    },
-
-    jsdoc : {
-      dist : {
-        src: ['src/**/*.js'],
-        options: {
-          configure: './jsdoc.conf.json'
-        }
-      }
     }
   });
 
   grunt.registerTask('buildDep', ['shell:installBowerDep', 'copy:bowerDep']);
-  grunt.registerTask('docs', ['jsdoc']);
+  grunt.registerTask('doc', ['shell:jsDoc']);
 };

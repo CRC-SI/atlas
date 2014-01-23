@@ -3,7 +3,7 @@
         "allowUnknownTags": false
     },
     "source": {
-        "include": ["./camera", "./core", "./dom", "./entity", "./events", "./model", "./render", "./selection", "./util", "./visualisation"],
+        "include": ["./src"],
         "exclude": ["./lib/", "./docs/", "*/tests/", "./spec/*"],
         "includePattern": ".+\\.js(doc)?$",
         "excludePattern": "(tests/*)|((^|\\/|\\\\)_)"
@@ -16,6 +16,7 @@
     "opts": {
         "private": true,
         "recurse": true,
+        "lenient": true,
         "destination": "./docs/"
     }
 }

@@ -25,9 +25,16 @@ define([
       var children = [];
       children.push(element.firstElementChild);
       var sibling = children[0];
-      while ((sibling = sibling.nextElementSibling) !== null) {
+      // The while code doesn't play nice with jsdoc so I've used untilArg2isNull instead.
+//      while ((sibling = sibling.nextElementSibling) !== null) {
+//        children.push(sibling);
+//      }
+      var untilArg2isNull = function (children, sibling) {
+        if (sibling === null) return;
         children.push(sibling);
-      }
+        untilArg2isNull(children, sibling.nextElementSibling);
+      };
+      untilArg2isNull(children, sibling);
       return children;
     },
 

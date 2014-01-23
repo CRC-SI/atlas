@@ -14,9 +14,9 @@
     "url": "ssh://git@bitbucket.org/mutopia/atlas.git"
   },
   "devDependencies": {
-    "grunt-shell": "~0.6.3",
-    "load-grunt-tasks": "~0.2.1",
     "grunt": "~0.4.2",
-    "grunt-contrib-copy": "~0.5.0"
+    "load-grunt-tasks": "~0.2.1",
+    "grunt-contrib-copy": "~0.5.0",
+    "grunt-shell": "~0.6.3",
   }
 }

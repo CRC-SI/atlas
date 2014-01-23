@@ -142,7 +142,7 @@ define([
 
     /**
      * Process all (or a subset) of GeoEntities and applies a given function to them.
-     * @param {Function.<atlas.model.GeoEntity, Object>} f - The function to apply to the GeoEntities.
+     * @param {atlas.visualisation.AbstractProjection~UpdateEntityCb} f - The function to apply to the GeoEntities.
      * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
      * @private
      */
@@ -157,6 +157,13 @@ define([
         }
       }, this);
     },
+
+    /**
+     * @name atlas.visualisation.AbstractProjection~UpdateEntityCb
+     * @function
+     * @param {atlas.model.GeoEntity} entity - The GeoEntity being updated.
+     * @param {Object} params - Data required to update the GeoEntity.
+     */
 
     /**
      * Updates the projection with a new set of values and configuration data.
@@ -176,6 +183,7 @@ define([
         this._params = this._calculateProjectionParameters();
       }
     },
+
 
     /**
      * @returns {String} The type of the Projection.
