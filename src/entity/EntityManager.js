@@ -75,18 +75,16 @@ define([
 
   /**
    * Allows for creation of multiple Features.
-   * @param {Array} features - An array of objects, with each object containing
+   * @param {Array} c3mls - An array of objects, with each object containing
    *    an entity description conforming to the C3ML standard.
    */
-  EntityManager.prototype.bulkCreate = function (features) {
-    for (var i = 0; i < features.length; i++) {
-      var id = features[i].id,
-          args = features[i];
-      // TODO(bpstudds) Bit of a hack, fix this up.
-      args = EntityManager._parseC3ML(args);
+  EntityManager.prototype.bulkCreate = function (c3mls) {
+    c3mls.forEach(function (c3ml) {
+      var id = c3ml.id;
+      var args = EntityManager._parseC3ML(c3ml);
       this._entities[id] = this.createFeature(id, args);
       this._entities[id].show();
-    }
+    }, this);
   };
 
   /**
@@ -98,8 +96,47 @@ define([
    */
   EntityManager._parseC3ML = function (c3ml) {
     var geometry = {};
-    if (c3ml.type === 'mesh') {
-      geometry.mesh = {
+    // Map of C3ML type to parse of that type.
+    var parsers = {
+      mesh: EntityManager._parseC3MLmesh,
+      polygon: EntityManager._parseC3MLpolygon
+    };
+    // Generate the Geometry for the C3ML type if it is supported.
+    parsers[c3ml.type] && (geometry = parse[c3ml.type](c3ml));
+    return mixin({
+      id: c3ml.id,
+      type: c3ml.type,
+      parent: c3ml.parent,
+      children: c3ml.children
+    }, geometry);
+  };
+
+  /**
+   * Parses a C3ML polygon object to an format supported by Atlas.
+   * @param {Object} c3ml - The C3ML object to be parsed
+   * @returns {Object} The parsed C3ML.
+   * @private
+   */
+  EntityManager._parseC3MLpolygon = function (c3ml) {
+    return {
+      footprint: {
+        vertices: c3ml.coordinates,
+        color: c3ml.color,
+        height: c3ml.height,
+        elevation: c3ml.altitude
+      }
+    }
+  };
+
+  /**
+   * Parses a C3ML mesh object to an format supported by Atlas.
+   * @param {Object} c3ml - The C3ML object to be parsed
+   * @returns {Object} The parsed C3ML.
+   * @private
+   */
+  EntityManager._parseC3MLmesh = function (c3ml) {
+    return {
+      mesh: {
         positions: c3ml.positions,
         normals: c3ml.normals,
         triangles: c3ml.triangles,
@@ -109,21 +146,6 @@ define([
         rotation: c3ml.rotation
       }
     }
-    if (c3ml.type === 'polygon') {
-      geometry.footprint = {
-        vertices: c3ml.coordinates,
-        color: c3ml.color,
-        height: c3ml.height,
-        elevation: c3ml.altitude
-      }
-    }
-    var ret =  mixin({
-      id: c3ml.id,
-      type: c3ml.type,
-      parent: c3ml.parent,
-      children: c3ml.children
-    }, geometry);
-    return ret;
   };
 
   /**
