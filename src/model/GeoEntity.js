@@ -51,6 +51,20 @@ define([
     this._id = id;
 
     /**
+     * IDs of the child GeoEntities of the GeoEntity.
+     * @type {Array.<String>}
+     * @protected
+     */
+    this._children = args.children || [];
+
+    /*
+     * ID of the parent GeoEntity of the GeoEntity. Defined in EventTarget.
+     * @name _parent
+     * @type {String}
+     * @protected
+     */
+
+    /**
      * The RenderManager object for the GeoEntity.
      * @type {atlas.render.RenderManager}
      * @private

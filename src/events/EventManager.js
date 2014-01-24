@@ -63,7 +63,6 @@ define([
 
   /**
    * Bubbles the given Event through its <code>target</code> Entity hierarchy.
-   * TODO(bpstudds) Fix the goddamn module names.
    * @param {atlas.events.Event} event - The Event to be propagated.
    */
   EventManager.prototype.dispatchEvent = function (event) {
