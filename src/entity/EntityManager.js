@@ -102,7 +102,7 @@ define([
       polygon: EntityManager._parseC3MLpolygon
     };
     // Generate the Geometry for the C3ML type if it is supported.
-    parsers[c3ml.type] && (geometry = parse[c3ml.type](c3ml));
+    parsers[c3ml.type] && (geometry = parsers[c3ml.type](c3ml));
     return mixin({
       id: c3ml.id,
       type: c3ml.type,
