@@ -77,6 +77,21 @@ define([
   };
 
   /**
+   * @returns {HTMLElement} The current DOM node used by Atlas.
+   */
+  DomManager.prototype.getDom = function () {
+    return document.getElementById(this._currentDomId);
+  };
+
+  DomManager.prototype.getHeight = function () {
+    return document.getElementById(this._currentDomId).offsetHeight;
+  };
+
+  DomManager.prototype.getWidth = function () {
+    return document.getElementById(this._currentDomId).offsetWidth;
+  };
+
+  /**
    * Populates the Atlas DOM element.
    * Implemenetation defined.
    * @abstract
