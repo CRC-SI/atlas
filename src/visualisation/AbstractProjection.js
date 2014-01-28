@@ -21,9 +21,17 @@ define([
 
     /**
      * The type of artifact being projected onto.
+     * @type {String}
      * @constant
      */
     ARTIFACT: null,
+
+    /**
+     * The types of projections supported by the Projection.
+     * @type {Array.<String>}
+     * @constant
+     */
+    SUPPORTED_PROJECTIONS: {'continuous': true, 'discrete': true},
 
     /**
      * The type of the projection, currently only 'continuous' is supported.
@@ -80,6 +88,13 @@ define([
     _configuration: null,
 
     /**
+     * The number of bins to use by default for discrete projections.
+     * @type {Number}
+     * @constant
+     */
+    DEFAULT_BINS: 3,
+
+    /**
      * Constructs a new AbstractProjection
      * @see {@link atlas.visualisation.AbstractProjection}
      * @ignore
@@ -91,8 +106,11 @@ define([
         entities: {},
         configuration: {}
       }, args);
-      if (args.type !== 'continuous') {
+      if (!this.SUPPORTED_PROJECTIONS[args.type]) {
         throw new DeveloperError('Tried to instantiate Projection with unsupported type', args.type);
+      }
+      if (args.type === 'discrete') {
+        args.configuration = mixin({bins: this.DEFAULT_BINS}, args.configuration);
       }
       this._type = args.type;
       this._effects = {};
@@ -230,15 +248,16 @@ define([
      * Calculates the projection parameters for each Entity's value in the Projection. The exact
      * parameters calculated depend on the {@link atlas.visualisation.AbstractProjection#type|type}
      * of the projection.
-     * @returns {Object}
+     * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs
+     *     to update. If not provided, all entities will be updated.
+     * @returns {Object} The calculated parameters.
      * @protected
      */
-    _calculateProjectionParameters: function () {
-      // TODO(bpstudds): Add the ability to specify which IDs to update see HeightProjection#render.
+    _calculateProjectionParameters: function (id) {
       // Update the value statistics if necessary.
       this._stats = this._stats ? this._stats : this._calculateValuesStatistics();
       var params = {};
-      var ids = Object.keys(this._values);
+      var ids = this._constructIdList(id);
       ids.forEach(function (id) {
         var thisValue = this._values[id];
         var param = {};
