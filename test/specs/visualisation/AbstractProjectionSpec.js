@@ -1,9 +1,10 @@
 define([
+  'atlas/model/Feature',
   // Code under test
   'atlas/visualisation/AbstractProjection',
   'atlas/visualisation/HeightProjection',
   'atlas/visualisation/ColourProjection'
-], function (AbstractProjection, HeightProjection, ColourProjection) {
+], function (Feature, AbstractProjection, HeightProjection, ColourProjection) {
 
   /**
    * Wrapper for the AbstractProjection test suite. This allows the test suite
@@ -14,7 +15,7 @@ define([
   var parametrisedTestSuite = function (parametrisedTestName, parametrisedTestClass) {
 
     describe('A ' + parametrisedTestName, function () {
-      var abPro, someValues, someMoreValues, everyValue, someStats, someParams;
+      var abPro, someEntities, someValues, someMoreValues, everyValue, someStats, someParams;
 
       beforeEach(function () {
         someValues = {0: 0, 1: 1, 2: 2};
@@ -38,6 +39,11 @@ define([
             ratioFromAverage: 1
           }
         };
+        someEntities = {
+          0: new Feature(0, {id: 0}),
+          1: new Feature(1, {id: 1}),
+          2: new Feature(2, {id: 1})
+        };
       });
 
       describe('can be constructed', function () {
@@ -51,19 +57,19 @@ define([
         });
 
         it('with values', function () {
-          abPro = new parametrisedTestClass({values: someValues});
+          abPro = new parametrisedTestClass({values: someValues, entities: someEntities});
           expect(abPro.getValues()).toEqual(someValues);
         });
 
         it('but fails with the incorrect arguments', function () {
-          var func = function () { new parametrisedTestClass({type: 'incorrect', values: someValues}); };
+          var func = function () { new parametrisedTestClass({type: 'incorrect', values: someValues, entities: someEntities}); };
           expect(func).toThrow();
         });
       });
 
       describe('once constructed', function () {
         beforeEach(function () {
-          abPro = new parametrisedTestClass({values: someValues});
+          abPro = new parametrisedTestClass({values: someValues, entities: someEntities});
         });
         afterEach(function () {
           abPro = null;
