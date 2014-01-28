@@ -1,10 +1,11 @@
 define([
+  'atlas/util/mixin',
   'atlas/model/Feature',
   // Code under test
   'atlas/visualisation/AbstractProjection',
   'atlas/visualisation/HeightProjection',
   'atlas/visualisation/ColourProjection'
-], function (Feature, AbstractProjection, HeightProjection, ColourProjection) {
+], function (mixin, Feature, AbstractProjection, HeightProjection, ColourProjection) {
 
   /**
    * Wrapper for the AbstractProjection test suite. This allows the test suite
@@ -25,17 +26,17 @@ define([
         someParams = {
           '0': {
             diffFromAverage: -1,
-            ratioBetweenMinMax: 0,
+            absRatio: 0,
             ratioFromAverage: -1
           },
           '1': {
             diffFromAverage: 0,
-            ratioBetweenMinMax: 0.5,
+            absRatio: 0.5,
             ratioFromAverage: 0
           },
           '2': {
             diffFromAverage: 1,
-            ratioBetweenMinMax: 1,
+            absRatio: 1,
             ratioFromAverage: 1
           }
         };
@@ -65,7 +66,37 @@ define([
           var func = function () { new parametrisedTestClass({type: 'incorrect', values: someValues, entities: someEntities}); };
           expect(func).toThrow();
         });
-      });
+
+        // TODO(bpstudds): Flesh out these tests.
+        xdescribe('with bins', function () {
+          var args;
+          beforeEach(function () {
+            args = {
+              values: someValues,
+              entities: someEntities
+            };
+          });
+
+          it('of variable number but fixed capacity', function () {
+            args = mixin({bins: 3}, args);
+            abPro = new parametrisedTestClass(args);
+          });
+
+          describe('of variable capacity', function () {
+            it('that are unbounded above', function () {
+
+            });
+
+            it('that are unbounded below', function () {
+
+            });
+
+            it('that have specified range', function () {
+
+            });
+          }); // End 'of variable capacity'
+        }); // End 'with bins'
+      }); // End 'can be constructed'
 
       describe('once constructed', function () {
         beforeEach(function () {
@@ -93,7 +124,7 @@ define([
         });
 
         it('can have parameters calculated for all the values', function () {
-          var params = abPro._calculateProjectionParameters();
+          var params = abPro._calculateValueAttributes();
           expect(params).toEqual(someParams);
         });
       }); // End 'once constructed'
@@ -102,6 +133,7 @@ define([
 
   // Run the test suite over AbstractProjection and all it's subclasses.
   parametrisedTestSuite('AbstractProjection', AbstractProjection);
-  parametrisedTestSuite('HeightProjection', HeightProjection);
-  parametrisedTestSuite('ColourProjection', ColourProjection);
+  // TODO(bpstudds): Is it really necessary to run the tests over the subclasses? Maybe the tests can be inherited.
+  //parametrisedTestSuite('HeightProjection', HeightProjection);
+  //parametrisedTestSuite('ColourProjection', ColourProjection);
 });

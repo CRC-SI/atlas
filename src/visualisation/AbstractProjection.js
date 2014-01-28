@@ -78,7 +78,7 @@ define([
      * Contains a map of Entity ID to parameters required for the projection.
      * @protected
      */
-    _params: null,
+    _attributes: null,
 
     /**
      * Contains options configuring the behaviour of the Projection.
@@ -88,11 +88,17 @@ define([
     _configuration: null,
 
     /**
-     * The number of bins to use by default for discrete projections.
+     * The number of bins to use by default for projections.
      * @type {Number}
      * @constant
      */
-    DEFAULT_BINS: 3,
+    DEFAULT_BINS: 1,
+
+    /**
+     * The default codomain to apply to the projection.
+     * @abstract
+     */
+    DEFAULT_CODOMAIN: null,
 
     /**
      * Constructs a new AbstractProjection
@@ -117,7 +123,8 @@ define([
       this._entities = args.entities;
       this._values = args.values;
       this._configuration = args.configuration;
-      this._params = this._calculateProjectionParameters();
+      this._stats = this._calculateValuesStatistics();
+      this._attributes = this._calculateValueAttributes();
     },
 
     /**
@@ -169,7 +176,7 @@ define([
       // Process each entity for the win.
       ids.forEach(function (id) {
         var theEntity = this._entities[id];
-        var theParams = this._params[id];
+        var theParams = this._attributes[id];
         if (theEntity) {
           f.call(this, theEntity, theParams);
         }
@@ -189,9 +196,9 @@ define([
         this._values = args.addToExisting ? mixin(this._values, args.values) : args.values;
         // TODO(bpstudds): Allow for updating a subset of parameters.
         delete this._stats;
-        delete this._params;
+        delete this._attributes;
         // TODO(bpstudds): Allow for updating a subset of parameters.
-        this._params = this._calculateProjectionParameters();
+        this._attributes = this._calculateValueAttributes();
       }
     },
 
@@ -253,22 +260,22 @@ define([
      * @returns {Object} The calculated parameters.
      * @protected
      */
-    _calculateProjectionParameters: function (id) {
+    _calculateValueAttributes: function (id) {
       // Update the value statistics if necessary.
       this._stats = this._stats ? this._stats : this._calculateValuesStatistics();
-      var params = {};
+      var attributes = {};
       var ids = this._constructIdList(id);
       ids.forEach(function (id) {
         var thisValue = this._values[id];
-        var param = {};
-        param.diffFromAverage = thisValue - this._stats.average;
-        param.ratioBetweenMinMax = this._stats.range === 0 ? Number.POSITIVE_INFINITY : (thisValue - this._stats.min.value) / (this._stats.range);
-        param.ratioFromAverage = (thisValue - this._stats.average);
-        param.ratioFromAverage /= (param.ratioFromAverage < 0 ?
+        var attrib = {};
+        attrib.absRatio = this._stats.range === 0 ? Number.POSITIVE_INFINITY : (thisValue - this._stats.min.value) / (this._stats.range);
+        attrib.diffFromAverage = thisValue - this._stats.average;
+        attrib.ratioFromAverage = (thisValue - this._stats.average);
+        attrib.ratioFromAverage /= (attrib.ratioFromAverage < 0 ?
             (this._stats.average - this._stats.min.value) : (this._stats.max.value - this._stats.average));
-        params[id] = param;
+        attributes[id] = attrib;
       }, this);
-      return params;
+      return attributes;
     },
 
     /**
