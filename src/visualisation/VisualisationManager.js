@@ -1,7 +1,8 @@
 define([
   'atlas/util/DeveloperError',
+  'atlas/visualisation/HeightProjection',
   'atlas/visualisation/AbstractProjection'
-], function (DeveloperError, Projection) {
+], function (DeveloperError, HeightProjection, AbstractProjection) {
 
   /**
    * Constructs a new VisualisationManager
@@ -14,6 +15,7 @@ define([
   var VisualisationManager = function (atlasManagers) {
     // TODO(bpstudds): Refactor this class to 'GeoChartFactory'? or 'ProjectionFactory'?
     this._atlasManagers = atlasManagers;
+    this._atlasManagers.visualisation = this;
 
     /**
      * The defined projections currently affecting Atlas.
@@ -32,6 +34,9 @@ define([
    *    to same artifact as the new Projection, if it exists.
    */
   VisualisationManager.prototype.add = function (projection) {
+    if (!(projection instanceof AbstractProjection)) {
+      throw new DeveloperError('Tried to add an object to the VisualisationManager which is not a subclass of atlas.visualisation.AbstractProjection');
+    }
     var target = projection.ARTIFACT,
         old = this._projections[projection.ARTIFACT],
         ret;
@@ -85,6 +90,15 @@ define([
     } else {
       this._projections[artifact].unrender();
     }
+  };
+
+  VisualisationManager.prototype.testHeight = function (valueMap) {
+    var ids = Object.keys(valueMap),
+        entities = this._atlasManagers.entity.getByIds(ids),
+        codomain = {startProj: Math.random() * 20, endProj: 20 + Math.random() * 300},
+        heightProj = new HeightProjection({type: 'continuous', codomain: codomain, values: valueMap, entities: entities});
+    this.add(heightProj);
+    heightProj.render();
   };
 
   return VisualisationManager;
