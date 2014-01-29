@@ -104,14 +104,12 @@ define([
           expect(abPro.getConfiguration()).toEqual({});
         });
 
-        // TODO(bpstudds): This test should not be disabled.
-        xit('with values', function () {
+        it('with values', function () {
           abPro = new parametrisedTestClass({values: someValues, entities: someEntities});
           expect(abPro.getValues()).toEqual(someValues);
         });
 
-        // TODO(bpstudds): This test should not be disabled.
-        xit('but fails with the incorrect arguments', function () {
+        it('but fails with the incorrect arguments', function () {
           var func = function () { new parametrisedTestClass({type: 'incorrect', values: someValues, entities: someEntities}); };
           expect(func).toThrow();
         });

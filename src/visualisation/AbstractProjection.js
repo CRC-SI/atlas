@@ -256,8 +256,8 @@ define([
           bins = [{ binId: 0, firstValue: Number.NEGATIVE_INFINITY, lastValue: Number.POSITIVE_INFINITY }];
         } else {
           // Create bins by splitting up the range of input parameter values into equal divisions.
-          var populationStats = this._calculateValuesStatistics();
-          var start = populationStats.min.value,
+          var populationStats = this._calculateValuesStatistics(),
+              start = populationStats.min.value,
               step = populationStats.range / numBins;
           for (var i = 0, firstValue = start; i < this._configuration.bins; i++, firstValue += step) {
             bins.push({binId: i, firstValue: firstValue, lastValue: firstValue + step});
@@ -338,7 +338,6 @@ define([
      * {@link atlas.visualisation.AbstractProjection#type|type} of the projection.
      * @returns {Object}
      * @protected
-     * @deprecated Don't use this where it was previously used.
      */
     _calculateValuesStatistics: function () {
       // TODO(bpstudds): Add the ability to specify which IDs to update see HeightProjection#render.
@@ -372,20 +371,20 @@ define([
       // Update the value statistics if necessary.
       this._stats = this._stats ? this._stats : this._calculateBinnedValuesStatistics();
       var theAttributes = {};
-      // Interate through each bin...
+      // Iterate through each bin...
       this._stats.forEach( function (bin) {
         // and each entity which has a value in the bin.
         bin.entityIds.forEach(function (id) {
           // TODO(bpstudds): Should be using binId and this._stats
-          var thisValue = this._values[id];
-          var attrib = {};
-          attrib.absRatio = bin.range !== 0 ?
+          var thisValue = this._values[id],
+              thisAttribute = {};
+          thisAttribute.absRatio = bin.range !== 0 ?
               (thisValue - bin.min.value) / (bin.range) : Number.POSITIVE_INFINITY;
-          attrib.diffFromAverage = thisValue - bin.average;
-          attrib.ratioFromAverage = (thisValue - bin.average);
-          attrib.ratioFromAverage /= (attrib.ratioFromAverage < 0 ?
+          thisAttribute.diffFromAverage = thisValue - bin.average;
+          thisAttribute.ratioFromAverage = (thisValue - bin.average);
+          thisAttribute.ratioFromAverage /= (thisAttribute.ratioFromAverage < 0 ?
               (bin.average - bin.min.value) : (bin.max.value - bin.average));
-          theAttributes[id] = attrib;
+          theAttributes[id] = thisAttribute;
         }, this);
       }, this);
       return theAttributes;
@@ -403,8 +402,8 @@ define([
       var ids = null;
       var allIds = Object.keys(this._entities);
       // If argument id was provided...
-      if (id && typeof id === String) { ids = [id]; }
-      if (id && typeof id === Array) { ids = id; }
+      if (id && typeof id === 'string') { ids = [id]; }
+      if (id && id instanceof Array) { ids = id; }
       // ... use the entities it specifies instead of all the entities.
       if (!ids) { ids = allIds; }
       return ids;
