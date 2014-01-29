@@ -90,10 +90,6 @@ define([
     _uniformColour: null,
 
     _init: function (id, meshData, args) {
-      if (typeof id === 'object') {
-        args = id;
-        id = args.id;
-      }
       this._super(id, args);
 
       // Parse all the things!

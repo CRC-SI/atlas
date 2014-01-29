@@ -83,6 +83,7 @@ define([
     _visible: false,
 
     _init: function (id, args) {
+      this._super(id, args);
       this._visible = defaultValue(args.show, false);
       this._displayMode = args.footprint ? defaultValue(args.displayMode, 'extrusion') : '';
       this._displayMode = args.mesh ? defaultValue(args.displayMode, 'mesh') : this._displayMode;
