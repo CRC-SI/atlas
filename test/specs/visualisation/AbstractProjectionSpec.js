@@ -32,9 +32,9 @@ define([
           2: new Feature(2, {id: 1})
         };
         someAttributes = {
-          0: {absRatio: 0, diffFromAverage: -1, ratioFromAverage: -1},
-          1: {absRatio: 0.5, diffFromAverage: 0, ratioFromAverage: 0},
-          2: {absRatio: 1, diffFromAverage: 1, ratioFromAverage: 1}
+          0: {binId: 0, absRatio: 0, diffFromAverage: -1, ratioFromAverage: -1},
+          1: {binId: 0, absRatio: 0.5, diffFromAverage: 0, ratioFromAverage: 0},
+          2: {binId: 0, absRatio: 1, diffFromAverage: 1, ratioFromAverage: 1}
         };
         manyValues = { 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 };
         manyEntities = {
@@ -81,14 +81,14 @@ define([
         ];
         manyAttributes2binsSpecifiedRange = {
           //0: excluded
-          1: {absRatio: 0, diffFromAverage: -1, ratioFromAverage: -1},
-          2: {absRatio: 0.5, diffFromAverage: 0, ratioFromAverage: 0},
-          3: {absRatio: 1, diffFromAverage: 1, ratioFromAverage: 1},
+          1: {binId: 0, absRatio: 0, diffFromAverage: -1, ratioFromAverage: -1},
+          2: {binId: 0, absRatio: 0.5, diffFromAverage: 0, ratioFromAverage: 0},
+          3: {binId: 0, absRatio: 1, diffFromAverage: 1, ratioFromAverage: 1},
           //4: excluded
           //5: excluded
-          6: {absRatio: 0, diffFromAverage: -1, ratioFromAverage: -1},
-          7: {absRatio: 0.5, diffFromAverage: 0, ratioFromAverage: 0},
-          8: {absRatio: 1, diffFromAverage: 1, ratioFromAverage: 1}
+          6: {binId: 1, absRatio: 0, diffFromAverage: -1, ratioFromAverage: -1},
+          7: {binId: 1, absRatio: 0.5, diffFromAverage: 0, ratioFromAverage: 0},
+          8: {binId: 1, absRatio: 1, diffFromAverage: 1, ratioFromAverage: 1}
           //9: excluded
         };
       });

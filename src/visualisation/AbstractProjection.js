@@ -128,7 +128,7 @@ define([
         values: {},
         entities: {},
         bins: 1,
-        codomain: {}
+        codomain: this.DEFAULT_CODOMAIN
       }, args);
       if (!this.SUPPORTED_PROJECTIONS[args.type]) {
         throw new DeveloperError('Tried to instantiate Projection with unsupported type', args.type);
@@ -141,7 +141,9 @@ define([
         bins: args.bins,
         codomain: args.codomain
       };
+      // Calculate statistical properties for the binned values.
       this._stats = this._calculateBinnedValuesStatistics();
+      // TODO(bpstudds): Do we need to caclulate this for a discrete projection?
       this._attributes = this._calculateValueAttributes();
     },
 
@@ -157,11 +159,11 @@ define([
     /**
      * Renders the effects of the Projection on a single GeoEntity.
      * @param {atlas.model.GeoEntity} entity - The GeoEntity to render.
-     * @param {Object} params - The parameters of the Projection for the given GeoEntity.
+     * @param {Object} attributes - The attributes of the parameter value for the given GeoEntity.
      * @protected
      * @abstract
      */
-    _render: function (entity, params) {
+    _render: function (entity, attributes) {
       throw new DeveloperError('Tried to call abstract method "_render" of AbstractProjection.');
     },
 
@@ -177,11 +179,11 @@ define([
     /**
      * Renders the effects of the Projection on a single GeoEntity.
      * @param {atlas.model.GeoEntity} entity - The GeoEntity to unrender.
-     * @param {Object} params - The parameters of the Projection for the given GeoEntity.
+     * @param {Object} attributes - The attributes of the parameter value for the given GeoEntity.
      * @protected
      * @abstract
      */
-    _unrender: function (entity, params) {
+    _unrender: function (entity, attributes) {
       throw new DeveloperError('Tried to call abstract method "_unrender" of AbstractProjection.');
     },
 
@@ -196,9 +198,9 @@ define([
       // Process each entity for the win.
       ids.forEach(function (id) {
         var theEntity = this._entities[id];
-        var theParams = this._attributes[id];
+        var theAttributes = this._attributes[id];
         if (theEntity) {
-          f.call(this, theEntity, theParams);
+          f.call(this, theEntity, theAttributes);
         }
       }, this);
     },
@@ -383,9 +385,9 @@ define([
       this._stats.forEach( function (bin) {
         // and each entity which has a value in the bin.
         bin.entityIds.forEach(function (id) {
-          // TODO(bpstudds): Should be using binId and this._stats
           var thisValue = this._values[id],
               thisAttribute = {};
+          thisAttribute.binId = bin.binId;
           thisAttribute.absRatio = bin.range !== 0 ?
               (thisValue - bin.min.value) / (bin.range) : Number.POSITIVE_INFINITY;
           thisAttribute.diffFromAverage = thisValue - bin.average;
