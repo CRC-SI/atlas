@@ -1,14 +1,12 @@
 define([
-  'atlas/util/Extends',
   'atlas/util/DeveloperError',
   'atlas/events/Event',
+  // Base class
   'atlas/events/EventTarget'
-], function (extend, DeveloperError, Event, EventTarget) {
-  "use strict";
+], function (DeveloperError, Event, EventTarget) {
 
   /**
-   * Constructs a new GeoEntity object.
-   * @class A GeoEntity is an abstract class that represents an entity that
+   * @classdesc A GeoEntity is an abstract class that represents an entity that
    * has a defined place in 3D space. A GeoEntity is a purely
    * abstract module that is extended by other atlas entities that specify
    * what is this particular GeoEntity represents (eg. a polygon or a line).
@@ -28,34 +26,15 @@ define([
    * @see {atlas.model.PointHandle}
    *
    * @abstract
-   * @extends {atlas.events.EventTarget}
-   * @alias atlas.model.GeoEntity
-   * @constructor
+   * @extends atlas.events.EventTarget
+   * @class atlas.model.GeoEntity
    */
-  var GeoEntity = function (id, args) {
-    // Check that an id has been provided.
-    if (typeof id === 'object') {
-      args = id;
-      id = args.id;
-    }
-    if (id === undefined || typeof id === 'object') {
-      throw new DeveloperError('Can not create instance of GeoEntity without an ID');
-    }
-    // Call base class EventTarget constructor.
-    GeoEntity.base.constructor.call(this);
-
+  return EventTarget.extend(/** @lends atlas.model.GeoEntity# */ {
     /**
      * The ID of the GeoEntity
      * @type {String}
      */
-    this._id = id;
-
-    /**
-     * IDs of the child GeoEntities of the GeoEntity.
-     * @type {Array.<String>}
-     * @protected
-     */
-    this._children = args.children || [];
+    _id: null,
 
     /*
      * ID of the parent GeoEntity of the GeoEntity. Defined in EventTarget.
@@ -65,260 +44,284 @@ define([
      */
 
     /**
-     * The RenderManager object for the GeoEntity.
-     * @type {atlas.render.RenderManager}
-     * @private
+     * IDs of the child GeoEntities of the GeoEntity.
+     * @type {Array.<String>}
+     * @protected
      */
-    this._renderManager = args.renderManager;
+    _children: null,
 
     /**
-     * The EventManager object for the GeoEntity.
-     * @type {atlas.event.EventManager}
-     * @private
+     * The RenderManager object for the GeoEntity.
+     * @type {atlas.render.RenderManager}
+     * @protected
      */
-    this._eventManager = args.eventManager;
+    _renderManager: null,
 
     /**
      * The geometric centroid of the GeoEntity.
      * @type {atlas.model.Vertex}
+     * @protected
      */
-    this._centroid = null;
+    _centroid: null,
 
     /**
      * The area of the GeoEntity.
      * @type {Number}
+     * @protected
      */
-    this._area = 0;
+    _area: 0,
 
     /**
      * Whether the GeoEntity is visible.
      * @type {Boolean}
+     * @protected
      */
-    this._visible = false;
+    _visible: false,
 
     /**
      * Whether the GeoEntity can be rendered.
      * @type {Boolean}
+     * @protected
      */
-    this._renderable = false;
+    _renderable: false,
 
     /**
      * Geometry data for the GeoEntity that allows it to be rendered.
      * @type {Object}
+     * @protected
      */
-    this._geometry = null;
+    _geometry: null,
 
     /**
      * Appearance data to modified how the GeoEntity is rendered.
      * @type {Object}
+     * @protected
      */
-    this._appearance = null;
-  };
-  // Extend from EventTarget
-  extend(EventTarget, GeoEntity);
+    _appearance: null,
 
-  /**
-   * @returns {String} The ID of the GeoEntity.
-   */
-  GeoEntity.prototype.getId = function() {
-    return this._id;
-  };
+    _init: function (id, args) {
+      // Call the superclass' (EventTarget) constructor.
+      this._super(args.eventManager, args.parent);
 
-  /**
-   * Returns the footprint centroid of the GeoEntity.
-   * @returns {Number} GeoEntity's footprint centroid.
-   * @abstract
-   */
-  GeoEntity.prototype.getCentroid = function() {
-    throw new DeveloperError('Can not call abstract method of GeoEntity');
-  };
-
-  /**
-   * Returns the footprint area of the GeoEntity.
-   * @returns {Number} Footprint area.
-   * @abstract
-   */
-  GeoEntity.prototype.getArea = function() {
-    throw new DeveloperError('Can not call abstract method of GeoEntity');
-  };
-
-  /**
-   * Returns the visibility of this GeoEntity.
-   * @returns {Boolean} Whether the GeoEntity is visible.
-   */
-  GeoEntity.prototype.isVisible = function() {
-    return this._visible;
-  };
-
-  /**
-   * Returns whether the GeoEntity is renderable.
-   * @returns {Boolean} Whether the GeoEntity is renderable.
-   */
-  GeoEntity.prototype.isRenderable = function () {
-    return this._renderable;
-  };
-
-  /**
-   * Sets whether the GeoEntity is ready to be rendered in Atlas.
-   * @param {Boolean} [isRenderable=true] - If true, sets the Polygon to be renderable otherwise sets it to be 'un-renderable'.
-   */
-  GeoEntity.prototype.setRenderable = function (isRenderable) {
-    if (isRenderable !== undefined) {
-      this._renderable = isRenderable;
-    } else {
-      this._renderable = true;
-    }
-  };
-
-  /**
-   * Returns the geometry data for the GeoEntity so it can be rendered.
-   * The <code>build</code> method should be called to construct this geometry
-   * data.
-   * @returns {Object} The geometry data.
-   */
-  GeoEntity.prototype.getGeometry = function() {
-      return this._geometry;
-  };
-
-  /**
-   * Returns the appearance data for the GeoEntity so it can be rendered.
-   * The <code>build</code> method should be called to construct this appearance
-   * data.
-   * @returns {Object} The appearance data.
-   */
-  GeoEntity.prototype.getAppearance = function() {
-      return this._appearance;
-  };
-
-  /**
-   * Translates the GeoEntity by the given vector.
-   * @param {atlas.model.Vertex} translation - The vector to move the GeoEntity by.
-   * @param {Number} translation.x - The change in latitude in decimal degrees to apply.
-   * @param {Number} translation.y - The change in longitude in decimal degrees apply.
-   * @param {Number} translation.z - The change in elevation in metres to apply.
-   *
-   * @abstract
-   */
-  GeoEntity.prototype.translate = function(translation) {};
-
-  /**
-   * Scales the GeoEntity by the given vector. This scaling can be uniform in all axis or non-uniform.
-   * A scaling factor of <code>1</code> has no effect. Factors lower or higher than <code>1</code>
-   * scale the GeoEntity down or up respectively. ie, <code>0.5</code> is half as big and
-   * <code>2</code> is twice as big.
-   * @param {atlas.model.Vertex} scale - The vector to scale the GeoEntity by.
-   * @param {Number} scale.x - The scale along the <code>x</code> axis of the GeoEntity.
-   * @param {Number} scale.y - The scale along the <code>y</code> axis of the GeoEntity.
-   * @param {Number} scale.z - The scale along the <code>z</code> axis of the GeoEntity.
-   *
-   * @abstract
-   */
-  GeoEntity.prototype.scale = function(scale) {};
-
-  /**
-   * Rotates the GeoEntity by the given vector.
-   * @param {atlas.model.Vertex} rotation - The vector to rotate the GeoEntity by.
-   * @param {Number} rotation.x - The rotation about the <code>x</code> axis in degrees, negative
-   *      rotates clockwise, positive rotates counterclockwise.
-   * @param {Number} rotation.y - The rotation about the <code>y</code> axis in degrees, negative
-   *        rotates clockwise, positive rotates counterclockwise.
-   * @param {Number} rotation.z - The rotation about the <code>z</code> axis in degrees, negative
-   *      rotates clockwise, positive rotates counterclockwise.
-   *
-   * @abstract
-   */
-  GeoEntity.prototype.rotate = function (rotation) {};
-
-  /**
-   * Function to build the GeoEntity so it can be rendered.
-   * @abstract
-   */
-  GeoEntity.prototype._build = function() {
-    throw new DeveloperError('Can not call abstract method of GeoEntity.');
-  };
-
-  /**
-   * Function to remove the GeoEntity from rendering. This function should
-   * be overridden on subclasses to accomplish any cleanup that
-   * may be required.
-   */
-  GeoEntity.prototype.remove = function () {
-    this._eventManager.dispatchEvent(new Event(new EventTarget(),
-      'entity/remove', {
-        id: this.getId()
-      }));
-  };
-
-  /**
-   * Shows the GeoEntity in the current scene.
-   * @abstract
-   */
-  GeoEntity.prototype.show = function () {
-    throw new DeveloperError('Can not call abstract method of GeoEntity');
-  };
-
-  /**
-   * Hides the GeoEntity from the current scene.
-   * @abstract
-   */
-  GeoEntity.prototype.hide = function () {
-    throw new DeveloperError('Can not call abstract method of GeoEntity');
-  };
-
-  /**
-   * Toggles the visibility of the GeoEntity.
-   */
-  GeoEntity.prototype.toggleVisibility = function () {
-    if (this.isVisible()) {
-      this.hide();
-    } else {
-      this.show();
-    }
-  };
-
-  /**
-   * Handles the GeoEntities behaviour when it is selected.
-   * @abstract
-   */
-  GeoEntity.prototype.onSelect = function () {};
-
-  /**
-   * Handles the GeoEntities behaviour when it is deselected.
-   * @abstract
-   */
-  GeoEntity.prototype.onDeselect = function () {};
-
-  /**
-   * Enables 'editing' of the GeoEntity using keyboard input.
-   */
-  GeoEntity.prototype.enableEditing = function () {
-    console.debug('enableEditing called on', this._id);
-    this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keyup', function (args) {
-      if (args.modifiers.length === 0) {
-        switch (args.key) {
-          case 189: // minus
-            this.scale({x: 0.95, y: 0.95, z: 0.95});
-            break;
-          case 187: // plus
-            this.scale({x: 1.05, y: 1.05, z: 1.05});
-            break;
-          case 37: // left
-            this.rotate({x: 0, y: 0, z:5});
-            break;
-          case 39: // right
-            this.rotate({x: 0, y: 0, z:-5});
-            break;
-        }
+      if (typeof id === 'object') {
+        args = id;
+        id = args.id;
       }
-    }.bind(this));
-  };
+      if (id === undefined || typeof id === 'object') {
+        throw new DeveloperError('Can not create instance of GeoEntity without an ID');
+      }
+      this._id = id;
+      this._renderManager = args.renderManager;
+      this._eventManager = args.eventManager;
+    },
 
-  /**
-   * Disables editing of the GeoEntity.
-   */
-  GeoEntity.prototype.disableEditing = function () {
-    this._editEventHandler.cancel();
-  };
+/////
+// GETTERS AND SETTERS
 
-  return GeoEntity;
+    /**
+     * @returns {String} The ID of the GeoEntity.
+     */
+    getId: function() {
+      return this._id;
+    },
+
+    /**
+     * @returns {Number} The centroid of the GeoEntity.
+     * @abstract
+     */
+    getCentroid: function() {
+      throw new DeveloperError('Can not call abstract method of GeoEntity');
+    },
+
+    /**
+     * @returns {Number} The are of the GeoEntity's footprint, if applicable.
+     * @abstract
+     */
+    getArea: function() {
+      throw new DeveloperError('Can not call abstract method of GeoEntity');
+    },
+
+    /**
+     * @returns {Boolean} Whether the GeoEntity is currently visible.
+     */
+    isVisible: function() {
+      return this._visible;
+    },
+
+    /**
+     * @returns {Boolean} Whether the GeoEntity is currently renderable.
+     */
+    isRenderable: function () {
+      return this._renderable;
+    },
+
+    /**
+     * Sets whether the GeoEntity is ready to be rendered.
+     * @param {Boolean} [isRenderable=true] - If true, sets the Polygon to be renderable otherwise sets it to be 'un-renderable'.
+     */
+    setRenderable: function (isRenderable) {
+
+      if (isRenderable !== undefined) {
+        this._renderable = isRenderable;
+      } else {
+        this._renderable = true;
+      }
+    },
+
+    /**
+     * Returns the geometry data for the GeoEntity so it can be rendered.
+     * The <code>build</code> method should be called to construct this geometry
+     * data.
+     * @returns {Object} The geometry data.
+     */
+    getGeometry: function() {
+        return this._geometry;
+    },
+
+    /**
+     * Returns the appearance data for the GeoEntity so it can be rendered.
+     * The <code>build</code> method should be called to construct this appearance
+     * data.
+     * @returns {Object} The appearance data.
+     */
+    getAppearance: function() {
+        return this._appearance;
+    },
+
+//////
+// MODIFYING
+
+    /**
+     * Translates the GeoEntity by the given vector.
+     * @param {atlas.model.Vertex} translation - The vector to move the GeoEntity by.
+     * @param {Number} translation.x - The change in latitude in decimal degrees to apply.
+     * @param {Number} translation.y - The change in longitude in decimal degrees apply.
+     * @param {Number} translation.z - The change in elevation in metres to apply.
+     *
+     * @abstract
+     */
+    translate: function(translation) {},
+
+    /**
+     * Scales the GeoEntity by the given vector. This scaling can be uniform in all axis or non-uniform.
+     * A scaling factor of <code>1</code> has no effect. Factors lower or higher than <code>1</code>
+     * scale the GeoEntity down or up respectively. ie, <code>0.5</code> is half as big and
+     * <code>2</code> is twice as big.
+     * @param {atlas.model.Vertex} scale - The vector to scale the GeoEntity by.
+     * @param {Number} scale.x - The scale along the <code>x</code> axis of the GeoEntity.
+     * @param {Number} scale.y - The scale along the <code>y</code> axis of the GeoEntity.
+     * @param {Number} scale.z - The scale along the <code>z</code> axis of the GeoEntity.
+     *
+     * @abstract
+     */
+    scale: function(scale) {},
+
+    /**
+     * Rotates the GeoEntity by the given vector.
+     * @param {atlas.model.Vertex} rotation - The vector to rotate the GeoEntity by.
+     * @param {Number} rotation.x - The rotation about the <code>x</code> axis in degrees, negative
+     *      rotates clockwise, positive rotates counterclockwise.
+     * @param {Number} rotation.y - The rotation about the <code>y</code> axis in degrees, negative
+     *        rotates clockwise, positive rotates counterclockwise.
+     * @param {Number} rotation.z - The rotation about the <code>z</code> axis in degrees, negative
+     *      rotates clockwise, positive rotates counterclockwise.
+     *
+     * @abstract
+     */
+    rotate: function (rotation) {},
+
+    /**
+     * Function to build the GeoEntity so it can be rendered.
+     * @abstract
+     */
+    _build: function() {
+      throw new DeveloperError('Can not call abstract method of GeoEntity.');
+    },
+
+    /**
+     * Function to remove the GeoEntity from rendering. This function should
+     * be overridden on subclasses to accomplish any cleanup that
+     * may be required.
+     */
+    remove: function () {
+      this._eventManager.dispatchEvent(new Event(new EventTarget(),
+        'entity/remove', {
+          id: this.getId()
+        }));
+    },
+
+    /**
+     * Shows the GeoEntity in the current scene.
+     * @abstract
+     */
+    show: function () {
+      throw new DeveloperError('Can not call abstract method of GeoEntity');
+    },
+
+    /**
+     * Hides the GeoEntity from the current scene.
+     * @abstract
+     */
+    hide: function () {
+      throw new DeveloperError('Can not call abstract method of GeoEntity');
+    },
+
+    /**
+     * Toggles the visibility of the GeoEntity.
+     */
+    toggleVisibility: function () {
+      if (this.isVisible()) {
+        this.hide();
+      } else {
+        this.show();
+      }
+    },
+
+//////
+// BEHAVIOUR
+
+    /**
+     * Handles the GeoEntities behaviour when it is selected.
+     * @abstract
+     */
+    onSelect: function () {},
+
+    /**
+     * Handles the GeoEntities behaviour when it is deselected.
+     * @abstract
+     */
+    onDeselect: function () {},
+
+    /**
+     * Enables 'editing' of the GeoEntity using keyboard input.
+     */
+    onEnableEditing: function () {
+      console.debug('onEnableEditing called on', this._id);
+      this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keyup', function (args) {
+        if (args.modifiers.length === 0) {
+          switch (args.key) {
+            case 189: // minus
+              this.scale({x: 0.95, y: 0.95, z: 0.95});
+              break;
+            case 187: // plus
+              this.scale({x: 1.05, y: 1.05, z: 1.05});
+              break;
+            case 37: // left
+              this.rotate({x: 0, y: 0, z:5});
+              break;
+            case 39: // right
+              this.rotate({x: 0, y: 0, z:-5});
+              break;
+          }
+        }
+      }.bind(this));
+    },
+
+    /**
+     * Disables editing of the GeoEntity.
+     */
+    onDisableEditing: function () {
+      this._editEventHandler.cancel();
+    }
+  });
 });

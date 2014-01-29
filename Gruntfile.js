@@ -1,5 +1,3 @@
-// vim: tabstop:2,shiftwidth:2
-
 module.exports = function(grunt) {
   // Load grunt tasks automatically
   require('load-grunt-tasks')(grunt);
