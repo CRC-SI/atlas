@@ -30,7 +30,6 @@ define([
    * @class atlas.model.Feature
    * @extends atlas.model.GeoEntity
    */
-  //var Feature = function (id, args) {
   return GeoEntity.extend( /** @lends atlas.model.Feature# */ {
 
     /**

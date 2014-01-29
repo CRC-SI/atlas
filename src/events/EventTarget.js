@@ -32,7 +32,7 @@ define([
     _parent: null,
 
     /**
-     * Maps an EventListnerID to a tuple containing the Event type and
+     * Maps an EventListenerID to a tuple containing the Event type and
      * the event handler callback.
      * @type {Object}
      * @private
@@ -63,7 +63,7 @@ define([
      */
     initEventTarget: function (em, parent) {
       this._eventManager = em;
-      this.parent = typeof parent;
+      this.parent = parent;
     },
 
     /**
@@ -119,10 +119,8 @@ define([
      */
     handleEvent: function(event) {
       for (var id in this._eventHandlers) {
-        if (this._eventHandlers.hasOwnProperty(id)) {
-          if (this._eventHandlers[id].type === event.type) {
-            event = this._eventHandlers[id].callback(event) || event;
-          }
+        if (this._eventHandlers.hasOwnProperty(id) && this._eventHandlers[id].type === event.type) {
+          event = this._eventHandlers[id].callback(event) || event;
         }
       }
       return event;

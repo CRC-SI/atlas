@@ -202,6 +202,11 @@ define([
       return this._height;
     },
 
+    /**
+     * Sets the Style for the Polygon.
+     * @param {atlas.model.Style} style - The new style to use.
+     * @returns {atlas.model.Style} The old style, or null if it was not changed.
+     */
     setStyle: function(style) {
       if (!(style instanceof Style)) {
         throw new DeveloperError('Style must be a valid atlas Style object');
@@ -212,8 +217,10 @@ define([
           this._previousStyle = this._style;
           this._style = style;
           this.setRenderable(false);
+          return this._previousStyle;
         }
       }
+      return null;
     },
 
 //////
