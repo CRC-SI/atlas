@@ -21,9 +21,17 @@ define([
 
     /**
      * The type of artifact being projected onto.
+     * @type {String}
      * @constant
      */
     ARTIFACT: null,
+
+    /**
+     * The types of projections supported by the Projection.
+     * @type {Array.<String>}
+     * @constant
+     */
+    SUPPORTED_PROJECTIONS: {'continuous': true, 'discrete': true},
 
     /**
      * The type of the projection, currently only 'continuous' is supported.
@@ -56,6 +64,17 @@ define([
     _effects: null,
 
     /**
+     * An array of object describing the bins utilised in the Projection. The array of bin objects
+     * must be sorted in ascending order, so a bin's <code>firstValue</code> is not smaller than
+     * the previous' <code>lastValue</code>.
+     * @type {Array.<Object>}
+     * @property {Number} binId - The ID of a particular bin. Equivalent to the bin's index in the <code>_bins</code> array.
+     * @property {Number|String} firstValue - The first value accepted by this bin, or 'smallest' if there is no lower bound.
+     * @property {Number|String} lastValue - The last value accepted by this bin, or 'largest' if there is no upper bound.
+     */
+    _bins: null,
+
+    /**
      * Contains calculated statistical data for the set of
      * {@link atlas.visualisation.AbstractProjection#values|values} governing the projection.
      * @property {Number} min - The minimum value.
@@ -70,7 +89,7 @@ define([
      * Contains a map of Entity ID to parameters required for the projection.
      * @protected
      */
-    _params: null,
+    _attributes: null,
 
     /**
      * Contains options configuring the behaviour of the Projection.
@@ -80,26 +99,50 @@ define([
     _configuration: null,
 
     /**
+     * The number of bins to use by default for projections.
+     * @type {Number}
+     * @constant
+     */
+    DEFAULT_BINS: 1,
+
+    /**
+     * The default codomain to apply to the projection.
+     * @abstract
+     */
+    DEFAULT_CODOMAIN: null,
+
+    /**
      * Constructs a new AbstractProjection
      * @see {@link atlas.visualisation.AbstractProjection}
      * @ignore
      */
     _init: function (args) {
+      if (!args.values) {
+        throw new DeveloperError('Can not construct Projection without values');
+      }
+      if (!args.entities) {
+        throw new DeveloperError('Can not construct Projection without entities');
+      }
       args = mixin({
         type: 'continuous',
         values: {},
         entities: {},
-        configuration: {}
+        bins: 1,
+        codomain: {}
       }, args);
-      if (args.type !== 'continuous') {
+      if (!this.SUPPORTED_PROJECTIONS[args.type]) {
         throw new DeveloperError('Tried to instantiate Projection with unsupported type', args.type);
       }
       this._type = args.type;
       this._effects = {};
       this._entities = args.entities;
       this._values = args.values;
-      this._configuration = args.configuration;
-      this._params = this._calculateProjectionParameters();
+      this._configuration = {
+        bins: args.bins,
+        codomain: args.codomain
+      };
+      this._stats = this._calculateBinnedValuesStatistics();
+      this._attributes = this._calculateValueAttributes();
     },
 
     /**
@@ -116,6 +159,7 @@ define([
      * @param {atlas.model.GeoEntity} entity - The GeoEntity to render.
      * @param {Object} params - The parameters of the Projection for the given GeoEntity.
      * @protected
+     * @abstract
      */
     _render: function (entity, params) {
       throw new DeveloperError('Tried to call abstract method "_render" of AbstractProjection.');
@@ -135,6 +179,7 @@ define([
      * @param {atlas.model.GeoEntity} entity - The GeoEntity to unrender.
      * @param {Object} params - The parameters of the Projection for the given GeoEntity.
      * @protected
+     * @abstract
      */
     _unrender: function (entity, params) {
       throw new DeveloperError('Tried to call abstract method "_unrender" of AbstractProjection.');
@@ -151,7 +196,7 @@ define([
       // Process each entity for the win.
       ids.forEach(function (id) {
         var theEntity = this._entities[id];
-        var theParams = this._params[id];
+        var theParams = this._attributes[id];
         if (theEntity) {
           f.call(this, theEntity, theParams);
         }
@@ -178,9 +223,9 @@ define([
         this._values = args.addToExisting ? mixin(this._values, args.values) : args.values;
         // TODO(bpstudds): Allow for updating a subset of parameters.
         delete this._stats;
-        delete this._params;
+        delete this._attributes;
         // TODO(bpstudds): Allow for updating a subset of parameters.
-        this._params = this._calculateProjectionParameters();
+        this._attributes = this._calculateValueAttributes();
       }
     },
 
@@ -207,7 +252,96 @@ define([
     },
 
     /**
-     * Calculates the statistical properties for the set of parameter values of this Projection.
+     * Generates the configuration of the Projection's <code>bins</code>
+     * @returns {Array.<Object>}
+     * @protected
+     */
+    _configureBins: function () {
+      var bins = [];
+      if (typeof this._configuration.bins === 'number') {
+        var numBins = this._configuration.bins;
+        if (numBins === 1) {
+          bins = [{ binId: 0, firstValue: Number.NEGATIVE_INFINITY, lastValue: Number.POSITIVE_INFINITY }];
+        } else {
+          // Create bins by splitting up the range of input parameter values into equal divisions.
+          var populationStats = this._calculateValuesStatistics(),
+              start = populationStats.min.value,
+              step = populationStats.range / numBins;
+          for (var i = 0, firstValue = start; i < this._configuration.bins; i++, firstValue += step) {
+            bins.push({binId: i, firstValue: firstValue, lastValue: firstValue + step});
+          }
+          // Set the top bin to be unbounded to ensure the largest value is picked up.
+          bins[numBins - 1].lastValue = Number.POSITIVE_INFINITY;
+        }
+      } else if (this._configuration.bins instanceof Array) {
+        var previousLastValue = Number.NEGATIVE_INFINITY;
+        this._configuration.bins.forEach(function (bin, i) {
+          if (bin.firstValue === undefined || bin.firstValue === 'smallest') { bin.firstValue = Number.NEGATIVE_INFINITY; }
+          if (bin.lastValue === undefined || bin.lastValue === 'largest') { bin.lastValue = Number.POSITIVE_INFINITY; }
+          if (bin.firstValue < previousLastValue || bin.lastValue < bin.firstValue) {
+            throw new DeveloperError('Incorrect bins configuration provided', this._configuration.bins);
+          }
+          bins.push({binId: i, firstValue: bin.firstValue, lastValue: bin.lastValue});
+          previousLastValue = bin.lastValue;
+        }, this);
+      }
+      return bins;
+    },
+
+    /**
+     * Calculates the statistical properties for all parameter values, segregating each value into
+     * a bin as per the {@link atlas.visualisation.AbstractProjection#_bins|bins} configuration.
+     * @returns {Array.<Object>}
+     * @protected
+     */
+    _calculateBinnedValuesStatistics: function () {
+      this._bins = this._configureBins();
+      var theStats = [],
+          sortedValues = [];
+      // Sort all of the projections parameter values.
+      Object.keys(this._values).forEach(function(id) {
+        sortedValues.push({id: id, value: this._values[id]});
+      }, this);
+      sortedValues.sort(function(a, b) {
+        return a.value - b.value;
+      });
+      // Declare for value loop counter outside _bins.forEach as each bin should process values
+      // where the previous one left off.
+      var i = 0;
+      this._bins.forEach(function (bin) {
+        var binStats = {
+          entityIds: [],
+          count: 0,
+          sum: 0,
+          // This primes the min/max search below. If no values fit into the bin, min/max will be incorrect.
+          min: {id: null, value: bin.lastValue},
+          max: {id: null, value: bin.firstValue}
+        };
+        for (i; i < sortedValues.length; i++) {
+          var thisId = sortedValues[i].id,
+              thisValue = sortedValues[i].value;
+          // Check value is still within the current bin.
+          if (thisValue < bin.firstValue) { continue; }
+          if (thisValue >= bin.lastValue) { i--; break; }
+          binStats.entityIds.push(thisId);
+          // Calculate statistical properties.
+          binStats.count++;
+          binStats.sum += parseInt(thisValue, 10) || 0;
+          if (thisValue < binStats.min.value) { binStats.min = { 'id': thisId, 'value': thisValue };}
+          if (thisValue > binStats.max.value) { binStats.max = { 'id': thisId, 'value': thisValue };}
+        }
+        // Calculate more stats
+        binStats.average = binStats.count !== 0 ? binStats.sum / binStats.count : Number.POSITIVE_INFINITY;
+        binStats.range = binStats.max.value - binStats.min.value;
+        // TODO(bpstudds): Is this the most efficient way of doing this?
+        theStats.push(mixin(binStats, bin));
+      }, this);
+      return theStats;
+    },
+
+    /**
+     * Calculates the statistical properties for the full set of parameter values of
+     * the Projection, without separating the values into bins.
      * The statistical properties calculated depend on the
      * {@link atlas.visualisation.AbstractProjection#type|type} of the projection.
      * @returns {Object}
@@ -238,26 +372,30 @@ define([
      * Calculates the projection parameters for each Entity's value in the Projection. The exact
      * parameters calculated depend on the {@link atlas.visualisation.AbstractProjection#type|type}
      * of the projection.
-     * @returns {Object}
+     * @returns {Object} The calculated parameters.
      * @protected
      */
-    _calculateProjectionParameters: function () {
-      // TODO(bpstudds): Add the ability to specify which IDs to update see HeightProjection#render.
+    _calculateValueAttributes: function () {
       // Update the value statistics if necessary.
-      this._stats = this._stats ? this._stats : this._calculateValuesStatistics();
-      var params = {};
-      var ids = Object.keys(this._values);
-      ids.forEach(function (id) {
-        var thisValue = this._values[id];
-        var param = {};
-        param.diffFromAverage = thisValue - this._stats.average;
-        param.ratioBetweenMinMax = this._stats.range === 0 ? Number.POSITIVE_INFINITY : (thisValue - this._stats.min.value) / (this._stats.range);
-        param.ratioFromAverage = (thisValue - this._stats.average);
-        param.ratioFromAverage /= (param.ratioFromAverage < 0 ?
-            (this._stats.average - this._stats.min.value) : (this._stats.max.value - this._stats.average));
-        params[id] = param;
+      this._stats = this._stats ? this._stats : this._calculateBinnedValuesStatistics();
+      var theAttributes = {};
+      // Iterate through each bin...
+      this._stats.forEach( function (bin) {
+        // and each entity which has a value in the bin.
+        bin.entityIds.forEach(function (id) {
+          // TODO(bpstudds): Should be using binId and this._stats
+          var thisValue = this._values[id],
+              thisAttribute = {};
+          thisAttribute.absRatio = bin.range !== 0 ?
+              (thisValue - bin.min.value) / (bin.range) : Number.POSITIVE_INFINITY;
+          thisAttribute.diffFromAverage = thisValue - bin.average;
+          thisAttribute.ratioFromAverage = (thisValue - bin.average);
+          thisAttribute.ratioFromAverage /= (thisAttribute.ratioFromAverage < 0 ?
+              (bin.average - bin.min.value) : (bin.max.value - bin.average));
+          theAttributes[id] = thisAttribute;
+        }, this);
       }, this);
-      return params;
+      return theAttributes;
     },
 
     /**
@@ -272,8 +410,8 @@ define([
       var ids = null;
       var allIds = Object.keys(this._entities);
       // If argument id was provided...
-      if (id && !id.length) { ids = [id]; }
-      if (id && id.length > 0) { ids = id; }
+      if (id && typeof id === 'string') { ids = [id]; }
+      if (id && id instanceof Array) { ids = id; }
       // ... use the entities it specifies instead of all the entities.
       if (!ids) { ids = allIds; }
       return ids;

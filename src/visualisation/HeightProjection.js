@@ -19,7 +19,7 @@ define([
      * _values
      * _effects
      * _stats
-     * _params
+     * _attributes
      * _configuration
      */
 
@@ -32,7 +32,7 @@ define([
     _render: function (entity, params) {
       // Hard code the co-domain to vary from 50 to 100 depending on the ratio of the value between min/max
       // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
-      var newHeight = params.ratioBetweenMinMax * 50 + 50,
+      var newHeight = params.absRatio * 50 + 50,
           oldHeight = entity.setHeight(newHeight);
       entity.showAsExtrusion();
       this._effects[entity._id] = { 'oldValue': oldHeight, 'newValue': newHeight };
