@@ -36,9 +36,17 @@ define([
      */
     _id: null,
 
+    /*
+     * ID of the parent GeoEntity of the GeoEntity. Defined in EventTarget.
+     * @name _parent
+     * @type {String}
+     * @protected
+     */
+
     /**
-     * References to the child GeoEntities of the GeoEntity.
+     * IDs of the child GeoEntities of the GeoEntity.
      * @type {Array.<String>}
+     * @protected
      */
     _children: null,
 

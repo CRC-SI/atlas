@@ -42,6 +42,6 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('buildDep', ['shell:installBowerDep', 'copy:bowerDep']);
+  grunt.registerTask('install', ['shell:installBowerDep', 'copy:bowerDep']);
   grunt.registerTask('doc', ['shell:jsDoc']);
 };

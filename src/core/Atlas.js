@@ -51,7 +51,7 @@ define([
    * do the initial render into that element (implementation defined).
    * @param {string} domId - The ID of the DOM element to attach to.
    */
-  Atlas.prototype.initialise = function (domId) {
+  Atlas.prototype.setup = function (domId) {
     this._managers.dom.setDom(domId);
     this._managers.dom.populateDom(domId);
   };
