@@ -83,6 +83,7 @@ define([
     _visible: false,
 
     _init: function (id, args) {
+      this._super(id, args);
       this._visible = defaultValue(args.show, false);
       this._displayMode = args.footprint ? defaultValue(args.displayMode, 'extrusion') : '';
       this._displayMode = args.mesh ? defaultValue(args.displayMode, 'mesh') : this._displayMode;
@@ -284,7 +285,7 @@ define([
      * Shows the Feature depending on its current <code>_displayMode</code>.
      */
     show: function() {
-      console.debug('trying to show feature', this._id, 'as', this._displayMode);
+      console.debug('trying to show feature', this.getId(), 'as', this._displayMode);
       // TODO(aramk) delegate this to the setHeight setElevation.
       if (this._displayMode === 'footprint') {
         this._mesh && this._mesh.hide();

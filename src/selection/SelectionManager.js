@@ -88,7 +88,7 @@ define([
       if (!keepSelection) {
         this.clearSelection();
       }
-      this._selection[entity._id] = entity;
+      this._selection[entity.getId()] = entity;
       entity.onSelect();
       this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(), 'entity/select', {
         entity: entity
@@ -114,7 +114,7 @@ define([
       }
       entities.forEach(function(entity) {
         entity.onSelect();
-        this._selection[entity._id] = entity;
+        this._selection[entity.getId()] = entity;
       }.bind(this));
       this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(), 'entity/select/multiple',
         {
@@ -152,7 +152,7 @@ define([
         //if (entity.id in this._selection) {
           entity.onDeselect();
           deselected.push(entity);
-          delete this._selection[entity._id];
+          delete this._selection[entity.getId()];
         //}
       }.bind(this));
       this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(),

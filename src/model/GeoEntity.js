@@ -33,6 +33,7 @@ define([
     /**
      * The ID of the GeoEntity
      * @type {String}
+     * @protected
      */
     _id: null,
 
@@ -110,7 +111,7 @@ define([
       if (id === undefined || typeof id === 'object') {
         throw new DeveloperError('Can not create instance of GeoEntity without an ID');
       }
-      this._id = id;
+      this._id = id.toString();
       this._renderManager = args.renderManager;
       this._eventManager = args.eventManager;
     },
@@ -296,7 +297,7 @@ define([
      * Enables 'editing' of the GeoEntity using keyboard input.
      */
     onEnableEditing: function () {
-      console.debug('onEnableEditing called on', this._id);
+      console.debug('onEnableEditing called on', this.getId());
       this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keyup', function (args) {
         if (args.modifiers.length === 0) {
           switch (args.key) {
