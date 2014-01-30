@@ -206,7 +206,7 @@ define([
       if (allHandlers.hasOwnProperty(i)) {
         for (var j = 0; j < allHandlers[i].length; j++) {
           if (allHandlers[i][j].id === id) {
-            delete allHandlers[i][j];
+            allHandlers[i].splice(j, 1);
             return;
           }
         }

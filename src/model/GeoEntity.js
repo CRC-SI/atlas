@@ -297,7 +297,6 @@ define([
      * Enables 'editing' of the GeoEntity using keyboard input.
      */
     onEnableEditing: function () {
-      console.debug('onEnableEditing called on', this.getId());
       this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keyup', function (args) {
         if (args.modifiers.length === 0) {
           switch (args.key) {
@@ -316,6 +315,7 @@ define([
           }
         }
       }.bind(this));
+      console.debug('onEnableEditing called on', this.getId(), 'with event id', this._editEventHandler.id);
     },
 
     /**
