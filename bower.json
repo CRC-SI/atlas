@@ -16,6 +16,7 @@
   ],
   "dependencies": {
     "Requirejs": "requirejs#2.1.x",
-    "Openlayers": "http://openlayers.org/api/2.13.1/OpenLayers.js"
+    "Openlayers": "http://openlayers.org/api/2.13.1/OpenLayers.js",
+    "tinycolor": "~0.9.16"
   }
 }

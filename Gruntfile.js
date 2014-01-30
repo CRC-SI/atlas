@@ -37,6 +37,7 @@ module.exports = function(grunt) {
        files: [
          {src: './lib/Requirejs/require.js', dest: './lib/require.js'},
          {src: './lib/Openlayers/index.js', dest: './lib/open-layers.js'}
+         {src: './lib/tinycolor/tinycolor.js', dest: './lib/tinycolor.js'}
        ]
      }
     }
