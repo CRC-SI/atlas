@@ -1,5 +1,5 @@
 define([
-  'atlas/model/mixin',
+  'atlas/util/mixin',
   'atlas/model/Feature',
   // Code under test
   'atlas/visualisation/HeightProjection'
@@ -56,7 +56,8 @@ define([
         });
       }); // End 'with default codomain and bin'.
 
-      describe('with', function () {
+      // TODO(bpstudds): Implement tests for customisable codomain.
+      xdescribe('with', function () {
         var args = {values: someValues, entities: someEntities};
 
         it('a fixed codomain', function () {
