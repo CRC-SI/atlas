@@ -37,6 +37,8 @@ define([
       this._parent = parent || document;
       this._position = position;
       this._html = html;
+      // Construct element
+      this._element = this._render();
     },
 
     /**
@@ -50,13 +52,13 @@ define([
       element.innerHTML = this._html;
 
       // Set the Overlay's position.
-      element.style.top = this._position.top + 'px';
-      element.style.left = this._position.left + 'px';
-      element.style.height = this._position.height + 'px';
-      element.style.width = this._position.width + 'px';
+      this._position.top && (element.style.top = this._position.top + 'px');
+      this._position.left && (element.style.left = this._position.left + 'px');
+      this._position.height && (element.style.height = this._position.height + 'px');
+      this._position.width && (element.style.width = this._position.width + 'px');
 
       this._parent.appendChild(element);
-      this._element = element;
+      //this._element = element;
       return element;
     },
 
@@ -68,6 +70,11 @@ define([
     show: function () {
       if (this._element === undefined) { return; }
       this._element.classList.remove('hidden');
+    },
+
+    remove: function () {
+      if (this._element === undefined) { return; }
+      this._parent.removeChild(this._element);
     }
   }), // End class instance definition
 

@@ -18,7 +18,6 @@ define([
     beforeEach(function () {
       parent = document.createElement('div');
       overlay = new Overlay(parent, position, html);
-      element = overlay._render();
     });
 
     afterEach(function () {
@@ -34,8 +33,8 @@ define([
     });
 
     it('can create an element containing plain text from html', function () {
-      expect(element.innerHTML).toEqual(html);
-      expect(element.classList.contains('hidden')).toBe(false);
+      expect(overlay._element.innerHTML).toEqual(html);
+      expect(overlay._element.classList.contains('hidden')).toBe(false);
     });
 
     it('is attached to the parent node', function () {
@@ -59,6 +58,13 @@ define([
       overlay.hide();
       overlay.show();
       expect(parent.children[0].classList.contains('hidden')).toBe(false);
+    });
+
+    it('can be removed', function() {
+      console.debug(parent.children);
+      overlay.remove();
+      console.debug(parent.children);
+      expect(parent.children.length).toBe(0);
     });
   }); // End 'An Overlay'.
 });
