@@ -128,7 +128,7 @@ define([
         values: {},
         entities: {},
         bins: 1,
-        codomain: {}
+        codomain: this.DEFAULT_CODOMAIN
       }, args);
       if (!this.SUPPORTED_PROJECTIONS[args.type]) {
         throw new DeveloperError('Tried to instantiate Projection with unsupported type', args.type);
@@ -141,7 +141,9 @@ define([
         bins: args.bins,
         codomain: args.codomain
       };
-      this._stats = this._calculateBinnedValuesStatistics();
+      // Calculate statistical properties for the binned values.
+      this._stats = this._calculateBinnedStatistics();
+      // TODO(bpstudds): Do we need to caclulate this for a discrete projection?
       this._attributes = this._calculateValueAttributes();
     },
 
@@ -157,11 +159,11 @@ define([
     /**
      * Renders the effects of the Projection on a single GeoEntity.
      * @param {atlas.model.GeoEntity} entity - The GeoEntity to render.
-     * @param {Object} params - The parameters of the Projection for the given GeoEntity.
+     * @param {Object} attributes - The attributes of the parameter value for the given GeoEntity.
      * @protected
      * @abstract
      */
-    _render: function (entity, params) {
+    _render: function (entity, attributes) {
       throw new DeveloperError('Tried to call abstract method "_render" of AbstractProjection.');
     },
 
@@ -177,11 +179,11 @@ define([
     /**
      * Renders the effects of the Projection on a single GeoEntity.
      * @param {atlas.model.GeoEntity} entity - The GeoEntity to unrender.
-     * @param {Object} params - The parameters of the Projection for the given GeoEntity.
+     * @param {Object} attributes - The attributes of the parameter value for the given GeoEntity.
      * @protected
      * @abstract
      */
-    _unrender: function (entity, params) {
+    _unrender: function (entity, attributes) {
       throw new DeveloperError('Tried to call abstract method "_unrender" of AbstractProjection.');
     },
 
@@ -196,9 +198,9 @@ define([
       // Process each entity for the win.
       ids.forEach(function (id) {
         var theEntity = this._entities[id];
-        var theParams = this._attributes[id];
+        var theAttributes = this._attributes[id];
         if (theEntity) {
-          f.call(this, theEntity, theParams);
+          f.call(this, theEntity, theAttributes);
         }
       }, this);
     },
@@ -261,27 +263,28 @@ define([
       if (typeof this._configuration.bins === 'number') {
         var numBins = this._configuration.bins;
         if (numBins === 1) {
-          bins = [{ binId: 0, firstValue: Number.NEGATIVE_INFINITY, lastValue: Number.POSITIVE_INFINITY }];
+          bins = [{ binId: 0, numBins: numBins, firstValue: Number.NEGATIVE_INFINITY, lastValue: Number.POSITIVE_INFINITY }];
         } else {
           // Create bins by splitting up the range of input parameter values into equal divisions.
-          var populationStats = this._calculateValuesStatistics(),
+          var populationStats = this._calculatePopulationStatistics(),
               start = populationStats.min.value,
               step = populationStats.range / numBins;
-          for (var i = 0, firstValue = start; i < this._configuration.bins; i++, firstValue += step) {
-            bins.push({binId: i, firstValue: firstValue, lastValue: firstValue + step});
+          for (var i = 0, firstValue = start; i < numBins; i++, firstValue += step) {
+            bins.push({binId: i, numBins: numBins, firstValue: firstValue, lastValue: firstValue + step});
           }
           // Set the top bin to be unbounded to ensure the largest value is picked up.
           bins[numBins - 1].lastValue = Number.POSITIVE_INFINITY;
         }
       } else if (this._configuration.bins instanceof Array) {
-        var previousLastValue = Number.NEGATIVE_INFINITY;
+        var previousLastValue = Number.NEGATIVE_INFINITY,
+            numBins = this._configuration.bins.length;
         this._configuration.bins.forEach(function (bin, i) {
           if (bin.firstValue === undefined || bin.firstValue === 'smallest') { bin.firstValue = Number.NEGATIVE_INFINITY; }
           if (bin.lastValue === undefined || bin.lastValue === 'largest') { bin.lastValue = Number.POSITIVE_INFINITY; }
           if (bin.firstValue < previousLastValue || bin.lastValue < bin.firstValue) {
             throw new DeveloperError('Incorrect bins configuration provided', this._configuration.bins);
           }
-          bins.push({binId: i, firstValue: bin.firstValue, lastValue: bin.lastValue});
+          bins.push({binId: i, numBins: numBins, firstValue: bin.firstValue, lastValue: bin.lastValue});
           previousLastValue = bin.lastValue;
         }, this);
       }
@@ -294,7 +297,7 @@ define([
      * @returns {Array.<Object>}
      * @protected
      */
-    _calculateBinnedValuesStatistics: function () {
+    _calculateBinnedStatistics: function () {
       this._bins = this._configureBins();
       var theStats = [],
           sortedValues = [];
@@ -347,7 +350,7 @@ define([
      * @returns {Object}
      * @protected
      */
-    _calculateValuesStatistics: function () {
+    _calculatePopulationStatistics: function () {
       // TODO(bpstudds): Add the ability to specify which IDs to update see HeightProjection#render.
       var ids = Object.keys(this._values);
       var stats = {'sum': 0};
@@ -377,15 +380,15 @@ define([
      */
     _calculateValueAttributes: function () {
       // Update the value statistics if necessary.
-      this._stats = this._stats ? this._stats : this._calculateBinnedValuesStatistics();
+      this._stats = this._stats ? this._stats : this._calculateBinnedStatistics();
       var theAttributes = {};
       // Iterate through each bin...
       this._stats.forEach( function (bin) {
         // and each entity which has a value in the bin.
         bin.entityIds.forEach(function (id) {
-          // TODO(bpstudds): Should be using binId and this._stats
           var thisValue = this._values[id],
               thisAttribute = {};
+          thisAttribute.binId = bin.binId;
           thisAttribute.absRatio = bin.range !== 0 ?
               (thisValue - bin.min.value) / (bin.range) : Number.POSITIVE_INFINITY;
           thisAttribute.diffFromAverage = thisValue - bin.average;
@@ -410,7 +413,7 @@ define([
       var ids = null;
       var allIds = Object.keys(this._entities);
       // If argument id was provided...
-      if (id && typeof id === 'string') { ids = [id]; }
+      if (id && (typeof id).match(/(string|number)/)) { ids = [id]; }
       if (id && id instanceof Array) { ids = id; }
       // ... use the entities it specifies instead of all the entities.
       if (!ids) { ids = allIds; }

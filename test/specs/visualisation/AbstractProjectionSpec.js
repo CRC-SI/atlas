@@ -25,16 +25,16 @@ define([
         someValues = {0: 0, 1: 1, 2: 2};
         someMoreValues = {3: 3, 4: 4, 5: 5};
         everyValue = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5};
-        someStats = [{binId: 0, min: {id: '0', value: 0}, max: {id: '2', value: 2}, sum: 3, average: 1, count: 3, range: 2, entityIds: ['0', '1', '2'], firstValue: Number.NEGATIVE_INFINITY, lastValue: Number.POSITIVE_INFINITY}];
+        someStats = [{binId: 0, numBins: 1, min: {id: '0', value: 0}, max: {id: '2', value: 2}, sum: 3, average: 1, count: 3, range: 2, entityIds: ['0', '1', '2'], firstValue: Number.NEGATIVE_INFINITY, lastValue: Number.POSITIVE_INFINITY}];
         someEntities = {
           0: new Feature(0, {id: 0}),
           1: new Feature(1, {id: 1}),
           2: new Feature(2, {id: 1})
         };
         someAttributes = {
-          0: {absRatio: 0, diffFromAverage: -1, ratioFromAverage: -1},
-          1: {absRatio: 0.5, diffFromAverage: 0, ratioFromAverage: 0},
-          2: {absRatio: 1, diffFromAverage: 1, ratioFromAverage: 1}
+          0: {binId: 0, absRatio: 0, diffFromAverage: -1, ratioFromAverage: -1},
+          1: {binId: 0, absRatio: 0.5, diffFromAverage: 0, ratioFromAverage: 0},
+          2: {binId: 0, absRatio: 1, diffFromAverage: 1, ratioFromAverage: 1}
         };
         manyValues = { 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 };
         manyEntities = {
@@ -50,45 +50,45 @@ define([
           9: new Feature(9, {id: 9})
         };
         manyStats = [
-          {binId: 0, min: {id: '0', value: 0}, max: {id: '9', value: 9}, count: 10, average: 5, sum: 10, range: 45}
+          {binId: 0, numBins: 1, min: {id: '0', value: 0}, max: {id: '9', value: 9}, count: 10, average: 5, sum: 10, range: 45}
         ];
         manyStats2bins = [
-          {binId: 0, min: {id: '0', value: 0}, max: {id: '4', value: 4}, count: 5, average: 2, sum: 10, range: 4},
-          {binId: 1, min: {id: '5', value: 5}, max: {id: '9', value: 9}, count: 5, average: 7, sum: 35, range: 4}
+          {binId: 0, numBins: 2, in: {id: '0', value: 0}, max: {id: '4', value: 4}, count: 5, average: 2, sum: 10, range: 4},
+          {binId: 1, numBins: 2, in: {id: '5', value: 5}, max: {id: '9', value: 9}, count: 5, average: 7, sum: 35, range: 4}
         ];
         manyStats2binsSpecifiedRange = [
-          {binId: 0, min: {id: '1', value: 1}, max: {id: '3', value: 3}, count: 3, average: 2, sum: 6, range: 2, entityIds: ['1', '2', '3'], firstValue: 1, lastValue: 4},
-          {binId: 1, min: {id: '6', value: 6}, max: {id: '8', value: 8}, count: 3, average: 7, sum: 21, range: 2, entityIds: ['6', '7', '8'], firstValue: 6, lastValue: 9}
+          {binId: 0, numBins: 2, min: {id: '1', value: 1}, max: {id: '3', value: 3}, count: 3, average: 2, sum: 6, range: 2, entityIds: ['1', '2', '3'], firstValue: 1, lastValue: 4},
+          {binId: 1, numBins: 2, min: {id: '6', value: 6}, max: {id: '8', value: 8}, count: 3, average: 7, sum: 21, range: 2, entityIds: ['6', '7', '8'], firstValue: 6, lastValue: 9}
         ];
         bins1 = [
-          { binId: 0, firstValue: Number.NEGATIVE_INFINITY, lastValue: Number.POSITIVE_INFINITY }
+          { binId: 0, numBins: 1, firstValue: Number.NEGATIVE_INFINITY, lastValue: Number.POSITIVE_INFINITY }
         ];
         bins2openBelow= [
-          { binId: 0, firstValue: Number.NEGATIVE_INFINITY, lastValue: 5 },
-          { binId: 1, firstValue: 5, lastValue: 9 }
+          { binId: 0, numBins: 2, firstValue: Number.NEGATIVE_INFINITY, lastValue: 5 },
+          { binId: 1, numBins: 2, firstValue: 5, lastValue: 9 }
         ];
         bins2openAbove = [
-          { binId: 0, firstValue: 0, lastValue: 5 },
-          { binId: 1, firstValue: 5, lastValue: Number.POSITIVE_INFINITY }
+          { binId: 0, numBins: 2, firstValue: 0, lastValue: 5 },
+          { binId: 1, numBins: 2, firstValue: 5, lastValue: Number.POSITIVE_INFINITY }
         ];
         bins2auto = [
-          { binId: 0, firstValue: 0, lastValue: 4.5 },
-          { binId: 1, firstValue: 4.5, lastValue: Number.POSITIVE_INFINITY }
+          { binId: 0, numBins: 2, firstValue: 0, lastValue: 4.5 },
+          { binId: 1, numBins: 2, firstValue: 4.5, lastValue: Number.POSITIVE_INFINITY }
         ];
         bins2specifiedRange = [
-          { binId: 0, firstValue: 1, lastValue: 4 },
-          { binId: 1, firstValue: 6, lastValue: 9 }
+          { binId: 0, numBins: 2, firstValue: 1, lastValue: 4 },
+          { binId: 1, numBins: 2, firstValue: 6, lastValue: 9 }
         ];
         manyAttributes2binsSpecifiedRange = {
           //0: excluded
-          1: {absRatio: 0, diffFromAverage: -1, ratioFromAverage: -1},
-          2: {absRatio: 0.5, diffFromAverage: 0, ratioFromAverage: 0},
-          3: {absRatio: 1, diffFromAverage: 1, ratioFromAverage: 1},
+          1: {binId: 0, absRatio: 0, diffFromAverage: -1, ratioFromAverage: -1},
+          2: {binId: 0, absRatio: 0.5, diffFromAverage: 0, ratioFromAverage: 0},
+          3: {binId: 0, absRatio: 1, diffFromAverage: 1, ratioFromAverage: 1},
           //4: excluded
           //5: excluded
-          6: {absRatio: 0, diffFromAverage: -1, ratioFromAverage: -1},
-          7: {absRatio: 0.5, diffFromAverage: 0, ratioFromAverage: 0},
-          8: {absRatio: 1, diffFromAverage: 1, ratioFromAverage: 1}
+          6: {binId: 1, absRatio: 0, diffFromAverage: -1, ratioFromAverage: -1},
+          7: {binId: 1, absRatio: 0.5, diffFromAverage: 0, ratioFromAverage: 0},
+          8: {binId: 1, absRatio: 1, diffFromAverage: 1, ratioFromAverage: 1}
           //9: excluded
         };
       });
