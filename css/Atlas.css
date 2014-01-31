@@ -1,0 +1,10 @@
+.atlas {
+  position: relative;
+}
+
+.overlay {
+  position: absolute;
+  background-color: #d3d3d3;
+  top: 0;
+  left: 0;
+}
