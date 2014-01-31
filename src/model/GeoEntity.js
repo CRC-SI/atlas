@@ -297,13 +297,15 @@ define([
      * Enables 'editing' of the GeoEntity using keyboard input.
      */
     onEnableEditing: function () {
-      this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keyup', function (args) {
+      // TODO(bpstudds): Move this functionality to an EditManager module.
+      this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keypress', function (args) {
         if (args.modifiers.length === 0) {
+          // TODO(bpstudds): Replace 'magic numbers' with constants. Probably should update keycode.js library for this.
           switch (args.key) {
-            case 189: // minus
+            case 45: // underscore/minus beside backspace key
               this.scale({x: 0.95, y: 0.95, z: 0.95});
               break;
-            case 187: // plus
+            case 61: // equals/plus beside backspace key
               this.scale({x: 1.05, y: 1.05, z: 1.05});
               break;
             case 37: // left
