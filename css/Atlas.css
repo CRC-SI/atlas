@@ -1,0 +1,17 @@
+.atlas {
+  position: relative;
+}
+
+.overlay {
+  position: absolute;
+  background-color: #d3d3d3;
+  top: 0;
+  left: 0;
+  padding: 3px;
+  vertical-align: middle;
+}
+
+
+.overlay.hidden {
+  display: none;
+}
