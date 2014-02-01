@@ -5,19 +5,21 @@ define([
 
   describe('An Overlay', function () {
     var parent,
-        position = {
+        dimensions = {
           top: 100,
           left: 200,
           height: 300,
           width: 400
         },
-        html = '<p>Wootage!</p>',
+        content = '<p>Wootage!</p>',
+        args,
         overlay,
         element;
 
     beforeEach(function () {
       parent = document.createElement('div');
-      overlay = new Overlay(parent, position, html);
+      args = {parent: parent, dimensions: dimensions, content: content};
+      overlay = new Overlay(args);
     });
 
     afterEach(function () {
@@ -28,21 +30,21 @@ define([
 
     it('can be constructed', function () {
       expect(overlay._parent).toBe(parent);
-      expect(overlay._position).toBe(position);
-      expect(overlay._html).toBe(html);
+      expect(overlay._dimensions).toBe(dimensions);
+      expect(overlay._content).toBe(content);
     });
 
-    it('can create an element containing plain text from html', function () {
-      expect(overlay._element.innerHTML).toEqual(html);
+    it('can create an element containing plain text from content', function () {
+      expect(overlay._element.innerHTML).toEqual(content);
       expect(overlay._element.classList.contains('hidden')).toBe(false);
     });
 
     it('is attached to the parent node', function () {
       expect(parent.children.length).toBe(1);
-      expect(parent.children[0].innerHTML).toEqual(html);
+      expect(parent.children[0].innerHTML).toEqual(content);
     });
 
-    it('is positioned', function () {
+    it('is dimensionsed', function () {
       expect(parent.children[0].style.top).toEqual('100px');
       expect(parent.children[0].style.left).toEqual('200px');
       expect(parent.children[0].style.height).toEqual('300px');
