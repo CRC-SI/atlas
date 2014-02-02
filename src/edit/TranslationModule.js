@@ -52,16 +52,19 @@ define([
     if (!target) {
       return;
     }
-    this._lastScreenCoords = {x: args.position.x, y: args.position.y};
-
+    var selected = this._atlasManagers.selection.getSelection();
+    // Set the target entities
+    this._entities = {};
+    this._entities[target.id] = target;
+    Object.keys(selected).forEach(function (id) {
+      this._entities[id] = selected[id];
+    }, this);
+    // Lock up camera
     this._atlasManagers.camera.lockCamera();
-    var id = target.getId();
+    // Initialise the tranlsation.
+    this._lastScreenCoords = {x: args.position.x, y: args.position.y};
     var cartLocation = this._cartographicLocation(args.position);
     this._originalLocation = this._lastLocation = cartLocation;
-    this._entities = {};
-    this._entities[id] = target;
-    console.debug(this._entities);
-    // TODO(bpstudds) Handle multiple selections.
   };
 
   /**
@@ -72,7 +75,6 @@ define([
     if (!this._entities) { return; }
 
     var screenDiff = new Vertex(args.position.x, args.position.y).subtract(this._lastScreenCoords).absolute();
-    console.debug('mouse movement', screenDiff);
     if (screenDiff.x < this._MOVE_SENSITIVITY && screenDiff.y < this._MOVE_SENSITIVITY) {
       return;
     }
@@ -120,6 +122,7 @@ define([
 
     for (var id in this._entities) {
       if (this._entities.hasOwnProperty(id)) {
+        console.debug('translating', this._entities[id]);
         this._entities[id].translate(diff);
       }
     }
