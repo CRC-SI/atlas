@@ -48,7 +48,7 @@ define([
      * The entity which the event occurred on.
      * @type {@link atlas.model.GeoEntity}
      */
-    var target = this._atlasManagers.entity.getAt(args)[0];
+    var target = this._atlasManagers.entity.getAt(args.position)[0];
     if (!target) {
       return;
     }
