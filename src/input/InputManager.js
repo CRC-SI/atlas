@@ -67,14 +67,14 @@ define([
           var args = {
             name: 'input/' + name,
             button: buttonIds[e.button],
-            modifiers: [],
+            modifiers: {},
             position: { x: e.clientX + xCorrection, y: e.clientY + yCorrection },
             movement: { cx: e.movementX, cy: e.movementY }
           };
-          e.shiftKey && args.modifiers.push('shift');
-          e.metaKey && args.modifiers.push('meta');
-          e.altKey && args.modifiers.push('alt');
-          e.ctrlKey && args.modifiers.push('ctrl');
+          e.shiftKey && (args.modifiers.shift = true);
+          e.metaKey && (args.modifiers.meta = true);
+          e.altKey && (args.modifiers.alt = true);
+          e.ctrlKey && (args.modifiers.ctrl = true);
           return args;
         }
       }(this._element);
@@ -120,13 +120,12 @@ define([
           var args = {
             'name': thisEvent,
             'key': translatedKey.code,
-            'modifiers': []
+            'modifiers': {}
           };
-          e.shiftKey && args.modifiers.push('shift');
-          e.metaKey && args.modifiers.push('meta');
-          e.altKey && args.modifiers.push('alt');
-          e.ctrlKey && args.modifiers.push('ctrl');
-          console.debug('event', args.name, 'occured');
+          e.shiftKey && (args.modifiers.shift = true);
+          e.metaKey && (args.modifiers.meta = true);
+          e.altKey && (args.modifiers.alt = true);
+          e.ctrlKey && (args.modifiers.ctrl = true);
           this.handleInternalEvent(args.name, args);
         }.bind(this._atlasManagers.event), false);
       }, this);
