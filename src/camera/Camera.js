@@ -86,10 +86,8 @@ define([
       throw new DeveloperError('Camera.zoom not yet implemented.');
       var zoom = {x: 1, y: 1};
       var moveY = input.movement.cY;
-      //console.debug('scalefactor', moveY);
       moveY /= 300;
       zoom.z = 1 - moveY;
-      //console.debug('zooming camera', zoom);
       var newCamera = {
         position: this._position.componentWiseMultiply(zoom),
         orientation: this._orientation,
