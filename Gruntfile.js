@@ -1,5 +1,3 @@
-// vim: tabstop:2,shiftwidth:2
-
 module.exports = function(grunt) {
   // Load grunt tasks automatically
   require('load-grunt-tasks')(grunt);
@@ -38,7 +36,8 @@ module.exports = function(grunt) {
      bowerDep: {
        files: [
          {src: './lib/Requirejs/require.js', dest: './lib/require.js'},
-         {src: './lib/Openlayers/index.js', dest: './lib/open-layers.js'}
+         {src: './lib/Openlayers/index.js', dest: './lib/open-layers.js'},
+         {src: './lib/Keycode/keycode.js', dest: './lib/keycode.js'}
        ]
      }
     }

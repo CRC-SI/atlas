@@ -55,7 +55,7 @@ define([
     this._lastScreenCoords = {x: args.x, y: args.y};
 
     this._atlasManagers.camera.lockCamera();
-    var id = target._id;
+    var id = target.getId();
     var cartLocation = this._cartographicLocation(args);
     this._originalLocation = this._lastLocation = cartLocation;
     this._entities = {};
