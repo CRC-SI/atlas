@@ -54,22 +54,30 @@ define([
     createHtmlMouseBindings:  function () {
       // Buttons to add event handlers for.
       var buttonIds = ['left', 'middle', 'right'];
+      var xCorrection = 0, yCorrection = 0;
 
       // DRY constructing the event handler arguments.
-      var makeArgs = function (name, e) {
-        var args = {
-          name: 'input/' + name,
-          button: buttonIds[e.button],
-          modifiers: [],
-          position: { x: e.screenX, y: e.screenY },
-          movement: { cx: e.movementX, cy: e.movementY }
-        };
-        e.shiftKey && args.modifiers.push('shift');
-        e.metaKey && args.modifiers.push('meta');
-        e.altKey && args.modifiers.push('alt');
-        e.ctrlKey && args.modifiers.push('ctrl');
-        return args;
-      };
+      var makeArgs = function (element) {
+        if (element !== document) {
+          var rect = element.getBoundingClientRect();
+          xCorrection -= rect.left;
+          yCorrection -= rect.top;
+        }
+        return function (name, e) {
+          var args = {
+            name: 'input/' + name,
+            button: buttonIds[e.button],
+            modifiers: [],
+            position: { x: e.clientX + xCorrection, y: e.clientY + yCorrection },
+            movement: { cx: e.movementX, cy: e.movementY }
+          };
+          e.shiftKey && args.modifiers.push('shift');
+          e.metaKey && args.modifiers.push('meta');
+          e.altKey && args.modifiers.push('alt');
+          e.ctrlKey && args.modifiers.push('ctrl');
+          return args;
+        }
+      }(this._element);
 
       // Construct HTML DOM mouse event listeners.
       this._mouseHandlers = [];
@@ -78,7 +86,6 @@ define([
           name: 'mouse' + press,
           cback: function (e) {
             var args = makeArgs(buttonIds[e.button] + press, e);
-            console.debug('event', args.name, 'occured');
             this.handleInternalEvent(args.name, args);
           }.bind(this._atlasManagers.event)
         });
