@@ -55,69 +55,48 @@ define([
       // Buttons to add event handlers for.
       var buttonIds = ['left', 'middle', 'right'];
 
-      var makeArgs = function (e) {
-        var args =
-      }
+      // DRY constructing the event handler arguments.
+      var makeArgs = function (name, e) {
+        var args = {
+          name: 'input/' + name,
+          button: buttonIds[e.button],
+          modifiers: [],
+          position: { x: e.screenX, y: e.screenY },
+          movement: { cx: e.movementX, cy: e.movementY }
+        };
+        e.shiftKey && args.modifiers.push('shift');
+        e.metaKey && args.modifiers.push('meta');
+        e.altKey && args.modifiers.push('alt');
+        e.ctrlKey && args.modifiers.push('ctrl');
+        return args;
+      };
+
+      // Construct HTML DOM mouse event listeners.
+      this._mouseHandlers = [];
+      ['down', 'up'].forEach(function (press) {
+        this._mouseHandlers.push({
+          name: 'mouse' + press,
+          cback: function (e) {
+            var args = makeArgs(buttonIds[e.button] + press, e);
+            console.debug('event', args.name, 'occured');
+            this.handleInternalEvent(args.name, args);
+          }.bind(this._atlasManagers.event)
+        });
+      }, this);
 
       // TODO(bpstudds): DRY this code up.
-      this._mouseHandlers = [];
-      this._mouseHandlers.push({
-        name: 'mousedown',
-        cback: function (e) {
-          var args = {
-            name: 'input/' + buttonIds[e.button] + 'down',
-            button: buttonIds[e.button],
-            modifiers: [],
-            position: { x: e.screenX, y: e.screenY },
-            movement: { cx: e.movementX, cy: e.movementY }
-          };
-          e.shiftKey && args.modifiers.push('shift');
-          e.metaKey && args.modifiers.push('meta');
-          e.altKey && args.modifiers.push('alt');
-          e.ctrlKey && args.modifiers.push('ctrl');
-          this.handleInternalEvent(args.name, args);
-        }.bind(this._atlasManagers.event)
-      });
-
-      this._mouseHandlers.push({
-        name: 'mouseup',
-        cback: function (e) {
-          var args = {
-            name: 'input/' + buttonIds[e.button] + 'up',
-            button: buttonIds[e.button],
-            modifiers: [],
-            pos: { x: e.screenX, y: e.screenY },
-            diff: { cx: e.movementX, cy: e.movementY }
-          };
-          e.shiftKey && args.modifiers.push('shift');
-          e.metaKey && args.modifiers.push('meta');
-          e.altKey && args.modifiers.push('alt');
-          e.ctrlKey && args.modifiers.push('ctrl');
-          this.handleInternalEvent(args.name, args);
-        }.bind(this._atlasManagers.event)
-      });
-
       this._mouseHandlers.push({
         name: 'mousemove',
         cback: function (e) {
-          var args = {
-            name: 'input/mousemove',
-            button: buttonIds[e.button],
-            modifiers: [],
-            pos: { x: e.screenX, y: e.screenY },
-            diff: { cx: e.movementX, cy: e.movementY }
-          };
-          e.shiftKey && args.modifiers.push('shift');
-          e.metaKey && args.modifiers.push('meta');
-          e.altKey && args.modifiers.push('alt');
-          e.ctrlKey && args.modifiers.push('ctrl');
+          var args = makeArgs('mousemove', e);
           this.handleInternalEvent(args.name, args);
         }.bind(this._atlasManagers.event)
       });
 
+      // Add the event listeners to the current DOM element.
       this._mouseHandlers.forEach(function(handler) {
-        this._element.addEventListener(handler.name, handler.cback);
-      });
+        this.addEventListener(handler.name, handler.cback);
+      }, this._element);
     },
 
     /**
@@ -140,6 +119,7 @@ define([
           e.metaKey && args.modifiers.push('meta');
           e.altKey && args.modifiers.push('alt');
           e.ctrlKey && args.modifiers.push('ctrl');
+          console.debug('event', args.name, 'occured');
           this.handleInternalEvent(args.name, args);
         }.bind(this._atlasManagers.event), false);
       }, this);
