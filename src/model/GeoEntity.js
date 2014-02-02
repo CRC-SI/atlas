@@ -298,11 +298,13 @@ define([
      */
     onEnableEditing: function () {
       // TODO(bpstudds): Move this functionality to an EditManager module.
-      this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keypress', function (args) {
-        if (args.modifiers.length === 0) {
-          // TODO(bpstudds): Replace 'magic numbers' with constants. Probably should update keycode.js library for this.
+      this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keydown', function (args) {
+        // TODO(bpstudds): Replace 'magic numbers' with constants. Probably should update keycode.js library for this.
+        if (!args.modifiers.shiftKey && !args.modifiers.metaKey &&
+            !args.modifiers.altKey && !args.modifiers.ctrlKey) {
+          console.debug('edit event', args.key);
           switch (args.key) {
-            case 45: // underscore/minus beside backspace key
+            case 95: // underscore/minus beside backspace key
               this.scale({x: 0.95, y: 0.95, z: 0.95});
               break;
             case 61: // equals/plus beside backspace key
@@ -317,7 +319,7 @@ define([
           }
         }
       }.bind(this));
-      console.debug('onEnableEditing called on', this.getId(), 'with event id', this._editEventHandler.id);
+      console.debug('onEnableEditing called on', this.getId());
     },
 
     /**

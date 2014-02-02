@@ -11,7 +11,7 @@ define([
    * @constructor
    */
   var Vertex = function (x, y, z) {
-    if (x.length) {
+    if (x instanceof Array) {
       this.x = x[0];
       this.y = x[1];
       this.z = x[2];
