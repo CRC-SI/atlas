@@ -115,7 +115,7 @@ define([
       var domEventNames = ['keydown', 'keypress', 'keyup'];
       domEventNames.forEach(function (name) {
         var thisEvent = 'input/' + name;
-        this._element.addEventListener(name, function (e) {
+        document.addEventListener(name, function (e) {
           var translatedKey = Keycode.translate_event(e);
           var args = {
             'name': thisEvent,
