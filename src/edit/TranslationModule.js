@@ -50,7 +50,7 @@ define([
      */
     var target = this._atlasManagers.entity.getAt(args.position);
     // getAt returns an array at that point. Pick the first (topmost) Entity.
-    if (!(target instanceof Array) && target.length <= 0 ) { return; }
+    if (!(target instanceof Array) || target.length <= 0 ) { return; }
     target = target[0];
 
     var selected = this._atlasManagers.selection.getSelection();
