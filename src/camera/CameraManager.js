@@ -45,7 +45,7 @@ define([
   CameraManager.prototype.setup = function () {
     this._bindEvents();
     // TODO(bpstudds): Properly override (Cesium) camera controls.
-    false && this._options.forceCustomControl && this._bindControlEvents();
+    //this._options.forceCustomControl && this._bindControlEvents();
   };
 
   // Binds event handlers with the Event Manager

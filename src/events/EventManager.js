@@ -232,7 +232,7 @@ define([
     }
     // Retrieve the list of event handlers for the given event type.
     var handlers = allHandlers[name];
-    if (handlers && handlers.length) {
+    if (handlers) {
       handlers.forEach(function (handler) {
         handler.callback(args);
       })

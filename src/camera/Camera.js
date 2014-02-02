@@ -24,7 +24,6 @@ define([
    * @class atlas.camera.Camera
    * @abstract
    */
-  //var Camera = function (position, orientation) {
   return Class.extend( /** @lends atlas.camera.Camera# */ {
 
     /*
@@ -43,9 +42,9 @@ define([
       this._position = defaultValue(position, new Vertex(-37, 144, 20000));
       this._orientation = defaultValue(orientation, new Vertex(0, 0, 0));
       this.inputHandlers = {
-        'left': this.pan.bind(this),
-        'right': this.zoom.bind(this),
-        'middle': this.track.bind(this)
+        left: this.pan.bind(this),
+        right: this.zoom.bind(this),
+        middle: this.track.bind(this)
       }
     },
 
@@ -73,21 +72,20 @@ define([
 //////
 // GENERAL MOVEMENT
 
-    pan: function (movement) {
-      return;
-      console.debug('panning', movement);
+    pan: function (input) {
+      throw new DeveloperError('Camera.pan not yet implemented.');
       var newCamera = {
-        position: this._position.add(movement.pos),
+        position: this._position.add(input.position),
         orientation: this._orientation,
         duration: 0
       };
       this._animateCamera(newCamera);
     },
 
-    zoom: function (movement) {
-      return;
+    zoom: function (input) {
+      throw new DeveloperError('Camera.zoom not yet implemented.');
       var zoom = {x: 1, y: 1};
-      var moveY = movement.diff.cY;
+      var moveY = input.movement.cY;
       //console.debug('scalefactor', moveY);
       moveY /= 300;
       zoom.z = 1 - moveY;
@@ -101,11 +99,11 @@ define([
     },
 
     roll: function (movement) {
-
+      throw new DeveloperError('Camera.roll not yet implemented.');
     },
 
     tilt: function (movement) {
-
+      throw new DeveloperError('Camera.tilt not yet implemented.');
     },
 
     track: function (movement) {

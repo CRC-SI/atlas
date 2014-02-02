@@ -2,21 +2,16 @@ define([
   'atlas/util/Class',
   'atlas/util/mixin',
   'atlas/lib/keycode'
-], function (
-  Class,
-  mixin,
-  Keycode) {
+], function (Class, mixin, Keycode) {
 
   /**
    * @classdesc The InputManager is used to link user input events to the
    * Atlas  event system.
    * @author Brendan Studds
-   *
    * @param {Object} atlasManagers - The map of all atlas manager objects.
-   *
    * @class atlas.input.InputManager
    */
-  var InputManager = mixin(Class.extend({
+  var InputManager = mixin(Class.extend(/** @lends atlas.input.InputManager# */ {
 
     /**
      * The current DOM element the InputManager is bound to.
@@ -44,8 +39,6 @@ define([
     setup: function (elem) {
       // TODO(bpstudds): Pretty sure InputManager should respond to an 'dom/set' event, rather than be imperative.
       this._element = typeof elem === 'string' ? document.getElementById(elem) : elem;
-      //this.createHtmlMouseBindings();
-      //this.createHtmlKeyboardBindings();
     },
 
     /**
@@ -53,8 +46,9 @@ define([
      */
     createHtmlMouseBindings:  function () {
       // Buttons to add event handlers for.
-      var buttonIds = ['left', 'middle', 'right'];
-      var xCorrection = 0, yCorrection = 0;
+      var buttonIds = ['left', 'middle', 'right'],
+          xCorrection = 0,
+          yCorrection = 0;
 
       // DRY constructing the event handler arguments.
       var makeArgs = function (element) {

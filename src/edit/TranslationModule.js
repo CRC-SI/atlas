@@ -48,10 +48,11 @@ define([
      * The entity which the event occurred on.
      * @type {@link atlas.model.GeoEntity}
      */
-    var target = this._atlasManagers.entity.getAt(args.position)[0];
-    if (!target) {
-      return;
-    }
+    var target = this._atlasManagers.entity.getAt(args.position);
+    // getAt returns an array at that point. Pick the first (topmost) Entity.
+    if (!(target instanceof Array) && target.length <= 0 ) { return; }
+    target = target[0];
+
     var selected = this._atlasManagers.selection.getSelection();
     // Set the target entities
     this._entities = {};
@@ -61,10 +62,9 @@ define([
     }, this);
     // Lock up camera
     this._atlasManagers.camera.lockCamera();
-    // Initialise the tranlsation.
+    // Initialise the translation.
     this._lastScreenCoords = {x: args.position.x, y: args.position.y};
-    var cartLocation = this._cartographicLocation(args.position);
-    this._originalLocation = this._lastLocation = cartLocation;
+    this._originalLocation = this._lastLocation = this._cartographicLocation(args.position);;
   };
 
   /**
@@ -121,10 +121,8 @@ define([
     var diff = newVertex.subtract(oldVertex);
 
     for (var id in this._entities) {
-      if (this._entities.hasOwnProperty(id)) {
-        console.debug('translating', this._entities[id]);
-        this._entities[id].translate(diff);
-      }
+      console.debug('translating', this._entities[id]);
+      this._entities[id].translate(diff);
     }
   };
 
