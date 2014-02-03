@@ -101,7 +101,12 @@ define([
     this._atlasManagers.event.addEventHandlers(handlers);
   };
 
-
+  CameraManager.prototype.getCameraMetrics = function () {
+    return {
+      position: this._current._position,
+      orientation: this._current._orientation
+    };
+  };
 
   CameraManager.prototype._updateControl = function (event) {
     var pos = event.pos
