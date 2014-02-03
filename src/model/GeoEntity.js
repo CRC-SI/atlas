@@ -1,9 +1,14 @@
 define([
   'atlas/util/DeveloperError',
   'atlas/events/Event',
+  'atlas/model/Style',
   // Base class
   'atlas/events/EventTarget'
-], function (DeveloperError, Event, EventTarget) {
+], function (
+  DeveloperError,
+  Event,
+  Style,
+  EventTarget) {
 
   /**
    * @classdesc A GeoEntity is an abstract class that represents an entity that
@@ -100,6 +105,13 @@ define([
      */
     _appearance: null,
 
+    /**
+     * The style of the GeoEntity when rendered.
+     * @type {atlas.model.Style}
+     * @protected
+     */
+    _style: null,
+
     _init: function (id, args) {
       // Call the superclass' (EventTarget) constructor.
       this._super(args.eventManager, args.parent);
@@ -150,6 +162,17 @@ define([
     },
 
     /**
+     * Sets the Style of the GeoEntity.
+     * @param {atlas.model.Style} style - The new style.
+     * @returns {atlas.model.Style} The old style.}
+     */
+    setStyle: function (style) {
+      var oldStyle = this._style;
+      this._style = style;
+      return style;
+    },
+
+    /**
      * @returns {Boolean} Whether the GeoEntity is currently renderable.
      */
     isRenderable: function () {
@@ -191,6 +214,23 @@ define([
 
 //////
 // MODIFYING
+
+    /**
+     * Modifies specific components of the Feature's style.
+     * @param {Object} args - The new values for the Style components.
+     * @param {atlas.model.Colour} [args.fillColour] - The new fill colour.
+     * @param {atlas.model.Colour} [args.borderColour] - The new border colour.
+     * @param {Number} [args.borderWidth] - The new border width colour.
+     */
+    modifyStyle: function (args) {
+      if (!this._style) { this._style = Style.DEFAULT(); }
+      var oldStyle = this._style;
+      // Change values
+      args.fillColour && (oldStyle.fillColour = this._style.setFill(args.fillColour));
+      args.borderColour && (oldStyle.borderColour = this._style.setBorderColour(args.borderColour));
+      args.borderWidth && (oldStyle.borderWidth = this._style.setBorderWidth(args.borderWidth));
+      return oldStyle;
+    },
 
     /**
      * Translates the GeoEntity by the given vector.
