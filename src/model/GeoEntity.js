@@ -162,14 +162,24 @@ define([
     },
 
     /**
-     * Sets the Style of the GeoEntity.
-     * @param {atlas.model.Style} style - The new style.
-     * @returns {atlas.model.Style} The old style.}
+     * Sets the Style for the GeoEntity.
+     * @param {atlas.model.Style} style - The new style to use.
+     * @returns {atlas.model.Style} The old style, or null if it was not changed.
      */
-    setStyle: function (style) {
-      var oldStyle = this._style;
-      this._style = style;
-      return style;
+    setStyle: function(style) {
+      if (!(style instanceof Style)) {
+        throw new DeveloperError('Style must be a valid atlas Style object');
+      } else {
+        if (this._style !== style) {
+          console.debug('setting style of entity', this.getId(), 'to', style);
+          // Only change style if the new style is different so _previousStyle isn't clobbered.
+          this._previousStyle = this._style;
+          this._style = style;
+          this.setRenderable(false);
+          return this._previousStyle;
+        }
+      }
+      return null;
     },
 
     /**
