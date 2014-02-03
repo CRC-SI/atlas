@@ -10,7 +10,7 @@ define([
   'atlas/lib/open-layers',
   'atlas/model/Vertex'
 ], function (OpenLayers, Vertex) {
-  OpenLayers = typeof OpenLayers !== 'string' ? OpenLayers : window.OpenLayers;
+  OpenLayers = !OpenLayers || typeof OpenLayers === 'string' ? window.OpenLayers : OpenLayers;
   var _instance = null;
 
   /**
