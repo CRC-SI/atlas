@@ -1,9 +1,11 @@
-// Colour.js
 define([
-], function() {
+  'atlas/util/AtMath',
+  'atlas/util/Class',
+  'atlas/util/FreezeObject',
+], function(AtMath, Class, freeze) {
 
   /**
-   * Constructs a colour specified by red, green, blue and alpha
+   * @classdesc Constructs a colour specified by red, green, blue and alpha
    * intensity values. The intensities can vary from <code>0.0</code>
    * (minimum intensity) to <code>1.0</code> (maximum intensity).
    *
@@ -12,21 +14,24 @@ define([
    * @param {Number} [b=0.0] Blue component
    * @param {Number} [a=0.0] Alpha component
    *
-   * @alias atlas.model.Colour
-   * @constructor
+   * @class atlas.model.Colour
    */
-  var Colour = function (r, g, b, a) {
-    this.red    = Colour._limit(0.0, 1.0, r);
-    this.green  = Colour._limit(0.0, 1.0, g);
-    this.blue   = Colour._limit(0.0, 1.0, b);
-    this.alpha  = Colour._limit(0.0, 1.0, a);
-  };
+  var Colour = Class.extend( /** @lends atlas.model.Colour# */ {
+    red: null,
+    green: null,
+    blue: null,
+    alpha: null,
 
-  Colour._limit = function(lo, hi, x) {
-    if (x < lo) return lo;
-    if (x > hi) return hi;
-    return x;
-  };
+    _init: function(r, g, b, a) {
+      this.red    = AtMath.limit(0.0, 1.0, r);
+      this.green  = AtMath.limit(0.0, 1.0, g);
+      this.blue   = AtMath.limit(0.0, 1.0, b);
+      this.alpha  = AtMath.limit(0.0, 1.0, a);
+    }
+  });
+
+//////
+// STATICS
 
   /**
    * Function that creates a new Colour instance from the given RGBA values.
@@ -34,7 +39,7 @@ define([
    * @param {Number} green - The green value, where 0 is minimum intensity and 255 is maximum intensity.
    * @param {Number} blue - The blue value, where 0 is minimum intensity and 255 is maximum intensity.
    * @param {Number} alpha - The alpha value, where 0 is minimum intensity and 255 is maximum intensity.
-   * @returns {Colour}
+   * @returns {atlas.model.Colour}
    */
   Colour.fromRGBA = function(red, green, blue, alpha) {
     if (red.length) {
@@ -44,13 +49,12 @@ define([
     }
   };
 
-  // Specify some colour constants.
-  Colour.WHITE = new Colour(1, 1, 1, 1);
-  Colour.BLACK = new Colour(0, 0, 0, 1);
-  Colour.RED = new Colour(1, 0, 0, 1);
-  Colour.GREEN = new Colour(0, 1, 0, 1);
-  Colour.BLUE = new Colour(0, 0, 1, 1);
-
+  // These constants are frozen. Any attempt to alter them may silently fail.
+  Colour.WHITE = freeze(new Colour(1, 1, 1, 1));
+  Colour.BLACK = freeze(new Colour(0, 0, 0, 1));
+  Colour.RED = freeze(new Colour(1, 0, 0, 1));
+  Colour.GREEN = freeze(new Colour(0, 1, 0, 1));
+  Colour.BLUE = freeze(new Colour(0, 0, 1, 1));
 
   return Colour;
 });
