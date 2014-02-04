@@ -212,7 +212,7 @@ define([
         throw new DeveloperError('Style must be a valid atlas Style object');
       } else {
         if (this._style !== style) {
-          console.debug('setting style of entity', this._id, 'to', style);
+          console.debug('setting style of entity', this.getId(), 'to', style);
           // Only change style if the new style is different so _previousStyle isn't clobbered.
           this._previousStyle = this._style;
           this._style = style;
@@ -326,7 +326,7 @@ define([
      * @param {Number} scale.y - The scale along the <code>longitude</code> axis.
      */
     scale: function(scale) {
-      console.debug('scaling polygon', this._id, 'with scale', scale);
+      console.debug('scaling polygon', this.getId(), 'with scale', scale);
       var centroid = this.getCentroid();
       this._vertices.forEach(function (vertex, i) {
         var diff = vertex.subtract(centroid);

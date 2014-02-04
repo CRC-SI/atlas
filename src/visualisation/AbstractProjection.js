@@ -413,7 +413,7 @@ define([
       var ids = null;
       var allIds = Object.keys(this._entities);
       // If argument id was provided...
-      if (id && typeof id !== 'object') { ids = [id]; }
+      if (id && (typeof id).match(/(string|number)/)) { ids = [id]; }
       if (id && id instanceof Array) { ids = id; }
       // ... use the entities it specifies instead of all the entities.
       if (!ids) { ids = allIds; }

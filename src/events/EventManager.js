@@ -206,7 +206,7 @@ define([
       if (allHandlers.hasOwnProperty(i)) {
         for (var j = 0; j < allHandlers[i].length; j++) {
           if (allHandlers[i][j].id === id) {
-            delete allHandlers[i][j];
+            allHandlers[i].splice(j, 1);
             return;
           }
         }
@@ -232,10 +232,10 @@ define([
     }
     // Retrieve the list of event handlers for the given event type.
     var handlers = allHandlers[name];
-    if (handlers && handlers.length) {
-      for (var i = 0; i < handlers.length; i++) {
-        handlers[i].callback(args);
-      }
+    if (handlers) {
+      handlers.forEach(function (handler) {
+        handler.callback(args);
+      })
     }
   };
 

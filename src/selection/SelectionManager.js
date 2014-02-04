@@ -45,15 +45,15 @@ define([
     var handlers = [
       {
         source: 'intern',
-        name: 'input/leftclick',
+        name: 'input/leftdown',
         callback: function(args) {
           if (args) {
             if (!args.modifiers) args.modifiers = {};
             // var worldPosition = this._atlasManagers.render.convertScreenCoordsToLatLng(args);
             // var picked = this._atlasManagers.entity.getAt(worldPosition);
-            var pickedPrimitive = this._atlasManagers.render._widget.scene.pick(args);
-            if (pickedPrimitive) {
-              this.selectEntity(pickedPrimitive.id, 'shift' in args.modifiers);
+            var pickedPrimitives = this._atlasManagers.entity.getAt(args.position);
+            if (pickedPrimitives.length > 0) {
+              this.selectEntity(pickedPrimitives[0], 'shift' in args.modifiers);
             } else {
               this.clearSelection();
             }
@@ -75,7 +75,7 @@ define([
 
   /**
    * Causes an Entity to become selected.
-   * @param {String} id - The ID of the GeoEntity to select.
+   * @param {String|GeoEntity} id - The ID of the GeoEntity to select.
    * @param {Boolean} [keepSelection=false] - If true, the GeoEntity will be added to the current
    *      selection. If false, the current selection will be cleared before
    *      the GeoEntity is selected.
@@ -83,12 +83,13 @@ define([
   SelectionManager.prototype.selectEntity = function(id, keepSelection) {
     // Do nothing if entity is already selected.
     if (id in this._selection) { return; }
-    var entity = this._atlasManagers.entity.getById(id);
+    var entity = typeof id === 'string' ?
+        this._atlasManagers.entity.getById(id) : id;
     if (entity) {
       if (!keepSelection) {
         this.clearSelection();
       }
-      this._selection[entity._id] = entity;
+      this._selection[entity.getId()] = entity;
       entity.onSelect();
       this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(), 'entity/select', {
         entity: entity
@@ -114,7 +115,7 @@ define([
       }
       entities.forEach(function(entity) {
         entity.onSelect();
-        this._selection[entity._id] = entity;
+        this._selection[entity.getId()] = entity;
       }.bind(this));
       this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(), 'entity/select/multiple',
         {
@@ -152,7 +153,7 @@ define([
         //if (entity.id in this._selection) {
           entity.onDeselect();
           deselected.push(entity);
-          delete this._selection[entity._id];
+          delete this._selection[entity.getId()];
         //}
       }.bind(this));
       this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(),

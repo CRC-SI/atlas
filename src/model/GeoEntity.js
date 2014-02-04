@@ -33,6 +33,7 @@ define([
     /**
      * The ID of the GeoEntity
      * @type {String}
+     * @protected
      */
     _id: null,
 
@@ -110,7 +111,7 @@ define([
       if (id === undefined || typeof id === 'object') {
         throw new DeveloperError('Can not create instance of GeoEntity without an ID');
       }
-      this._id = id;
+      this._id = id.toString();
       this._renderManager = args.renderManager;
       this._eventManager = args.eventManager;
     },
@@ -296,14 +297,17 @@ define([
      * Enables 'editing' of the GeoEntity using keyboard input.
      */
     onEnableEditing: function () {
-      console.debug('onEnableEditing called on', this._id);
-      this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keyup', function (args) {
-        if (args.modifiers.length === 0) {
+      // TODO(bpstudds): Move this functionality to an EditManager module.
+      this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keydown', function (args) {
+        // TODO(bpstudds): Replace 'magic numbers' with constants. Probably should update keycode.js library for this.
+        if (!args.modifiers.shiftKey && !args.modifiers.metaKey &&
+            !args.modifiers.altKey && !args.modifiers.ctrlKey) {
+          console.debug('edit event', args.key);
           switch (args.key) {
-            case 189: // minus
+            case 95: // underscore/minus beside backspace key
               this.scale({x: 0.95, y: 0.95, z: 0.95});
               break;
-            case 187: // plus
+            case 61: // equals/plus beside backspace key
               this.scale({x: 1.05, y: 1.05, z: 1.05});
               break;
             case 37: // left
@@ -315,6 +319,7 @@ define([
           }
         }
       }.bind(this));
+      console.debug('onEnableEditing called on', this.getId());
     },
 
     /**
