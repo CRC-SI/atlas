@@ -1,6 +1,7 @@
 // Colour.js
 define([
-], function() {
+  'atlas/lib/tinycolor'
+], function(tinycolor) {
 
   /**
    * Constructs a colour specified by red, green, blue and alpha
@@ -50,6 +51,22 @@ define([
   Colour.RED = new Colour(1, 0, 0, 1);
   Colour.GREEN = new Colour(0, 1, 0, 1);
   Colour.BLUE = new Colour(0, 0, 1, 1);
+
+
+  /// NEW CODE THAT WILL CONFLICT WITH ANOTHER PULL-REQUEST
+  Colour.prototype.toString = function () {
+    return 'rgba (' + [this.red, this.green, this.blue, this.alpha].join(', ') + ')';
+  };
+
+  Colour.prototype.toHsv = function () {
+    var tiny = tinycolor(this.toString());
+    return tiny.toHsv();
+  };
+
+  Colour.fromHsv = function (hsv) {
+    var tiny = tinycolor(hsv).toRgb();
+    return new Colour(tiny.r, tiny.g, tiny.b, 1);
+  };
 
 
   return Colour;
