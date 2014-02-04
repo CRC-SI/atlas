@@ -23,10 +23,10 @@ define([
     alpha: null,
 
     _init: function(r, g, b, a) {
-      this.red    = AtMath.limit(0.0, 1.0, r);
-      this.green  = AtMath.limit(0.0, 1.0, g);
-      this.blue   = AtMath.limit(0.0, 1.0, b);
-      this.alpha  = AtMath.limit(0.0, 1.0, a);
+      this.red    = AtMath.limit(r);
+      this.green  = AtMath.limit(g);
+      this.blue   = AtMath.limit(b);
+      this.alpha  = AtMath.limit(a);
     }
   });
 
@@ -51,6 +51,7 @@ define([
 
   // These constants are frozen. Any attempt to alter them may silently fail.
   Colour.WHITE = freeze(new Colour(1, 1, 1, 1));
+  Colour.GREY = freeze(new Colour(0.7, 0.7, 0.7, 1));
   Colour.BLACK = freeze(new Colour(0, 0, 0, 1));
   Colour.RED = freeze(new Colour(1, 0, 0, 1));
   Colour.GREEN = freeze(new Colour(0, 1, 0, 1));

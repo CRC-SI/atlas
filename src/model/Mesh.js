@@ -142,11 +142,7 @@ define([
 
       if (meshData.color) {
         // TODO(bpstudds): Work out the textures.
-        this._style = new Style(
-          Colour.fromRGBA(meshData.color),
-          Colour.fromRGBA(meshData.color),
-          1
-        );
+        this._style = new Style({fillColour: Colour.fromRGBA(meshData.color)});
       }
     },
 
@@ -238,13 +234,13 @@ define([
        * The default style of a Mesh.
        * @type {atlas.model.Colour}
        */
-      DEFAULT_STYLE: new Style(Colour.GREY, Colour.GREY, 1),
+      DEFAULT_STYLE: new Style({fillColour: Colour.GREY}),
 
       /**
        * The default selected style of a Mesh.
        * @type {atlas.model.Colour}
        */
-      SELECTED_STYLE: new Style(Colour.RED, Colour.RED, 1)
+      SELECTED_STYLE: new Style({fillColour: Colour.RED})
     }
   ); // End class mixin
 

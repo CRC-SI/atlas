@@ -366,13 +366,13 @@ define([
    * Defines the default style to use when rendering a polygon.
    * @type {atlas.model.Colour}
    */
-  Polygon.DEFAULT_STYLE = new Style(Colour.GREEN, Colour.GREEN, 1);
+  Polygon.DEFAULT_STYLE = new Style({fillColour: Colour.GREEN});
 
   /**
    * Defines the default style to use when rendering a selected polygon.
    * @type {atlas.model.Colour}
    */
-  Polygon.SELECTED_STYLE = new Style(Colour.RED, Colour.RED, 1);
+  Polygon.SELECTED_STYLE = new Style({fillColour: Colour.RED});
 
   return Polygon;
 });

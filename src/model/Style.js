@@ -45,12 +45,11 @@ define([
     _init: function(args) {
       args = mixin({
         fillColour: Colour.GREEN,
-        borderColour: Colour.GREEN,
         borderWidth: 1
-      });
+      }, args);
       this._fillColour = args.fillColour;
-      this._borderColour = args.fillColour;
-      this._borderWidth = args.fillColour;
+      this._borderColour = args.borderColour || args.fillColour;
+      this._borderWidth = args.borderWidth;
     },
 
     /**
@@ -118,7 +117,7 @@ define([
 //////
 // STATICS
   Style.DEFAULT = function () {
-    return new Style(Colour.GREEN, Colour.GREEN, 1);
+    return new Style({fillColour: Colour.GREEN, borderColour: Colour.GREEN, borderWidth: 1});
   };
 
   return Style;
