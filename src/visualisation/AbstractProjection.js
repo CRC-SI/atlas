@@ -389,6 +389,7 @@ define([
           var thisValue = this._values[id],
               thisAttribute = {};
           thisAttribute.binId = bin.binId;
+          thisAttribute.numBins = bin.numBins;
           thisAttribute.absRatio = bin.range !== 0 ?
               (thisValue - bin.min.value) / (bin.range) : Number.POSITIVE_INFINITY;
           thisAttribute.diffFromAverage = thisValue - bin.average;
