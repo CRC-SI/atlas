@@ -15,13 +15,13 @@ define([
 
   describe('A ColourProjection', function () {
     beforeEach(function () {
-     someEntities = {
-          0: new Feature(0, {}),
-          1: new Feature(1, {}),
-          2: new Feature(2, {}),
-          3: new Feature(3, {}),
-          4: new Feature(4, {})
-        };
+      someEntities = {
+        0: new Feature(0, {}),
+        1: new Feature(1, {}),
+        2: new Feature(2, {}),
+        3: new Feature(3, {}),
+        4: new Feature(4, {})
+      };
       for (var id in Object.keys(someEntities)) {
         // setHeight() normally returns the previously set height. In these tests we only
         // care about set and reset the height once, so the fixed return is okay.
@@ -37,21 +37,55 @@ define([
 
     describe('can be constructed', function () {
 
-      it('for a discrete projection with a single codomain', function () {
-        var codomain = {regressBy: 'hue', startProj: Colour.BLUE, endProj: Colour.RED};
-        args = mixin({type: 'discrete', bins: 3, codomain: codomain}, args);
-        colourProj = new ColourProjection(args);
-        // Check that GeoEntities were binned correctly.
-        // There are three bins and the values are in [0, 4].
-        // Hence the three bins are 0: [0, 4/3), 1: [4/3, 8/3), and 2: [8/3, 4]
-        expect(colourProj._attributes[0].binId).toEqual(parseInt(0,10));
-        expect(colourProj._attributes[1].binId).toEqual(parseInt(0,10));
-        expect(colourProj._attributes[2].binId).toEqual(parseInt(1,10));
-        expect(colourProj._attributes[3].binId).toEqual(parseInt(2,10));
-        expect(colourProj._attributes[4].binId).toEqual(parseInt(2,10));
-        expect(colourProj._stats[0].entityIds).toEqual(['0', '1']);
-        expect(colourProj._stats[1].entityIds).toEqual(['2']);
-        expect(colourProj._stats[2].entityIds).toEqual(['3', '4']);
+      describe('for a discrete projection', function () {
+        it('with a fixed codomain', function () {
+          var codomain = {fixedProj: Colour.RED};
+          args = mixin({type: 'discrete', bins: 3, codomain: codomain}, args);
+          colourProj = new ColourProjection(args);
+          colourProj.render();
+          expect(colourProj._entities[0].modifyStyle).toHaveBeenCalledWith({fill: Colour.RED});
+          expect(colourProj._entities[2].modifyStyle).toHaveBeenCalledWith({fill: Colour.RED});
+          expect(colourProj._entities[4].modifyStyle).toHaveBeenCalledWith({fill: Colour.RED});
+        });
+
+        it('with a single codomain', function () {
+          var codomain = {regressBy: 'hue', startProj: Colour.BLUE, endProj: Colour.RED};
+          args = mixin({type: 'discrete', bins: 3, codomain: codomain}, args);
+          colourProj = new ColourProjection(args);
+          colourProj.render();
+          // Check that GeoEntities were binned correctly.
+          // There are three bins and the values are in [0, 4].
+          // Hence the three bins are 0: [0, 4/3), 1: [4/3, 8/3), and 2: [8/3, 4]
+          expect(colourProj._attributes[0].binId).toEqual(0);
+          expect(colourProj._attributes[1].binId).toEqual(0);
+          expect(colourProj._attributes[2].binId).toEqual(1);
+          expect(colourProj._attributes[3].binId).toEqual(2);
+          expect(colourProj._attributes[4].binId).toEqual(2);
+          expect(colourProj._stats[0].entityIds).toEqual(['0', '1']);
+          expect(colourProj._stats[1].entityIds).toEqual(['2']);
+          expect(colourProj._stats[2].entityIds).toEqual(['3', '4']);
+          expect(colourProj._entities[0].modifyStyle).toHaveBeenCalledWith({fill: Colour.BLUE});
+          //expect(colourProj._entities[2].modifyStyle).toHaveBeenCalledWith({fill: Colour.BLUE});
+          expect(colourProj._entities[4].modifyStyle).toHaveBeenCalledWith({fill: Colour.RED});
+        });
+      }); // End 'for a discrete projection'.
+
+      describe('for a continuous projection', function () {
+        it('with a single codomain', function () {
+          var codomain = {regressBy: 'hue', startProj: Colour.BLUE, endProj: Colour.GREEN};
+          args = mixin({type: 'continuous', codomain: codomain}, args);
+          colourProj = new ColourProjection(args);
+          colourProj.render();
+          expect(colourProj._attributes[0].binId).toEqual(0);
+          expect(colourProj._attributes[1].binId).toEqual(0);
+          expect(colourProj._attributes[2].binId).toEqual(0);
+          expect(colourProj._attributes[3].binId).toEqual(0);
+          expect(colourProj._attributes[4].binId).toEqual(0);
+          expect(colourProj._stats[0].entityIds).toEqual(['0', '1', '2', '3', '4']);
+          expect(colourProj._entities[0].modifyStyle).toHaveBeenCalledWith({fill: Colour.BLUE});
+          //expect(colourProj._entities[2].modifyStyle).toHaveBeenCalledWith({fill: Colour.BLUE});
+          expect(colourProj._entities[4].modifyStyle).toHaveBeenCalledWith({fill: Colour.GREEN});
+        })
       });
 
       describe('by default', function () {
