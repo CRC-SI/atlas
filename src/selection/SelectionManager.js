@@ -51,11 +51,12 @@ define([
             if (!args.modifiers) args.modifiers = {};
             // var worldPosition = this._atlasManagers.render.convertScreenCoordsToLatLng(args);
             // var picked = this._atlasManagers.entity.getAt(worldPosition);
-            var pickedPrimitives = this._atlasManagers.entity.getAt(args.position);
+            var pickedPrimitives = this._atlasManagers.entity.getAt(args.position),
+                keepSelection = 'shift' in args.modifiers;
             if (pickedPrimitives.length > 0) {
-              this.selectEntity(pickedPrimitives[0], 'shift' in args.modifiers);
+              this.selectEntity(pickedPrimitives[0], keepSelection);
             } else {
-              this.clearSelection();
+              !keepSelection && this.clearSelection();
             }
           }
         }.bind(this)
