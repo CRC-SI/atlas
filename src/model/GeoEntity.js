@@ -128,8 +128,9 @@ define([
       this._eventManager = args.eventManager;
     },
 
-/////
-// GETTERS AND SETTERS
+    // -------------------------------------------
+    // GETTERS AND SETTERS
+    // -------------------------------------------
 
     /**
      * @returns {String} The ID of the GeoEntity.
@@ -167,15 +168,14 @@ define([
      * @returns {atlas.model.Style} The old style, or null if it was not changed.
      */
     setStyle: function(style) {
-      if (this._style !== style) {
-        console.debug('setting style of entity', this.getId(), 'to', style);
-        // Only change style if the new style is different so _previousStyle isn't clobbered.
-        this._previousStyle = this._style;
-        this._style = style;
-        this.setRenderable(false);
-        return this._previousStyle;
-      }
-      return null;
+      if (this._style === style) { return null; }
+
+      console.debug('setting style of entity', this.getId(), 'to', style);
+      // Only change style if the new style is different so _previousStyle isn't clobbered.
+      this._previousStyle = this._style;
+      this._style = style;
+      this.setRenderable(false);
+      return this._previousStyle;
     },
 
     /**
@@ -218,8 +218,9 @@ define([
         return this._appearance;
     },
 
-//////
-// MODIFYING
+    // -------------------------------------------
+    // MODIFIERS
+    // -------------------------------------------
 
     /**
      * Modifies specific components of the Feature's style.
@@ -324,8 +325,9 @@ define([
       }
     },
 
-//////
-// BEHAVIOUR
+    // -------------------------------------------
+    // BEHAVIOUR
+    // -------------------------------------------
 
     /**
      * Handles the GeoEntities behaviour when it is selected.
@@ -344,27 +346,29 @@ define([
      */
     onEnableEditing: function () {
       // TODO(bpstudds): Move this functionality to an EditManager module.
-      this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keydown', function (args) {
-        // TODO(bpstudds): Replace 'magic numbers' with constants. Probably should update keycode.js library for this.
-        if (!args.modifiers.shiftKey && !args.modifiers.metaKey &&
-            !args.modifiers.altKey && !args.modifiers.ctrlKey) {
-          console.debug('edit event', args.key);
-          switch (args.key) {
-            case 95: // underscore/minus beside backspace key
-              this.scale({x: 0.95, y: 0.95, z: 0.95});
-              break;
-            case 61: // equals/plus beside backspace key
-              this.scale({x: 1.05, y: 1.05, z: 1.05});
-              break;
-            case 37: // left
-              this.rotate({x: 0, y: 0, z:5});
-              break;
-            case 39: // right
-              this.rotate({x: 0, y: 0, z:-5});
-              break;
-          }
-        }
-      }.bind(this));
+      this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keydown',
+          function (args) {
+            // TODO(bpstudds): Replace 'magic numbers' with constants. Probably should update keycode.js library for this.
+            if (!args.modifiers.shiftKey && !args.modifiers.metaKey &&
+                !args.modifiers.altKey && !args.modifiers.ctrlKey) {
+              console.debug('edit event', args.key);
+              switch (args.key) {
+                case 95: // underscore/minus beside backspace key
+                  this.scale({x: 0.95, y: 0.95, z: 0.95});
+                  break;
+                case 61: // equals/plus beside backspace key
+                  this.scale({x: 1.05, y: 1.05, z: 1.05});
+                  break;
+                case 37: // left
+                  this.rotate({x: 0, y: 0, z:5});
+                  break;
+                case 39: // right
+                  this.rotate({x: 0, y: 0, z:-5});
+                  break;
+              }
+            }
+          }.bind(this)
+      );
       console.debug('onEnableEditing called on', this.getId());
     },
 

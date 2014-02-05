@@ -1,8 +1,8 @@
 define([
 ], function () {
   /**
-   * Defines a bunch of handy math functions. That are probably defined else where.
-   * @exports atlas.util.AtMath
+   * Defines a bunch of handy math functions. That are probably defined elsewhere.
+   * @exports atlas.util.AtlasMath
    */
   return {
     /**

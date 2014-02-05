@@ -32,7 +32,7 @@ define([
    * @class atlas.model.Feature
    * @extends atlas.model.GeoEntity
    */
-  var Feature = mixin(Feature = GeoEntity.extend( /** @lends atlas.model.Feature# */ {
+  var Feature = mixin(GeoEntity.extend( /** @lends atlas.model.Feature# */ {
 
     /**
      * The 2D {@link Polygon} footprint of this Feature.
@@ -94,8 +94,9 @@ define([
       this._style = args.style || this.DEFAULT_STYLE;
     },
 
-//////
-// GETTERS AND SETTERS
+    // -------------------------------------------
+    // GETTERS AND SETTERS
+    // -------------------------------------------
 
     getArea: function () {
       var area = undefined;
@@ -166,8 +167,9 @@ define([
       this._mesh = mesh;
     },
 
-//////
-// MODIFIERS
+    // -------------------------------------------
+    // MODIFIERS
+    // -------------------------------------------
 
     /**
      * Modifies specific components of the Feature's style.
@@ -180,7 +182,7 @@ define([
     modifyStyle: function (args) {
       // Call version on superclass GeoEntity to do the heavy lifting...
       var oldStyle = this._super(args);
-      // ... and propagate the change to
+      // ... and propagate the change to Feature's footprint and mesh if they exist.
       this._footprint && this._footprint.setStyle(this._style);
       this._mesh && this._mesh.setStyle(this._style);
       return oldValues;
@@ -262,8 +264,9 @@ define([
       }
     },
 
-//////
-// BEHAVIOUR
+    // -------------------------------------------
+    // BEHAVIOUR
+    // -------------------------------------------
 
     /**
      * Handles the behaviour of the Feature when it is selected.
@@ -322,8 +325,10 @@ define([
     }
   }), // End class instance definition.
 
-//////
-// STATICS
+    // -------------------------------------------
+    // STATICS
+    // -------------------------------------------
+
     {
       DEFAULT_STYLE: new Style(Colour.GREEN, Colour.GREEN, 1)
     }

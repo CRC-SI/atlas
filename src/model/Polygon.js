@@ -111,8 +111,9 @@ define([
       this._material = defaultValue(args.material, Material.DEFAULT);
     },
 
-//////
-// GETTERS AND SETTERS
+    // -------------------------------------------
+    // GETTERS AND SETTERS
+    // -------------------------------------------
 
     /**
      * Gets the area of the Polygon, in <tt>unit**2</tt> where <tt>unit</tt> is the
@@ -202,10 +203,9 @@ define([
       return this._height;
     },
 
-
-
-//////
-// MODIFYING
+    // -------------------------------------------
+    // MODIFIERS
+    // -------------------------------------------
 
     /**
      * Adds a vertex to the polygon end of the list of vertices describing the polygon.
@@ -325,8 +325,9 @@ define([
      */
     rotate: function (rotation) {},
 
-//////
-// BEHAVIOUR
+    // -------------------------------------------
+    // BEHAVIOUR
+    // -------------------------------------------
 
     /**
      * Shows the Polygon.
@@ -361,6 +362,10 @@ define([
       this.setStyle(this._previousStyle || Polygon.DEFAULT_STYLE);
     }
   });
+
+  // -------------------------------------------
+  // STATICS
+  // -------------------------------------------
 
   /**
    * Defines the default style to use when rendering a polygon.

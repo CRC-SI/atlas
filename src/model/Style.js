@@ -52,6 +52,10 @@ define([
       this._borderWidth = args.borderWidth;
     },
 
+    // -------------------------------------------
+    // GETTERS AND SETTERS
+    // -------------------------------------------
+
     /**
      * Sets the Style's fill colour.
      * @param {atlas.model.Colour} colour - The new fill colour.
@@ -114,8 +118,10 @@ define([
     }
   });
 
-//////
-// STATICS
+  // -------------------------------------------
+  // STATICS
+  // -------------------------------------------
+
   Style.DEFAULT = function () {
     return new Style({fillColour: Colour.GREEN, borderColour: Colour.GREEN, borderWidth: 1});
   };

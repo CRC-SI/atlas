@@ -1,8 +1,8 @@
 define([
-  'atlas/util/AtMath',
+  'atlas/util/AtlasMath',
   'atlas/util/Class',
-  'atlas/util/FreezeObject',
-], function(AtMath, Class, freeze) {
+  'atlas/util/FreezeObject'
+], function(AtlasMath, Class, freeze) {
 
   /**
    * @classdesc Constructs a colour specified by red, green, blue and alpha
@@ -23,22 +23,23 @@ define([
     alpha: null,
 
     _init: function(r, g, b, a) {
-      this.red    = AtMath.limit(r);
-      this.green  = AtMath.limit(g);
-      this.blue   = AtMath.limit(b);
-      this.alpha  = AtMath.limit(a);
+      this.red    = AtlasMath.limit(r);
+      this.green  = AtlasMath.limit(g);
+      this.blue   = AtlasMath.limit(b);
+      this.alpha  = AtlasMath.limit(a);
     }
   });
 
-//////
-// STATICS
+  // ---------------------------------------------
+  // STATICS
+  // ---------------------------------------------
 
   /**
    * Function that creates a new Colour instance from the given RGBA values.
    * @param {Number|Array} red - The red value, where 0 is minimum intensity and 255 is maximum intensity. Alternatively, an array of 4 elements containing values for red, green, blue, and alpha in that order.
-   * @param {Number} green - The green value, where 0 is minimum intensity and 255 is maximum intensity.
-   * @param {Number} blue - The blue value, where 0 is minimum intensity and 255 is maximum intensity.
-   * @param {Number} alpha - The alpha value, where 0 is minimum intensity and 255 is maximum intensity.
+   * @param {Number} [green] - The green value, where 0 is minimum intensity and 255 is maximum intensity.
+   * @param {Number} [blue] - The blue value, where 0 is minimum intensity and 255 is maximum intensity.
+   * @param {Number} [alpha] - The alpha value, where 0 is minimum intensity and 255 is maximum intensity.
    * @returns {atlas.model.Colour}
    */
   Colour.fromRGBA = function(red, green, blue, alpha) {

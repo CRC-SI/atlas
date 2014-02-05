@@ -15,7 +15,7 @@ define([
   GeoEntity) {
 
   /**
-   * @classdesc A Mesh represents a 3D renderable object in atlas.
+   * @classdesc A Mesh represents a 3D renderable object in Atlas.
    * @author Brendan Studds
    *
    * @param {String} id - The ID of the Mesh object.
@@ -146,29 +146,13 @@ define([
       }
     },
 
-//////
-// GETTERS AND SETTERS
+    // -------------------------------------------
+    // GETTERS AND SETTERS
+    // -------------------------------------------
 
-    /**
-     * Sets the uniform colour used to colour the Mesh. The current <code>_uniformColour</code>
-     * is persisted in <code>_previousColour</code> so it can be restored.
-     * @param {atlas.model.Colour} colour - The new colour to use.
-     * @deprecated Use {@link atlas.model.Mesh~modifyStyle}.
-     */
-    setUniformColour: function (colour) {
-      console.debug('setting uniform colour to', colour);
-      if (!(colour instanceof Colour)) {
-        throw new DeveloperError('colour must be a valid Atlas Colour object');
-      } else if (this._uniformColour !== colour) {
-        // Only change colour if the new colour is different so _previousColour isn't clobbered.
-        this._previousColour = this._uniformColour;
-        this._uniformColour = colour;
-        this.setRenderable(false);
-      }
-    },
-
-//////
-// MODIFIERS
+    // -------------------------------------------
+    // MODIFIERS
+    // -------------------------------------------
 
     /**
      * Translates the Mesh.
@@ -215,20 +199,16 @@ define([
       this.isVisible() && this.show();
     }
 
-//////
-// BEHAVIOUR
+    // -------------------------------------------
+    // BEHAVIOUR
+    // -------------------------------------------
 
   }), // End class instance definition
 
-//////
-// STATICS
+    // -------------------------------------------
+    // STATICS
+    // -------------------------------------------
     {
-      /**
-       * @deprecated
-       * Uniform colour of the Mesh when it is selected.
-       * @type {atlas.model.Colour}
-       */
-      SELECTED_COLOUR: Colour.RED,
 
       /**
        * The default style of a Mesh.
