@@ -1,16 +1,21 @@
 define([
   'atlas/util/DeveloperError',
+  'atlas/util/mixin',
   'atlas/model/Colour',
+  'atlas/model/Style',
   'atlas/model/Vertex',
   // Base class
   'atlas/model/GeoEntity'
-], function (DeveloperError,
-             Colour,
-             Vertex,
-             GeoEntity) {
+], function (
+  DeveloperError,
+  mixin,
+  Colour,
+  Style,
+  Vertex,
+  GeoEntity) {
 
   /**
-   * @classdesc A Mesh represents a 3D renderable object in atlas.
+   * @classdesc A Mesh represents a 3D renderable object in Atlas.
    * @author Brendan Studds
    *
    * @param {String} id - The ID of the Mesh object.
@@ -25,7 +30,7 @@ define([
    * @extends atlas.model.GeoEntity
    */
   //var Mesh = function (id, meshData, args) {
-  var Mesh = GeoEntity.extend(/** @lends atlas.model.Mesh# */ {
+  var Mesh = mixin(GeoEntity.extend(/** @lends atlas.model.Mesh# */ {
     /**
      * The array of vertex positions for this Mesh, in model space coordinates.
      * This is a 1D array to conform with Cesium requirements. Every three elements of this
@@ -86,11 +91,16 @@ define([
      * TODO(bpstudds): Work out the textures.
      * @type {atlas.model.Colour}
      * @protected
+     * @deprecated
      */
     _uniformColour: null,
 
     _init: function (id, meshData, args) {
       this._super(id, args);
+
+      // Set the Mesh's style based on the hierarchy: a Mesh specific style,
+      // inherit the parent Feature's style, or use the Mesh default style.
+      this._style = meshData.style || args.style || Mesh.DEFAULT_STYLE;
 
       // Parse all the things!
       if (meshData.positions && meshData.positions.length) {
@@ -132,32 +142,17 @@ define([
 
       if (meshData.color) {
         // TODO(bpstudds): Work out the textures.
-        this._uniformColour = Colour.fromRGBA(meshData.color);
+        this._style = new Style({fillColour: Colour.fromRGBA(meshData.color)});
       }
     },
 
-//////
-// GETTERS AND SETTERS
+    // -------------------------------------------
+    // GETTERS AND SETTERS
+    // -------------------------------------------
 
-    /**
-     * Sets the uniform colour used to colour the Mesh. The current <code>_uniformColour</code>
-     * is persisted in <code>_previousColour</code> so it can be restored.
-     * @param {atlas.model.Colour} colour - The new colour to use.
-     */
-    setUniformColour: function (colour) {
-      console.debug('setting uniform colour to', colour);
-      if (!(colour instanceof Colour)) {
-        throw new DeveloperError('colour must be a valid Atlas Colour object');
-      } else if (this._uniformColour !== colour) {
-        // Only change colour if the new colour is different so _previousColour isn't clobbered.
-        this._previousColour = this._uniformColour;
-        this._uniformColour = colour;
-        this.setRenderable(false);
-      }
-    },
-
-//////
-// MODIFIERS
+    // -------------------------------------------
+    // MODIFIERS
+    // -------------------------------------------
 
     /**
      * Translates the Mesh.
@@ -204,21 +199,30 @@ define([
       this.isVisible() && this.show();
     }
 
-//////
-// BEHAVIOUR
+    // -------------------------------------------
+    // BEHAVIOUR
+    // -------------------------------------------
 
-  });
+  }), // End class instance definition
 
+    // -------------------------------------------
+    // STATICS
+    // -------------------------------------------
+    {
 
-//////
-// STATICS
+      /**
+       * The default style of a Mesh.
+       * @type {atlas.model.Colour}
+       */
+      DEFAULT_STYLE: new Style({fillColour: Colour.GREY}),
 
-  /**
-   * Uniform colour of the Mesh when it is selected.
-   * @type {atlas.model.Colour}
-   */
-  // TODO(bpstudds) Convert to use Style instead.
-  Mesh.SELECTED_COLOUR = Colour.RED;
+      /**
+       * The default selected style of a Mesh.
+       * @type {atlas.model.Colour}
+       */
+      SELECTED_STYLE: new Style({fillColour: Colour.RED})
+    }
+  ); // End class mixin
 
   return Mesh;
 });

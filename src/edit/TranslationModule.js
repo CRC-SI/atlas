@@ -48,20 +48,23 @@ define([
      * The entity which the event occurred on.
      * @type {@link atlas.model.GeoEntity}
      */
-    var target = this._atlasManagers.entity.getAt(args)[0];
-    if (!target) {
-      return;
-    }
-    this._lastScreenCoords = {x: args.x, y: args.y};
+    var target = this._atlasManagers.entity.getAt(args.position);
+    // getAt returns an array at that point. Pick the first (topmost) Entity.
+    if (!(target instanceof Array) || target.length <= 0 ) { return; }
+    target = target[0];
 
-    this._atlasManagers.camera.lockCamera();
-    var id = target._id;
-    var cartLocation = this._cartographicLocation(args);
-    this._originalLocation = this._lastLocation = cartLocation;
+    var selected = this._atlasManagers.selection.getSelection();
+    // Set the target entities
     this._entities = {};
-    this._entities[id] = target;
-    console.debug(this._entities);
-    // TODO(bpstudds) Handle multiple selections.
+    this._entities[target.id] = target;
+    Object.keys(selected).forEach(function (id) {
+      this._entities[id] = selected[id];
+    }, this);
+    // Lock up camera
+    this._atlasManagers.camera.lockCamera();
+    // Initialise the translation.
+    this._lastScreenCoords = {x: args.position.x, y: args.position.y};
+    this._originalLocation = this._lastLocation = this._cartographicLocation(args.position);;
   };
 
   /**
@@ -71,12 +74,12 @@ define([
     if (this._entities === undefined) { return; }
     if (!this._entities) { return; }
 
-    var screenDiff = new Vertex(args.x, args.y).subtract(this._lastScreenCoords).absolute();
+    var screenDiff = new Vertex(args.position.x, args.position.y).subtract(this._lastScreenCoords).absolute();
     if (screenDiff.x < this._MOVE_SENSITIVITY && screenDiff.y < this._MOVE_SENSITIVITY) {
       return;
     }
-    this._lastScreenCoords = {x: args.x, y: args.y};
-    var cartLocation = this._cartographicLocation(args);
+    this._lastScreenCoords = {x: args.position.x, y: args.position.y};
+    var cartLocation = this._cartographicLocation(args.position);
     this._translate(this._lastLocation, cartLocation);
     this._lastLocation = cartLocation;
   };
@@ -118,9 +121,8 @@ define([
     var diff = newVertex.subtract(oldVertex);
 
     for (var id in this._entities) {
-      if (this._entities.hasOwnProperty(id)) {
-        this._entities[id].translate(diff);
-      }
+      console.debug('translating', this._entities[id]);
+      this._entities[id].translate(diff);
     }
   };
 

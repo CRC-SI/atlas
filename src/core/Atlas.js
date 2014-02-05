@@ -22,11 +22,10 @@ define([
      * @type {Object}
      */
     this._managers = {};
-    this._managers = {
-      render: {},
-      dom: {},
-      event: {}
-    };
+  };
+
+  Atlas.prototype.getCameraMetrics = function () {
+    return this._managers.camera.getCameraMetrics();
   };
 
   /**

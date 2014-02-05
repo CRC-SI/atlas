@@ -41,6 +41,18 @@ define([
       entity.modifyStyle(oldColour);
       entity.showAsExtrusion();
       delete this._effects[id];
+    },
+
+    /**
+     * Calculates a GeoEntity's parameter value's projected value in the given codomain.
+     * Here the projected value refers to the modification to the GeoEntity's style.
+     * @param {Object} attributes - The parameter value's attributes.
+     * @param {Object} codomain - The codomain applicable to the parameter value.
+     * @returns {Object} The modification to be made GeoEntity's style.
+     * @private
+     */
+    _regressProjectionValueFromCodomain: function(attributes, codomain) {
+
     }
   });
 });
