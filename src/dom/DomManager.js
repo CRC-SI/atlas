@@ -51,8 +51,9 @@ define([
       }
     },
 
-//////
-// GETTERS AND SETTERS
+    // -------------------------------------------
+    // GETTERS AND SETTERS
+    // -------------------------------------------
 
     /**
      * Changes the DOM node which Atlas is displayed in.
@@ -109,12 +110,12 @@ define([
       return document.getElementById(this._currentDomId).offsetWidth;
     },
 
-//////
-// MODIFIERS
+    // -------------------------------------------
+    // MODIFIERS
+    // -------------------------------------------
 
     /**
      * Populates the Atlas DOM element.
-     * Implemenetation defined.
      * @abstract
      */
     populateDom: function (id) {
@@ -156,8 +157,9 @@ define([
 
   }), // End class instance definitions.
 
-//////
-// STATICS
+    // -------------------------------------------
+    // STATICS
+    // -------------------------------------------
 
     {
       // Nope

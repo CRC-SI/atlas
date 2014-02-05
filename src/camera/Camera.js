@@ -76,8 +76,9 @@ define([
       throw new DeveloperError('Can not call abstract method Camera._animateCamera');
     },
 
-//////
-// GENERAL MOVEMENT
+    // -------------------------------------------
+    // GENERAL MOVEMENT
+    // -------------------------------------------
 
     pan: function (input) {
       throw new DeveloperError('Camera.pan not yet implemented.');
@@ -115,8 +116,9 @@ define([
 
     },
 
-//////
-// TARGETED MOVEMENT
+    // -------------------------------------------
+    // TARGETED MOVEMENT
+    // -------------------------------------------
 
     /**
      * Moves the camera to the given location and sets the Camera's direction.
