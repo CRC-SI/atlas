@@ -175,7 +175,7 @@ define([
       if (elevation === this._elevation) { return; }
       if (typeof elevation === 'number') {
         this._elevation = elevation;
-        this.setDirty('elevation');
+        this.setDirty('vertices');
       }
     },
 
@@ -194,7 +194,7 @@ define([
       if (height === this._height) { return; }
       if (typeof height === 'number') {
         this._height = height;
-        this.setDirty('height');
+        this.setDirty('vertices');
       }
     },
 
@@ -295,7 +295,7 @@ define([
       for (var i = 0; i < this._vertices.length; i++) {
         this._vertices[i] = this._vertices[i].add(translation);
       }
-      this.setDirty('position');
+      this.setDirty('model');
       this.isVisible() && this.show();
     },
 
@@ -316,7 +316,7 @@ define([
         diff = diff.componentwiseMultiply(scale);
         this._vertices[i] = diff.add(centroid);
       }, this);
-      this.setDirty('scale');
+      this.setDirty('model');
       this.isVisible() && this.show();
     },
 
