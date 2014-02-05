@@ -1,9 +1,10 @@
 define([
+  'atlas/util/DeveloperError',
   'atlas/lib/tinycolor',
   'atlas/model/Colour',
   // Base class.
   'atlas/visualisation/AbstractProjection'
-], function (tinycolour, Colour, AbstractProjection) {
+], function (DeveloperError, tinycolour, Colour, AbstractProjection) {
 
   /**
    * @classdesc A ColourProjection is used to project GeoEntity parameter values

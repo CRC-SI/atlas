@@ -35,7 +35,7 @@ define([
     // -------------------------------------------
 
     toString: function () {
-      return 'rgba (' + [this.red, this.green, this.blue, this.alpha].join(', ') + ')';
+      return 'rgba(' + [this.red * 255, this.green * 255, this.blue * 255, this.alpha].join(', ') + ')';
     },
 
     toHsv: function () {
@@ -66,7 +66,7 @@ define([
 
   Colour.fromHsv = function (hsv) {
     var tiny = Tinycolor(hsv).toRgb();
-    return new Colour(tiny.r, tiny.g, tiny.b, 1);
+    return new Colour(tiny.r / 255, tiny.g / 255, tiny.b / 255, 1);
   };
 
   // -------------------------------------------
@@ -74,6 +74,7 @@ define([
   // -------------------------------------------
 
   // These constants are frozen. Any attempt to alter them may silently fail.
+  // The Karma tests will fail with these objects frozen.
   Colour.WHITE = freeze(new Colour(1, 1, 1, 1));
   Colour.GREY = freeze(new Colour(0.7, 0.7, 0.7, 1));
   Colour.BLACK = freeze(new Colour(0, 0, 0, 1));

@@ -143,7 +143,7 @@ define([
       };
       // Calculate statistical properties for the binned values.
       this._stats = this._calculateBinnedStatistics();
-      // TODO(bpstudds): Do we need to caclulate this for a discrete projection?
+      // TODO(bpstudds): Do we need to calculate this for a discrete projection?
       this._attributes = this._calculateValueAttributes();
     },
 

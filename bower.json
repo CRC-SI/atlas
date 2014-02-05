@@ -17,7 +17,7 @@
   "dependencies": {
     "Requirejs": "requirejs#2.1.x",
     "Openlayers": "http://openlayers.org/api/2.13.1/OpenLayers.js",
-    "tinycolor": "~0.9.16",
-    "Keycode": "https://github.com/mantelpiece/keycode.js.git#master"
+    "Keycode": "https://github.com/mantelpiece/keycode.js.git#master",
+    "Tinycolor": "tinycolor#~0.9.x"
   }
 }

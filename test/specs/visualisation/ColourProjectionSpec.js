@@ -43,12 +43,13 @@ define([
           args = mixin({type: 'discrete', bins: 3, codomain: codomain}, args);
           colourProj = new ColourProjection(args);
           colourProj.render();
-          expect(colourProj._entities[0].modifyStyle).toHaveBeenCalledWith({fill: Colour.RED});
-          expect(colourProj._entities[2].modifyStyle).toHaveBeenCalledWith({fill: Colour.RED});
-          expect(colourProj._entities[4].modifyStyle).toHaveBeenCalledWith({fill: Colour.RED});
+          expect(colourProj._entities[0].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.RED});
+          expect(colourProj._entities[2].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.RED});
+          expect(colourProj._entities[4].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.RED});
         });
 
         it('with a single codomain', function () {
+          // This test _will_ fail if Colour.BLUE and Colour.RED are frozen.
           var codomain = {regressBy: 'hue', startProj: Colour.BLUE, endProj: Colour.RED};
           args = mixin({type: 'discrete', bins: 3, codomain: codomain}, args);
           colourProj = new ColourProjection(args);
@@ -64,14 +65,15 @@ define([
           expect(colourProj._stats[0].entityIds).toEqual(['0', '1']);
           expect(colourProj._stats[1].entityIds).toEqual(['2']);
           expect(colourProj._stats[2].entityIds).toEqual(['3', '4']);
-          expect(colourProj._entities[0].modifyStyle).toHaveBeenCalledWith({fill: Colour.BLUE});
+          expect(colourProj._entities[0].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.BLUE});
           //expect(colourProj._entities[2].modifyStyle).toHaveBeenCalledWith({fill: Colour.BLUE});
-          expect(colourProj._entities[4].modifyStyle).toHaveBeenCalledWith({fill: Colour.RED});
+          expect(colourProj._entities[4].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.RED});
         });
       }); // End 'for a discrete projection'.
 
       describe('for a continuous projection', function () {
         it('with a single codomain', function () {
+          // This test _will_ fail if Colour.BLUE and Colour.GREEN are frozen.
           var codomain = {regressBy: 'hue', startProj: Colour.BLUE, endProj: Colour.GREEN};
           args = mixin({type: 'continuous', codomain: codomain}, args);
           colourProj = new ColourProjection(args);
@@ -82,9 +84,9 @@ define([
           expect(colourProj._attributes[3].binId).toEqual(0);
           expect(colourProj._attributes[4].binId).toEqual(0);
           expect(colourProj._stats[0].entityIds).toEqual(['0', '1', '2', '3', '4']);
-          expect(colourProj._entities[0].modifyStyle).toHaveBeenCalledWith({fill: Colour.BLUE});
+          expect(colourProj._entities[0].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.BLUE});
           //expect(colourProj._entities[2].modifyStyle).toHaveBeenCalledWith({fill: Colour.BLUE});
-          expect(colourProj._entities[4].modifyStyle).toHaveBeenCalledWith({fill: Colour.GREEN});
+          expect(colourProj._entities[4].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.GREEN});
         })
       });
 
@@ -101,7 +103,7 @@ define([
             colourProj.render();
             for (var i = 0; i < ids.length; i++) {
               var id = ids[i];
-              expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fill: newColour});
+              expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: newColour});
               expect(someEntities[id].modifyStyle.calls.length).toEqual(1);
               expect(someEntities[id]._style._fillColour).toEqual(newColour);
             }
@@ -112,7 +114,7 @@ define([
             colourProj.render(ids);
             for (var i = 0; i < ids.length; i++) {
               var id = ids[i];
-              expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fill: newColour});
+              expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: newColour});
               expect(someEntities[id].modifyStyle.calls.length).toEqual(1);
               expect(someEntities[id]._style._fillColour).toEqual(newColour);
             }
@@ -121,7 +123,7 @@ define([
           it('to one of it\'s GeoEntities', function () {
             var id = 1;
             colourProj.render(id);
-            expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fill: newColour});
+            expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: newColour});
             expect(someEntities[id].modifyStyle.calls.length).toEqual(1);
             expect(someEntities[id]._style._fillColour).toEqual(newColour);
           });
@@ -141,7 +143,7 @@ define([
         // Expect to be changed
         for (var i = 0; i < ids.length; i++) {
           var id = ids[i];
-          expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fill: initialColour});
+          expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: initialColour});
           expect(someEntities[id].modifyStyle.calls.length).toEqual(2);
           expect(someEntities[id]._style._fillColour).toEqual(initialColour);
         }
@@ -153,7 +155,7 @@ define([
         // Expect to be changed
         for (var i = 0; i < ids.length; i++) {
           var id = ids[i];
-          expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fill: initialColour});
+          expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: initialColour});
           expect(someEntities[id].modifyStyle.calls.length).toEqual(2);
           expect(someEntities[id]._style._fillColour).toEqual(initialColour);
         }
@@ -164,7 +166,7 @@ define([
       it('to one of it\'s GeoEntities', function () {
         var id = 1;
         colourProj.unrender(id);
-        expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fill: initialColour});
+        expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: initialColour});
         expect(someEntities[id].modifyStyle.calls.length).toEqual(2);
         expect(someEntities[id]._style._fillColour).toEqual(initialColour);
         // Expect to be unchanged
