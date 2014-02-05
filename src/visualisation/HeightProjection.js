@@ -51,7 +51,8 @@ define([
         codomain = codomain[attributes.binId];
       }
       // TODO(bpstudds): Allow for more projection types then continuous and discrete?
-      var regressionFactor = this._type === 'continuous' ? attributes.absRatio : attributes.binId;
+      var regressionFactor = this._type === 'continuous' ?
+          attributes.absRatio : attributes.binId / attributes.numBins;
       if ('fixedProj' in codomain) {
         return codomain.fixedProj;
       } else if ('startProj' in codomain && 'endProj' in codomain) {

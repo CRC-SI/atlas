@@ -1,8 +1,9 @@
 define([
   'atlas/util/AtlasMath',
   'atlas/util/Class',
-  'atlas/util/FreezeObject'
-], function(AtlasMath, Class, freeze) {
+  'atlas/util/FreezeObject',
+  'atlas/lib/tinycolor'
+], function(AtlasMath, Class, freeze, Tinycolor) {
 
   /**
    * @classdesc Constructs a colour specified by red, green, blue and alpha
@@ -27,11 +28,24 @@ define([
       this.green  = AtlasMath.limit(g);
       this.blue   = AtlasMath.limit(b);
       this.alpha  = AtlasMath.limit(a);
+    },
+
+    // -------------------------------------------
+    // GETTERS AND SETTERS
+    // -------------------------------------------
+
+    toString: function () {
+      return 'rgba(' + [this.red * 255, this.green * 255, this.blue * 255, this.alpha].join(', ') + ')';
+    },
+
+    toHsv: function () {
+      var tiny = Tinycolor(this.toString());
+      return tiny.toHsv();
     }
   });
 
   // ---------------------------------------------
-  // STATICS
+  // GENERATORS
   // ---------------------------------------------
 
   /**
@@ -50,7 +64,17 @@ define([
     }
   };
 
+  Colour.fromHsv = function (hsv) {
+    var tiny = Tinycolor(hsv).toRgb();
+    return new Colour(tiny.r / 255, tiny.g / 255, tiny.b / 255, 1);
+  };
+
+  // -------------------------------------------
+  // STATICS
+  // -------------------------------------------
+
   // These constants are frozen. Any attempt to alter them may silently fail.
+  // The Karma tests will fail with these objects frozen.
   Colour.WHITE = freeze(new Colour(1, 1, 1, 1));
   Colour.GREY = freeze(new Colour(0.7, 0.7, 0.7, 1));
   Colour.BLACK = freeze(new Colour(0, 0, 0, 1));

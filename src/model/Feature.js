@@ -185,7 +185,7 @@ define([
       // ... and propagate the change to Feature's footprint and mesh if they exist.
       this._footprint && this._footprint.setStyle(this._style);
       this._mesh && this._mesh.setStyle(this._style);
-      return oldValues;
+      return oldStyle;
     },
 
     /**
