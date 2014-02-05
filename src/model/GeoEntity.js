@@ -75,21 +75,28 @@ define([
      * @type {Number}
      * @protected
      */
-    _area: 0,
+    _area: null,
 
     /**
      * Whether the GeoEntity is visible.
      * @type {Boolean}
      * @protected
      */
-    _visible: false,
+    _visible: null,
 
     /**
      * Whether the GeoEntity can be rendered.
      * @type {Boolean}
      * @protected
      */
-    _renderable: false,
+    _renderable: null,
+
+    /**
+     * Components of the GeoEntity which are 'dirty'.
+     * @type {Object.<String, Boolean>}
+     * @protected
+     */
+    _dirty: null,
 
     /**
      * Geometry data for the GeoEntity that allows it to be rendered.
@@ -115,6 +122,7 @@ define([
     _init: function (id, args) {
       // Call the superclass' (EventTarget) constructor.
       this._super(args.eventManager, args.parent);
+      this._dirty = { entity: true };
 
       if (typeof id === 'object') {
         args = id;
@@ -163,18 +171,36 @@ define([
     },
 
     /**
+     * Sets a particular component of the GeoEntity to dirty, which affects how the GeoEntity is
+     * rendered.
+     * @param component
+     */
+    setDirty: function(component) {
+      console.error('entity id', this.getId(), 'now has dirty', component);
+      this._dirty[component] = true;
+    },
+
+    clean: function() {
+      console.error('entity id', this.getId(), 'is clean');
+      //delete this._dirty;
+      Object.keys(this._dirty).forEach(function (key) {
+        delete this._dirty[key];
+      }, this);
+    },
+
+    /**
      * Sets the Style for the GeoEntity.
      * @param {atlas.model.Style} style - The new style to use.
      * @returns {atlas.model.Style} The old style, or null if it was not changed.
      */
     setStyle: function(style) {
       if (this._style === style) { return null; }
+      this.setDirty('style');
 
       console.debug('setting style of entity', this.getId(), 'to', style);
       // Only change style if the new style is different so _previousStyle isn't clobbered.
       this._previousStyle = this._style;
       this._style = style;
-      this.setRenderable(false);
       return this._previousStyle;
     },
 
@@ -182,19 +208,19 @@ define([
      * @returns {Boolean} Whether the GeoEntity is currently renderable.
      */
     isRenderable: function () {
-      return this._renderable;
+      return Object.keys(this._dirty).length === 0;
     },
 
     /**
+     * @deprecated
      * Sets whether the GeoEntity is ready to be rendered.
      * @param {Boolean} [isRenderable=true] - If true, sets the Polygon to be renderable otherwise sets it to be 'un-renderable'.
      */
     setRenderable: function (isRenderable) {
-
       if (isRenderable !== undefined) {
-        this._renderable = isRenderable;
+        this.clean();
       } else {
-        this._renderable = true;
+        !isRenderable && this.setDirty('entity');
       }
     },
 
@@ -230,8 +256,11 @@ define([
      * @param {Number} [args.borderWidth] - The new border width colour.
      */
     modifyStyle: function (args) {
+      if (Object.keys(args).length <= 0) { return {}; }
+
+      this.setDirty('style');
       if (!this._style) { this._style = Style.DEFAULT(); }
-      var oldStyle = this._style;
+      var oldStyle = {}; // = this._style;
       // Change values
       args.fillColour && (oldStyle.fillColour = this._style.setFill(args.fillColour));
       args.borderColour && (oldStyle.borderColour = this._style.setBorderColour(args.borderColour));

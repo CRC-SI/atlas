@@ -82,7 +82,7 @@ define([
   /**
    * Allows the Host application to subscribe to internal events of the Atlas
    * event system.
-   * @param  {String}   eventName - The event tyep to subscribe to.
+   * @param  {String}   eventName - The event type to subscribe to.
    * @param  {Function} callback - The callback that will be called when the event occurs.
    */
   Atlas.prototype.subscribe = function (eventName, callback) {
