@@ -123,6 +123,7 @@ define([
      * @param {Number} elevation - The elevation of the feature.
      */
     setElevation: function (elevation) {
+      this.setDirty('vertices');
       this._elevation = elevation;
       this.show();
     },
@@ -149,6 +150,7 @@ define([
     setHeight: function (height) {
       var oldHeight = this._height;
       this._height = height;
+      this.setDirty('vertices');
       this.show();
       return oldHeight;
     },
