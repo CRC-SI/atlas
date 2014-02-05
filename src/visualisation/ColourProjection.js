@@ -1,8 +1,9 @@
 define([
+  'atlas/lib/tinycolor',
   'atlas/model/Colour',
   // Base class.
   'atlas/visualisation/AbstractProjection'
-], function (Colour, AbstractProjection) {
+], function (tinycolour, Colour, AbstractProjection) {
 
   /**
    * @classdesc A ColourProjection is used to project GeoEntity parameter values
@@ -14,18 +15,21 @@ define([
   return AbstractProjection.extend(/** @lends atlas.visualisation.ColourProjection# */{
     ARTIFACT: 'colour',
 
+    DEFAULT_CODOMAIN: {fixedProj: Colour.RED},
+
     /**
      * Renders the effects of the Projection on a single GeoEntity.
      * @param {atlas.model.GeoEntity} entity - The GeoEntity to render.
-     * @param {Object} params - The parameters of the Projection for the given GeoEntity.
+     * @param {Object} attributes - The attributes of the parameter value for the given GeoEntity.
      * @private
      */
-    _render: function (entity, params) {
+    _render: function (entity, attributes) {
       // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
-      var newColour = {fill: Colour.RED};
-      var oldColour = entity.modifyStyle(newColour);
+      console.debug('rendering id', entity.getId());
+      var newColour = this._regressProjectionValueFromCodomain(attributes, this._configuration.codomain),
+          oldColour = entity.modifyStyle(newColour);
       entity.showAsExtrusion();
-      this._effects[entity._id] = { 'oldValue': oldColour, 'newValue': newColour };
+      this._effects[entity.getId()] = { 'oldValue': oldColour, 'newValue': newColour };
     },
 
     /**
@@ -36,7 +40,7 @@ define([
      */
     _unrender:function (entity, params) {
       // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
-      var id = entity._id,
+      var id = entity.getId(),
           oldColour = this._effects[id].oldValue;
       entity.modifyStyle(oldColour);
       entity.showAsExtrusion();
@@ -46,13 +50,34 @@ define([
     /**
      * Calculates a GeoEntity's parameter value's projected value in the given codomain.
      * Here the projected value refers to the modification to the GeoEntity's style.
-     * @param {Object} attributes - The parameter value's attributes.
-     * @param {Object} codomain - The codomain applicable to the parameter value.
-     * @returns {Object} The modification to be made GeoEntity's style.
+     * @param {Object} attributes - Attributes of the GeoEntity parameter value to project.
+     * @param {Object} codomain - Details of the codomain(s).
+     * @returns {Object}
      * @private
      */
-    _regressProjectionValueFromCodomain: function(attributes, codomain) {
-
+    _regressProjectionValueFromCodomain: function (attributes, codomain) {
+      // Check if this is a continuous or discrete projection to set the regression factor.
+      // Check if the codomain has been binned and select the correct one.
+      if (codomain instanceof Array) {
+        codomain = codomain[attributes.binId];
+      }
+      // TODO(bpstudds): Allow for more projection types then continuous and discrete?
+      var regressionFactor = this._type === 'continuous' ?
+          attributes.absRatio : attributes.binId / (attributes.numBins - 1);
+      if ('fixedProj' in codomain) {
+        return {fillColour: codomain.fixedProj};
+      } else if ('startProj' in codomain && 'endProj' in codomain) {
+        var startColour = codomain['startProj'].toHsv(),
+            endColour = codomain['endProj'].toHsv(),
+            diff = endColour.h - startColour.h,
+            newHsv = {
+              h: startColour.h + diff * regressionFactor,
+              s: startColour.s,
+              v: startColour.v
+            };
+        return {fillColour: Colour.fromHsv(newHsv)};
+      }
+      throw new DeveloperError('Unsupported codomain supplied.');
     }
   });
 });

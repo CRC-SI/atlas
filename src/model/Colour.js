@@ -1,8 +1,9 @@
 define([
   'atlas/util/AtlasMath',
   'atlas/util/Class',
-  'atlas/util/FreezeObject'
-], function(AtlasMath, Class, freeze) {
+  'atlas/util/FreezeObject',
+  'atlas/lib/tinycolor'
+], function(AtlasMath, Class, freeze, Tinycolor) {
 
   /**
    * @classdesc Constructs a colour specified by red, green, blue and alpha
@@ -27,11 +28,24 @@ define([
       this.green  = AtlasMath.limit(g);
       this.blue   = AtlasMath.limit(b);
       this.alpha  = AtlasMath.limit(a);
+    },
+
+    // -------------------------------------------
+    // GETTERS AND SETTERS
+    // -------------------------------------------
+
+    toString: function () {
+      return 'rgba (' + [this.red, this.green, this.blue, this.alpha].join(', ') + ')';
+    },
+
+    toHsv: function () {
+      var tiny = Tinycolor(this.toString());
+      return tiny.toHsv();
     }
   });
 
   // ---------------------------------------------
-  // STATICS
+  // GENERATORS
   // ---------------------------------------------
 
   /**
@@ -49,6 +63,15 @@ define([
       return new Colour(red / 255, green / 255, blue / 255, alpha / 255);
     }
   };
+
+  Colour.fromHsv = function (hsv) {
+    var tiny = Tinycolor(hsv).toRgb();
+    return new Colour(tiny.r, tiny.g, tiny.b, 1);
+  };
+
+  // -------------------------------------------
+  // STATICS
+  // -------------------------------------------
 
   // These constants are frozen. Any attempt to alter them may silently fail.
   Colour.WHITE = freeze(new Colour(1, 1, 1, 1));

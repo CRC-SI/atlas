@@ -1,8 +1,10 @@
 define([
   'atlas/util/DeveloperError',
-  'atlas/visualisation/HeightProjection',
-  'atlas/visualisation/AbstractProjection'
-], function (DeveloperError, HeightProjection, AbstractProjection) {
+  'atlas/model/Colour',
+  'atlas/visualisation/AbstractProjection',
+  'atlas/visualisation/ColourProjection',
+  'atlas/visualisation/HeightProjection'
+], function (DeveloperError, Colour, AbstractProjection, ColourProjection, HeightProjection) {
 
   /**
    * Constructs a new VisualisationManager
@@ -99,6 +101,15 @@ define([
         heightProj = new HeightProjection({type: 'continuous', codomain: codomain, values: valueMap, entities: entities});
     this.add(heightProj);
     heightProj.render();
+  };
+
+  VisualisationManager.prototype.testColour = function (valueMap) {
+    var ids = Object.keys(valueMap),
+        entities = this._atlasManagers.entity.getByIds(ids),
+        codomain = {startProj: Colour.BLUE, endProj: Colour.RED},
+        colourProj = new ColourProjection({type: 'continuous', codomain: codomain, values: valueMap, entities: entities});
+    this.add(colourProj);
+    colourProj.render();
   };
 
   return VisualisationManager;
