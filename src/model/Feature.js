@@ -2,12 +2,14 @@ define([
   'atlas/util/Class',
   'atlas/util/default',
   'atlas/util/DeveloperError',
-  'atlas/model/Polygon',
+  'atlas/util/mixin',
+  'atlas/model/Colour',
   'atlas/model/Mesh',
+  'atlas/model/Polygon',
   'atlas/model/Style',
   // Base class.
   './GeoEntity'
-], function (Class, defaultValue, DeveloperError, Polygon, Mesh, Style, GeoEntity) {
+], function (Class, defaultValue, DeveloperError, mixin, Colour, Mesh, Polygon, Style, GeoEntity) {
 
   /**
    * @classdesc A Feature represents an entity that can be visualised either
@@ -30,7 +32,7 @@ define([
    * @class atlas.model.Feature
    * @extends atlas.model.GeoEntity
    */
-  return GeoEntity.extend( /** @lends atlas.model.Feature# */ {
+  var Feature = mixin(GeoEntity.extend( /** @lends atlas.model.Feature# */ {
 
     /**
      * The 2D {@link Polygon} footprint of this Feature.
@@ -89,10 +91,12 @@ define([
       this._displayMode = args.mesh ? defaultValue(args.displayMode, 'mesh') : this._displayMode;
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
+      this._style = args.style || this.DEFAULT_STYLE;
     },
 
-//////
-// GETTERS AND SETTERS
+    // -------------------------------------------
+    // GETTERS AND SETTERS
+    // -------------------------------------------
 
     getArea: function () {
       var area = undefined;
@@ -163,8 +167,9 @@ define([
       this._mesh = mesh;
     },
 
-//////
-// MODIFIERS
+    // -------------------------------------------
+    // MODIFIERS
+    // -------------------------------------------
 
     /**
      * Modifies specific components of the Feature's style.
@@ -172,15 +177,12 @@ define([
      * @param {atlas.model.Colour} [args.fill] - The new fill colour.
      * @param {atlas.model.Colour} [args.border] - The new border colour.
      * @param {Number} [args.borderWidth] - The new border width colour.
+     * @returns {atlas.model.Style} - The old style.
      */
     modifyStyle: function (args) {
-      var oldValues = {};
-      if (!this._style) { this._style = Style.DEFAULT(); }
-      // Change values
-      args.fill && (oldValues.fill = this._style.setFill(args.fill));
-      args.border && (oldValues.border = this._style.setBorderColour(args.border));
-      args.borderWidth && (oldValues.borderWidth = this._style.setBorderWidth(args.borderWidth));
-      // Set Style on footprint and mesh.
+      // Call version on superclass GeoEntity to do the heavy lifting...
+      var oldStyle = this._super(args);
+      // ... and propagate the change to Feature's footprint and mesh if they exist.
       this._footprint && this._footprint.setStyle(this._style);
       this._mesh && this._mesh.setStyle(this._style);
       return oldValues;
@@ -262,8 +264,9 @@ define([
       }
     },
 
-//////
-// BEHAVIOUR
+    // -------------------------------------------
+    // BEHAVIOUR
+    // -------------------------------------------
 
     /**
      * Handles the behaviour of the Feature when it is selected.
@@ -320,5 +323,16 @@ define([
         this._mesh.hide();
       }
     }
-  });
+  }), // End class instance definition.
+
+    // -------------------------------------------
+    // STATICS
+    // -------------------------------------------
+
+    {
+      DEFAULT_STYLE: new Style(Colour.GREEN, Colour.GREEN, 1)
+    }
+  ); // End class mixin;
+
+  return Feature;
 });

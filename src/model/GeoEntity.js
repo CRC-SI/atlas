@@ -1,9 +1,14 @@
 define([
   'atlas/util/DeveloperError',
   'atlas/events/Event',
+  'atlas/model/Style',
   // Base class
   'atlas/events/EventTarget'
-], function (DeveloperError, Event, EventTarget) {
+], function (
+  DeveloperError,
+  Event,
+  Style,
+  EventTarget) {
 
   /**
    * @classdesc A GeoEntity is an abstract class that represents an entity that
@@ -100,6 +105,13 @@ define([
      */
     _appearance: null,
 
+    /**
+     * The style of the GeoEntity when rendered.
+     * @type {atlas.model.Style}
+     * @protected
+     */
+    _style: null,
+
     _init: function (id, args) {
       // Call the superclass' (EventTarget) constructor.
       this._super(args.eventManager, args.parent);
@@ -116,8 +128,9 @@ define([
       this._eventManager = args.eventManager;
     },
 
-/////
-// GETTERS AND SETTERS
+    // -------------------------------------------
+    // GETTERS AND SETTERS
+    // -------------------------------------------
 
     /**
      * @returns {String} The ID of the GeoEntity.
@@ -147,6 +160,22 @@ define([
      */
     isVisible: function() {
       return this._visible;
+    },
+
+    /**
+     * Sets the Style for the GeoEntity.
+     * @param {atlas.model.Style} style - The new style to use.
+     * @returns {atlas.model.Style} The old style, or null if it was not changed.
+     */
+    setStyle: function(style) {
+      if (this._style === style) { return null; }
+
+      console.debug('setting style of entity', this.getId(), 'to', style);
+      // Only change style if the new style is different so _previousStyle isn't clobbered.
+      this._previousStyle = this._style;
+      this._style = style;
+      this.setRenderable(false);
+      return this._previousStyle;
     },
 
     /**
@@ -189,8 +218,26 @@ define([
         return this._appearance;
     },
 
-//////
-// MODIFYING
+    // -------------------------------------------
+    // MODIFIERS
+    // -------------------------------------------
+
+    /**
+     * Modifies specific components of the Feature's style.
+     * @param {Object} args - The new values for the Style components.
+     * @param {atlas.model.Colour} [args.fillColour] - The new fill colour.
+     * @param {atlas.model.Colour} [args.borderColour] - The new border colour.
+     * @param {Number} [args.borderWidth] - The new border width colour.
+     */
+    modifyStyle: function (args) {
+      if (!this._style) { this._style = Style.DEFAULT(); }
+      var oldStyle = this._style;
+      // Change values
+      args.fillColour && (oldStyle.fillColour = this._style.setFill(args.fillColour));
+      args.borderColour && (oldStyle.borderColour = this._style.setBorderColour(args.borderColour));
+      args.borderWidth && (oldStyle.borderWidth = this._style.setBorderWidth(args.borderWidth));
+      return oldStyle;
+    },
 
     /**
      * Translates the GeoEntity by the given vector.
@@ -278,8 +325,9 @@ define([
       }
     },
 
-//////
-// BEHAVIOUR
+    // -------------------------------------------
+    // BEHAVIOUR
+    // -------------------------------------------
 
     /**
      * Handles the GeoEntities behaviour when it is selected.
@@ -298,27 +346,29 @@ define([
      */
     onEnableEditing: function () {
       // TODO(bpstudds): Move this functionality to an EditManager module.
-      this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keydown', function (args) {
-        // TODO(bpstudds): Replace 'magic numbers' with constants. Probably should update keycode.js library for this.
-        if (!args.modifiers.shiftKey && !args.modifiers.metaKey &&
-            !args.modifiers.altKey && !args.modifiers.ctrlKey) {
-          console.debug('edit event', args.key);
-          switch (args.key) {
-            case 95: // underscore/minus beside backspace key
-              this.scale({x: 0.95, y: 0.95, z: 0.95});
-              break;
-            case 61: // equals/plus beside backspace key
-              this.scale({x: 1.05, y: 1.05, z: 1.05});
-              break;
-            case 37: // left
-              this.rotate({x: 0, y: 0, z:5});
-              break;
-            case 39: // right
-              this.rotate({x: 0, y: 0, z:-5});
-              break;
-          }
-        }
-      }.bind(this));
+      this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keydown',
+          function (args) {
+            // TODO(bpstudds): Replace 'magic numbers' with constants. Probably should update keycode.js library for this.
+            if (!args.modifiers.shiftKey && !args.modifiers.metaKey &&
+                !args.modifiers.altKey && !args.modifiers.ctrlKey) {
+              console.debug('edit event', args.key);
+              switch (args.key) {
+                case 95: // underscore/minus beside backspace key
+                  this.scale({x: 0.95, y: 0.95, z: 0.95});
+                  break;
+                case 61: // equals/plus beside backspace key
+                  this.scale({x: 1.05, y: 1.05, z: 1.05});
+                  break;
+                case 37: // left
+                  this.rotate({x: 0, y: 0, z:5});
+                  break;
+                case 39: // right
+                  this.rotate({x: 0, y: 0, z:-5});
+                  break;
+              }
+            }
+          }.bind(this)
+      );
       console.debug('onEnableEditing called on', this.getId());
     },
 

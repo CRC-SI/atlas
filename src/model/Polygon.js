@@ -111,8 +111,9 @@ define([
       this._material = defaultValue(args.material, Material.DEFAULT);
     },
 
-//////
-// GETTERS AND SETTERS
+    // -------------------------------------------
+    // GETTERS AND SETTERS
+    // -------------------------------------------
 
     /**
      * Gets the area of the Polygon, in <tt>unit**2</tt> where <tt>unit</tt> is the
@@ -202,29 +203,9 @@ define([
       return this._height;
     },
 
-    /**
-     * Sets the Style for the Polygon.
-     * @param {atlas.model.Style} style - The new style to use.
-     * @returns {atlas.model.Style} The old style, or null if it was not changed.
-     */
-    setStyle: function(style) {
-      if (!(style instanceof Style)) {
-        throw new DeveloperError('Style must be a valid atlas Style object');
-      } else {
-        if (this._style !== style) {
-          console.debug('setting style of entity', this.getId(), 'to', style);
-          // Only change style if the new style is different so _previousStyle isn't clobbered.
-          this._previousStyle = this._style;
-          this._style = style;
-          this.setRenderable(false);
-          return this._previousStyle;
-        }
-      }
-      return null;
-    },
-
-//////
-// MODIFYING
+    // -------------------------------------------
+    // MODIFIERS
+    // -------------------------------------------
 
     /**
      * Adds a vertex to the polygon end of the list of vertices describing the polygon.
@@ -344,8 +325,9 @@ define([
      */
     rotate: function (rotation) {},
 
-//////
-// BEHAVIOUR
+    // -------------------------------------------
+    // BEHAVIOUR
+    // -------------------------------------------
 
     /**
      * Shows the Polygon.
@@ -381,17 +363,21 @@ define([
     }
   });
 
+  // -------------------------------------------
+  // STATICS
+  // -------------------------------------------
+
   /**
    * Defines the default style to use when rendering a polygon.
    * @type {atlas.model.Colour}
    */
-  Polygon.DEFAULT_STYLE = new Style(Colour.GREEN, Colour.GREEN, 1);
+  Polygon.DEFAULT_STYLE = new Style({fillColour: Colour.GREEN});
 
   /**
    * Defines the default style to use when rendering a selected polygon.
    * @type {atlas.model.Colour}
    */
-  Polygon.SELECTED_STYLE = new Style(Colour.RED, Colour.RED, 1);
+  Polygon.SELECTED_STYLE = new Style({fillColour: Colour.RED});
 
   return Polygon;
 });
