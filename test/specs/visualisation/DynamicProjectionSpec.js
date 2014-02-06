@@ -124,6 +124,16 @@ define([
           expect(someEntities[id].mockedValue).toEqual(data[2].values[id]);
         });
       });
+
+      it('should end', function () {
+        dynPrj.start();
+        jasmine.Clock.tick(5000);
+        expect(dynPrj.getStatus()).toEqual('ended');
+        // Third set of data (index = 2) should still be rendered now.
+        Object.keys(someEntities).forEach(function (id) {
+          expect(someEntities[id].mockedValue).toEqual(data[2].values[id]);
+        });
+      })
     })
   })
 });

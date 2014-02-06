@@ -77,7 +77,7 @@ define([
           break;
         }
       }
-      this._state = 'stopped';
+      this._state = 'ended';
     },
 
     // -------------------------------------------
@@ -92,6 +92,9 @@ define([
     },
 
     _getValuesForIndex: function (index) {
+      index = Math.floor(index);
+      return this._data[index].values;
+      // TODO(bpstudds): Support interpolation of the data.
       var previousIndex, nextIndex;
       for (var i = 0; i < this._data.length; i++) {
         previousIndex = this._data[i].index;
@@ -100,7 +103,7 @@ define([
           return this._data[i].values;
         }
       }
-      throw new Error('Unexpected ran out of values looking for index "' + index + '"');
+      throw null;
     },
 
     // -------------------------------------------
@@ -114,7 +117,7 @@ define([
       if (this._state === 'playing') { return; }
 
       // Initialise the index to render from and cache the initial state of the renderer.
-      if (this._state === 'stopped') {
+      if (this._state === 'ended') {
         this._index = this._data[0].index;
         this._initial = this._static.getPreviousState();
       }
