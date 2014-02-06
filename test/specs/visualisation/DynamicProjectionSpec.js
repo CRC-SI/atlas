@@ -98,14 +98,32 @@ define([
         }
       });
 
-      xit('can be paused', function () {
+      it('can be paused', function () {
         dynPrj.start();
-        dynPrj.stop();
+        jasmine.Clock.tick(2000);
+        dynPrj.pause();
         expect(dynPrj.getStatus()).toEqual('paused');
-//        Object.keys(someEntities).forEach(function (id) {
-//          expect(someEntities[id].mockedValue).toBe(parseInt(id));
-//        })
-      })
+        // Should have rendered the second set of values, time passing shouldn't change this.
+        jasmine.Clock.tick(2000);
+        Object.keys(someEntities).forEach(function (id) {
+          expect(someEntities[id].mockedValue).toEqual(data[1].values[id]);
+        });
+      });
+
+      it('can be resumed', function () {
+        dynPrj.start();
+        jasmine.Clock.tick(2000);
+        dynPrj.pause();
+        expect(dynPrj.getStatus()).toEqual('paused');
+        jasmine.Clock.tick(2000);
+        dynPrj.start();
+        expect(dynPrj.getStatus()).toEqual('playing');
+        jasmine.Clock.tick(1000);
+        // Third set of data (index = 2) should be rendered now.
+        Object.keys(someEntities).forEach(function (id) {
+          expect(someEntities[id].mockedValue).toEqual(data[2].values[id]);
+        });
+      });
     })
   })
 });

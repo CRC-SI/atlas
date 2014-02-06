@@ -127,7 +127,9 @@ define([
      * be preserved.
      */
     pause: function() {
-      this._state === 'playing' && clearInterval(this._interval);
+      if (this._state !== 'playing') { return; }
+      clearInterval(this._interval);
+      this._state = 'paused';
     },
 
     /**
