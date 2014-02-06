@@ -66,13 +66,40 @@ define([
       for (var i = 1; i < data.length; i++) {
         if (this._data[i].index > this._data[i - 1].index) {
           this._data.sort(function (a, b) {
-            return a.index < b.index;
+            return a.index > b.index;
           });
           break;
         }
       }
       this._state = 'stopped';
     },
+
+    // -------------------------------------------
+    // GETTERS AND SETTERS
+    // -------------------------------------------
+
+    /**
+     * @returns {'String'} The status of the renderer.
+     */
+    getStatus: function () {
+      return this._state;
+    },
+
+    _getValuesForIndex: function (index) {
+      var previousIndex, nextIndex;
+      for (var i = 0; i < this._data.length; i++) {
+        previousIndex = this._data[i].index;
+        nextIndex = this._data[i + 1].index;
+        if (previousIndex <= index && index < nextIndex) {
+          return this._data[i].values;
+        }
+      }
+      throw new Error('Unexpected ran out of values looking for index "' + index + '"');
+    },
+
+    // -------------------------------------------
+    // MODIFIERS
+    // -------------------------------------------
 
     /**
      * Signals the DynamicRender to start or resume rendering.
@@ -82,7 +109,7 @@ define([
 
       // Initialise the index to render from and cache the initial state of the renderer.
       if (this._state === 'stopped') {
-        this._index = this._data[0].value;
+        this._index = this._data[0].index;
         this._initial = this._static.getPreviousState();
       }
       // Either start or resume rendering.
@@ -110,12 +137,17 @@ define([
       this._static.unrender();
     },
 
+    // -------------------------------------------
+    // BEHAVIOUR
+    // -------------------------------------------
+
     /**
      * Function that encapsulates the rendering loop.
      * @private
      */
     _render: function() {
       this._state = 'playing';
+      console.debug('starting render at index', this._index);
 
       // Use window timeout for the rendering loop.
       // TODO(bpstudds): Are there more efficient ways to do the rendering
@@ -133,7 +165,7 @@ define([
         }
         this._static.update({values: this._getValuesForIndex(this._index)});
         this._index += this._delta;
-      }, this);
+      }.bind(this));
     }
 
   });
