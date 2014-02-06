@@ -63,6 +63,13 @@ define([
           this._entities[id].mockedValue = newVal;
         }, this);
       }.bind(mockedPrj);
+      // Mock unrendering using the abstract projection.
+      mockedPrj.unrender = function () {
+        Object.keys(this._entities).forEach(function (id) {
+          delete this._effects[id];
+          this._entities[id].mockedValue = id;
+        }, this);
+      }.bind(mockedPrj);
     });
 
     describe('can be constructed', function () {
@@ -133,7 +140,23 @@ define([
         Object.keys(someEntities).forEach(function (id) {
           expect(someEntities[id].mockedValue).toEqual(data[2].values[id]);
         });
-      })
+      });
+
+      it('can be stopped', function () {
+        dynPrj.start();
+        jasmine.Clock.tick(1000);
+        expect(dynPrj.getStatus()).toEqual('playing');
+        // Third set of data (index = 1) should still be rendered now.
+        Object.keys(someEntities).forEach(function (id) {
+          expect(someEntities[id].mockedValue).toEqual(data[0].values[id]);
+        });
+        dynPrj.stop();
+        expect(dynPrj.getStatus()).toEqual('stopped');
+        // Effects of rendering should have been removed.
+        Object.keys(someEntities).forEach(function (id) {
+          expect(someEntities[id].mockedValue).toEqual(id);
+        });
+      });
     })
   })
 });
