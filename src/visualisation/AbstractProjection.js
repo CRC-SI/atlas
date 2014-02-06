@@ -231,6 +231,12 @@ define([
       }
     },
 
+    /**
+     * @returns {Object} The configuration of the Projection.
+     */
+    getConfiguration: function() {
+      return this._configuration;
+    },
 
     /**
      * @returns {String} The type of the Projection.
@@ -240,17 +246,34 @@ define([
     },
 
     /**
+     * Sets the previous state, or the state of the render before the Projection is applied. ie.
+     * sets what will be re-rendered when the Projection is removed.
+     */
+    setPreviousState: function(state) {
+      Object.keys(state).forEach(function (id) {
+        this._effects[id].oldValue = state[id];
+      }, this);
+    },
+
+    /**
+     * Returns the state before the Projection has been applied.
+     * @returns {Object.<String, Object>}
+     */
+    getPreviousState: function () {
+      var state = {};
+      if (this._effects) {
+        Object.keys(this._entities).forEach(function (id) {
+          state[id] = this._entities[id].oldValue;
+        }, this);
+      }
+      return state;
+    },
+
+    /**
      * @returns {Object.<String, Number>} The map of Entity ID to value for the Projection.
      */
     getValues: function () {
       return this._values;
-    },
-
-    /**
-     * @returns {Object} The configuration of the Projection.
-     */
-    getConfiguration: function() {
-      return this._configuration;
     },
 
     /**

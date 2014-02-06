@@ -48,11 +48,11 @@ define([
       }.bind(mockedPrj);
 
       // Mock setting the previous state from the projection (doesn't exist yet.)
-      mockedPrj.setPreviousState = function (state) {
-        Object.keys(state).forEach(function (id) {
-          this._effects[id].oldValue = state[id];
-        }, this);
-      }.bind(mockedPrj);
+//      mockedPrj.setPreviousState = function (state) {
+//        Object.keys(state).forEach(function (id) {
+//          this._effects[id].oldValue = state[id];
+//        }, this);
+//      }.bind(mockedPrj);
 
       // Mock rendering using the abstract projection.
       mockedPrj.render = function () {
