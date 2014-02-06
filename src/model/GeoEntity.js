@@ -205,6 +205,13 @@ define([
     },
 
     /**
+     * @returns {atlas.model.Style} The style of the GeoEntity.
+     */
+    getStyle: function () {
+      return this._style;
+    },
+
+    /**
      * @returns {Boolean} Whether the GeoEntity is currently renderable.
      */
     isRenderable: function () {
