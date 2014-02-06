@@ -52,15 +52,21 @@ define([
      */
     _delta: null,
 
-    _init: function (static, data) {
+    _init: function (static, data, args) {
       if (!static) {
         throw new DeveloperError('Static projection required to construct Dynamic projection.')
       }
       if (!data) {
         throw new DeveloperError('Data required to construct Dynamic projection.')
       }
+      args = mixin({
+        fps: 1,
+        delta: 1
+      }, args);
       this._static = static;
       this._data = data;
+      this._fps = args.fps;
+      this._delta = args.delta;
 
       // Make sure data is sorted.
       for (var i = 1; i < data.length; i++) {
@@ -133,7 +139,7 @@ define([
       if (this._state === 'stopped') { return; }
       this._state = 'stopped';
       clearInterval(this._interval);
-      this._static.setPreviousState(this._initialState);
+      this._static.setPreviousState(this._initial);
       this._static.unrender();
     },
 
@@ -151,9 +157,8 @@ define([
 
       // Use window timeout for the rendering loop.
       // TODO(bpstudds): Are there more efficient ways to do the rendering
-      this._interval = setTimeout( function () {
+      this._interval = setInterval( function () {
         // Render first because quicker?
-        this._static.render();
         // Get the values to use for the next render. this._index is preset as appropriate by
         // start(). If there are no values, pause the projection
         var values = this._getValuesForIndex(this._index);
@@ -164,8 +169,9 @@ define([
           return;
         }
         this._static.update({values: this._getValuesForIndex(this._index)});
+        this._static.render();
         this._index += this._delta;
-      }.bind(this));
+      }.bind(this), 1000 / this._fps);
     }
 
   });

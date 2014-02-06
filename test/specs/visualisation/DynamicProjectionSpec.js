@@ -13,13 +13,13 @@ define([
           { index: 0,
             values: {0: 0, 1: 10, 2: 20, 3: 30, 4: 40}
           },
-          { index: 10,
+          { index: 1,
             values: {0: 1, 1: 11, 2: 21, 3: 31, 4: 41}
           },
-          { index: 20,
+          { index: 2,
             values: {0: 2, 1: 12, 2: 22, 3: 32, 4: 42}
           },
-          { index: 30
+          { index: 3
           }
         ];
 
@@ -75,6 +75,7 @@ define([
 
     describe('once constructed', function () {
       beforeEach(function () {
+        jasmine.Clock.useMock();
         dynPrj = new DynamicProjection(mockedPrj, data);
         spyOn(dynPrj, '_render').andCallThrough();
       });
@@ -89,12 +90,21 @@ define([
         dynPrj.start();
         expect(dynPrj.getStatus()).toEqual('playing');
         expect(dynPrj._initial).toEqual({0: 0, 1: 1, 2: 2, 3: 3, 4: 4});
+        for (var tick = 0; tick < 3; tick++) {
+          jasmine.Clock.tick(1000);
+          Object.keys(someEntities).forEach(function (id) {
+            expect(someEntities[id].mockedValue).toEqual(data[tick].values[id]);
+          });
+        }
       });
 
       xit('can be paused', function () {
         dynPrj.start();
         dynPrj.stop();
         expect(dynPrj.getStatus()).toEqual('paused');
+//        Object.keys(someEntities).forEach(function (id) {
+//          expect(someEntities[id].mockedValue).toBe(parseInt(id));
+//        })
       })
     })
   })
