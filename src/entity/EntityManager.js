@@ -189,7 +189,6 @@ define([
   EntityManager.prototype.getById = function (id) {
     // TODO(bpstudds): Accept either a single id or an array of IDs and return an either a
     //      single entity or an array or Entities
-    console.debug('entityManager: got entity', id);
     return this._entities[id];
   };
 
@@ -200,7 +199,6 @@ define([
    * IDs.
    */
   EntityManager.prototype.getByIds = function (ids) {
-    console.debug('entityManager: got entities', ids);
     return ids.map(function (id) {
       return this.getById(id);
     }.bind(this));

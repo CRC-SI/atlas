@@ -309,7 +309,7 @@ define([
      * @param {Number} scale.y - The scale along the <code>longitude</code> axis.
      */
     scale: function(scale) {
-      console.debug('scaling polygon', this.getId(), 'with scale', scale);
+      //console.debug('scaling polygon', this.getId(), 'with scale', scale);
       var centroid = this.getCentroid();
       this._vertices.forEach(function (vertex, i) {
         var diff = vertex.subtract(centroid);

@@ -162,7 +162,7 @@ define([
      * @param {Number} translation.z - The change in altitude, given in metres.
      */
     translate: function (translation) {
-      console.debug('mesh', 'trying to translate');
+      //console.debug('mesh', 'trying to translate');
       // Update the 'translation', ie change _geoLocation.
       this._geoLocation = this._geoLocation.add(translation);
       // And redraw the Mesh.

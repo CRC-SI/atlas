@@ -91,7 +91,7 @@ define([
       this._displayMode = args.mesh ? defaultValue(args.displayMode, 'mesh') : this._displayMode;
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
-      this._style = args.style || this.DEFAULT_STYLE;
+      this._style = args.style || Feature.DEFAULT_STYLE;
     },
 
     // -------------------------------------------
@@ -255,12 +255,12 @@ define([
       Feature.base.remove.apply(this, arguments);
       // Remove mesh and footprint.
       if (this._mesh !== null) {
-        console.debug('attempting to remove mesh', this._mesh);
+        //console.debug('attempting to remove mesh', this._mesh);
         this._mesh.remove();
         this._mesh = null;
       }
       if (this._footprint !== null) {
-        console.debug('attempting to remove footprint', this._footprint);
+        //console.debug('attempting to remove footprint', this._footprint);
         this._footprint.remove();
         this._footprint = null;
       }
@@ -290,7 +290,7 @@ define([
      * Shows the Feature depending on its current <code>_displayMode</code>.
      */
     show: function() {
-      console.debug('trying to show feature', this.getId(), 'as', this._displayMode);
+      //console.debug('trying to show feature', this.getId(), 'as', this._displayMode);
       // TODO(aramk) delegate this to the setHeight setElevation.
       if (this._displayMode === 'footprint') {
         this._mesh && this._mesh.hide();

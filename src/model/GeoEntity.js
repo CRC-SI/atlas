@@ -176,12 +176,12 @@ define([
      * @param component
      */
     setDirty: function(component) {
-      console.error('entity id', this.getId(), 'now has dirty', component);
+      //console.error('entity id', this.getId(), 'now has dirty', component);
       this._dirty[component] = true;
     },
 
     clean: function() {
-      console.error('entity id', this.getId(), 'is clean');
+      //console.error('entity id', this.getId(), 'is clean');
       //delete this._dirty;
       Object.keys(this._dirty).forEach(function (key) {
         delete this._dirty[key];
@@ -197,7 +197,7 @@ define([
       if (this._style === style) { return null; }
       this.setDirty('style');
 
-      console.debug('setting style of entity', this.getId(), 'to', style);
+      //console.debug('setting style of entity', this.getId(), 'to', style);
       // Only change style if the new style is different so _previousStyle isn't clobbered.
       this._previousStyle = this._style;
       this._style = style;
@@ -387,7 +387,7 @@ define([
             // TODO(bpstudds): Replace 'magic numbers' with constants. Probably should update keycode.js library for this.
             if (!args.modifiers.shiftKey && !args.modifiers.metaKey &&
                 !args.modifiers.altKey && !args.modifiers.ctrlKey) {
-              console.debug('edit event', args.key);
+              //console.debug('edit event', args.key);
               switch (args.key) {
                 case 95: // underscore/minus beside backspace key
                   this.scale({x: 0.95, y: 0.95, z: 0.95});
@@ -405,7 +405,7 @@ define([
             }
           }.bind(this)
       );
-      console.debug('onEnableEditing called on', this.getId());
+      //console.debug('onEnableEditing called on', this.getId());
     },
 
     /**
