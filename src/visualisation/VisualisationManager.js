@@ -5,9 +5,10 @@ define([
   'atlas/dom/Overlay',
   'atlas/visualisation/AbstractProjection',
   'atlas/visualisation/ColourProjection',
+  'atlas/visualisation/DynamicProjection',
   'atlas/visualisation/HeightProjection'
 ], function (Class, DeveloperError, Colour, Overlay, AbstractProjection, ColourProjection,
-             HeightProjection) {
+             DynamicProjection, HeightProjection) {
 
   /**
    * @classdesc The VisualisationManager is responsible for tracking, applying
@@ -16,7 +17,6 @@ define([
    *      the current instance of that manager.
    * @class atlas.visualisation.VisualisationManager
    */
-  //var VisualisationManager = function (atlasManagers) {
   var VisualisationManager = Class.extend( /** @lends atlas.visualisation.VisualisationManager# */{
 
     // TODO(bpstudds): Refactor this class to 'GeoChartFactory'? or 'ProjectionFactory'?
@@ -89,9 +89,9 @@ define([
         {
           source: 'extern',
           name: 'projection/dynamic/add',
-          callback: function (artifact) {
-            console.error('receive "projection/remove" event.');
-            this.remove(artifact);
+          callback: function (args) {
+            args.theProjection = this.createDynamicProjection(args);
+            this.addDynamic(args.theProjection);
           }.bind(this)
         }
 
@@ -108,6 +108,19 @@ define([
       }, this);
 
       return new Projection(args.config);
+    },
+
+    createDynamicProjection: function (args) {
+      var Projection = args.type = 'colour' ? ColourProjection : HeightProjection;
+      // Set up the config for projection construction.
+      args.config.values = {};
+      args.config.entities = {};
+      args.ids.forEach(function (id) {
+        args.config.entities[id] = this._atlasManagers.entity.getById(id);
+      }, this);
+      var staticPrj = new Projection(args.config);
+
+      return new DynamicProjection(staticPrj, args.data, args);
     },
 
     // -------------------------------------------
@@ -137,7 +150,28 @@ define([
       this._projections[target] = projection;
 
       this._overlays[target] && this._overlays.remove();
-      this._overlays = new Overlay({
+      this._overlays[target] = new Overlay({
+        parent: this._atlasManagers.dom.getDom(),
+        dimensions: {top: 0, left: 0},
+        content: '<button id="visual-btn-' + target + '">' + target + '</button>'
+      });
+      document.getElementById('visual-btn-'+target).addEventListener('click', function (target) {
+        return function (event) {
+          // 0 -> Left click.
+          if (event.button === 0) {
+            this.toggleRender(target)
+          }
+        }
+      }(target).bind(this));
+      return ret;
+    },
+
+    addDynamic: function (dynamic) {
+      var target = 'dynamic-'+dynamic._static.ARTIFACT
+
+      this._projections[target] = dynamic;
+
+      this._overlays[target] = new Overlay({
         parent: this._atlasManagers.dom.getDom(),
         dimensions: {top: 0, left: 0},
         content: '<button id="visual-btn-' + target + '">' + target + '</button>'
@@ -145,11 +179,10 @@ define([
       document.getElementById('visual-btn-'+target).addEventListener('click', function (target) {
         return function (event) {
           if (event.button === 0) {
-            this.toggleRender(target)
+            this.start()
           }
         }
-      }(target).bind(this));
-      return ret;
+      }(target).bind(dynamic));
     },
 
     /**

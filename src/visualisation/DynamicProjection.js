@@ -52,8 +52,8 @@ define([
      */
     _delta: null,
 
-    _init: function (static, data, args) {
-      if (!static) {
+    _init: function (staticPrj, data, args) {
+      if (!staticPrj) {
         throw new DeveloperError('Static projection required to construct Dynamic projection.')
       }
       if (!data) {
@@ -63,7 +63,7 @@ define([
         fps: 1,
         delta: 1
       }, args);
-      this._static = static;
+      this._static = staticPrj;
       this._data = data;
       this._fps = args.fps;
       this._delta = args.delta;
@@ -173,7 +173,7 @@ define([
           this._state = 'ended';
           return;
         }
-        this._static.update({values: this._getValuesForIndex(this._index)});
+        this._static.update({values: values});
         this._static.render();
         this._index += this._delta;
       }.bind(this), 1000 / this._fps);
