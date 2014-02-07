@@ -142,6 +142,7 @@ define([
         codomain: args.codomain
       };
       // Calculate statistical properties for the binned values.
+      if (Object.keys(this._values).length === 0) { return; }
       this._stats = this._calculateBinnedStatistics();
       // TODO(bpstudds): Do we need to calculate this for a discrete projection?
       this._attributes = this._calculateValueAttributes();
@@ -282,37 +283,62 @@ define([
      * @protected
      */
     _configureBins: function () {
-      var bins = [];
-      if (typeof this._configuration.bins === 'number') {
-        var numBins = this._configuration.bins;
+      var binConf = this._configuration.bins,
+          bins = [];
+      if (typeof binConf === 'number') {
+        var numBins = binConf;
         if (numBins === 1) {
           bins = [{ binId: 0, numBins: numBins, firstValue: Number.NEGATIVE_INFINITY, lastValue: Number.POSITIVE_INFINITY }];
         } else {
           // Create bins by splitting up the range of input parameter values into equal divisions.
-          var populationStats = this._calculatePopulationStatistics(),
-              start = populationStats.min.value,
-              step = populationStats.range / numBins;
-          for (var i = 0, firstValue = start; i < numBins; i++, firstValue += step) {
-            bins.push({binId: i, numBins: numBins, firstValue: firstValue, lastValue: firstValue + step});
-          }
-          // Set the top bin to be unbounded to ensure the largest value is picked up.
-          bins[numBins - 1].lastValue = Number.POSITIVE_INFINITY;
+          var populationStats = this._calculatePopulationStatistics();
+          bins = this._configureEqualSizedBins(numBins, populationStats.min.value, populationStats.max.value, true);
         }
-      } else if (this._configuration.bins instanceof Array) {
-        var previousLastValue = Number.NEGATIVE_INFINITY,
-            numBins = this._configuration.bins.length;
-        this._configuration.bins.forEach(function (bin, i) {
-          if (bin.firstValue === undefined || bin.firstValue === 'smallest') { bin.firstValue = Number.NEGATIVE_INFINITY; }
-          if (bin.lastValue === undefined || bin.lastValue === 'largest') { bin.lastValue = Number.POSITIVE_INFINITY; }
-          if (bin.firstValue < previousLastValue || bin.lastValue < bin.firstValue) {
-            throw new DeveloperError('Incorrect bins configuration provided', this._configuration.bins);
-          }
-          bins.push({binId: i, numBins: numBins, firstValue: bin.firstValue, lastValue: bin.lastValue});
-          previousLastValue = bin.lastValue;
-        }, this);
+      } else if (binConf instanceof Array) {
+        bins = this._configureBinsFromArray(binConf);
+      } else if (binConf.numBins && binConf.firstValue !== undefined && binConf.lastValue !== undefined) {
+        bins = this._configureEqualSizedBins(binConf.numBins, binConf.firstValue, binConf.lastValue, false);
       }
       return bins;
     },
+
+    _configureEqualSizedBins: function (numBins, firstValue, lastValue, unboundAbove) {
+      var bins = [],
+          binFirst = firstValue,
+          binStep = (lastValue - firstValue) / numBins;
+      for (var i = 0; i < numBins; i++, binFirst += binStep) {
+        bins.push({
+          binId: i,
+          numBins: numBins,
+          firstValue: binFirst,
+          lastValue: binFirst + binStep,
+          range: binStep
+        });
+      }
+      // Set the top bin to be unbounded to ensure the largest value is picked up.
+      if (unboundAbove) {
+        bins[numBins - 1].lastValue = Number.POSITIVE_INFINITY;
+      }
+      return bins;
+    },
+
+    _configureBinsFromArray: function (binArray) {
+      var bins = [],
+          previousLastValue = Number.NEGATIVE_INFINITY,
+          numBins = binArray.length;
+      binArray.forEach(function (bin, i) {
+        if (bin.firstValue === undefined || bin.firstValue === 'smallest') { bin.firstValue = Number.NEGATIVE_INFINITY; }
+        if (bin.lastValue === undefined || bin.lastValue === 'largest') { bin.lastValue = Number.POSITIVE_INFINITY; }
+        if (bin.firstValue < previousLastValue || bin.lastValue < bin.firstValue) {
+          throw new DeveloperError('Incorrect bins configuration provided', this._configuration.bins);
+        }
+        bins.push({binId: i, numBins: numBins, firstValue: bin.firstValue, lastValue: bin.lastValue});
+        previousLastValue = bin.lastValue;
+      }, this);
+      return bins;
+    },
+
+
 
     /**
      * Calculates the statistical properties for all parameter values, segregating each value into
@@ -348,7 +374,7 @@ define([
               thisValue = sortedValues[i].value;
           // Check value is still within the current bin.
           if (thisValue < bin.firstValue) { continue; }
-          if (thisValue >= bin.lastValue) { i--; break; }
+          if (thisValue >= bin.lastValue) { break; }
           binStats.entityIds.push(thisId);
           // Calculate statistical properties.
           binStats.count++;
@@ -410,15 +436,18 @@ define([
         // and each entity which has a value in the bin.
         bin.entityIds.forEach(function (id) {
           var thisValue = this._values[id],
-              thisAttribute = {};
+              thisAttribute = {},
+              divisor;
           thisAttribute.binId = bin.binId;
           thisAttribute.numBins = bin.numBins;
           thisAttribute.absRatio = bin.range !== 0 ?
               (thisValue - bin.min.value) / (bin.range) : Number.POSITIVE_INFINITY;
           thisAttribute.diffFromAverage = thisValue - bin.average;
           thisAttribute.ratioFromAverage = (thisValue - bin.average);
-          thisAttribute.ratioFromAverage /= (thisAttribute.ratioFromAverage < 0 ?
-              (bin.average - bin.min.value) : (bin.max.value - bin.average));
+          divisor = thisAttribute.ratioFromAverage < 0 ?
+            (bin.average - bin.min.value) : (bin.max.value - bin.average);
+          thisAttribute.ratioFromAverage = divisor > 0 ? thisAttribute / divisor : Number.POSITIVE_INFINITY;
+          // Push onto new attribute onto attribute collection.
           theAttributes[id] = thisAttribute;
         }, this);
       }, this);
