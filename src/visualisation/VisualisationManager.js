@@ -138,7 +138,7 @@ define([
     },
 
     createDynamicProjection: function (args) {
-      var Projection = args.type = 'colour' ? ColourProjection : HeightProjection;
+      var Projection = args.type === 'colour' ? ColourProjection : HeightProjection;
       // Set up the config for projection construction.
       args.config.values = {};
       args.config.entities = {};
@@ -201,11 +201,16 @@ define([
         dimensions: {top: 0, left: 0},
         content:
           '<p>'+target+'</p>' +
+          '<input type="range" id="visual-fps-' + target + '" min="1" max="30"> </br> ' +
           '<button id="visual-btn-play-' + target + '">&gt</button>' +
           '<button id="visual-btn-pause-' + target + '">||&gt</button>' +
           '<button id="visual-btn-stop-' + target + '">!</button>'
       });
+      var getFpsFromForm = function (target) {
+        return document.getElementById('visual-fps-' + target).value;
+      };
       document.getElementById('visual-btn-play-'+target).addEventListener('click', function (event) {
+        this._fps = getFpsFromForm(target);
         if (event.button === 0) {
           this.start()
         }
