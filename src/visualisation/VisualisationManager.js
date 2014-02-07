@@ -33,6 +33,66 @@ define([
       this._projections = {};
     },
 
+    /**
+     * Performs any setup for the Manager that requires other Atlas managers to exist.
+     */
+    setup: function () {
+      this._bindEvents();
+    },
+
+    /**
+     * Binds functionality of the VisualisationManager to specific events.
+     */
+    _bindEvents: function () {
+      this._eventHandlers = [
+        {
+          source: 'extern',
+          name: 'projection/add',
+          callback: function (args) {
+            console.error('receive "projection/add" event.');
+            args.theProjection = this.createProjection(args);
+            args.theOldProjection = this.add(args.theProjection);
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'projection/render',
+          callback: function (artifact) {
+            console.error('receive "projection/render" event.');
+            this.render(artifact);
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'projection/unrender',
+          callback: function (artifact) {
+            console.error('receive "projection/unrender" event.');
+            this.unrender(artifact);
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'projection/remove',
+          callback: function (artifact) {
+            console.error('receive "projection/remove" event.');
+            this.remove(artifact);
+          }.bind(this)
+        }
+      ];
+      this._atlasManagers.event.addEventHandlers(this._eventHandlers);
+    },
+
+    createProjection: function (args) {
+      var Projection = args.type = 'colour' ? ColourProjection : HeightProjection;
+
+      args.config.entities = {};
+      args.ids.forEach(function (id) {
+        args.config.entities[id] = this._atlasManagers.entity.getById(id);
+      }, this);
+
+      return new Projection(args.config);
+    },
+
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------
