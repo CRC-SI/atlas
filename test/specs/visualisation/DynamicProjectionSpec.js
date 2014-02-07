@@ -38,7 +38,8 @@ define([
       someEntities[4].mockedValue = 4;
       mockedPrj = new AbstractProjection({values: {}, entities: someEntities});
 
-      // Mock getting the previous state from the projection (doesn't exist yet.)
+      // Mock getting the previous state of the AbstractProjection. This has to be mocked
+      // as the AbstractProjection doesn't know what state needs to be returned.
       mockedPrj.getPreviousState = function () {
         var state = {};
         Object.keys(this._entities).forEach(function (id) {
@@ -46,13 +47,6 @@ define([
         }, this);
         return state;
       }.bind(mockedPrj);
-
-      // Mock setting the previous state from the projection (doesn't exist yet.)
-//      mockedPrj.setPreviousState = function (state) {
-//        Object.keys(state).forEach(function (id) {
-//          this._effects[id].oldValue = state[id];
-//        }, this);
-//      }.bind(mockedPrj);
 
       // Mock rendering using the abstract projection.
       mockedPrj.render = function () {

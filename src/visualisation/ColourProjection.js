@@ -19,6 +19,22 @@ define([
     DEFAULT_CODOMAIN: {fixedProj: Colour.RED},
 
     /**
+     * Returns the state before the Projection has been applied, or if the Projection has not been
+     * applied, the current state of the actual render.
+     * @returns {Object.<String, Object>}
+     */
+    getPreviousState: function () {
+      // If changes have been made, superclass AbstractProjection can handle getting the previous state.
+      if (Object.keys(this._effects).length > 0) { return this._super(); }
+      // Other, the ColourProjection needs to return the current state of the actual render.
+      var state = {};
+      Object.keys(this._entities).forEach(function (id) {
+        state[id] = {fillColour: this._entities[id].getStyle().getFillColour()};
+      }, this);
+      return state;
+    },
+
+    /**
      * Renders the effects of the Projection on a single GeoEntity.
      * @param {atlas.model.GeoEntity} entity - The GeoEntity to render.
      * @param {Object} attributes - The attributes of the parameter value for the given GeoEntity.

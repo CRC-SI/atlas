@@ -17,6 +17,22 @@ define([
     DEFAULT_CODOMAIN: {startProj: 50, endProj: 100},
 
     /**
+     * Returns the state before the Projection has been applied, or if the Projection has not been
+     * applied, the current state of the actual render.
+     * @returns {Object.<String, Object>}
+     */
+    getPreviousState: function () {
+      // If changes have been made, superclass AbstractProjection can handle getting the previous state.
+      if (Object.keys(this._effects).length > 0) { return this._super(); }
+      // Other, the HeightProjection needs to return the current state of the actual render.
+      var state = {};
+      Object.keys(this._entities).forEach(function (id) {
+        state[id] = this._entities[id].getHeight();
+      }, this);
+      return state;
+    },
+
+    /**
      * Renders the effects of the Projection on a single GeoEntity.
      * @param {atlas.model.GeoEntity} entity - The GeoEntity to render.
      * @param {Object} attributes - The attributes of the parameter value for the given GeoEntity.
