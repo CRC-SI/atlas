@@ -93,8 +93,35 @@ define([
             args.theProjection = this.createDynamicProjection(args);
             this.addDynamic(args.theProjection);
           }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'projection/dynamic/remove',
+          callback: function (args) {
+            delete this._projections['dynamic-'+args];
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'projection/dynamic/start',
+          callback: function (args) {
+            this._projections['dynamic-'+args].start();
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'projection/dynamic/pause',
+          callback: function (args) {
+            this._projections['dynamic-'+args].pause();
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'projection/dynamic/stop',
+          callback: function (args) {
+            this._projections['dynamic-'+args].stop();
+          }.bind(this)
         }
-
       ];
       this._atlasManagers.event.addEventHandlers(this._eventHandlers);
     },
@@ -167,22 +194,32 @@ define([
     },
 
     addDynamic: function (dynamic) {
-      var target = 'dynamic-'+dynamic._static.ARTIFACT
-
+      var target = 'dynamic-'+dynamic._static.ARTIFACT;
       this._projections[target] = dynamic;
-
       this._overlays[target] = new Overlay({
         parent: this._atlasManagers.dom.getDom(),
         dimensions: {top: 0, left: 0},
-        content: '<button id="visual-btn-' + target + '">' + target + '</button>'
+        content:
+          '<p>'+target+'</p>' +
+          '<button id="visual-btn-play-' + target + '">&gt</button>' +
+          '<button id="visual-btn-pause-' + target + '">||&gt</button>' +
+          '<button id="visual-btn-stop-' + target + '">!</button>'
       });
-      document.getElementById('visual-btn-'+target).addEventListener('click', function (target) {
-        return function (event) {
-          if (event.button === 0) {
-            this.start()
-          }
+      document.getElementById('visual-btn-play-'+target).addEventListener('click', function (event) {
+        if (event.button === 0) {
+          this.start()
         }
-      }(target).bind(dynamic));
+      }.bind(this._projections[target]));
+      document.getElementById('visual-btn-pause-'+target).addEventListener('click', function (event) {
+        if (event.button === 0) {
+          this.pause()
+        }
+      }.bind(this._projections[target]));
+      document.getElementById('visual-btn-stop-'+target).addEventListener('click', function (event) {
+        if (event.button === 0) {
+          this.stop()
+        }
+      }.bind(this._projections[target]));
     },
 
     /**
