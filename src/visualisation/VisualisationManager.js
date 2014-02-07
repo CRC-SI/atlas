@@ -2,10 +2,12 @@ define([
   'atlas/util/Class',
   'atlas/util/DeveloperError',
   'atlas/model/Colour',
+  'atlas/dom/Overlay',
   'atlas/visualisation/AbstractProjection',
   'atlas/visualisation/ColourProjection',
   'atlas/visualisation/HeightProjection'
-], function (Class, DeveloperError, Colour, AbstractProjection, ColourProjection, HeightProjection) {
+], function (Class, DeveloperError, Colour, Overlay, AbstractProjection, ColourProjection,
+             HeightProjection) {
 
   /**
    * @classdesc The VisualisationManager is responsible for tracking, applying
@@ -27,10 +29,16 @@ define([
      */
     _projections: null,
 
+    /**
+     * A map of GUI overlays to control rendering/unrendering of Projections.
+     */
+    _overlays: null,
+
     _init: function (atlasManagers) {
       this._atlasManagers = atlasManagers;
       this._atlasManagers.visualisation = this;
       this._projections = {};
+      this._overlays = {};
     },
 
     /**
@@ -77,7 +85,16 @@ define([
             console.error('receive "projection/remove" event.');
             this.remove(artifact);
           }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'projection/dynamic/add',
+          callback: function (artifact) {
+            console.error('receive "projection/remove" event.');
+            this.remove(artifact);
+          }.bind(this)
         }
+
       ];
       this._atlasManagers.event.addEventHandlers(this._eventHandlers);
     },
@@ -118,6 +135,20 @@ define([
         ret = old;
       }
       this._projections[target] = projection;
+
+      this._overlays[target] && this._overlays.remove();
+      this._overlays = new Overlay({
+        parent: this._atlasManagers.dom.getDom(),
+        dimensions: {top: 0, left: 0},
+        content: '<button id="visual-btn-' + target + '">' + target + '</button>'
+      });
+      document.getElementById('visual-btn-'+target).addEventListener('click', function (target) {
+        return function (event) {
+          if (event.button === 0) {
+            this.toggleRender(target)
+          }
+        }
+      }(target).bind(this));
       return ret;
     },
 
@@ -165,6 +196,19 @@ define([
         throw new DeveloperError('Tried to unrender projection', artifact, 'without adding a projection object.');
       } else {
         this._projections[artifact].unrender();
+      }
+    },
+
+    toggleRender: function (artifact) {
+      var prj = this._projections[artifact];
+      if (!prj) {
+        throw new DeveloperError('Tried to toggle render of projection', artifact, 'without adding a projection object.');
+      } else {
+        if (Object.keys(prj._effects).length === 0) {
+          prj.render();
+        } else {
+          prj.unrender();
+        }
       }
     },
 
