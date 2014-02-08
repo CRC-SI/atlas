@@ -5,13 +5,7 @@ define([
   'atlas/util/dom/DomClass',
   'atlas/util/dom/DomChild',
   'atlas/util/mixin'
-], function(
-  Class,
-  DeveloperError,
-  defaultValue,
-  DomClass,
-  DomChild,
-  mixin) {
+], function(Class, DeveloperError, defaultValue, DomClass, DomChild, mixin) {
   "use strict";
 
   /**
@@ -23,7 +17,7 @@ define([
    *
    * @class atlas.dom.DomManager
    */
-  var DomManager = mixin(Class.extend( /** @lends atlas.dom.DomManager# */ {
+  var DomManager = mixin(Class.extend(/** @lends atlas.dom.DomManager# */ {
     /**
      * A mapping of every manager type in Atlas to the manager instance. This
      * object is created on Atlas, but the manager instances are set by each
@@ -32,7 +26,7 @@ define([
      */
     _atlasManagers: null,
 
-    _currentDomId: null,
+    _currentDomNode: null,
 
     _rendered: null,
 
@@ -42,12 +36,11 @@ define([
       this._atlasManagers = atlasManagers;
       this._atlasManagers.dom = this;
 
-      this._currentDomId = defaultValue(domId, null);
       this._rendered = false;
       this._visible = false;
 
-      if (this._currentDomId !== null) {
-        this.setDom(this._currentDomId, true);
+      if (this._currentDomNode !== null) {
+        this.setDom(this._currentDomNode, true);
       }
     },
 
@@ -63,51 +56,46 @@ define([
      * @param {String|HTMLElement} elem - Either the ID of a DOM element or the element itself.
      * @param {Boolean} [show=true] - Whether the object should be displayed immediately in this new location.
      */
-    setDom: function (elem, show) {
+    setDom: function(elem, show) {
       var showNow = defaultValue(show, true);
       var newDomNode = typeof elem === 'string' ? document.getElementById(elem) : elem;
       if (!newDomNode) {
         throw new DeveloperError('DOM node not found: ' + elem);
       }
-      var newDomNodeId = newDomNode.id;
+//      var newDomNodeId = newDomNode.id;
 
       // Move existing DOM if there is one.
-      console.debug('setting DOM with current ID', this._currentDomId, 'to', newDomNodeId);
-      if (this._currentDomId !== null) {
+      console.debug('setting DOM node', newDomNode);
+      if (this._currentDomNode !== null) {
         // Always show in the new position if Atlas is being moved.
         showNow = true;
-        console.debug('moving atlas from', this._currentDomId, 'to', newDomNodeId);
-        var curDomNode = document.getElementById(this._currentDomId);
+        console.debug('moving atlas from', this._currentDomNode, 'to', newDomNode);
+        var curDomNode = this._currentDomNode;
         var childDomNode = DomChild.getChildren(curDomNode);
         DomChild.addChildren(newDomNode, childDomNode);
-        console.debug('moved atlas into', newDomNodeId);
+        console.debug('moved atlas into', newDomNode);
       }
-      this._currentDomId = newDomNodeId;
+      this._currentDomNode = newDomNode;
       // Show in new location if required.
-      if (showNow) {
-        DomClass.remove(newDomNode, "hidden");
-        this._visible = true;
-      } else {
-        DomClass.add(newDomNode, "hidden");
-        this._visible = false;
-      }
+      DomClass[showNow ? 'remove' : 'add'](newDomNode, 'hidden');
+      this._visible = !!showNow;
       // Cause the set DOM element to be populated with the Atlas visualisation.
-      this.populateDom(this._currentDomId);
+      this.populateDom(newDomNode);
     },
 
     /**
      * @returns {HTMLElement} The current DOM node used by Atlas.
      */
-    getDom: function () {
-      return document.getElementById(this._currentDomId);
+    getDom: function() {
+      return this._currentDomNode;
     },
 
-    getHeight: function () {
-      return document.getElementById(this._currentDomId).offsetHeight;
+    getHeight: function() {
+      return this._currentDomNode.offsetHeight;
     },
 
-    getWidth: function () {
-      return document.getElementById(this._currentDomId).offsetWidth;
+    getWidth: function() {
+      return this._currentDomNode.offsetWidth;
     },
 
     // -------------------------------------------
@@ -118,17 +106,16 @@ define([
      * Populates the Atlas DOM element.
      * @abstract
      */
-    populateDom: function (id) {
+    populateDom: function(id) {
       throw new DeveloperError('Can not call abstract method atlas/dom/DomManager.populateDom');
     },
 
     /**
      * Shows the Atlas DOM element.
      */
-    show: function () {
+    show: function() {
       if (!this._visible) {
-        var domNode = document.getElementById(this._currentDomId);
-        DomClass.remove(domNode, 'hidden');
+        DomClass.remove(this._currentDomNode, 'hidden');
         this._visible = true;
       }
     },
@@ -136,10 +123,9 @@ define([
     /**
      * Hides the Atlas DOM element.
      */
-    hide: function () {
+    hide: function() {
       if (this._visible) {
-        var domNode = document.getElementById(this._currentDomId);
-        DomClass.add(domNode, 'hidden');
+        DomClass.add(this._currentDomNode, 'hidden');
         this._visible = false;
       }
     },
@@ -147,23 +133,19 @@ define([
     /**
      * Toggles the visiblity of the Atlas DOM element.
      */
-    toggleVisibility: function () {
-      if (this._visible) {
-        this.hide();
-      } else {
-        this.show();
-      }
+    toggleVisibility: function() {
+      this._visible ? this.hide() : this.show();
     }
 
   }), // End class instance definitions.
 
-    // -------------------------------------------
-    // STATICS
-    // -------------------------------------------
+      // -------------------------------------------
+      // STATICS
+      // -------------------------------------------
 
-    {
-      // Nope
-    }
+      {
+        // Nope
+      }
   ); // End class static definitions.
 
   return DomManager;
