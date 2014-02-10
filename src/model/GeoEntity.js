@@ -256,7 +256,7 @@ define([
     // -------------------------------------------
 
     /**
-     * Modifies specific components of the Feature's style.
+     * Modifies specific components of the GeoEntity's style.
      * @param {Object} args - The new values for the Style components.
      * @param {atlas.model.Colour} [args.fillColour] - The new fill colour.
      * @param {atlas.model.Colour} [args.borderColour] - The new border colour.
