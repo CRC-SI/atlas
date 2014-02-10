@@ -243,8 +243,8 @@ define([
 
     addDynamicProjection: function (dynamic) {
       var target = 'dynamic-'+dynamic._projector.ARTIFACT,
-          BUTTON = 'visual-btn-',
-          SLIDER = 'visual-sld-';
+          BUTTON = 'visual-btn',
+          SLIDER = 'visual-slider';
 
       this._projections[target] = dynamic;
       this._overlays[target] = new Overlay({
@@ -253,23 +253,23 @@ define([
         content:
           '<p>'+target+'</p>' +
           '<input type="range" id="' + SLIDER + '-fps-' + target + '" min="1" max="30"> </br> ' +
-          '<button id="' + BUTTON + 'play-' + target + '">&gt</button>' +
-          '<button id="' + BUTTON + 'pause-' + target + '">||&gt</button>' +
-          '<button id="' + BUTTON + 'stop-' + target + '">!</button>'
+          '<button id="' + BUTTON + '-play-' + target + '">&gt</button>' +
+          '<button id="' + BUTTON + '-pause-' + target + '">||&gt</button>' +
+          '<button id="' + BUTTON + '-stop-' + target + '">!</button>'
       });
       var getFpsFromForm = function (target) {
-        return document.getElementById('visual-fps-' + target).value;
+        return document.getElementById(SLIDER + '-fps-' + target).value;
       };
-      document.getElementById(BUTTON + 'play-'+target).addEventListener('click', function (event) {
+      document.getElementById(BUTTON + '-play-' + target).addEventListener('click', function (event) {
         this.setFps(getFpsFromForm(target));
         event.button === 0 && this.start();
       }.bind(this._projections[target]));
 
-      document.getElementById(BUTTON + 'pause-'+target).addEventListener('click', function (event) {
+      document.getElementById(BUTTON + '-pause-' + target).addEventListener('click', function (event) {
         event.button === 0 && this.pause();
       }.bind(this._projections[target]));
 
-      document.getElementById(BUTTON + 'stop-'+target).addEventListener('click', function (event) {
+      document.getElementById(BUTTON + '-stop-' + target).addEventListener('click', function (event) {
         event.button === 0 && this.stop();
       }.bind(this._projections[target]));
     },
