@@ -26,7 +26,7 @@ define([
     getPreviousState: function () {
       // If changes have been made, superclass AbstractProjection can handle getting the previous state.
       if (Object.keys(this._effects).length > 0) { return this._super(); }
-      // Other, the ColourProjection needs to return the current state of the actual render.
+      // Otherwise, the ColourProjection needs to return the current state of the actual render.
       var state = {};
       Object.keys(this._entities).forEach(function (id) {
         state[id] = {fillColour: this._entities[id].getStyle().getFillColour()};

@@ -296,7 +296,7 @@ define([
         this._mesh && this._mesh.hide();
         if (this._footprint) {
           this._footprint.setHeight(0);
-          this._footprint._dirty = this._dirty;
+          this._footprint.setDirty(this._dirty);
           this._visible = this._footprint.show();
         }
       } else if (this._displayMode === 'extrusion') {
@@ -304,13 +304,13 @@ define([
         if (this._footprint) {
           this._footprint.setHeight(this._height);
           this._footprint.setElevation(this._elevation);
-          this._footprint._dirty = this._dirty;
+          this._footprint.setDirty(this._dirty);
           this._visible = this._footprint.show();
         }
       } else if (this._displayMode === 'mesh') {
         this._footprint && this._footprint.hide();
         if (this._mesh) {
-          this._mesh._dirty = this._dirty;
+          this._mesh.setDirty(this._dirty);
           this._visible = this._mesh.show();
         }
       }

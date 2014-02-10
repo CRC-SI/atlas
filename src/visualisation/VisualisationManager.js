@@ -56,54 +56,81 @@ define([
         {
           source: 'extern',
           name: 'projection/add',
+          /* Creates a new projection.
+           * @param {String} args.type - The type of projection, either 'colour' or 'height'.
+           * @param {Array.<String>} args.ids - An array of GeoEntity IDs that the projection affects.
+           * @param {Object} args.config - Constructor arguments as required by the type of projection. Refer to @{link atlas.visualisation.AbstractProjection}, @{link atlas.visualisation.ColourProjection}, and @{link atlas.visualisation.HeightProjection}.
+           * @returns {atlas.visualisation.AbstractProjection} The old projection as <code>args.theOldProjection</code> and the new one as <code>args.theProjection</code>.
+           */
           callback: function (args) {
-            console.error('receive "projection/add" event.');
             args.theProjection = this.createProjection(args);
-            args.theOldProjection = this.add(args.theProjection);
+            args.theOldProjection = this.addProjection(args.theProjection);
           }.bind(this)
         },
         {
           source: 'extern',
           name: 'projection/render',
+          /*
+           * @param {String} args - The artifact of the projection to render.
+           */
           callback: function (artifact) {
-            console.error('receive "projection/render" event.');
             this.render(artifact);
           }.bind(this)
         },
         {
           source: 'extern',
           name: 'projection/unrender',
+          /*
+           * @param {String} args - The artifact of the projection to unrender.
+           */
           callback: function (artifact) {
-            console.error('receive "projection/unrender" event.');
             this.unrender(artifact);
           }.bind(this)
         },
         {
           source: 'extern',
           name: 'projection/remove',
+          /*
+           * @param {String} args - The artifact of the projection to remove.
+           */
           callback: function (artifact) {
-            console.error('receive "projection/remove" event.');
             this.remove(artifact);
           }.bind(this)
         },
         {
           source: 'extern',
           name: 'projection/dynamic/add',
+          /*
+           * Creates a new dynamic projection.
+           * @param {Object} args
+           * @param {String} args.type - The type of projection, either 'colour' or 'height'.
+           * @param {Array.<String>} args.ids - An array of GeoEntity ids that the projection affects.
+           * @param {Array.<Object>} args.data - An array of objects mapping index to a map of GeoEntity id to it's parameter value for that index.
+           * @param {Object} args.config - Constructor arguments as required by the type of projection. Refer to @{link atlas.visualisation.AbstractProjection}, @{link atlas.visualisation.ColourProjection}, and @{link atlas.visualisation.HeightProjection}.
+           * @returns {atlas.visualisation.DynamicProjection} The new dynamic projection as <code>args.theProjection</code>.
+           */
           callback: function (args) {
             args.theProjection = this.createDynamicProjection(args);
-            this.addDynamic(args.theProjection);
+            this.addDynamicProjection(args.theProjection);
           }.bind(this)
         },
         {
           source: 'extern',
           name: 'projection/dynamic/remove',
+          /*
+           * @param {String} args - The artifact of the dynamic projection to remove.
+           */
           callback: function (args) {
+            this._projections['dynamic-'+args].stop();
             delete this._projections['dynamic-'+args];
           }.bind(this)
         },
         {
           source: 'extern',
           name: 'projection/dynamic/start',
+          /*
+           * @param {String} args - The artifact of the dynamic projection to start.
+           */
           callback: function (args) {
             this._projections['dynamic-'+args].start();
           }.bind(this)
@@ -111,6 +138,9 @@ define([
         {
           source: 'extern',
           name: 'projection/dynamic/pause',
+          /*
+           * @param {String} args - The artifact of the dynamic projection to pause.
+           */
           callback: function (args) {
             this._projections['dynamic-'+args].pause();
           }.bind(this)
@@ -118,6 +148,9 @@ define([
         {
           source: 'extern',
           name: 'projection/dynamic/stop',
+          /*
+           * @param {String} args - The artifact of the dynamic projection to stop.
+           */
           callback: function (args) {
             this._projections['dynamic-'+args].stop();
           }.bind(this)
@@ -126,8 +159,16 @@ define([
       this._atlasManagers.event.addEventHandlers(this._eventHandlers);
     },
 
+    /**
+     * Creates a new projection.
+     * @param {Object} args
+     * @param {String} args.type - The type of projection, either 'colour' or 'height'.
+     * @param {Array.<String>} args.ids - An array of GeoEntity IDs that the projection affects.
+     * @param {Object} args.config - Constructor arguments as required by the type of projection. Refer to @{link atlas.visualisation.AbstractProjection}, @{link atlas.visualisation.ColourProjection}, and @{link atlas.visualisation.HeightProjection}.
+     * @returns {atlas.visualisation.AbstractProjection} The new projection object.
+     */
     createProjection: function (args) {
-      var Projection = args.type = 'colour' ? ColourProjection : HeightProjection;
+      var Projection = args.type === 'colour' ? ColourProjection : HeightProjection;
 
       args.config.entities = {};
       args.ids.forEach(function (id) {
@@ -137,6 +178,15 @@ define([
       return new Projection(args.config);
     },
 
+    /**
+     * Creates a new dynamic projection.
+     * @param {Object} args
+     * @param {String} args.type - The type of projection, either 'colour' or 'height'.
+     * @param {Array.<String>} args.ids - An array of GeoEntity ids that the projection affects.
+     * @param {Array.<Object>} args.data - An array of objects mapping index to a map of GeoEntity id to it's parameter value for that index.
+     * @param {Object} args.config - Constructor arguments as required by the type of projection. Refer to @{link atlas.visualisation.AbstractProjection}, @{link atlas.visualisation.ColourProjection}, and @{link atlas.visualisation.HeightProjection}.
+     * @returns {atlas.visualisation.DynamicProjection} The new dynamic projection object.
+     */
     createDynamicProjection: function (args) {
       var Projection = args.type === 'colour' ? ColourProjection : HeightProjection;
       // Set up the config for projection construction.
@@ -162,14 +212,14 @@ define([
      * @returns {atlas.visualisation.AbstractProjection|undefined} The existing Projection bound
      *    to same artifact as the new Projection, if it exists.
      */
-    add: function (projection) {
+    addProjection: function (projection) {
       if (!(projection instanceof AbstractProjection)) {
         throw new DeveloperError('Tried to add an object to the VisualisationManager which is not a subclass of atlas.visualisation.AbstractProjection');
       }
       var target = projection.ARTIFACT,
           old = this._projections[projection.ARTIFACT],
           ret;
-      if (old !== undefined) {
+      if (old) {
         console.debug('Overriding projection on', target, 'with new projection.');
         old.unrender();
         ret = old;
@@ -185,45 +235,42 @@ define([
       document.getElementById('visual-btn-'+target).addEventListener('click', function (target) {
         return function (event) {
           // 0 -> Left click.
-          if (event.button === 0) {
-            this.toggleRender(target)
-          }
+          event.button === 0 && this.toggleRender(target)
         }
       }(target).bind(this));
       return ret;
     },
 
-    addDynamic: function (dynamic) {
-      var target = 'dynamic-'+dynamic._static.ARTIFACT;
+    addDynamicProjection: function (dynamic) {
+      var target = 'dynamic-'+dynamic._projector.ARTIFACT,
+          BUTTON = 'visual-btn-',
+          SLIDER = 'visual-sld-';
+
       this._projections[target] = dynamic;
       this._overlays[target] = new Overlay({
         parent: this._atlasManagers.dom.getDom(),
         dimensions: {top: 0, left: 0},
         content:
           '<p>'+target+'</p>' +
-          '<input type="range" id="visual-fps-' + target + '" min="1" max="30"> </br> ' +
-          '<button id="visual-btn-play-' + target + '">&gt</button>' +
-          '<button id="visual-btn-pause-' + target + '">||&gt</button>' +
-          '<button id="visual-btn-stop-' + target + '">!</button>'
+          '<input type="range" id="' + SLIDER + '-fps-' + target + '" min="1" max="30"> </br> ' +
+          '<button id="' + BUTTON + 'play-' + target + '">&gt</button>' +
+          '<button id="' + BUTTON + 'pause-' + target + '">||&gt</button>' +
+          '<button id="' + BUTTON + 'stop-' + target + '">!</button>'
       });
       var getFpsFromForm = function (target) {
         return document.getElementById('visual-fps-' + target).value;
       };
-      document.getElementById('visual-btn-play-'+target).addEventListener('click', function (event) {
-        this._fps = getFpsFromForm(target);
-        if (event.button === 0) {
-          this.start()
-        }
+      document.getElementById(BUTTON + 'play-'+target).addEventListener('click', function (event) {
+        this.setFps(getFpsFromForm(target));
+        event.button === 0 && this.start();
       }.bind(this._projections[target]));
-      document.getElementById('visual-btn-pause-'+target).addEventListener('click', function (event) {
-        if (event.button === 0) {
-          this.pause()
-        }
+
+      document.getElementById(BUTTON + 'pause-'+target).addEventListener('click', function (event) {
+        event.button === 0 && this.pause();
       }.bind(this._projections[target]));
-      document.getElementById('visual-btn-stop-'+target).addEventListener('click', function (event) {
-        if (event.button === 0) {
-          this.stop()
-        }
+
+      document.getElementById(BUTTON + 'stop-'+target).addEventListener('click', function (event) {
+        event.button === 0 && this.stop();
       }.bind(this._projections[target]));
     },
 
@@ -274,7 +321,14 @@ define([
       }
     },
 
+    /**
+     * Toggles a static projection between having its effects rendered and not rendered.
+     * @param {String} artifact - The artifact of the projection to toggle.
+     */
     toggleRender: function (artifact) {
+      if (artifact.match(/dynamic-/)) { return; }
+
+      // TODO (bpstudds): This code appears to be buggy.
       var prj = this._projections[artifact];
       if (!prj) {
         throw new DeveloperError('Tried to toggle render of projection', artifact, 'without adding a projection object.');
@@ -292,7 +346,7 @@ define([
           entities = this._atlasManagers.entity.getByIds(ids),
           codomain = {startProj: Math.random() * 20, endProj: 20 + Math.random() * 300},
           heightProj = new HeightProjection({type: 'continuous', codomain: codomain, values: valueMap, entities: entities});
-      this.add(heightProj);
+      this.addProjection(heightProj);
       heightProj.render();
     },
 
@@ -301,7 +355,7 @@ define([
           entities = this._atlasManagers.entity.getByIds(ids),
           codomain = {startProj: Colour.BLUE, endProj: Colour.RED},
           colourProj = new ColourProjection({type: 'continuous', codomain: codomain, values: valueMap, entities: entities});
-      this.add(colourProj);
+      this.addProjection(colourProj);
       colourProj.render();
     }
   });

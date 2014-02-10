@@ -61,7 +61,7 @@ define([
      * @param {atlas.model.Colour} colour - The new fill colour.
      * @returns {atlas.model.Colour} The original colour.
      */
-    setFill: function (colour) {
+    setFillColour: function (colour) {
       if (!(colour instanceof Colour)) {
         throw new DeveloperError('Feature fill colour only accepts an atlas.model.colour, not', colour);
       }
