@@ -2,7 +2,7 @@ define([
   'atlas/util/Class',
   'atlas/util/mixin',
   'atlas/lib/keycode'
-], function (Class, mixin, Keycode) {
+], function(Class, mixin, Keycode) {
 
   /**
    * @classdesc The InputManager is used to link user input events to the
@@ -27,7 +27,7 @@ define([
      */
     _atlasManagers: null,
 
-    _init: function (atlasManagers) {
+    _init: function(atlasManagers) {
       this._atlasManagers = atlasManagers;
       this._atlasManagers.input = this;
     },
@@ -36,7 +36,7 @@ define([
      * Completes all initialisation that requires other Atlas managers.
      * @param {String|HTMLElement} elem - The DOM ID or DOM element of the HTML element to receive events from.
      */
-    setup: function (elem) {
+    setup: function(elem) {
       // TODO(bpstudds): Pretty sure InputManager should respond to an 'dom/set' event, rather than be imperative.
       this._element = typeof elem === 'string' ? document.getElementById(elem) : elem;
     },
@@ -44,20 +44,20 @@ define([
     /**
      * Creates bindings in the Atlas event system to HTML DOM mouse events.
      */
-    createHtmlMouseBindings:  function () {
+    createHtmlMouseBindings: function() {
       // Buttons to add event handlers for.
       var buttonIds = ['left', 'middle', 'right'],
           xCorrection = 0,
           yCorrection = 0;
 
       // DRY constructing the event handler arguments.
-      var makeArgs = function (element) {
+      var makeArgs = function(element) {
         if (element !== document) {
           var rect = element.getBoundingClientRect();
           xCorrection -= rect.left;
           yCorrection -= rect.top;
         }
-        return function (name, e) {
+        return function(name, e) {
           var args = {
             name: 'input/' + name,
             button: buttonIds[e.button],
@@ -75,10 +75,10 @@ define([
 
       // Construct HTML DOM mouse event listeners.
       this._mouseHandlers = [];
-      ['down', 'up'].forEach(function (press) {
+      ['down', 'up'].forEach(function(press) {
         this._mouseHandlers.push({
           name: 'mouse' + press,
-          cback: function (e) {
+          cback: function(e) {
             var args = makeArgs(buttonIds[e.button] + press, e);
             this.handleInternalEvent(args.name, args);
           }.bind(this._atlasManagers.event)
@@ -103,13 +103,13 @@ define([
     /**
      * Creates bindings in the Atlas event system to HTML DOM keyboard events.
      */
-    createHtmlKeyboardBindings:  function () {
+    createHtmlKeyboardBindings: function() {
       // TODO(bpstudds): Provide cleaner API for accessing the DOM element.
       // TODO(bpstudds): Create Event for (eg) dom/attached and have this bind to that.
       var domEventNames = ['keydown', 'keypress', 'keyup'];
-      domEventNames.forEach(function (name) {
+      domEventNames.forEach(function(name) {
         var thisEvent = 'input/' + name;
-        document.addEventListener(name, function (e) {
+        document.addEventListener(name, function(e) {
           var translatedKey = Keycode.translate_event(e);
           var args = {
             'name': thisEvent,
@@ -126,13 +126,13 @@ define([
     }
   }), // End class instances definition.
 
-    // -------------------------------------------
-    // STATICS
-    // -------------------------------------------
+      // -------------------------------------------
+      // STATICS
+      // -------------------------------------------
 
-    {
-      // Nope
-    }
+      {
+        // Nope
+      }
 
   ); // End class static definition.
 

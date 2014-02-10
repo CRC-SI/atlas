@@ -172,7 +172,7 @@ define([
      * @param {Number} elevation - The elevation of the base of the polygon.
      */
     setElevation: function (elevation) {
-      if (typeof elevation === 'number') {
+      if (typeof elevation === 'number' && this._elevation !== elevation) {
         this._elevation = elevation;
         this.setRenderable(false);
       }
@@ -190,7 +190,7 @@ define([
      * @param {Number} height The extruded height of the building.
      */
     setHeight: function (height) {
-      if (typeof height === 'number') {
+      if (typeof height === 'number' && this._height !== height) {
         this._height = height;
         this.setRenderable(false);
       }
