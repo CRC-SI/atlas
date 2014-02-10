@@ -45,7 +45,7 @@ define([
       console.debug('rendering id', entity.getId());
       var newColour = this._regressProjectionValueFromCodomain(attributes, this._configuration.codomain),
           oldColour = entity.modifyStyle(newColour);
-      entity.showAsExtrusion();
+      entity.show();
       this._effects[entity.getId()] = { 'oldValue': oldColour, 'newValue': newColour };
     },
 

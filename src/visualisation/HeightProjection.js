@@ -42,7 +42,7 @@ define([
       // Hard code the co-domain to vary from 50 to 100 depending on the ratio of the value between min/max
       var newHeight = this._regressProjectionValueFromCodomain(attributes, this._configuration.codomain),
           oldHeight = entity.setHeight(newHeight);
-      entity.showAsExtrusion();
+      entity.show();
       this._effects[entity._id] = { 'oldValue': oldHeight, 'newValue': newHeight };
     },
 
