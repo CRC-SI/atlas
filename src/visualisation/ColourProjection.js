@@ -60,7 +60,7 @@ define([
       var id = entity.getId(),
           oldColour = this._effects[id].oldValue;
       entity.modifyStyle(oldColour);
-      entity.showAsExtrusion();
+      entity.show();
       delete this._effects[id];
     },
 

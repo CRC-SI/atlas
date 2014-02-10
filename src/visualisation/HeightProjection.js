@@ -57,6 +57,7 @@ define([
       var id = entity._id;
       var oldHeight = this._effects[id].oldValue;
       entity.setHeight(oldHeight);
+      entity.show();
       delete this._effects[id];
     },
 

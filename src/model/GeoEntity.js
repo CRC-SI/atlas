@@ -92,7 +92,8 @@ define([
     _renderable: null,
 
     /**
-     * Components of the GeoEntity which are 'dirty'.
+     * Components of the GeoEntity which have been changed and need to be updated when
+     * the GeoEntity is re-rendered.
      * @type {Object.<String, Boolean>}
      * @protected
      */
@@ -176,16 +177,15 @@ define([
      * @param component
      */
     setDirty: function(component) {
-      //console.error('entity id', this.getId(), 'now has dirty', component);
       this._dirty[component] = true;
     },
 
+    /**
+     * Clears all of the <code>_dirty</code> flags on the GeoEntity, signifying that the
+     * GeoEntity is currently correctly rendered.
+     */
     clean: function() {
-      //console.error('entity id', this.getId(), 'is clean');
-      //delete this._dirty;
-      Object.keys(this._dirty).forEach(function (key) {
-        delete this._dirty[key];
-      }, this);
+      this._dirty = {};
     },
 
     /**
@@ -197,7 +197,6 @@ define([
       if (this._style === style) { return null; }
       this.setDirty('style');
 
-      //console.debug('setting style of entity', this.getId(), 'to', style);
       // Only change style if the new style is different so _previousStyle isn't clobbered.
       this._previousStyle = this._style;
       this._style = style;
@@ -216,19 +215,6 @@ define([
      */
     isRenderable: function () {
       return Object.keys(this._dirty).length === 0;
-    },
-
-    /**
-     * @deprecated
-     * Sets whether the GeoEntity is ready to be rendered.
-     * @param {Boolean} [isRenderable=true] - If true, sets the Polygon to be renderable otherwise sets it to be 'un-renderable'.
-     */
-    setRenderable: function (isRenderable) {
-      if (isRenderable !== undefined) {
-        this.clean();
-      } else {
-        !isRenderable && this.setDirty('entity');
-      }
     },
 
     /**
@@ -387,7 +373,6 @@ define([
             // TODO(bpstudds): Replace 'magic numbers' with constants. Probably should update keycode.js library for this.
             if (!args.modifiers.shiftKey && !args.modifiers.metaKey &&
                 !args.modifiers.altKey && !args.modifiers.ctrlKey) {
-              //console.debug('edit event', args.key);
               switch (args.key) {
                 case 95: // underscore/minus beside backspace key
                   this.scale({x: 0.95, y: 0.95, z: 0.95});
@@ -405,7 +390,6 @@ define([
             }
           }.bind(this)
       );
-      //console.debug('onEnableEditing called on', this.getId());
     },
 
     /**
