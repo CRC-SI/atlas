@@ -235,7 +235,7 @@ define([
     /**
      * @returns {Object} The configuration of the Projection.
      */
-    getConfiguration: function() {
+    getConfiguration: function () {
       return this._configuration;
     },
 
@@ -250,7 +250,7 @@ define([
      * Sets the previous state, or the state of the render before the Projection is applied. ie.
      * sets what will be re-rendered when the Projection is removed.
      */
-    setPreviousState: function(state) {
+    setPreviousState: function (state) {
       Object.keys(state).forEach(function (id) {
         this._effects[id].oldValue = state[id];
       }, this);
@@ -297,12 +297,23 @@ define([
       } else if (binConf instanceof Array) {
         bins = this._configureBinsFromArray(binConf);
       } else if (binConf.numBins && binConf.firstValue !== undefined && binConf.lastValue !== undefined) {
-        bins = this._configureEqualSizedBins(binConf.numBins, binConf.firstValue, binConf.lastValue, false);
+        bins = this._configureEqualSizedBins(binConf.numBins, binConf.firstValue, binConf.lastValue, true);
       }
       return bins;
     },
 
-    _configureEqualSizedBins: function (numBins, firstValue, lastValue, unboundAbove) {
+    /**
+     * Constructs an array of objects describing the bins, with each bin accept a equal
+     * range of values, depending on the total range specified (except for the largest bin
+     * which can potential except values up to infinity).
+     * @param {Number} numBins - The number of bins to construct.
+     * @param {Number} firstValue - The first value accepted into the 'smallest' bin.
+     * @param {Number} lastValue - The last value accepted into the 'largest' bin.
+     * @param {Number} acceptFinal - Whether the 'largest' bin should the value <code>lastValue</code>
+     * @returns {Array.<Object>} The array of bin objects.
+     * @private
+     */
+    _configureEqualSizedBins: function (numBins, firstValue, lastValue, acceptFinal) {
       var bins = [],
           binFirst = firstValue,
           binStep = (lastValue - firstValue) / numBins;
@@ -312,16 +323,44 @@ define([
           numBins: numBins,
           firstValue: binFirst,
           lastValue: binFirst + binStep,
-          range: binStep
+          range: binStep,
+          accept: function (value) {
+            if (this.firstValue <= value) {
+              if (value < this.lastValue) {
+                return 0;
+              } else {
+                return 1;
+              }
+            } else {
+              return -1
+            }
+          }
         });
       }
       // Set the top bin to be unbounded to ensure the largest value is picked up.
-      if (unboundAbove) {
-        bins[numBins - 1].lastValue = Number.POSITIVE_INFINITY;
+      if (acceptFinal) {
+        bins[numBins - 1].accept = function (value) {
+            if (this.firstValue <= value) {
+              if (value <= this.lastValue) {
+                return 0;
+              } else {
+                return 1;
+              }
+            } else {
+              return -1
+            }
+        };
       }
       return bins;
     },
 
+    /**
+     * Constructs an array of objects describing the bins using configurable data for
+     * each bin.
+     * @param binArray
+     * @returns {Array}
+     * @private
+     */
     _configureBinsFromArray: function (binArray) {
       var bins = [],
           previousLastValue = Number.NEGATIVE_INFINITY,
@@ -373,14 +412,21 @@ define([
           var thisId = sortedValues[i].id,
               thisValue = sortedValues[i].value;
           // Check value is still within the current bin.
-          if (thisValue < bin.firstValue) { continue; }
-          if (thisValue >= bin.lastValue) { break; }
-          binStats.entityIds.push(thisId);
-          // Calculate statistical properties.
-          binStats.count++;
-          binStats.sum += parseInt(thisValue, 10) || 0;
-          if (thisValue < binStats.min.value) { binStats.min = { 'id': thisId, 'value': thisValue };}
-          if (thisValue > binStats.max.value) { binStats.max = { 'id': thisId, 'value': thisValue };}
+          var inBin = bin.accept(thisValue);
+          if (inBin === 1) {
+            // thisValue to big for bin, break to next bin
+            break;
+          } else if (inBin === 0) {
+            binStats.entityIds.push(thisId);
+            // Calculate statistical properties.
+            binStats.count++;
+            binStats.sum += parseInt(thisValue, 10) || 0;
+            if (thisValue < binStats.min.value) { binStats.min = { 'id': thisId, 'value': thisValue };}
+            if (thisValue > binStats.max.value) { binStats.max = { 'id': thisId, 'value': thisValue };}
+          } // else value to small for this bin, try next value.
+
+          //if (thisValue < bin.firstValue) { continue; }
+          //if (thisValue >= bin.lastValue) { break; }
         }
         // Calculate more stats
         binStats.average = binStats.count !== 0 ? binStats.sum / binStats.count : Number.POSITIVE_INFINITY;
