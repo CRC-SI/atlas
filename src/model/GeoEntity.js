@@ -123,6 +123,7 @@ define([
     _init: function (id, args) {
       // Call the superclass' (EventTarget) constructor.
       this._super(args.eventManager, args.parent);
+      this.clean();
       this.setDirty('entity');
 
       if (typeof id === 'object') {
