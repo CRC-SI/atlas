@@ -30,6 +30,13 @@ define([
   };
 
   /**
+   * Sets up the manager. Can rely on other managers existing.
+   */
+  RenderManager.prototype.setup = function () {
+    throw new DeveloperError('Can not call abstract method of RenderManager');
+  };
+
+  /**
    * Show the given entity
    * @param {Number} entity The ID of the Entity to show.
    * @returns {Boolean}       Whether the entity is shown.

@@ -2,7 +2,7 @@
   position: relative;
 }
 
-.overlay {
+.atlas .overlay {
   position: absolute;
   background-color: #d3d3d3;
   top: 0;
@@ -11,7 +11,6 @@
   vertical-align: middle;
 }
 
-
-.overlay.hidden {
+.atlas .overlay.hidden {
   display: none;
 }

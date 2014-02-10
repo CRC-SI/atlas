@@ -322,6 +322,7 @@ define([
 
     /**
      * Shows the GeoEntity in the current scene.
+     * @returns {Boolean} Whether the GeoEntity is shown.
      * @abstract
      */
     show: function () {
@@ -330,6 +331,7 @@ define([
 
     /**
      * Hides the GeoEntity from the current scene.
+     * @returns {Boolean} Whether the GeoEntity is hidden.
      * @abstract
      */
     hide: function () {
