@@ -89,7 +89,6 @@ define([
       this._mouseHandlers.push({
         name: 'mousemove',
         cback: function (e) {
-          console.error('mousemove', e);
           var args = makeArgs('mousemove', e);
           this.handleInternalEvent(args.name, args);
         }.bind(this._atlasManagers.event)

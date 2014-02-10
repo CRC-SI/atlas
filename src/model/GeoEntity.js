@@ -190,7 +190,6 @@ define([
      * @param {Boolean} [isRenderable=true] - If true, sets the Polygon to be renderable otherwise sets it to be 'un-renderable'.
      */
     setRenderable: function (isRenderable) {
-
       if (isRenderable !== undefined) {
         this._renderable = isRenderable;
       } else {
@@ -300,6 +299,7 @@ define([
 
     /**
      * Shows the GeoEntity in the current scene.
+     * @returns {Boolean} Whether the GeoEntity is shown.
      * @abstract
      */
     show: function () {
@@ -308,6 +308,7 @@ define([
 
     /**
      * Hides the GeoEntity from the current scene.
+     * @returns {Boolean} Whether the GeoEntity is hidden.
      * @abstract
      */
     hide: function () {
