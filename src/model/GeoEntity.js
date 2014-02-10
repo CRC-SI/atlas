@@ -123,7 +123,7 @@ define([
     _init: function (id, args) {
       // Call the superclass' (EventTarget) constructor.
       this._super(args.eventManager, args.parent);
-      this._dirty = { entity: true };
+      this.setDirty('entity');
 
       if (typeof id === 'object') {
         args = id;
@@ -177,7 +177,13 @@ define([
      * @param component
      */
     setDirty: function(component) {
-      this._dirty[component] = true;
+      if (typeof component === 'string') {
+        this._dirty[component] = true;
+      } else if (typeof component === 'object') {
+        Object.keys(component).forEach(function(key) {
+          this._dirty[key] = true;
+        }, this)
+      }
     },
 
     /**
@@ -247,15 +253,16 @@ define([
      * @param {atlas.model.Colour} [args.fillColour] - The new fill colour.
      * @param {atlas.model.Colour} [args.borderColour] - The new border colour.
      * @param {Number} [args.borderWidth] - The new border width colour.
+     * @returns {Object} A mapping of parameters that have been changed to their old value.
      */
     modifyStyle: function (args) {
       if (Object.keys(args).length <= 0) { return {}; }
 
       this.setDirty('style');
       if (!this._style) { this._style = Style.DEFAULT(); }
-      var oldStyle = {}; // = this._style;
+      var oldStyle = {};
       // Change values
-      args.fillColour && (oldStyle.fillColour = this._style.setFill(args.fillColour));
+      args.fillColour && (oldStyle.fillColour = this._style.setFillColour(args.fillColour));
       args.borderColour && (oldStyle.borderColour = this._style.setBorderColour(args.borderColour));
       args.borderWidth && (oldStyle.borderWidth = this._style.setBorderWidth(args.borderWidth));
       return oldStyle;
