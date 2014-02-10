@@ -86,15 +86,14 @@ define([
       }, this);
 
       // TODO(bpstudds): DRY this code up.
-      // TODO(aramk) This could be expensive - could we subscribe only when a feature (internal or external) needs it?
-//      this._mouseHandlers.push({
-//        name: 'mousemove',
-//        cback: function (e) {
-//          console.error('mousemove', e);
-//          var args = makeArgs('mousemove', e);
-//          this.handleInternalEvent(args.name, args);
-//        }.bind(this._atlasManagers.event)
-//      });
+      this._mouseHandlers.push({
+        name: 'mousemove',
+        cback: function (e) {
+          console.error('mousemove', e);
+          var args = makeArgs('mousemove', e);
+          this.handleInternalEvent(args.name, args);
+        }.bind(this._atlasManagers.event)
+      });
 
       // Add the event listeners to the current DOM element.
       this._mouseHandlers.forEach(function(handler) {
