@@ -142,6 +142,7 @@ define([
         codomain: args.codomain
       };
       // Calculate statistical properties for the binned values.
+      if (Object.keys(this._values).length === 0) { return; }
       this._stats = this._calculateBinnedStatistics();
       // TODO(bpstudds): Do we need to calculate this for a discrete projection?
       this._attributes = this._calculateValueAttributes();
@@ -231,12 +232,42 @@ define([
       }
     },
 
+    /**
+     * @returns {Object} The configuration of the Projection.
+     */
+    getConfiguration: function () {
+      return this._configuration;
+    },
 
     /**
      * @returns {String} The type of the Projection.
      */
     getType: function () {
       return this._type;
+    },
+
+    /**
+     * Sets the previous state, or the state of the render before the Projection is applied. ie.
+     * sets what will be re-rendered when the Projection is removed.
+     */
+    setPreviousState: function (state) {
+      Object.keys(state).forEach(function (id) {
+        this._effects[id].oldValue = state[id];
+      }, this);
+    },
+
+    /**
+     * Returns the state before the Projection has been applied.
+     * @returns {Object.<String, Object>}
+     */
+    getPreviousState: function () {
+      var state = {};
+      if (this._effects) {
+        Object.keys(this._entities).forEach(function (id) {
+          state[id] = this._entities[id].oldValue;
+        }, this);
+      }
+      return state;
     },
 
     /**
@@ -247,49 +278,106 @@ define([
     },
 
     /**
-     * @returns {Object} The configuration of the Projection.
-     */
-    getConfiguration: function() {
-      return this._configuration;
-    },
-
-    /**
      * Generates the configuration of the Projection's <code>bins</code>
      * @returns {Array.<Object>}
      * @protected
      */
     _configureBins: function () {
-      var bins = [];
-      if (typeof this._configuration.bins === 'number') {
-        var numBins = this._configuration.bins;
+      var binConf = this._configuration.bins,
+          bins = [];
+      if (typeof binConf === 'number') {
+        var numBins = binConf;
         if (numBins === 1) {
           bins = [{ binId: 0, numBins: numBins, firstValue: Number.NEGATIVE_INFINITY, lastValue: Number.POSITIVE_INFINITY }];
         } else {
           // Create bins by splitting up the range of input parameter values into equal divisions.
-          var populationStats = this._calculatePopulationStatistics(),
-              start = populationStats.min.value,
-              step = populationStats.range / numBins;
-          for (var i = 0, firstValue = start; i < numBins; i++, firstValue += step) {
-            bins.push({binId: i, numBins: numBins, firstValue: firstValue, lastValue: firstValue + step});
-          }
-          // Set the top bin to be unbounded to ensure the largest value is picked up.
-          bins[numBins - 1].lastValue = Number.POSITIVE_INFINITY;
+          var populationStats = this._calculatePopulationStatistics();
+          bins = this._configureEqualSizedBins(numBins, populationStats.min.value, populationStats.max.value, true);
         }
-      } else if (this._configuration.bins instanceof Array) {
-        var previousLastValue = Number.NEGATIVE_INFINITY,
-            numBins = this._configuration.bins.length;
-        this._configuration.bins.forEach(function (bin, i) {
-          if (bin.firstValue === undefined || bin.firstValue === 'smallest') { bin.firstValue = Number.NEGATIVE_INFINITY; }
-          if (bin.lastValue === undefined || bin.lastValue === 'largest') { bin.lastValue = Number.POSITIVE_INFINITY; }
-          if (bin.firstValue < previousLastValue || bin.lastValue < bin.firstValue) {
-            throw new DeveloperError('Incorrect bins configuration provided', this._configuration.bins);
-          }
-          bins.push({binId: i, numBins: numBins, firstValue: bin.firstValue, lastValue: bin.lastValue});
-          previousLastValue = bin.lastValue;
-        }, this);
+      } else if (binConf instanceof Array) {
+        bins = this._configureBinsFromArray(binConf);
+      } else if (binConf.numBins && binConf.firstValue !== undefined && binConf.lastValue !== undefined) {
+        bins = this._configureEqualSizedBins(binConf.numBins, binConf.firstValue, binConf.lastValue, true);
       }
       return bins;
     },
+
+    /**
+     * Constructs an array of objects describing the bins, with each bin accept a equal
+     * range of values, depending on the total range specified (except for the largest bin
+     * which can potential except values up to infinity).
+     * @param {Number} numBins - The number of bins to construct.
+     * @param {Number} firstValue - The first value accepted into the 'smallest' bin.
+     * @param {Number} lastValue - The last value accepted into the 'largest' bin.
+     * @param {Number} acceptFinal - Whether the 'largest' bin should the value <code>lastValue</code>
+     * @returns {Array.<Object>} The array of bin objects.
+     * @private
+     */
+    _configureEqualSizedBins: function (numBins, firstValue, lastValue, acceptFinal) {
+      var bins = [],
+          binFirst = firstValue,
+          binStep = (lastValue - firstValue) / numBins;
+      for (var i = 0; i < numBins; i++, binFirst += binStep) {
+        bins.push({
+          binId: i,
+          numBins: numBins,
+          firstValue: binFirst,
+          lastValue: binFirst + binStep,
+          range: binStep,
+          accept: function (value) {
+            if (this.firstValue <= value) {
+              if (value < this.lastValue) {
+                return 0;
+              } else {
+                return 1;
+              }
+            } else {
+              return -1
+            }
+          }
+        });
+      }
+      // Set the top bin to be unbounded to ensure the largest value is picked up.
+      if (acceptFinal) {
+        bins[numBins - 1].accept = function (value) {
+            if (this.firstValue <= value) {
+              if (value <= this.lastValue) {
+                return 0;
+              } else {
+                return 1;
+              }
+            } else {
+              return -1
+            }
+        };
+      }
+      return bins;
+    },
+
+    /**
+     * Constructs an array of objects describing the bins using configurable data for
+     * each bin.
+     * @param binArray
+     * @returns {Array}
+     * @private
+     */
+    _configureBinsFromArray: function (binArray) {
+      var bins = [],
+          previousLastValue = Number.NEGATIVE_INFINITY,
+          numBins = binArray.length;
+      binArray.forEach(function (bin, i) {
+        if (bin.firstValue === undefined || bin.firstValue === 'smallest') { bin.firstValue = Number.NEGATIVE_INFINITY; }
+        if (bin.lastValue === undefined || bin.lastValue === 'largest') { bin.lastValue = Number.POSITIVE_INFINITY; }
+        if (bin.firstValue < previousLastValue || bin.lastValue < bin.firstValue) {
+          throw new DeveloperError('Incorrect bins configuration provided', this._configuration.bins);
+        }
+        bins.push({binId: i, numBins: numBins, firstValue: bin.firstValue, lastValue: bin.lastValue});
+        previousLastValue = bin.lastValue;
+      }, this);
+      return bins;
+    },
+
+
 
     /**
      * Calculates the statistical properties for all parameter values, segregating each value into
@@ -324,14 +412,21 @@ define([
           var thisId = sortedValues[i].id,
               thisValue = sortedValues[i].value;
           // Check value is still within the current bin.
-          if (thisValue < bin.firstValue) { continue; }
-          if (thisValue >= bin.lastValue) { i--; break; }
-          binStats.entityIds.push(thisId);
-          // Calculate statistical properties.
-          binStats.count++;
-          binStats.sum += parseInt(thisValue, 10) || 0;
-          if (thisValue < binStats.min.value) { binStats.min = { 'id': thisId, 'value': thisValue };}
-          if (thisValue > binStats.max.value) { binStats.max = { 'id': thisId, 'value': thisValue };}
+          var inBin = bin.accept(thisValue);
+          if (inBin === 1) {
+            // thisValue to big for bin, break to next bin
+            break;
+          } else if (inBin === 0) {
+            binStats.entityIds.push(thisId);
+            // Calculate statistical properties.
+            binStats.count++;
+            binStats.sum += parseInt(thisValue, 10) || 0;
+            if (thisValue < binStats.min.value) { binStats.min = { 'id': thisId, 'value': thisValue };}
+            if (thisValue > binStats.max.value) { binStats.max = { 'id': thisId, 'value': thisValue };}
+          } // else value to small for this bin, try next value.
+
+          //if (thisValue < bin.firstValue) { continue; }
+          //if (thisValue >= bin.lastValue) { break; }
         }
         // Calculate more stats
         binStats.average = binStats.count !== 0 ? binStats.sum / binStats.count : Number.POSITIVE_INFINITY;
@@ -387,15 +482,18 @@ define([
         // and each entity which has a value in the bin.
         bin.entityIds.forEach(function (id) {
           var thisValue = this._values[id],
-              thisAttribute = {};
+              thisAttribute = {},
+              divisor;
           thisAttribute.binId = bin.binId;
           thisAttribute.numBins = bin.numBins;
           thisAttribute.absRatio = bin.range !== 0 ?
               (thisValue - bin.min.value) / (bin.range) : Number.POSITIVE_INFINITY;
           thisAttribute.diffFromAverage = thisValue - bin.average;
           thisAttribute.ratioFromAverage = (thisValue - bin.average);
-          thisAttribute.ratioFromAverage /= (thisAttribute.ratioFromAverage < 0 ?
-              (bin.average - bin.min.value) : (bin.max.value - bin.average));
+          divisor = thisAttribute.ratioFromAverage < 0 ?
+            (bin.average - bin.min.value) : (bin.max.value - bin.average);
+          thisAttribute.ratioFromAverage = divisor > 0 ? thisAttribute / divisor : Number.POSITIVE_INFINITY;
+          // Push onto new attribute onto attribute collection.
           theAttributes[id] = thisAttribute;
         }, this);
       }, this);

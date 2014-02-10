@@ -91,7 +91,7 @@ define([
       this._displayMode = args.mesh ? defaultValue(args.displayMode, 'mesh') : this._displayMode;
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
-      this._style = args.style || this.DEFAULT_STYLE;
+      this._style = args.style || Feature.DEFAULT_STYLE;
     },
 
     // -------------------------------------------
@@ -123,6 +123,7 @@ define([
      * @param {Number} elevation - The elevation of the feature.
      */
     setElevation: function (elevation) {
+      this.setDirty('vertices');
       this._elevation = elevation;
       this.show();
     },
@@ -149,6 +150,7 @@ define([
     setHeight: function (height) {
       var oldHeight = this._height;
       this._height = height;
+      this.setDirty('vertices');
       this.show();
       return oldHeight;
     },
@@ -253,12 +255,12 @@ define([
       Feature.base.remove.apply(this, arguments);
       // Remove mesh and footprint.
       if (this._mesh !== null) {
-        console.debug('attempting to remove mesh', this._mesh);
+        //console.debug('attempting to remove mesh', this._mesh);
         this._mesh.remove();
         this._mesh = null;
       }
       if (this._footprint !== null) {
-        console.debug('attempting to remove footprint', this._footprint);
+        //console.debug('attempting to remove footprint', this._footprint);
         this._footprint.remove();
         this._footprint = null;
       }
@@ -288,12 +290,13 @@ define([
      * Shows the Feature depending on its current <code>_displayMode</code>.
      */
     show: function() {
-      console.debug('trying to show feature', this.getId(), 'as', this._displayMode);
+      //console.debug('trying to show feature', this.getId(), 'as', this._displayMode);
       // TODO(aramk) delegate this to the setHeight setElevation.
       if (this._displayMode === 'footprint') {
         this._mesh && this._mesh.hide();
         if (this._footprint) {
           this._footprint.setHeight(0);
+          this._footprint.setDirty(this._dirty);
           this._visible = this._footprint.show();
         }
       } else if (this._displayMode === 'extrusion') {
@@ -301,11 +304,13 @@ define([
         if (this._footprint) {
           this._footprint.setHeight(this._height);
           this._footprint.setElevation(this._elevation);
+          this._footprint.setDirty(this._dirty);
           this._visible = this._footprint.show();
         }
       } else if (this._displayMode === 'mesh') {
         this._footprint && this._footprint.hide();
         if (this._mesh) {
+          this._mesh.setDirty(this._dirty);
           this._visible = this._mesh.show();
         }
       }

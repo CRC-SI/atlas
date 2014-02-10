@@ -75,21 +75,29 @@ define([
      * @type {Number}
      * @protected
      */
-    _area: 0,
+    _area: null,
 
     /**
      * Whether the GeoEntity is visible.
      * @type {Boolean}
      * @protected
      */
-    _visible: false,
+    _visible: null,
 
     /**
      * Whether the GeoEntity can be rendered.
      * @type {Boolean}
      * @protected
      */
-    _renderable: false,
+    _renderable: null,
+
+    /**
+     * Components of the GeoEntity which have been changed and need to be updated when
+     * the GeoEntity is re-rendered.
+     * @type {Object.<String, Boolean>}
+     * @protected
+     */
+    _dirty: null,
 
     /**
      * Geometry data for the GeoEntity that allows it to be rendered.
@@ -115,6 +123,8 @@ define([
     _init: function (id, args) {
       // Call the superclass' (EventTarget) constructor.
       this._super(args.eventManager, args.parent);
+      this.clean();
+      this.setDirty('entity');
 
       if (typeof id === 'object') {
         args = id;
@@ -163,38 +173,55 @@ define([
     },
 
     /**
+     * Sets a particular component of the GeoEntity to dirty, which affects how the GeoEntity is
+     * rendered.
+     * @param component
+     */
+    setDirty: function(component) {
+      if (typeof component === 'string') {
+        this._dirty[component] = true;
+      } else if (typeof component === 'object') {
+        Object.keys(component).forEach(function(key) {
+          this._dirty[key] = true;
+        }, this)
+      }
+    },
+
+    /**
+     * Clears all of the <code>_dirty</code> flags on the GeoEntity, signifying that the
+     * GeoEntity is currently correctly rendered.
+     */
+    clean: function() {
+      this._dirty = {};
+    },
+
+    /**
      * Sets the Style for the GeoEntity.
      * @param {atlas.model.Style} style - The new style to use.
      * @returns {atlas.model.Style} The old style, or null if it was not changed.
      */
     setStyle: function(style) {
       if (this._style === style) { return null; }
+      this.setDirty('style');
 
-      console.debug('setting style of entity', this.getId(), 'to', style);
       // Only change style if the new style is different so _previousStyle isn't clobbered.
       this._previousStyle = this._style;
       this._style = style;
-      this.setRenderable(false);
       return this._previousStyle;
+    },
+
+    /**
+     * @returns {atlas.model.Style} The style of the GeoEntity.
+     */
+    getStyle: function () {
+      return this._style;
     },
 
     /**
      * @returns {Boolean} Whether the GeoEntity is currently renderable.
      */
     isRenderable: function () {
-      return this._renderable;
-    },
-
-    /**
-     * Sets whether the GeoEntity is ready to be rendered.
-     * @param {Boolean} [isRenderable=true] - If true, sets the Polygon to be renderable otherwise sets it to be 'un-renderable'.
-     */
-    setRenderable: function (isRenderable) {
-      if (isRenderable !== undefined) {
-        this._renderable = isRenderable;
-      } else {
-        this._renderable = true;
-      }
+      return Object.keys(this._dirty).length === 0;
     },
 
     /**
@@ -222,17 +249,21 @@ define([
     // -------------------------------------------
 
     /**
-     * Modifies specific components of the Feature's style.
+     * Modifies specific components of the GeoEntity's style.
      * @param {Object} args - The new values for the Style components.
      * @param {atlas.model.Colour} [args.fillColour] - The new fill colour.
      * @param {atlas.model.Colour} [args.borderColour] - The new border colour.
      * @param {Number} [args.borderWidth] - The new border width colour.
+     * @returns {Object} A mapping of parameters that have been changed to their old value.
      */
     modifyStyle: function (args) {
+      if (Object.keys(args).length <= 0) { return {}; }
+
+      this.setDirty('style');
       if (!this._style) { this._style = Style.DEFAULT(); }
-      var oldStyle = this._style;
+      var oldStyle = {};
       // Change values
-      args.fillColour && (oldStyle.fillColour = this._style.setFill(args.fillColour));
+      args.fillColour && (oldStyle.fillColour = this._style.setFillColour(args.fillColour));
       args.borderColour && (oldStyle.borderColour = this._style.setBorderColour(args.borderColour));
       args.borderWidth && (oldStyle.borderWidth = this._style.setBorderWidth(args.borderWidth));
       return oldStyle;
@@ -352,7 +383,6 @@ define([
             // TODO(bpstudds): Replace 'magic numbers' with constants. Probably should update keycode.js library for this.
             if (!args.modifiers.shiftKey && !args.modifiers.metaKey &&
                 !args.modifiers.altKey && !args.modifiers.ctrlKey) {
-              console.debug('edit event', args.key);
               switch (args.key) {
                 case 95: // underscore/minus beside backspace key
                   this.scale({x: 0.95, y: 0.95, z: 0.95});
@@ -370,7 +400,6 @@ define([
             }
           }.bind(this)
       );
-      console.debug('onEnableEditing called on', this.getId());
     },
 
     /**

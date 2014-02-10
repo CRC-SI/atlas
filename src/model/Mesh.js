@@ -162,11 +162,11 @@ define([
      * @param {Number} translation.z - The change in altitude, given in metres.
      */
     translate: function (translation) {
-      console.debug('mesh', 'trying to translate');
+      //console.debug('mesh', 'trying to translate');
       // Update the 'translation', ie change _geoLocation.
       this._geoLocation = this._geoLocation.add(translation);
       // And redraw the Mesh.
-      this.setRenderable(false);
+      this.setDirty('position');
       this.isVisible() && this.show();
     },
 
@@ -179,7 +179,7 @@ define([
      */
     scale: function (scale) {
       this._scale = this._scale.componentwiseMultiply(scale);
-      this.setRenderable(false);
+      this.setDirty('scale');
       this.isVisible() && this.show();
     },
 
@@ -195,7 +195,7 @@ define([
      */
     rotate: function (rotation) {
       this._rotation = this._rotation.add(rotation);
-      this.setRenderable(false);
+      this.setDirty('rotation');
       this.isVisible() && this.show();
     }
 

@@ -174,7 +174,7 @@ define([
     setElevation: function (elevation) {
       if (typeof elevation === 'number' && this._elevation !== elevation) {
         this._elevation = elevation;
-        this.setRenderable(false);
+        this.setDirty('vertices');
       }
     },
 
@@ -192,7 +192,7 @@ define([
     setHeight: function (height) {
       if (typeof height === 'number' && this._height !== height) {
         this._height = height;
-        this.setRenderable(false);
+        this.setDirty('vertices');
       }
     },
 
@@ -217,7 +217,7 @@ define([
       this._vertices.push(vertex);
       this._vertices.push(v);
       // Invalidate any pre-calculated area and centroid.
-      this.setRenderable(false);
+      this.setDirty('vertices');
       this._area = null;
       this._centroid = null;
       return this._vertices.length;
@@ -243,7 +243,7 @@ define([
       // Maintain closed-ness
       //this._vertices[this._vertices.length - 1] = this._vertices[0];
       // Clear derived values.
-      this.setRenderable(false);
+      this.setDirty('vertices');
       this._area = null;
       this._centroid = null;
       return insertAt;
@@ -266,7 +266,7 @@ define([
         // Maintain closed-ness
         this._vertices[this._vertices.length - 1] = this._vertices[0];
         // Clear derived values
-        this.setRenderable(false);
+        this.setDirty('vertices');
         this._area = null;
         this._centroid = null;
         return removed;
@@ -293,7 +293,7 @@ define([
       for (var i = 0; i < this._vertices.length; i++) {
         this._vertices[i] = this._vertices[i].add(translation);
       }
-      this.setRenderable(false);
+      this.setDirty('model');
       this.isVisible() && this.show();
     },
 
@@ -307,14 +307,13 @@ define([
      * @param {Number} scale.y - The scale along the <code>longitude</code> axis.
      */
     scale: function(scale) {
-      console.debug('scaling polygon', this.getId(), 'with scale', scale);
       var centroid = this.getCentroid();
       this._vertices.forEach(function (vertex, i) {
         var diff = vertex.subtract(centroid);
         diff = diff.componentwiseMultiply(scale);
         this._vertices[i] = diff.add(centroid);
       }, this);
-      this.setRenderable(false);
+      this.setDirty('model');
       this.isVisible() && this.show();
     },
 

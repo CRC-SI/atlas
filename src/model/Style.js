@@ -61,11 +61,11 @@ define([
      * @param {atlas.model.Colour} colour - The new fill colour.
      * @returns {atlas.model.Colour} The original colour.
      */
-    setFill: function (colour) {
+    setFillColour: function (colour) {
       if (!(colour instanceof Colour)) {
         throw new DeveloperError('Feature fill colour only accepts an atlas.model.colour, not', colour);
       }
-      var original = this.getFill();
+      var original = this.getFillColour();
       this._fillColour = colour;
       return original;
     },
@@ -99,7 +99,7 @@ define([
     /**
      * @returns {atlas.model.Colour} The Style's fill colour.
      */
-    getFill: function () {
+    getFillColour: function () {
       return this._fillColour;
     },
 
