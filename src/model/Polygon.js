@@ -10,7 +10,8 @@ define([
   './Material',
   // Base class
   './GeoEntity'
-], function (Class, DeveloperError, defaultValue, mixin, WKT, Vertex, Colour, Style, Material, GeoEntity) {
+], function(Class, DeveloperError, defaultValue, mixin, WKT, Vertex, Colour, Style, Material,
+            GeoEntity) {
   "use strict";
 
   /**
@@ -33,8 +34,11 @@ define([
    * @class atlas.model.Polygon
    * @extends atlas.model.GeoEntity
    */
-   //var Polygon = function (id, vertices, args) {
+  //var Polygon = function (id, vertices, args) {
   var Polygon = GeoEntity.extend(/** @lends atlas.model.Polygon# */ {
+    // TODO(aramk) Either put docs on params and document the getters and setters which don't have
+    // obvious usage/logic.
+    // TODO(aramk) Units for height etc. are open to interpretation - define them as metres in docs.
     /**
      * Counter-clockwise ordered array of vertices constructing polygon.
      * @type {Array.<atlas.model.Vertex>}
@@ -44,22 +48,37 @@ define([
 
     /**
      * The extruded height of the polygon (if rendered as extruded polygon).
-     * @private
      * @type {Number}
+     * @private
      */
     _height: 0,
 
     /**
      * The elevation of the base of the polygon (or prism).
-     * @private
      * @type {Number}
+     * @private
      */
     _elevation: 0,
 
     /**
-     * The visual style of the polygon.
+     * The z-axis order as an integer in the range [0, Infinity]. Polygons with higher zIndex will
+     * appear on top.
+     * @type {Number}
      * @private
+     */
+    _zIndex: 0,
+
+    /**
+     * The z-axis offset for z-index used to separate different indices.
+     * @type {Number}
+     * @private
+     */
+    _zIndexOffset: 0.1,
+
+    /**
+     * The visual style of the polygon.
      * @type {atlas.model.Style}
+     * @private
      */
     _style: null,
 
@@ -96,17 +115,19 @@ define([
      * Constructs a new Polygon
      * @ignore
      */
-    _init: function (id, args) {
+    _init: function(id, args) {
       args = mixin({}, args);
       // Call superclass GeoEntity constructor.
       this._super(id, args);
-      if (typeof args.vertices === 'string' ) {
+      if (typeof args.vertices === 'string') {
         this._vertices = WKT.verticesFromWKT(args.vertices)[0];
       } else {
         this._vertices = defaultValue(args.vertices, []);
       }
-      this._height = parseFloat(args.height) || 0.0;
-      this._elevation = parseFloat(args.elevation) || 0.0;
+      this._height = parseFloat(args.height) || this._height;
+      this._elevation = parseFloat(args.elevation) || this._elevation;
+      this._zIndex = parseFloat(args.zIndex) || this._zIndex;
+      this._zIndexOffset = parseFloat(args.zIndexOffset) || this._zIndexOffset;
       this._style = defaultValue(args.style, Polygon.DEFAULT_STYLE);
       this._material = defaultValue(args.material, Material.DEFAULT);
     },
@@ -129,7 +150,8 @@ define([
       var j = this._vertices.length - 1;  // The last vertex is the 'previous' one to the first
       for (var i = 0; i < this._vertices.length; i++) {
         this._area = this._area +
-            (this._vertices[j].x + this._vertices[i].x) * (this._vertices[j].y - this._vertices[i].y);
+            (this._vertices[j].x + this._vertices[i].x) *
+                (this._vertices[j].y - this._vertices[i].y);
         j = i;  //j is previous vertex to i
       }
       this._area /= 2;
@@ -154,8 +176,8 @@ define([
       x = y = f = twiceArea = 0;
       for (var i = 0; i < this._vertices.length - 1; i++) {
         p1 = this._vertices[i];
-        p2 = this._vertices[i+1];
-        f =  (p1.x * p2.y) - p2.x * p1.y;
+        p2 = this._vertices[i + 1];
+        f = (p1.x * p2.y) - p2.x * p1.y;
         x += (p1.x + p2.x) * f;
         y += (p1.y + p2.y) * f;
         twiceArea += f;
@@ -171,7 +193,7 @@ define([
      * Set the elevation of the base of the polygon (or prism).
      * @param {Number} elevation - The elevation of the base of the polygon.
      */
-    setElevation: function (elevation) {
+    setElevation: function(elevation) {
       if (typeof elevation === 'number' && this._elevation !== elevation) {
         this._elevation = elevation;
         this.setDirty('vertices');
@@ -181,7 +203,7 @@ define([
     /**
      * @returns {Number} The elevation of the base of the polygon (or prism).
      */
-    getElevation: function () {
+    getElevation: function() {
       return this._elevation;
     },
 
@@ -189,7 +211,8 @@ define([
      * Set the extruded height of the polygon to form a prism.
      * @param {Number} height The extruded height of the building.
      */
-    setHeight: function (height) {
+    setHeight: function(height) {
+      // TODO(aramk) Throw error if height is not number?
       if (typeof height === 'number' && this._height !== height) {
         this._height = height;
         this.setDirty('vertices');
@@ -199,8 +222,26 @@ define([
     /**
      * @returns {Number} The extrusion height of the polygon.
      */
-    getHeight: function () {
+    getHeight: function() {
       return this._height;
+    },
+
+    /**
+     * Sets the z-axis order. Polygons with higher zIndex will appear on top.
+     * @param {Number} index
+     */
+    setZIndex: function(index) {
+      if (typeof index === 'number' && this._zIndex !== index) {
+        this._zIndex = index;
+        this.setDirty('vertices');
+      }
+    },
+
+    /**
+     * @returns {Number} The z-axis order.
+     */
+    getZIndex: function() {
+      return this._zIndex;
     },
 
     // -------------------------------------------
@@ -256,7 +297,7 @@ define([
      */
     removeVertex: function(index) {
       if (index === -1) {
-        index = this._vertices.length -1;
+        index = this._vertices.length - 1;
       }
       if (index === this._vertices.length) {
         index--;
@@ -289,7 +330,7 @@ define([
      * @param {Number} translation.y - The change in longitude, given in decimal degrees.
      * @param {Number} translation.z - The change in altitude, given in metres.
      */
-    translate: function (translation) {
+    translate: function(translation) {
       for (var i = 0; i < this._vertices.length; i++) {
         this._vertices[i] = this._vertices[i].add(translation);
       }
@@ -308,7 +349,7 @@ define([
      */
     scale: function(scale) {
       var centroid = this.getCentroid();
-      this._vertices.forEach(function (vertex, i) {
+      this._vertices.forEach(function(vertex, i) {
         var diff = vertex.subtract(centroid);
         diff = diff.componentwiseMultiply(scale);
         this._vertices[i] = diff.add(centroid);
@@ -322,7 +363,8 @@ define([
      * @param {atlas.model.Vertex} rotation - The angle to rotate the Polygon, negative angles
      *      rotate clockwise, positive counter-clockwise.
      */
-    rotate: function (rotation) {},
+    rotate: function(rotation) {
+    },
 
     // -------------------------------------------
     // BEHAVIOUR
@@ -332,7 +374,7 @@ define([
      * Shows the Polygon.
      * @abstract
      */
-    show: function () {
+    show: function() {
       throw new DeveloperError('Can not call abstract method of Polygon');
     },
 
@@ -340,7 +382,7 @@ define([
      * Hides the Polygon.
      * @abstract
      */
-    hide: function () {
+    hide: function() {
       throw new DeveloperError('Can not call abstract method of Polygon');
     },
 
@@ -348,7 +390,7 @@ define([
      * Handles the behaviour of the Polygon when it is selected.
      * Causes the Polygon to be rendered with the selection style.
      */
-    onSelect: function () {
+    onSelect: function() {
       this.setStyle(Polygon.SELECTED_STYLE);
     },
 
@@ -357,7 +399,7 @@ define([
      * Causes the Polygon to be rendered with either the previously set style or
      * the <code>DEFAULT_STYLE</code>.
      */
-    onDeselect: function () {
+    onDeselect: function() {
       this.setStyle(this._previousStyle || Polygon.DEFAULT_STYLE);
     }
   });
