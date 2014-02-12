@@ -109,13 +109,41 @@ define([
     },
 
     getCentroid: function () {
-      var centroid = undefined;
+      var form = this.getForm();
+      return form && form.getCentroid();
+    },
+
+    getForm: function () {
+      var form = undefined;
       if (this._displayMode === 'footprint' || this._displayMode === 'extrusion') {
-        centroid = this._footprint.getCentroid();
+        form = this._footprint;
       } else if (this._displayMode === 'mesh') {
-        centroid = this._mesh.getCentroid();
+        form = this._mesh;
       }
-      return centroid;
+      return form;
+    },
+
+    // All dirty state logic should be delegated to the current centroid.
+
+    _delegateToForm: function (method, args) {
+      var form = this.getForm();
+      return form && form[method].apply(form, arguments);
+    },
+
+    isRenderable: function () {
+      this._delegateToForm('isRenderable', arguments);
+    },
+
+    isDirty: function() {
+      this._delegateToForm('isDirty', arguments);
+    },
+
+    setDirty: function() {
+      this._delegateToForm('setDirty', arguments);
+    },
+
+    clean: function () {
+      this._delegateToForm('clean', arguments);
     },
 
     /**
@@ -148,6 +176,7 @@ define([
      * @returns {Number} The previous height.
      */
     setHeight: function (height) {
+      // TODO(aramk) Fail if it's not an extrusion.
       var oldHeight = this._height;
       this._height = height;
       this.setDirty('vertices');
@@ -296,7 +325,7 @@ define([
         this._mesh && this._mesh.hide();
         if (this._footprint) {
           this._footprint.setHeight(0);
-          this._footprint.setDirty(this._dirty);
+//          this._footprint.setDirty(this._dirty);
           this._visible = this._footprint.show();
         }
       } else if (this._displayMode === 'extrusion') {
@@ -304,13 +333,13 @@ define([
         if (this._footprint) {
           this._footprint.setHeight(this._height);
           this._footprint.setElevation(this._elevation);
-          this._footprint.setDirty(this._dirty);
+//          this._footprint.setDirty(this._dirty);
           this._visible = this._footprint.show();
         }
       } else if (this._displayMode === 'mesh') {
         this._footprint && this._footprint.hide();
         if (this._mesh) {
-          this._mesh.setDirty(this._dirty);
+//          this._mesh.setDirty(this._dirty);
           this._visible = this._mesh.show();
         }
       }

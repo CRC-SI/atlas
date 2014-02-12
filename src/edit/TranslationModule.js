@@ -120,6 +120,7 @@ define([
   TranslationModule.prototype._translate = function(oldVertex, newVertex) {
     var diff = newVertex.subtract(oldVertex);
 
+    // TODO(aramk) this._entities is null.
     for (var id in this._entities) {
       console.debug('translating', this._entities[id]);
       this._entities[id].translate(diff);

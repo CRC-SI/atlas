@@ -181,10 +181,18 @@ define([
       if (typeof component === 'string') {
         this._dirty[component] = true;
       } else if (typeof component === 'object') {
-        Object.keys(component).forEach(function(key) {
+        var components = component;
+        if (!(component instanceof Array)) {
+          components = Object.keys(component);
+        }
+        components.forEach(function(key) {
           this._dirty[key] = true;
         }, this)
       }
+    },
+
+    isDirty: function(component) {
+      return component in this._dirty;
     },
 
     /**
