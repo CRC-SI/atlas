@@ -2,8 +2,9 @@ define([
   'atlas/util/DeveloperError',
   'atlas/util/default',
   'atlas/util/mixin',
-  'atlas/camera/Camera'
-], function (DeveloperError, defaultValue, mixin, Camera) {
+  'atlas/camera/Camera',
+  'atlas/lib/utility/Log'
+], function (DeveloperError, defaultValue, mixin, Camera, Log) {
 
   /**
    * Constructs a new CameraManager object.
@@ -116,14 +117,14 @@ define([
 
     this._control.inControl = true;
     this._control.action = event.button;
-    console.debug('CameraManager', 'updating control', this._control.action);
+    Log.debug('CameraManager', 'updating control', this._control.action);
     this._control.curPos = pos;
     this._camera.inputHandlers[this._control.action] && this._camera.inputHandlers[this._control.action](event);
   };
 
   CameraManager.prototype._stopControl = function (event) {
     if (this._control && this._control.inControl) {
-      console.debug('CameraManager', 'stop control', this._control.action);
+      Log.debug('CameraManager', 'stop control', this._control.action);
       this._control.inControl = false;
       this._camera.inputHandlers[this._control.action](event);
     }

@@ -97,7 +97,6 @@ define([
   WKT.prototype.openLayersPolygonFromVertices = function (vertices) {
     throw 'WKT.openLayersPolygonFromVertices does not work.';
     var points = this.openLayersPointsFromVertices(vertices);
-    console.log('the points', points);
     var ring = new OpenLayers.Geometry.LinearRing(points);
     if (ring.components.length > 1) {
       ring.components.pop();

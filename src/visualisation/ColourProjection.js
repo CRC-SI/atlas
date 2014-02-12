@@ -3,8 +3,9 @@ define([
   'atlas/lib/tinycolor',
   'atlas/model/Colour',
   // Base class.
-  'atlas/visualisation/AbstractProjection'
-], function (DeveloperError, tinycolour, Colour, AbstractProjection) {
+  'atlas/visualisation/AbstractProjection',
+  'atlas/lib/utility/Log'
+], function (DeveloperError, tinycolour, Colour, AbstractProjection, Log) {
 
   /**
    * @classdesc A ColourProjection is used to project GeoEntity parameter values
@@ -42,7 +43,7 @@ define([
      */
     _render: function (entity, attributes) {
       // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
-      console.debug('rendering id', entity.getId());
+      Log.debug('rendering id', entity.getId());
       var newColour = this._regressProjectionValueFromCodomain(attributes, this._configuration.codomain),
           oldColour = entity.modifyStyle(newColour);
       entity.show();

@@ -3,8 +3,9 @@ define([
   'atlas/util/default',
   './BaseEditModule',
   'atlas/model/GeoEntity',
-  'atlas/model/Vertex'
-], function(extend, defaultValue, BaseEditModule, GeoEntity, Vertex) {
+  'atlas/model/Vertex',
+  'atlas/lib/utility/Log'
+], function(extend, defaultValue, BaseEditModule, GeoEntity, Vertex, Log) {
 
   /**
    * Constructs a new TranslationModule.
@@ -107,7 +108,7 @@ define([
       this._translate(this._lastLocation, this._originalLocation);
       this._reset();
     } else {
-      console.debug('No translation is taking place - cannot cancel', name, args);
+      Log.debug('No translation is taking place - cannot cancel', name, args);
     }
   };
 
@@ -122,7 +123,7 @@ define([
 
     // TODO(aramk) this._entities is null.
     for (var id in this._entities) {
-      console.debug('translating', this._entities[id]);
+      Log.debug('translating', this._entities[id]);
       this._entities[id].translate(diff);
     }
   };

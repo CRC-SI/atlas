@@ -6,9 +6,10 @@ define([
   'atlas/visualisation/AbstractProjection',
   'atlas/visualisation/ColourProjection',
   'atlas/visualisation/DynamicProjection',
-  'atlas/visualisation/HeightProjection'
+  'atlas/visualisation/HeightProjection',
+  'atlas/lib/utility/Log'
 ], function (Class, DeveloperError, Colour, Overlay, AbstractProjection, ColourProjection,
-             DynamicProjection, HeightProjection) {
+             DynamicProjection, HeightProjection, Log) {
 
   /**
    * @classdesc The VisualisationManager is responsible for tracking, applying
@@ -220,7 +221,7 @@ define([
           old = this._projections[projection.ARTIFACT],
           ret;
       if (old) {
-        console.debug('Overriding projection on', target, 'with new projection.');
+        Log.debug('Overriding projection on', target, 'with new projection.');
         old.unrender();
         ret = old;
       }

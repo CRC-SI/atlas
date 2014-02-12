@@ -2,8 +2,9 @@ define([
   'atlas/util/Class',
   'atlas/util/DeveloperError',
   'atlas/events/Event',
-  'atlas/events/EventTarget'
-], function(Class, DeveloperError, Event, EventTarget) {
+  'atlas/events/EventTarget',
+  'atlas/lib/utility/Log'
+], function(Class, DeveloperError, Event, EventTarget, Log) {
 
   /**
    * @classdesc The SelectionManager maintains a list of the currently
@@ -114,7 +115,7 @@ define([
         this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(), 'entity/select', {
           entity: entity
         }));
-        console.debug('selected entity', id);
+        Log.debug('selected entity', id);
       }
     },
 
@@ -126,7 +127,7 @@ define([
      *      the GeoEntities are selected.
      */
     selectEntities: function(ids, keepSelection) {
-      console.debug('selecting entities', ids);
+      Log.debug('selecting entities', ids);
       var entities = this._atlasManagers.entity.getByIds(ids);
       if (entities.length > 0) {
         // Clear selection first if required.
@@ -142,7 +143,7 @@ define([
           entities: entities
         }));
       }
-      console.debug('selected entities', ids);
+      Log.debug('selected entities', ids);
     },
 
     /**
@@ -157,7 +158,7 @@ define([
           entity: entity
         }));
         delete this._selection[id];
-        console.debug('deselected entity', id);
+        Log.debug('deselected entity', id);
       }
     },
 
@@ -180,7 +181,7 @@ define([
           'entity/deselect/multiple', {
             entities: deselected
           }));
-        console.debug('deselected entities', ids);
+        Log.debug('deselected entities', ids);
       }
     },
 

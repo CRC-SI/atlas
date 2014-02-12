@@ -4,8 +4,9 @@ define([
   'atlas/model/GeoEntity',
   'atlas/model/Feature',
   'atlas/model/Polygon',
-  'atlas/model/Mesh'
-], function (DeveloperError, mixin, GeoEntity, Feature, Polygon, Mesh) {
+  'atlas/model/Mesh',
+  'atlas/lib/utility/Log'
+], function (DeveloperError, mixin, GeoEntity, Feature, Polygon, Mesh, Log) {
 
   var EntityManager = function (atlasManagers) {
     this._atlasManagers = atlasManagers;
@@ -31,9 +32,9 @@ define([
   };
 
   EntityManager.prototype.bindEvents = function () {
-    console.debug('atlas/entity/EntityManager', 'Binding events');
+    Log.debug('atlas/entity/EntityManager', 'Binding events');
     this._atlasManagers.event.addEventHandler('extern', 'entity/bulk/show', function (args) {
-      console.debug('A entity/bulk/show is being handled.');
+      Log.debug('A entity/bulk/show is being handled.');
       this.bulkCreate(args.features);
     }.bind(this));
   };
@@ -68,7 +69,7 @@ define([
       args.eventManager = this._atlasManagers.event;
       // Add the RenderManager to the args for the feature.
       args.renderManager = this._atlasManagers.render;
-      console.debug('Creating entity', id);
+      Log.debug('Creating entity', id);
       return (this._entities[id] = new this._entityTypes.Feature(id, args));
     }
   };
@@ -157,13 +158,13 @@ define([
    */
   EntityManager.prototype.add = function (id, entity) {
     if (id in this._entities) {
-      console.log('tried to add entity', id, 'which already exists.');
+      Log.log('tried to add entity', id, 'which already exists.');
       return false;
     }
     if (!entity instanceof GeoEntity) {
       throw new DeveloperError('Can not add entity which is not a subclass of atlas/model/GeoEntity.');
     }
-    console.debug('entityManager: added entity', id);
+    Log.debug('entityManager: added entity', id);
     this._entities[id] = entity;
     return true;
   };
@@ -174,7 +175,7 @@ define([
    */
   EntityManager.prototype.remove = function (id) {
     if (id in this._entities) {
-      console.debug('entityManager: deleted entity', id);
+      Log.debug('entityManager: deleted entity', id);
       this._entities[id].cleanUp();
       delete this._entities[id];
     }

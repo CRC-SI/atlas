@@ -4,8 +4,9 @@ define([
   'atlas/util/default',
   'atlas/util/dom/DomClass',
   'atlas/util/dom/DomChild',
-  'atlas/util/mixin'
-], function(Class, DeveloperError, defaultValue, DomClass, DomChild, mixin) {
+  'atlas/util/mixin',
+  'atlas/lib/utility/Log'
+], function(Class, DeveloperError, defaultValue, DomClass, DomChild, mixin, Log) {
   "use strict";
 
   /**
@@ -65,15 +66,15 @@ define([
 //      var newDomNodeId = newDomNode.id;
 
       // Move existing DOM if there is one.
-      console.debug('setting DOM node', newDomNode);
+      Log.debug('setting DOM node', newDomNode);
       if (this._currentDomNode !== null) {
         // Always show in the new position if Atlas is being moved.
         showNow = true;
-        console.debug('moving atlas from', this._currentDomNode, 'to', newDomNode);
+        Log.debug('moving atlas from', this._currentDomNode, 'to', newDomNode);
         var curDomNode = this._currentDomNode;
         var childDomNode = DomChild.getChildren(curDomNode);
         DomChild.addChildren(newDomNode, childDomNode);
-        console.debug('moved atlas into', newDomNode);
+        Log.debug('moved atlas into', newDomNode);
       }
       this._currentDomNode = newDomNode;
       // Show in new location if required.

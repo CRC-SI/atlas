@@ -1,8 +1,9 @@
 define([
   'atlas/util/Class',
   'atlas/util/DeveloperError',
-  'atlas/util/mixin'
-], function (Class, DeveloperError, mixin) {
+  'atlas/util/mixin',
+  'atlas/lib/utility/Log'
+], function (Class, DeveloperError, mixin, Log) {
 
   /**
    * Dynamic Rendering will use the existing Projection classes to provide the  ‘rendering’
@@ -178,7 +179,7 @@ define([
      */
     _render: function () {
       this._state = 'playing';
-      console.debug('starting render at index', this._index);
+      Log.debug('starting render at index', this._index);
 
       // Use window timeout for the rendering loop.
       // TODO(bpstudds): Are there more efficient ways to do the rendering
