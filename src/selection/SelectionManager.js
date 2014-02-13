@@ -72,18 +72,29 @@ define([
           source: 'intern',
           name: 'input/leftdown',
           callback: function(args) {
-            if (args) {
-              if (!args.modifiers) args.modifiers = {};
-              // var worldPosition = this._atlasManagers.render.convertScreenCoordsToLatLng(args);
-              // var picked = this._atlasManagers.entity.getAt(worldPosition);
-              var selectedEntities = this._atlasManagers.entity.getAt(args.position),
-                  keepSelection = 'shift' in args.modifiers;
-              if (selectedEntities.length > 0) {
-                this.selectEntity(selectedEntities[0].getId(), keepSelection);
-              } else {
-                !keepSelection && this.clearSelection();
-              }
+            if (!args.modifiers) args.modifiers = {};
+            // var worldPosition = this._atlasManagers.render.convertScreenCoordsToLatLng(args);
+            // var picked = this._atlasManagers.entity.getAt(worldPosition);
+            var selectedEntities = this._atlasManagers.entity.getAt(args.position),
+                keepSelection = 'shift' in args.modifiers;
+            if (selectedEntities.length > 0) {
+              this.selectEntity(selectedEntities[0].getId(), keepSelection);
+            } else {
+              !keepSelection && this.clearSelection();
             }
+          }.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'input/left/dblclick',
+          callback: function(args) {
+            var selectedEntities = this._atlasManagers.entity.getAt(args.position);
+            selectedEntities.forEach(function(entity) {
+              this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(),
+                  'entity/dblclick', {
+                    id: entity.getId()
+                  }));
+            }, this);
           }.bind(this)
         },
         {
