@@ -414,7 +414,7 @@ define([
      * Disables editing of the GeoEntity.
      */
     onDisableEditing: function () {
-      this._editEventHandler.cancel();
+      this._editEventHandler && this._editEventHandler.cancel();
     }
   });
 });
