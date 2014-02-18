@@ -200,9 +200,12 @@ define([
    * IDs.
    */
   EntityManager.prototype.getByIds = function (ids) {
-    return ids.map(function (id) {
-      return this.getById(id);
+    var entities = [];
+    ids.forEach(function (id) {
+      var entity = this.getById(id);
+      entity && entities.push(entity);
     }.bind(this));
+    return entities;
   };
 
   /**

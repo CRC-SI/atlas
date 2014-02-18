@@ -94,6 +94,14 @@ define([
         }.bind(this._atlasManagers.event)
       });
 
+      this._mouseHandlers.push({
+        name: 'dblclick',
+        cback: function (e) {
+          var args = makeArgs('left/dblclick', e);
+          this.handleInternalEvent(args.name, args);
+        }.bind(this._atlasManagers.event)
+      });
+
       // Add the event listeners to the current DOM element.
       this._mouseHandlers.forEach(function(handler) {
         this.addEventListener(handler.name, handler.cback);

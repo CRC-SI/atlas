@@ -36,7 +36,7 @@ define([
      * the extern event.
      * @type {Object}
      */
-    _externalEvent_Handlers: null,
+    _externalEventHandlers: null,
 
 
     /**
@@ -44,7 +44,7 @@ define([
      * that event type. These callbacks may be internal or external to Atlas.
      * @type {Object}
      */
-    _internalEvent_Handlers: null,
+    _internalEventHandlers: null,
 
     /**
      * Counter to determine the ID of the next handler that is registered.
@@ -56,8 +56,8 @@ define([
       this._atlasManagers = atlasManagers;
       this._atlasManagers.event = this;
 
-      this._internalEvent_Handlers = {};
-      this._externalEvent_Handlers = {};
+      this._internalEventHandlers = {};
+      this._externalEventHandlers = {};
     },
 
     /**
@@ -158,9 +158,9 @@ define([
       // Select the map of event handlers to add to.
       var allHandlers;
       if (source === 'extern') {
-        allHandlers = this._externalEvent_Handlers;
+        allHandlers = this._externalEventHandlers;
       } else if (source === 'intern') {
-        allHandlers = this._internalEvent_Handlers;
+        allHandlers = this._internalEventHandlers;
       } else {
         throw new DeveloperError('Must specify whether event handler is for "intern" or "extern" events.');
       }
@@ -195,9 +195,9 @@ define([
       // Retrieve either intern or extern event handlers.
       var allHandlers;
       if (source === 'extern') {
-        allHandlers = this._externalEvent_Handlers;
+        allHandlers = this._externalEventHandlers;
       } else if (source === 'intern') {
-        allHandlers = this._internalEvent_Handlers;
+        allHandlers = this._internalEventHandlers;
       } else {
         throw new DeveloperError('Can not remove event without specifying "extern" or "intern" event');
       }
@@ -223,9 +223,9 @@ define([
       // Retrieve either intern or extern event handlers.
       var allHandlers;
       if (source === 'extern') {
-        allHandlers = this._externalEvent_Handlers;
+        allHandlers = this._externalEventHandlers;
       } else if (source === 'intern') {
-        allHandlers = this._internalEvent_Handlers;
+        allHandlers = this._internalEventHandlers;
       } else {
         throw new DeveloperError('Can not handle event without specifying "extern" or "intern" event');
       }

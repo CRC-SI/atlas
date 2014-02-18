@@ -1,6 +1,6 @@
 define([
   'atlas/edit/TranslationModule'
-], function (TranslationModule) {
+], function(TranslationModule) {
 
   // TODO(aramk) refactor this into abstract atlas.core.ModularManager and use elsewhere (e.g. RenderManager).
 
@@ -15,7 +15,7 @@ define([
    * @alias atlas.edit.EditManager
    * @constructor
    */
-  var EditManager = function (atlasManagers) {
+  var EditManager = function(atlasManagers) {
     /**
      * Contains a mapping of Atlas manager names to the manager instance.
      * @type {Object.<String, Object.<String, Object>>}
@@ -46,9 +46,10 @@ define([
   /**
    * Initialisation that needs to occur after all managers are created.
    */
-  EditManager.prototype.setup = function () {
+  EditManager.prototype.setup = function() {
     this.addModule('translation', new TranslationModule(this._atlasManagers));
-    this.enableModule('translation');
+    // TODO(aramk) Disabled translation by default.
+//    this.enableModule('translation');
   };
 
   /**
@@ -56,12 +57,12 @@ define([
    * @param {String} name - The name of the module.
    * @param {Object} module - The module.
    */
-  EditManager.prototype.addModule = function (name, module) {
+  EditManager.prototype.addModule = function(name, module) {
     this._modules[name] = module;
     this.disableModule(name);
   };
 
-  EditManager.prototype.getModule = function (name) {
+  EditManager.prototype.getModule = function(name) {
     return this._modules[name];
   };
 
@@ -69,7 +70,7 @@ define([
    * Enables an existing module.
    * @param {String} name - The name of the module.
    */
-  EditManager.prototype.enableModule = function (name) {
+  EditManager.prototype.enableModule = function(name) {
     var module = this.getModule(name);
     if (!module) return;
 
@@ -77,7 +78,8 @@ define([
     if (!this._listeners[name]) this._listeners[name] = {};
     for (var event in bindings) {
       if (bindings.hasOwnProperty(event)) {
-        this._listeners[name][event] = this._atlasManagers.event.addEventHandler('intern', event, bindings[event].bind(module));
+        this._listeners[name][event] = this._atlasManagers.event.addEventHandler('intern', event,
+            bindings[event].bind(module));
       }
     }
     this._enabledModules[name] = module;
@@ -87,7 +89,7 @@ define([
    * Disables the module with the given name.
    * @param {String} name - The name of the module.
    */
-  EditManager.prototype.disableModule = function (name) {
+  EditManager.prototype.disableModule = function(name) {
     // TODO(aramk) use "handler" or "listener" and not both?
     var listeners = this._listeners[name];
     for (var event in listeners) {
@@ -103,7 +105,7 @@ define([
    * @param {String} name - The name of the module.
    * @param {Boolean} state - Whether the module is active.
    */
-  EditManager.prototype.setIsModuleEnabled = function (name, state) {
+  EditManager.prototype.setIsModuleEnabled = function(name, state) {
     if (state) {
       this.enableModule(name);
     } else {

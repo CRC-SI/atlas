@@ -17,7 +17,7 @@ define([
    *
    * @class atlas.selection.SelectionManager
    */
-  var SelectionManager = Class.extend( /** @lends atlas.selection.SelectionManager# */ {
+  var SelectionManager = Class.extend(/** @lends atlas.selection.SelectionManager# */ {
     /**
      * Contains a map of entity ID to entity of all selected entities.
      * @type {Object}
@@ -34,7 +34,7 @@ define([
     _init: function(atlasManagers) {
       this._atlasManagers = atlasManagers;
       this._atlasManagers.selection = this;
-      this._selection = [];
+      this._selection = {};
     },
 
     setup: function() {
@@ -46,23 +46,55 @@ define([
      */
     bindEvents: function() {
       // Create event handlers for pertinent events.
+      var handleSelection = function(args, method) {
+        if (args.ids instanceof Array) {
+          this[method + 'Entities'](args.ids, args.keepSelection);
+        } else {
+          this[method + 'Entity'](args.id, args.keepSelection);
+        }
+      }.bind(this);
       var handlers = [
+        {
+          source: 'extern',
+          name: 'entity/select',
+          callback: function(args) {
+            handleSelection(args, 'select');
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'entity/deselect',
+          callback: function(args) {
+            handleSelection(args, 'deselect');
+          }.bind(this)
+        },
         {
           source: 'intern',
           name: 'input/leftdown',
           callback: function(args) {
-            if (args) {
-              if (!args.modifiers) args.modifiers = {};
-              // var worldPosition = this._atlasManagers.render.convertScreenCoordsToLatLng(args);
-              // var picked = this._atlasManagers.entity.getAt(worldPosition);
-              var pickedPrimitives = this._atlasManagers.entity.getAt(args.position),
-                  keepSelection = 'shift' in args.modifiers;
-              if (pickedPrimitives.length > 0) {
-                this.selectEntity(pickedPrimitives[0], keepSelection);
-              } else {
-                !keepSelection && this.clearSelection();
-              }
+            if (!args.modifiers) args.modifiers = {};
+            // var worldPosition = this._atlasManagers.render.convertScreenCoordsToLatLng(args);
+            // var picked = this._atlasManagers.entity.getAt(worldPosition);
+            var selectedEntities = this._atlasManagers.entity.getAt(args.position),
+                keepSelection = 'shift' in args.modifiers;
+            if (selectedEntities.length > 0) {
+              this.selectEntity(selectedEntities[0].getId(), keepSelection);
+            } else {
+              !keepSelection && this.clearSelection();
             }
+          }.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'input/left/dblclick',
+          callback: function(args) {
+            var selectedEntities = this._atlasManagers.entity.getAt(args.position);
+            selectedEntities.forEach(function(entity) {
+              this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(),
+                  'entity/dblclick', {
+                    id: entity.getId()
+                  }));
+            }, this);
           }.bind(this)
         },
         {
@@ -87,7 +119,13 @@ define([
      * @returns {Object.<String,atlas.model.GeoEntity>}
      */
     getSelection: function() {
-      return this._selection;
+      var selection = {};
+      for (var id in this._selection) {
+        if (this._selection.hasOwnProperty(id)) {
+          selection[id] = this._selection[id];
+        }
+      }
+      return selection;
     },
 
     // -------------------------------------------
@@ -96,27 +134,22 @@ define([
 
     /**
      * Causes an Entity to become selected.
-     * @param {String|GeoEntity} id - The ID of the GeoEntity to select.
+     * @param {String} id - The ID of the GeoEntity to select.
      * @param {Boolean} [keepSelection=false] - If true, the GeoEntity will be added to the current
      *      selection. If false, the current selection will be cleared before
      *      the GeoEntity is selected.
      */
+    // TODO(aramk) Make it less ambiguous by only accepting IDs.
     selectEntity: function(id, keepSelection) {
-      // Do nothing if entity is already selected.
-      if (id in this._selection) { return; }
-      var entity = typeof id === 'string' ?
-          this._atlasManagers.entity.getById(id) : id;
-      if (entity) {
-        if (!keepSelection) {
-          this.clearSelection();
-        }
-        this._selection[entity.getId()] = entity;
-        entity.onSelect();
-        this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(), 'entity/select', {
-          entity: entity
-        }));
-        Log.debug('selected entity', id);
-      }
+      return this.selectEntities([id], keepSelection);
+    },
+
+    /**
+     * Removes the given Entity from the current selection.
+     * @param {String} id - The ID of the GeoEntity to deselect.
+     */
+    deselectEntity: function(id) {
+      return this.deselectEntities([id]);
     },
 
     /**
@@ -128,61 +161,66 @@ define([
      */
     selectEntities: function(ids, keepSelection) {
       Log.debug('selecting entities', ids);
-      var entities = this._atlasManagers.entity.getByIds(ids);
+      var entities = this._atlasManagers.entity.getByIds(ids),
+          toSelectIds = [],
+          toSelectEntities = {};
       if (entities.length > 0) {
-        // Clear selection first if required.
-        if (!keepSelection) {
-          this.clearSelection();
-        }
         entities.forEach(function(entity) {
-          entity.onSelect();
-          this._selection[entity.getId()] = entity;
+          var id = entity.getId();
+          if (!this.isSelected(id)) {
+            toSelectIds.push(id);
+            toSelectEntities[id] = entity;
+          }
         }.bind(this));
-        this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(), 'entity/select/multiple',
-          {
-          entities: entities
-        }));
+        // Clear selection afterwards once we know what was selected. Clearing before checking with
+        // isSelect() would result in previously selected entities being confused as newly selected.
+        // If nothing was actually selected in addition to what was already selected, don't clear
+        // the current selection.
+        if (toSelectIds.length > 0) {
+          if (!keepSelection) {
+            this.clearSelection();
+          }
+          toSelectIds.forEach(function(id) {
+            var entity = toSelectEntities[id];
+            entity.onSelect();
+            this._selection[id] = entity;
+          }.bind(this));
+        }
+        if (toSelectIds.length > 0) {
+          this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(),
+              'entity/select', {
+                ids: toSelectIds
+              }));
+        }
       }
-      Log.debug('selected entities', ids);
-    },
-
-    /**
-     * Removes the given Entity from the current selection.
-     * @param {String} id - The ID of the GeoEntity to deselect.
-     */
-    deselectEntity: function(id) {
-      if (id in this._selection) {
-        var entity = this._selection[id];
-        entity.onDeselect();
-        this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(), 'entity/deselect', {
-          entity: entity
-        }));
-        delete this._selection[id];
-        Log.debug('deselected entity', id);
-      }
+      Log.debug('selected entities', toSelectIds);
+      return toSelectIds;
     },
 
     /**
      * Deselects multiple GeoEntities.
      * @param {Array.<String>} ids - The IDs of all GeoEntities to be deselected.
+     * @returns {Array.<atlas.model.GeoEntity>} The deselected GeoEntities.
      */
     deselectEntities: function(ids) {
       var entities = this._atlasManagers.entity.getByIds(ids);
       var deselected = [];
-      if (ids.length > 0) {
+      if (entities.length > 0) {
         entities.forEach(function(entity) {
-          //if (entity.id in this._selection) {
+          var id = entity.getId();
+          if (this.isSelected(id)) {
             entity.onDeselect();
-            deselected.push(entity);
-            delete this._selection[entity.getId()];
-          //}
+            deselected.push(id);
+            delete this._selection[id];
+          }
         }.bind(this));
         this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(),
-          'entity/deselect/multiple', {
-            entities: deselected
-          }));
+            'entity/deselect', {
+              ids: deselected
+            }));
         Log.debug('deselected entities', ids);
       }
+      return deselected;
     },
 
     /**
@@ -190,8 +228,18 @@ define([
      */
     clearSelection: function() {
       if (Object.keys(this._selection).length > 0) {
-        this.deselectEntities(Object.keys(this._selection));
+        return this.deselectEntities(Object.keys(this._selection));
+      } else {
+        return null;
       }
+    },
+
+    /**
+     * @param {String} id.
+     * @return Whether the GeoEntity with the given ID is selected.
+     */
+    isSelected: function(id) {
+      return id in this._selection;
     },
 
     /*
