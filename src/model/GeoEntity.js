@@ -314,7 +314,9 @@ define([
      *
      * @abstract
      */
-    rotate: function (rotation) {},
+    rotate: function (rotation) {
+      throw new DeveloperError('Can not call abstract method of GeoEntity.');
+    },
 
     /**
      * Function to build the GeoEntity so it can be rendered.

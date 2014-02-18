@@ -1,5 +1,4 @@
 define([
-  'atlas/util/Class',
   'atlas/util/DeveloperError',
   'atlas/util/default',
   'atlas/util/mixin',
@@ -10,12 +9,12 @@ define([
   './Material',
   // Base class
   './GeoEntity'
-], function(Class, DeveloperError, defaultValue, mixin, WKT, Vertex, Colour, Style, Material,
+], function(DeveloperError, defaultValue, mixin, WKT, Vertex, Colour, Style, Material,
             GeoEntity) {
   "use strict";
 
   /**
-   * @classdesc A Polygon represents a 2D polygon that can be rendered within an
+   * @classdesc Represents a 2D polygon that can be rendered within an
    * Atlas scene. Polygons are constructed from a series of Vertices specified
    * in a counter-clockwise order. A {@link atlas.model.Material|Material}
    * and {@link atlas.model.Style|Style} can also be defined when
@@ -34,7 +33,6 @@ define([
    * @class atlas.model.Polygon
    * @extends atlas.model.GeoEntity
    */
-  //var Polygon = function (id, vertices, args) {
   var Polygon = GeoEntity.extend(/** @lends atlas.model.Polygon# */ {
     // TODO(aramk) Either put docs on params and document the getters and setters which don't have
     // obvious usage/logic.
@@ -117,10 +115,16 @@ define([
      */
     _init: function(id, args) {
       args = mixin({}, args);
-      // Call superclass GeoEntity constructor.
       this._super(id, args);
       if (typeof args.vertices === 'string') {
-        this._vertices = WKT.verticesFromWKT(args.vertices)[0];
+        // TODO(aramk) Add support for MULTIPOLYGON by not taking the first item.
+        var wkt = WKT.getInstance(),
+            vertices = wkt.verticesFromWKT(args.vertices);
+        if (vertices[0] instanceof Array) {
+          this._vertices = vertices[0];
+        } else {
+          throw new Error('Invalid vertices for Polygon ' + id);
+        }
       } else {
         this._vertices = defaultValue(args.vertices, []);
       }
@@ -248,6 +252,8 @@ define([
     // MODIFIERS
     // -------------------------------------------
 
+    // TODO(aramk) Can we move the vertices into a subclass which Polygon and Line can both use?
+
     /**
      * Adds a vertex to the polygon end of the list of vertices describing the polygon.
      * @param {Vertex} vertex - vertex to add to the polygon.
@@ -358,33 +364,9 @@ define([
       this.isVisible() && this.show();
     },
 
-    /**
-     * Rotates the Polygon by the given angle.
-     * @param {atlas.model.Vertex} rotation - The angle to rotate the Polygon, negative angles
-     *      rotate clockwise, positive counter-clockwise.
-     */
-    rotate: function(rotation) {
-    },
-
     // -------------------------------------------
     // BEHAVIOUR
     // -------------------------------------------
-
-    /**
-     * Shows the Polygon.
-     * @abstract
-     */
-    show: function() {
-      throw new DeveloperError('Can not call abstract method of Polygon');
-    },
-
-    /**
-     * Hides the Polygon.
-     * @abstract
-     */
-    hide: function() {
-      throw new DeveloperError('Can not call abstract method of Polygon');
-    },
 
     /**
      * Handles the behaviour of the Polygon when it is selected.

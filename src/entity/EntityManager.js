@@ -55,6 +55,22 @@ define([
     }
   };
 
+  /**
+   * Creates and adds a new Feature object to atlas-cesium.
+   * @param {String} id - The ID of the Feature to add.
+   * @param {Object} args - Arguments describing the Feature to add.
+   * @param {String|Array.<atlas.model.Vertex>} [args.line=null] - Either a WKT string or array
+   * of vertices.
+   * @param {String|Array.<atlas.model.Vertex>} [args.footprint=null] - Either a WKT string or array
+   * of vertices.
+   * @param {Object} [args.mesh=null] - A object in the C3ML format describing the Features' Mesh.
+   * @param {Number} [args.height=0] - The extruded height when displaying as a extruded polygon.
+   * @param {Number} [args.elevation=0] - The elevation (from the terrain surface) to the base of
+   * the Mesh or Polygon.
+   * @param {Boolean} [args.show=false] - Whether the feature should be initially shown when
+   * created.
+   * @param {String} [args.displayMode='footprint'] - Initial display mode of feature.
+   */
   EntityManager.prototype.createFeature = function (id, args) {
     if (typeof id === 'object') {
       args = id;

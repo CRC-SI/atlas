@@ -48,7 +48,7 @@ define([
     },
 
     testAddFeature: function () {
-
+      // TODO(aramk) Use createFeature on EntityManager instead.
       var feature = new Feature(0, args);
       renderManager.addFeature(0, args);
       doh.assertTrue(renderManager._entities[0] instanceof Feature);

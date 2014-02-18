@@ -1,46 +1,56 @@
 define([
-  'atlas/util/Extends',
+  'atlas/util/DeveloperError',
   'atlas/util/default',
+  'atlas/util/WKT',
   './GeoEntity',
   './Vertex'
-], function (extend, defaultValue, GeoEntity, Vertex) {
-
+], function(DeveloperError, defaultValue, WKT, GeoEntity, Vertex) {
   /**
-   * Constructor for a new Line object.
-   *
-   * @param {atlas.model.Vertex} [start=Vertex(0,0,0)] - Vertex at start of the line segment.
-   * @param {atlas.model.Vertex} [end=Vertex(0,0,0)] - Vertex at end of the line segment.
-   *
-   * @extends {atlas.model.GeoEntity}
-   * @alias atlas.model.Line
-   * @constructor
+   * @classdesc Represents a 2D line segment.
+   * @class atlas.model.Line
+   * @extends atlas.model.GeoEntity
    */
-  var Line = function (start, end) {
-    Line.base.constructor.call(this, id, parent);
+  return GeoEntity.extend(/** @lends atlas.model.Line# */{
 
-    this._startVertex = defaultValue(start, new Vertex(0,0,0));
-    this._endVertex =  defaultValue(end, new Vertex(0,0,0));
-  };
-  // Inherit from GeoEntity
-  extend(GeoEntity, Line);
+    /**
+     * Counter-clockwise ordered array of vertices constructing polygon.
+     * @type {Array.<atlas.model.Vertex>}
+     * @private
+     */
+    _vertices: null,
 
-  /**
-   * Returns the length of the Line.
-   * @returns {number} Length of line.
-   */
-  Line.prototype.getLength = function () {
-    var x2 = Math.abs(this._endVertex.x - this._startVertex.x);
-    x2 = Math.pow(x2, 2);
-    var y2 = Math.abs(this._endVertex.y - this._startVertex.y);
-    y2 = Math.pow(y2, 2);
-    var z2 = Math.abs(this._endVertex.z - this._startVertex.z);
-    z2 = Math.pow(z2, 2);
-    return Math.sqrt(x2 + y2 + z2);
-  };
+    /**
+     * @type {atlas.model.Style}
+     * @private
+     */
+    _style: null,
 
-  Line.prototype.edit = function () {
-    throw new DeveloperError('Can not call method of abstract Line');
-  };
+    /**
+     * Constructs a new {@link Line}.
+     * @ignore
+     */
+    _init: function(id, args) {
+      this._super(id, args);
+      if (typeof args.vertices === 'string') {
+        var wkt = WKT.getInstance(),
+            vertices = wkt.verticesFromWKT(args.vertices);
+        if (vertices instanceof Array) {
+          this._vertices = vertices;
+        } else {
+          throw new Error('Invalid vertices for Line ' + id);
+        }
+      } else {
+        this._vertices = defaultValue(args.vertices, []);
+      }
+    },
 
-  return Line;
+    /**
+     * Function to enable interactive editing of the polygon.
+     * @abstract
+     */
+    edit: function() {
+      throw new DeveloperError('Can not call methods on abstract Polygon.');
+    }
+
+  });
 });
