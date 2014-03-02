@@ -1,14 +1,12 @@
 define([
   'atlas/util/DeveloperError',
+  'atlas/util/mixin',
   'atlas/events/Event',
+  'atlas/model/Colour',
   'atlas/model/Style',
   // Base class
   'atlas/events/EventTarget'
-], function (
-  DeveloperError,
-  Event,
-  Style,
-  EventTarget) {
+], function (DeveloperError, mixin, Event, Colour, Style, EventTarget) {
 
   /**
    * @classdesc A GeoEntity is an abstract class that represents an entity that
@@ -34,7 +32,7 @@ define([
    * @extends atlas.events.EventTarget
    * @class atlas.model.GeoEntity
    */
-  return EventTarget.extend(/** @lends atlas.model.GeoEntity# */ {
+   var GeoEntity = EventTarget.extend(/** @lends atlas.model.GeoEntity# */ {
     /**
      * The ID of the GeoEntity
      * @type {String}
@@ -132,6 +130,11 @@ define([
       }
       if (id === undefined || typeof id === 'object') {
         throw new DeveloperError('Can not create instance of GeoEntity without an ID');
+      }
+      if (args.style === undefined) {
+        this._style = GeoEntity.DEFAULT_STYLE;
+      } else {
+        this._style = args.style;
       }
       this._id = id.toString();
       this._renderManager = args.renderManager;
@@ -418,5 +421,13 @@ define([
     onDisableEditing: function () {
       this._editEventHandler && this._editEventHandler.cancel();
     }
-  });
+  })
+
+  // -------------------------------------------------
+  // Statics
+  // -------------------------------------------------
+  GeoEntity.DEFAULT_STYLE = new Style(Colour.GREEN, Colour.GREEN, 5)
+
+
+  return GeoEntity;
 });
