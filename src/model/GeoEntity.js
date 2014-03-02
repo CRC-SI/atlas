@@ -54,6 +54,13 @@ define([
      * @type {Array.<String>}
      * @protected
      */
+    _childrenIds: null,
+
+    /**
+     * Array of references to the child GeoEntities.
+     * @type {Array.<atlas.model.GeoEntity}
+     * @protected
+     */
     _children: null,
 
     /**
@@ -62,6 +69,13 @@ define([
      * @protected
      */
     _renderManager: null,
+
+    /**
+     * The EntityManager for the GeoEntity.
+     * @type {atlas.entity.EntityManager}
+     * @protected
+     */
+    _entityManager: null,
 
     /**
      * The geometric centroid of the GeoEntity.
@@ -134,8 +148,10 @@ define([
         throw new DeveloperError('Can not create instance of GeoEntity without an ID');
       }
       this._id = id.toString();
+      this._childrenIds = args.childrenIds || [];
       this._renderManager = args.renderManager;
       this._eventManager = args.eventManager;
+      this._entityManager = args.entityManager;
     },
 
     // -------------------------------------------
@@ -155,6 +171,13 @@ define([
      */
     getCentroid: function() {
       throw new DeveloperError('Can not call abstract method of GeoEntity');
+    },
+
+    getChildren: function() {
+      // TODO(bpstudds): Adding children and removing children needs support.
+      if (this._children !== null) { return this._children; }
+      this._children = this._entityManager.getByIds(this._childrenIds);
+      return this._children;
     },
 
     /**

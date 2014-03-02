@@ -279,16 +279,25 @@ define([
 
     /**
      * Generates the configuration of the Projection's <code>bins</code>
-     * @returns {Array.<Object>}
+     * @returns {Array.<Object>} An array of bin objects. The bin object contains parameters
+     * of the bin, and an <code>accept(value)</code> function that returns <code>0</code> if
+     * <code>value</code> fits in the bin, and <code>-1</code>/<code>1</code> if the value is
+     * too small or too large respectively.
      * @protected
      */
     _configureBins: function () {
       var binConf = this._configuration.bins,
           bins = [];
-      if (typeof binConf === 'number') {
-        var numBins = binConf;
+      if (binConf === undefined || typeof binConf === 'number') {
+        var numBins = binConf || 1;
         if (numBins === 1) {
-          bins = [{ binId: 0, numBins: numBins, firstValue: Number.NEGATIVE_INFINITY, lastValue: Number.POSITIVE_INFINITY }];
+          bins = [{
+            binId: 0,
+            numBins: numBins,
+            accept: function () { return 0; },
+            firstValue: Number.NEGATIVE_INFINITY,
+            lastValue: Number.POSITIVE_INFINITY
+          }];
         } else {
           // Create bins by splitting up the range of input parameter values into equal divisions.
           var populationStats = this._calculatePopulationStatistics();
@@ -420,7 +429,7 @@ define([
             binStats.entityIds.push(thisId);
             // Calculate statistical properties.
             binStats.count++;
-            binStats.sum += parseInt(thisValue, 10) || 0;
+            binStats.sum += parseFloat(thisValue) || 0;
             if (thisValue < binStats.min.value) { binStats.min = { 'id': thisId, 'value': thisValue };}
             if (thisValue > binStats.max.value) { binStats.max = { 'id': thisId, 'value': thisValue };}
           } // else value to small for this bin, try next value.
