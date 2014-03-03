@@ -105,7 +105,7 @@ define([
       }
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
-      this._style = args.style || Feature.DEFAULT_STYLE;
+      this._style = args.style || new Style(Colour.GREEN, Colour.GREEN, 1);
     },
 
     // -------------------------------------------
@@ -228,6 +228,7 @@ define([
       // Call version on superclass GeoEntity to do the heavy lifting...
       var oldStyle = this._super(args);
       // ... and propagate the change to Feature's footprint and mesh if they exist.
+      this._line && this._line.setStyle(this._style);
       this._footprint && this._footprint.setStyle(this._style);
       this._mesh && this._mesh.setStyle(this._style);
       return oldStyle;
@@ -382,7 +383,7 @@ define([
       // -------------------------------------------
 
       {
-        DEFAULT_STYLE: new Style(Colour.GREEN, Colour.GREEN, 1)
+        DEFAULT_STYLE: function () { return new Style(Colour.GREEN, Colour.GREEN, 1); }
       }
   ); // End class mixin;
 

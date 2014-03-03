@@ -298,12 +298,16 @@ define([
       if (Object.keys(args).length <= 0) { return {}; }
 
       this.setDirty('style');
-      if (!this._style) { this._style = Style.DEFAULT(); }
       var oldStyle = {};
-      // Change values
-      args.fillColour && (oldStyle.fillColour = this._style.setFillColour(args.fillColour));
-      args.borderColour && (oldStyle.borderColour = this._style.setBorderColour(args.borderColour));
-      args.borderWidth && (oldStyle.borderWidth = this._style.setBorderWidth(args.borderWidth));
+      // Work out what's changing
+      args.fillColour && (oldStyle.fillColour = this._style.getFillColour());
+      args.borderColour && (oldStyle.borderColour = this._style.getBorderColour());
+      args.borderWidth && (oldStyle.borderWidth = this._style.getBorderWidth());
+      // Generate new style based on what's changed.
+      var fill = args.fillColour || this._style.getFillColour(),
+          border = args.borderColour || this._style.getBorderColour(),
+          width = args.borderWidth || this._style.getBorderWidth();
+      this._style = new Style(fill, border, width);
       return oldStyle;
     },
 
