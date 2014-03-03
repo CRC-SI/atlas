@@ -41,6 +41,12 @@ define([
     _type: null,
 
     /**
+     * Whether the Projection is currently being rendered.
+     * @type {Boolean}
+     */
+    _rendered: false,
+
+    /**
      * A map of GeoEntity ID to GeoEntity instance affected by the Projection. It is
      * assumed that every ID that appears in <code>_entities</code> appears in <code>_values</code>
      */
@@ -154,6 +160,7 @@ define([
      * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
      */
     render: function (id) {
+      this._rendered = true;
       this._mapToEntitiesById(this._render, id);
     },
 
@@ -174,6 +181,7 @@ define([
      * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
      */
     unrender: function (id) {
+      this._rendered = false;
       this._mapToEntitiesById(this._unrender, id);
     },
 
@@ -275,6 +283,13 @@ define([
      */
     getValues: function () {
       return this._values;
+    },
+
+    /**
+     * @returns {Boolean} Whether the Projection is currently rendered.
+     */
+    isRendered: function () {
+      return this._rendered;
     },
 
     /**
