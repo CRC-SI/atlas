@@ -214,7 +214,14 @@ define([
       }
     },
 
+    /**
+     *
+     * @param {String} [component] A specific component to check.
+     * @returns {Boolean} Whether the given <code>component</code> is dirty, or if
+     * <code>component</code> is not given, the GeoEntity as a whole.
+     */
     isDirty: function(component) {
+      if (component === undefined) { return Object.keys(this._dirty).length > 0; }
       return component in this._dirty;
     },
 

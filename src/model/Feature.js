@@ -141,7 +141,7 @@ define([
 
     _delegateToForm: function(method, args) {
       var form = this.getForm();
-      return form && form[method].apply(form, arguments);
+      return form && form[method].apply(form, args);
     },
 
     isRenderable: function() {
@@ -219,8 +219,8 @@ define([
     /**
      * Modifies specific components of the Feature's style.
      * @param {Object} args - The new values for the Style components.
-     * @param {atlas.model.Colour} [args.fill] - The new fill colour.
-     * @param {atlas.model.Colour} [args.border] - The new border colour.
+     * @param {atlas.model.Colour} [args.fillColour] - The new fill colour.
+     * @param {atlas.model.Colour} [args.borderColour] - The new border colour.
      * @param {Number} [args.borderWidth] - The new border width colour.
      * @returns {atlas.model.Style} - The old style.
      */
