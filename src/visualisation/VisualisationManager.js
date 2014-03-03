@@ -334,11 +334,7 @@ define([
       if (!prj) {
         throw new DeveloperError('Tried to toggle render of projection', artifact, 'without adding a projection object.');
       } else {
-        if (Object.keys(prj._effects).length === 0) {
-          prj.render();
-        } else {
-          prj.unrender();
-        }
+        prj.isRendered() ? prj.unrender() : prj.render();
       }
     },
 
