@@ -128,6 +128,9 @@ define([
       } else {
         this._vertices = defaultValue(args.vertices, []);
       }
+      if (args.color) {
+        args.style = new Style({fillColour: Colour.fromRGBA(args.color)});
+      }
       this._height = parseFloat(args.height) || this._height;
       this._elevation = parseFloat(args.elevation) || this._elevation;
       this._zIndex = parseFloat(args.zIndex) || this._zIndex;
