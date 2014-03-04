@@ -1,14 +1,11 @@
 define([
   'atlas/util/DeveloperError',
+  'atlas/util/mixin',
   'atlas/events/Event',
   'atlas/model/Style',
   // Base class
   'atlas/events/EventTarget'
-], function (
-  DeveloperError,
-  Event,
-  Style,
-  EventTarget) {
+], function (DeveloperError, mixin, Event, Style, EventTarget) {
 
   /**
    * @classdesc A GeoEntity is an abstract class that represents an entity that
@@ -304,10 +301,12 @@ define([
       args.borderColour && (oldStyle.borderColour = this._style.getBorderColour());
       args.borderWidth && (oldStyle.borderWidth = this._style.getBorderWidth());
       // Generate new style based on what's changed.
-      var fill = args.fillColour || this._style.getFillColour(),
-          border = args.borderColour || this._style.getBorderColour(),
-          width = args.borderWidth || this._style.getBorderWidth();
-      this._style = new Style(fill, border, width);
+      var newStyle = mixin({
+        fillColour: this._style.getFillColour(),
+        borderColour: this._style.getBorderColour(),
+        borderWidth: this._style.getBorderWidth()
+      }, args);
+      this.setStyle(new Style(newStyle));
       return oldStyle;
     },
 
