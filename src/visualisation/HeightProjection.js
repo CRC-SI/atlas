@@ -72,10 +72,11 @@ define([
           newHeight = this._regressProjectionValueFromCodomain(attributes, this._configuration.codomain),
           heightDelta = newHeight - oldHeight;
       entity.setHeight(newHeight);
-      entity.show();
+      entity.isVisible() && entity.show();
       entity.getChildren().forEach(function (child) {
         var elevation = child.getElevation();
         child.setElevation(elevation + heightDelta);
+        child.isVisible() && child.show();
       });
       this._effects[entity.getId()] = {
         'oldValue': {height: oldHeight, elevation: oldElevation},
@@ -100,7 +101,7 @@ define([
           oldElevation = this._effects[id].oldValue.elevation;
       entity.setElevation(oldElevation);
       entity.setHeight(oldHeight);
-      entity.show();
+      entity.isVisible() && entity.show();
       delete this._effects[id];
     },
 
