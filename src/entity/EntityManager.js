@@ -99,7 +99,7 @@ define([
     c3mls.forEach(function (c3ml) {
       var id = c3ml.id;
       var args = EntityManager._parseC3ML(c3ml);
-      this._entities[id] = this.createFeature(id, args);
+      this.createFeature(id, args);
       this._entities[id].show();
     }, this);
   };
