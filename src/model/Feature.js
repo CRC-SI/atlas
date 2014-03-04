@@ -141,7 +141,7 @@ define([
 
     _delegateToForm: function(method, args) {
       var form = this.getForm();
-      return form && form[method].apply(form, arguments);
+      return form && form[method].apply(form, args);
     },
 
     isRenderable: function() {
@@ -219,8 +219,8 @@ define([
     /**
      * Modifies specific components of the Feature's style.
      * @param {Object} args - The new values for the Style components.
-     * @param {atlas.model.Colour} [args.fill] - The new fill colour.
-     * @param {atlas.model.Colour} [args.border] - The new border colour.
+     * @param {atlas.model.Colour} [args.fillColour] - The new fill colour.
+     * @param {atlas.model.Colour} [args.borderColour] - The new border colour.
      * @param {Number} [args.borderWidth] - The new border width colour.
      * @returns {atlas.model.Style} - The old style.
      */
@@ -228,6 +228,7 @@ define([
       // Call version on superclass GeoEntity to do the heavy lifting...
       var oldStyle = this._super(args);
       // ... and propagate the change to Feature's footprint and mesh if they exist.
+      this._line && this._line.setStyle(this._style);
       this._footprint && this._footprint.setStyle(this._style);
       this._mesh && this._mesh.setStyle(this._style);
       return oldStyle;
@@ -382,7 +383,7 @@ define([
       // -------------------------------------------
 
       {
-        DEFAULT_STYLE: new Style(Colour.GREEN, Colour.GREEN, 1)
+        DEFAULT_STYLE: function () { return new Style(Colour.GREEN, Colour.GREEN, 1); }
       }
   ); // End class mixin;
 

@@ -1,14 +1,11 @@
 define([
   'atlas/util/DeveloperError',
+  'atlas/util/mixin',
   'atlas/events/Event',
   'atlas/model/Style',
   // Base class
   'atlas/events/EventTarget'
-], function (
-  DeveloperError,
-  Event,
-  Style,
-  EventTarget) {
+], function (DeveloperError, mixin, Event, Style, EventTarget) {
 
   /**
    * @classdesc A GeoEntity is an abstract class that represents an entity that
@@ -54,6 +51,13 @@ define([
      * @type {Array.<String>}
      * @protected
      */
+    _childrenIds: null,
+
+    /**
+     * Array of references to the child GeoEntities.
+     * @type {Array.<atlas.model.GeoEntity}
+     * @protected
+     */
     _children: null,
 
     /**
@@ -62,6 +66,13 @@ define([
      * @protected
      */
     _renderManager: null,
+
+    /**
+     * The EntityManager for the GeoEntity.
+     * @type {atlas.entity.EntityManager}
+     * @protected
+     */
+    _entityManager: null,
 
     /**
      * The geometric centroid of the GeoEntity.
@@ -134,8 +145,10 @@ define([
         throw new DeveloperError('Can not create instance of GeoEntity without an ID');
       }
       this._id = id.toString();
+      this._childrenIds = args.childrenIds || [];
       this._renderManager = args.renderManager;
       this._eventManager = args.eventManager;
+      this._entityManager = args.entityManager;
     },
 
     // -------------------------------------------
@@ -155,6 +168,13 @@ define([
      */
     getCentroid: function() {
       throw new DeveloperError('Can not call abstract method of GeoEntity');
+    },
+
+    getChildren: function() {
+      // TODO(bpstudds): Adding children and removing children needs support.
+      if (this._children !== null) { return this._children; }
+      this._children = this._entityManager.getByIds(this._childrenIds);
+      return this._children;
     },
 
     /**
@@ -191,7 +211,14 @@ define([
       }
     },
 
+    /**
+     *
+     * @param {String} [component] A specific component to check.
+     * @returns {Boolean} Whether the given <code>component</code> is dirty, or if
+     * <code>component</code> is not given, the GeoEntity as a whole.
+     */
     isDirty: function(component) {
+      if (component === undefined) { return Object.keys(this._dirty).length > 0; }
       return component in this._dirty;
     },
 
@@ -268,12 +295,18 @@ define([
       if (Object.keys(args).length <= 0) { return {}; }
 
       this.setDirty('style');
-      if (!this._style) { this._style = Style.DEFAULT(); }
       var oldStyle = {};
-      // Change values
-      args.fillColour && (oldStyle.fillColour = this._style.setFillColour(args.fillColour));
-      args.borderColour && (oldStyle.borderColour = this._style.setBorderColour(args.borderColour));
-      args.borderWidth && (oldStyle.borderWidth = this._style.setBorderWidth(args.borderWidth));
+      // Work out what's changing
+      args.fillColour && (oldStyle.fillColour = this._style.getFillColour());
+      args.borderColour && (oldStyle.borderColour = this._style.getBorderColour());
+      args.borderWidth && (oldStyle.borderWidth = this._style.getBorderWidth());
+      // Generate new style based on what's changed.
+      var newStyle = mixin({
+        fillColour: this._style.getFillColour(),
+        borderColour: this._style.getBorderColour(),
+        borderWidth: this._style.getBorderWidth()
+      }, args);
+      this.setStyle(new Style(newStyle));
       return oldStyle;
     },
 
