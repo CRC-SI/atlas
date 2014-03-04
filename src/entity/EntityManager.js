@@ -86,7 +86,7 @@ define([
       // Add the RenderManager to the args for the feature.
       args.renderManager = this._atlasManagers.render;
       Log.debug('Creating entity', id);
-      return (this._entities[id] = new this._entityTypes.Feature(id, args));
+      return new this._entityTypes.Feature(id, args);
     }
   };
 
@@ -99,7 +99,7 @@ define([
     c3mls.forEach(function (c3ml) {
       var id = c3ml.id;
       var args = EntityManager._parseC3ML(c3ml);
-      this.createFeature(id, args);
+      this._entities[id] = this.createFeature(id, args);
       this._entities[id].show();
     }, this);
   };
