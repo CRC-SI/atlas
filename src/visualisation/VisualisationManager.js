@@ -322,7 +322,7 @@ define([
       // TODO(bpstudds): Add function to render all currently managed Projections.
       // TODO(bpstudds): Add support for rendering a subset of entities.
       if (!this._projections[artifact]) {
-        throw new DeveloperError('Tried to render projection', artifact, 'without adding a projection object.');
+        throw new DeveloperError('Tried to render projection ' + artifact + ' without adding a projection object.');
       } else {
         this._projections[artifact].render();
       }
@@ -336,7 +336,7 @@ define([
       // TODO(bpstudds): Add function to unrender all currently managed Projections.
       // TODO(bpstudds): Add support for un-rendering a subset of entities.
       if (!this._projections[artifact]) {
-        throw new DeveloperError('Tried to unrender projection', artifact, 'without adding a projection object.');
+        throw new DeveloperError('Tried to unrender projection ' + artifact + ' without adding a projection object.');
       } else {
         this._projections[artifact].unrender();
       }
