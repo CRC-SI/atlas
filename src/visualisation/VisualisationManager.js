@@ -234,7 +234,7 @@ define([
       }
       this._projections[target] = projection;
 
-      this._overlays[target] && this._overlays.remove();
+      this._overlays[target] && this._overlays[target].remove();
       this._overlays[target] = new Overlay({
         parent: this._atlasManagers.dom.getDom(),
         dimensions: {top: 0, left: 0},
