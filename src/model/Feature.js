@@ -97,7 +97,7 @@ define([
       if (args.line) {
         this._displayMode = defaultValue(args.displayMode, 'line');
       }
-      if (args.footprint){
+      if (args.polygon){
         this._displayMode = defaultValue(args.displayMode, 'extrusion');
       }
       if (args.mesh) {

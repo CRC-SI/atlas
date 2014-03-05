@@ -32,13 +32,6 @@ define([
           height: this._entities[id].getHeight(),
           elevation: this._entities[id].getElevation()
         };
-        // And it's children.
-        this._entities[id].getChildren().forEach(function (child) {
-          state[child.getId()] = {
-            height: child.getHeight(),
-            elevation: child.getElevation()
-          }
-        })
       }, this);
       return state;
     },
@@ -50,13 +43,15 @@ define([
      */
     render: function () {
       this._preRenderState = this.getPreviousState();
-      var sortedIds = Object.keys(this._entities).sort(function (a, b) {
-        return this._entities[a].getElevation() - this._entities[b].getElevation();
-      }.bind(this));
+      this._rendered = true;
+      var modifiedElevations = {},
+          sortedIds = Object.keys(this._entities).sort(function (a, b) {
+            return this._entities[a].getElevation() - this._entities[b].getElevation();
+          }.bind(this));
 
       sortedIds.forEach(function(id) {
         var entity = this._entities[id];
-        this._render(entity, this._attributes[id]);
+        this._render(entity, this._attributes[id], modifiedElevations);
       }, this);
     },
 
@@ -64,23 +59,24 @@ define([
      * Renders the effects of the Projection on a single GeoEntity.
      * @param {atlas.model.GeoEntity} entity - The GeoEntity to render.
      * @param {Object} attributes - The attributes of the parameter value for the given GeoEntity.
+     * @param {Object} modifiedElevations - Elevations modified by the projection.
      * @private
      */
-    _render: function (entity, attributes) {
+    _render: function (entity, attributes, modifiedElevations) {
       var oldHeight = entity.getHeight(),
           oldElevation = entity.getElevation(),
+          newElevation = modifiedElevations[oldElevation] || oldElevation,
           newHeight = this._regressProjectionValueFromCodomain(attributes, this._configuration.codomain),
+          elevationDelta = newElevation - oldElevation,
           heightDelta = newHeight - oldHeight;
+
+      modifiedElevations[oldHeight + oldElevation] = newElevation + newHeight;
+      entity.setElevation(newElevation);
       entity.setHeight(newHeight);
       entity.isVisible() && entity.show();
-      entity.getChildren().forEach(function (child) {
-        var elevation = child.getElevation();
-        child.setElevation(elevation + heightDelta);
-        child.isVisible() && child.show();
-      });
       this._effects[entity.getId()] = {
         'oldValue': {height: oldHeight, elevation: oldElevation},
-        'newValue': {height: newHeight, elevation: oldElevation}
+        'newValue': {height: newHeight, elevation: newElevation}
       };
     },
 
