@@ -199,6 +199,21 @@ define([
   };
 
   /**
+   * Returns the GeoEntity instances that are rendered and visible.
+   * @returns {Object.<String, atlas.model.GeoEntity>} A map of visible GeoEntity ID to GeoEntity.
+   */
+  EntityManager.prototype.getVisibleEntities = function () {
+    var visible = {};
+    Object.keys(this._entities).forEach(function(id) {
+      var entity = this._entities[id];
+      if (entity.isVisible()) {
+        visible[id] = entity;
+      }
+    }, this);
+    return visible;
+  };
+
+  /**
    * Returns the GeoEntity instance corresponding to the given ID.
    * @param {String} id - The ID of the GeoEntity to return.
    * @returns {atlas.model.GeoEntity|undefined} The corresponding GeoEntity or

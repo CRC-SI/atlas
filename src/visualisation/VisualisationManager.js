@@ -100,6 +100,13 @@ define([
         },
         {
           source: 'extern',
+          name: 'projection/remove/all',
+          callback: function () {
+            this.removeAll();
+          }.bind(this)
+        },
+        {
+          source: 'extern',
           name: 'projection/dynamic/add',
           /*
            * Creates a new dynamic projection.
@@ -288,6 +295,19 @@ define([
         this._projections[artifact] = null;
       }
       return removedProjection;
+    },
+
+    /**
+     * Removes projections on all artifacts.
+     * @returns {Object.<String, atlas.visualisation.AbstractProjection>} The removed projections.
+     */
+    removeAll: function () {
+      var removedProjections = this._projections;
+      Object.keys(removedProjections).forEach(function(artifact) {
+        removedProjections[artifact].unrender();
+      });
+      this._projections = {};
+      return removedProjections;
     },
 
     // -------------------------------------------
