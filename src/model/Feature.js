@@ -105,7 +105,7 @@ define([
       }
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
-      this._style = args.style || Feature.DEFAULT_STYLE;
+      this._style = args.style || Feature.DEFAULT_STYLE();
     },
 
     // -------------------------------------------
