@@ -165,6 +165,8 @@ define([
      * @param {Number} elevation - The elevation of the feature.
      */
     setElevation: function(elevation) {
+      return this._delegateToForm('setElevation', arguments);
+
       this.setDirty('vertices');
       this._footprint.setElevation(elevation);
       this._elevation = elevation;
@@ -175,6 +177,8 @@ define([
      * @returns {number} The elevation of the base of the feature.
      */
     getElevation: function() {
+      return this._delegateToForm('getElevation');
+
       return this._footprint._elevation;
     },
 
@@ -191,6 +195,7 @@ define([
      * @returns {Number} The previous height.
      */
     setHeight: function(height) {
+      return this._delegateToForm('setHeight', arguments);
       // TODO(aramk) Fail if it's not an extrusion.
       var oldHeight = this._height;
       this._footprint.setHeight(height);
@@ -204,6 +209,7 @@ define([
      * @returns {number} The extruded height of the Feature to form a prism.
      */
     getHeight: function() {
+      return this._delegateToForm('getHeight');
       return this._footprint._height;
     },
 
@@ -212,6 +218,14 @@ define([
         throw new DeveloperError('Can only assign Mesh to mesh.');
       }
       this._mesh = mesh;
+    },
+
+    setStyle: function (style) {
+      return this._delegateToForm('setStyle', arguments);
+    },
+
+    getStyle: function () {
+      return this._delegateToForm('getStyle');
     },
 
     // -------------------------------------------
@@ -227,6 +241,8 @@ define([
      * @returns {atlas.model.Style} - The old style.
      */
     modifyStyle: function(args) {
+      return this._delegateToForm('modifyStyle', arguments);
+
       // Call version on superclass GeoEntity to do the heavy lifting...
       var oldStyle = this._super(args);
       // ... and propagate the change to Feature's footprint and mesh if they exist.
@@ -269,6 +285,7 @@ define([
      * @param {atlas.model.Vertex} translation - The vector to translate the Feature by.
      */
     translate: function(translation) {
+      return this._delegateToForm('translate', arguments);
       this._footprint && this._footprint.translate(translation);
       this._mesh && this._mesh.translate(translation);
     },
@@ -279,6 +296,7 @@ define([
      * @param {atlas.model.Vertex} scale - The vector to scale the Feature by.
      */
     scale: function(scale) {
+      return this._delegateToForm('scale', arguments);
       this._footprint && this._footprint.scale(scale);
       this._mesh && this._mesh.scale(scale);
     },
@@ -289,6 +307,7 @@ define([
      * @param {atlas.model.Vertex} rotation - The vector to rotate the Feature by.
      */
     rotate: function(rotation) {
+      return this._delegateToForm('rotate', arguments);
       this._footprint && this._footprint.rotate(rotation);
       this._mesh && this._mesh.rotate(rotation);
     },
@@ -297,8 +316,8 @@ define([
      * Clean up the Feature so it can be deleted by the RenderManager.
      */
     remove: function() {
-      // TODO(aramk) switch to Resig's Extend.js
-      Feature.base.remove.apply(this, arguments);
+      this._super();
+
       // Remove mesh and footprint.
       if (this._mesh !== null) {
         this._mesh.remove();
@@ -318,6 +337,7 @@ define([
      * Handles the behaviour of the Feature when it is selected.
      */
     onSelect: function() {
+      return this._delegateToForm('onSelect');
       this._footprint && this._footprint.onSelect();
       this._mesh && this._mesh.onSelect();
     },
@@ -326,6 +346,7 @@ define([
      * Handles the behaviour of the Feature when it is deselected.
      */
     onDeselect: function() {
+      return this._delegateToForm('onDeselect');
       this._footprint && this._footprint.onDeselect();
       this._mesh && this._mesh.onDeselect();
     },
@@ -370,12 +391,7 @@ define([
      */
     hide: function() {
       this._visible = false;
-      if (this._footprint) {
-        this._footprint.hide();
-      }
-      if (this._mesh) {
-        this._mesh.hide();
-      }
+      return this._delegateToForm('hide');
     }
   }), // End class instance definition.
 

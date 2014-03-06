@@ -401,6 +401,7 @@ define([
      */
     onSelect: function() {
       this.setStyle(Polygon.SELECTED_STYLE());
+      this.setDirty('style');
     },
 
     /**
@@ -410,6 +411,7 @@ define([
      */
     onDeselect: function() {
       this.setStyle(this._previousStyle || Polygon.DEFAULT_STYLE());
+      this.setDirty('style');
     }
   });
 
