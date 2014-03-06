@@ -64,6 +64,8 @@ define([
     _render: function (entity, attributes) {
       var oldHeight = entity.getHeight(),
           oldElevation = entity.getElevation(),
+          // TODO(bpstudds): Handle the case where an entity sits on two entities.
+          // TODO(bpstudds): Handle the case where there's a hierarchy of 'parents'
           newElevation = this._getModifiedElevation(oldElevation, entity.getCentroid(), entity.parent),
           newHeight = this._regressProjectionValueFromCodomain(attributes, this._configuration.codomain),
           elevationDelta = newElevation - oldElevation,
@@ -81,17 +83,18 @@ define([
     },
 
     /**
-     *
-     * @param oldElevation
-     * @param centroid
+     * Gets the modified top elevation of an entity so an entity sitting on top
+     * of it get be moved appropriately so it stacks on top of it.
+     * @param {Number} oldElevation - The bottom elevation of the Entity to be moved.
+     * @param {atlas.model.Vertex} centroid - The centroid of the entity.
+     * @param {atlas.model.GeoEntity} parent - The ID of the parent of the entity being moved.
      * @private
      */
     _getModifiedElevation: function (oldElevation, centroid, parent) {
       var newElevations,
-          parent = parent || 'no-parent',
+          parent = parent || null,
           returns = oldElevation;
 
-      // TODO(bpstudds): Doesn't necessarily have a parent but still stacked?
       if (this._modifiedElevations[parent] &&
           (newElevations = this._modifiedElevations[parent][oldElevation]) ){
         // A 'stacked elevation' exists.
@@ -114,8 +117,17 @@ define([
       return returns;
     },
 
+    /**
+     * When an entity's height is modified, a map of the old top elevation to the new
+     * top elevation is created; so any entity that is stacked ontop can be moved
+     * appropriately.
+     * @param {atlas.model.GeoEntity} entity - The entity being modified.
+     * @param {Number} oldElevation - The old elevation of the top of the Entity.
+     * @param {Number} newElevation - The new elevation of the top of the Entity.
+     * @private
+     */
     _setModifiedElevation: function (entity, oldElevation, newElevation) {
-      var parent = entity.parent || 'no-parent';
+      var parent = entity.parent || null;
 
       if (!this._modifiedElevations[parent]) {
         this._modifiedElevations = {};
