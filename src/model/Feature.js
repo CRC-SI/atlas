@@ -175,7 +175,7 @@ define([
      * @returns {number} The elevation of the base of the feature.
      */
     getElevation: function() {
-      return this._elevation;
+      return this._footprint._elevation;
     },
 
     setFootprint: function(footprint) {
@@ -204,7 +204,7 @@ define([
      * @returns {number} The extruded height of the Feature to form a prism.
      */
     getHeight: function() {
-      return this._height;
+      return this._footprint._height;
     },
 
     setMesh: function(mesh) {

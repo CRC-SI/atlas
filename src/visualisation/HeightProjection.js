@@ -43,41 +43,89 @@ define([
      */
     render: function () {
       this._preRenderState = this.getPreviousState();
-      this._rendered = true;
-      var modifiedElevations = {},
-          sortedIds = Object.keys(this._entities).sort(function (a, b) {
+      this._modifiedElevations = {};
+      var sortedIds = Object.keys(this._entities).sort(function (a, b) {
             return this._entities[a].getElevation() - this._entities[b].getElevation();
           }.bind(this));
 
-      sortedIds.forEach(function(id) {
+      sortedIds.forEach(function (id) {
         var entity = this._entities[id];
-        this._render(entity, this._attributes[id], modifiedElevations);
+        this._render(entity, this._attributes[id]);
       }, this);
+      this._rendered = true;
     },
 
     /**
      * Renders the effects of the Projection on a single GeoEntity.
      * @param {atlas.model.GeoEntity} entity - The GeoEntity to render.
      * @param {Object} attributes - The attributes of the parameter value for the given GeoEntity.
-     * @param {Object} modifiedElevations - Elevations modified by the projection.
      * @private
      */
-    _render: function (entity, attributes, modifiedElevations) {
+    _render: function (entity, attributes) {
       var oldHeight = entity.getHeight(),
           oldElevation = entity.getElevation(),
-          newElevation = modifiedElevations[oldElevation] || oldElevation,
+          newElevation = this._getModifiedElevation(oldElevation, entity.getCentroid(), entity.parent),
           newHeight = this._regressProjectionValueFromCodomain(attributes, this._configuration.codomain),
           elevationDelta = newElevation - oldElevation,
           heightDelta = newHeight - oldHeight;
-
-      modifiedElevations[oldHeight + oldElevation] = newElevation + newHeight;
-      entity.setElevation(newElevation);
-      entity.setHeight(newHeight);
-      entity.isVisible() && entity.show();
       this._effects[entity.getId()] = {
         'oldValue': {height: oldHeight, elevation: oldElevation},
         'newValue': {height: newHeight, elevation: newElevation}
       };
+      // Update the mapping of old building top to new building top elevation.
+      this._setModifiedElevation(entity, oldElevation + oldHeight, newElevation + newHeight);
+      entity.setElevation(newElevation);
+      entity.setHeight(newHeight);
+      entity.isVisible() && entity.show();
+
+    },
+
+    /**
+     *
+     * @param oldElevation
+     * @param centroid
+     * @private
+     */
+    _getModifiedElevation: function (oldElevation, centroid, parent) {
+      var newElevations,
+          parent = parent || 'no-parent',
+          returns = oldElevation;
+
+      // TODO(bpstudds): Doesn't necessarily have a parent but still stacked?
+      if (this._modifiedElevations[parent] &&
+          (newElevations = this._modifiedElevations[parent][oldElevation]) ){
+        // A 'stacked elevation' exists.
+        if (newElevations.length === 1) {
+          returns = newElevations[0].newElevation;
+        } else {
+          // Find the elevation with the closest centroid.
+          var minId = 0,
+              minValue = centroid.distanceSquared(newElevations[minId].centroid);
+          for (var i = 1; i < newElevations.length; i++) {
+            var temp = centroid.distanceSquared(newElevations[i].centroid);
+            if (temp < minValue) {
+              minId = i;
+              minValue = temp;
+            }
+          }
+          returns = newElevations[minId].newElevation;
+        }
+      }
+      return returns;
+    },
+
+    _setModifiedElevation: function (entity, oldElevation, newElevation) {
+      var parent = entity.parent || 'no-parent';
+
+      if (!this._modifiedElevations[parent]) {
+        this._modifiedElevations = {};
+        this._modifiedElevations[parent] = {};
+      }
+      if (!this._modifiedElevations[parent][oldElevation]) {
+        this._modifiedElevations[parent][oldElevation] = [];
+      }
+      this._modifiedElevations[parent][oldElevation]
+          .push({centroid: entity.getCentroid(), newElevation: newElevation});
     },
 
     unrender: function (entity, attributes) {
