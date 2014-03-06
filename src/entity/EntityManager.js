@@ -85,6 +85,7 @@ define([
       args.eventManager = this._atlasManagers.event;
       // Add the RenderManager to the args for the feature.
       args.renderManager = this._atlasManagers.render;
+      // Add the EntityManager to the args for the feature.
       args.entityManager = this;
       Log.debug('Creating entity', id);
       return (this._entities[id] = new this._entityTypes.Feature(id, args));

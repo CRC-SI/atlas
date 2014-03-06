@@ -105,7 +105,7 @@ define([
       }
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
-      this._style = args.style || Feature.DEFAULT_STYLE;
+      this._style = args.style || Feature.getDefaultStyle();
     },
 
     // -------------------------------------------
@@ -383,7 +383,7 @@ define([
       // -------------------------------------------
 
       {
-        DEFAULT_STYLE: function () { return new Style(Colour.GREEN, Colour.GREEN, 1); }
+        getDefaultStyle: function () { return new Style({fillColour: Colour.GREEN}); }
       }
   ); // End class mixin;
 
