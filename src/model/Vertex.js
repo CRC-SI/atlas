@@ -38,5 +38,10 @@ define([
     return new Vertex(this.x * other.x, this.y * other.y, this.z * other.z);
   };
 
+  Vertex.prototype.distanceSquared = function (other) {
+    var diff = this.subtract(other);
+    return Math.pow(diff.x, 2) + Math.pow(diff.y, 2) + Math.pow(diff.z, 2);
+  };
+
   return Vertex;
 });

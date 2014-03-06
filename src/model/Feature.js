@@ -97,7 +97,7 @@ define([
       if (args.line) {
         this._displayMode = defaultValue(args.displayMode, 'line');
       }
-      if (args.footprint){
+      if (args.polygon){
         this._displayMode = defaultValue(args.displayMode, 'extrusion');
       }
       if (args.mesh) {
@@ -166,6 +166,7 @@ define([
      */
     setElevation: function(elevation) {
       this.setDirty('vertices');
+      this._footprint.setElevation(elevation);
       this._elevation = elevation;
       this.show();
     },
@@ -174,7 +175,7 @@ define([
      * @returns {number} The elevation of the base of the feature.
      */
     getElevation: function() {
-      return this._elevation;
+      return this._footprint._elevation;
     },
 
     setFootprint: function(footprint) {
@@ -192,6 +193,7 @@ define([
     setHeight: function(height) {
       // TODO(aramk) Fail if it's not an extrusion.
       var oldHeight = this._height;
+      this._footprint.setHeight(height);
       this._height = height;
       this.setDirty('vertices');
       this.show();
@@ -202,7 +204,7 @@ define([
      * @returns {number} The extruded height of the Feature to form a prism.
      */
     getHeight: function() {
-      return this._height;
+      return this._footprint._height;
     },
 
     setMesh: function(mesh) {
@@ -343,15 +345,14 @@ define([
         this._mesh && this._mesh.hide();
         this._line && this._line.hide();
         if (this._footprint) {
-          this._footprint.setHeight(0);
+          this._footprint.disableExtrusion();
           this._visible = this._footprint.show();
         }
       } else if (this._displayMode === 'extrusion') {
         this._mesh && this._mesh.hide();
         this._line && this._line.hide();
         if (this._footprint) {
-          this._footprint.setHeight(this._height);
-          this._footprint.setElevation(this._elevation);
+          this._footprint.enableExtrusion();
           this._visible = this._footprint.show();
         }
       } else if (this._displayMode === 'mesh') {

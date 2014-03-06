@@ -110,6 +110,13 @@ define([
     _area: null,
 
     /**
+     * Whether the Polygon should be rendered as an extruded polygon or a 2D polygon.
+     * @type {Boolean}
+     * @protected
+     */
+    _showAsExtrusion: false,
+
+    /**
      * Constructs a new Polygon
      * @ignore
      */
@@ -133,10 +140,10 @@ define([
       this._zIndex = parseFloat(polygonData.zIndex) || this._zIndex;
       this._zIndexOffset = parseFloat(polygonData.zIndexOffset) || this._zIndexOffset;
       this._material = (polygonData.material || Material.DEFAULT);
-      if (args.color) {
-        this._style = new Style({fillColour: args.color});
+      if (polygonData.color) {
+        this._style = new Style({fillColour: polygonData.color});
       } else if (polygonData.style) {
-        this._style = args.style;
+        this._style = polygonData.style;
       } else {
         this._style = Polygon.getDefaultStyle();
       }
@@ -215,6 +222,20 @@ define([
      */
     getElevation: function() {
       return this._elevation;
+    },
+
+    /**
+     * Enables showing the polygon as an extruded polygon.
+     */
+    enableExtrusion: function() {
+      this._showAsExtrusion = true;
+    },
+
+    /**
+     * Disables showing the polygon as an extruded polygon.
+     */
+    disableExtrusion: function() {
+      this._showAsExtrusion = false;
     },
 
     /**

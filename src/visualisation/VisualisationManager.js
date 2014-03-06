@@ -302,12 +302,9 @@ define([
      * @returns {Object.<String, atlas.visualisation.AbstractProjection>} The removed projections.
      */
     removeAll: function () {
-      var removedProjections = this._projections;
-      Object.keys(removedProjections).forEach(function(artifact) {
-        removedProjections[artifact].unrender();
-      });
-      this._projections = {};
-      return removedProjections;
+      return Object.keys(this._projections).map(function(artifact) {
+        return this.remove(artifact);
+      }.bind(this));
     },
 
     // -------------------------------------------

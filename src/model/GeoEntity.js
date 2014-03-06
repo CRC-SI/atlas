@@ -285,27 +285,27 @@ define([
 
     /**
      * Modifies specific components of the GeoEntity's style.
-     * @param {Object} args - The new values for the Style components.
-     * @param {atlas.model.Colour} [args.fillColour] - The new fill colour.
-     * @param {atlas.model.Colour} [args.borderColour] - The new border colour.
-     * @param {Number} [args.borderWidth] - The new border width colour.
+     * @param {Object} newStyle - The new values for the Style components.
+     * @param {atlas.model.Colour} [newStyle.fillColour] - The new fill colour.
+     * @param {atlas.model.Colour} [newStyle.borderColour] - The new border colour.
+     * @param {Number} [newStyle.borderWidth] - The new border width colour.
      * @returns {Object} A mapping of parameters that have been changed to their old value.
      */
-    modifyStyle: function (args) {
-      if (Object.keys(args).length <= 0) { return {}; }
+    modifyStyle: function (newStyle) {
+      if (Object.keys(newStyle).length <= 0) { return {}; }
 
       this.setDirty('style');
       var oldStyle = {};
       // Work out what's changing
-      args.fillColour && (oldStyle.fillColour = this._style.getFillColour());
-      args.borderColour && (oldStyle.borderColour = this._style.getBorderColour());
-      args.borderWidth && (oldStyle.borderWidth = this._style.getBorderWidth());
+      newStyle.fillColour && (oldStyle.fillColour = this._style.getFillColour());
+      newStyle.borderColour && (oldStyle.borderColour = this._style.getBorderColour());
+      newStyle.borderWidth && (oldStyle.borderWidth = this._style.getBorderWidth());
       // Generate new style based on what's changed.
       var newStyle = mixin({
         fillColour: this._style.getFillColour(),
         borderColour: this._style.getBorderColour(),
         borderWidth: this._style.getBorderWidth()
-      }, args);
+      }, newStyle);
       this.setStyle(new Style(newStyle));
       return oldStyle;
     },
