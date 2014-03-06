@@ -210,8 +210,9 @@ define([
     },
 
     setStyle: function (style) {
+      var oldStyle = this._style;
       this._style = style;
-      return this._delegateToForm('setStyle', arguments);
+      return this._delegateToForm('setStyle', arguments) || oldStyle;
     },
 
     getStyle: function () {

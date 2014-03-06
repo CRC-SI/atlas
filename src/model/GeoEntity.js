@@ -306,7 +306,7 @@ define([
         borderColour: this._style.getBorderColour(),
         borderWidth: this._style.getBorderWidth()
       }, newStyle);
-      this.setStyle(new Style(newStyle));
+      this._style = new Style(newStyle);
       return oldStyle;
     },
 
