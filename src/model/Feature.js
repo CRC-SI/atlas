@@ -165,21 +165,16 @@ define([
      * @param {Number} elevation - The elevation of the feature.
      */
     setElevation: function(elevation) {
-      return this._delegateToForm('setElevation', arguments);
-
-      this.setDirty('vertices');
-      this._footprint.setElevation(elevation);
+      var oldElevation = this._elevation;
       this._elevation = elevation;
-      this.show();
+      return this._delegateToForm('setElevation', arguments) || oldElevation;
     },
 
     /**
      * @returns {number} The elevation of the base of the feature.
      */
     getElevation: function() {
-      return this._delegateToForm('getElevation');
-
-      return this._footprint._elevation;
+      return this._delegateToForm('getElevation') || this._elevation;
     },
 
     setFootprint: function(footprint) {
@@ -195,22 +190,16 @@ define([
      * @returns {Number} The previous height.
      */
     setHeight: function(height) {
-      return this._delegateToForm('setHeight', arguments);
-      // TODO(aramk) Fail if it's not an extrusion.
       var oldHeight = this._height;
-      this._footprint.setHeight(height);
       this._height = height;
-      this.setDirty('vertices');
-      this.show();
-      return oldHeight;
+      return this._delegateToForm('setHeight', arguments) || oldHeight;
     },
 
     /**
      * @returns {number} The extruded height of the Feature to form a prism.
      */
     getHeight: function() {
-      return this._delegateToForm('getHeight');
-      return this._footprint._height;
+      return this._delegateToForm('getHeight') || this._height;
     },
 
     setMesh: function(mesh) {
@@ -221,11 +210,12 @@ define([
     },
 
     setStyle: function (style) {
+      this.setStyle(style);
       return this._delegateToForm('setStyle', arguments);
     },
 
     getStyle: function () {
-      return this._delegateToForm('getStyle');
+      return this._delegateToForm('getStyle') || this._style;
     },
 
     // -------------------------------------------
@@ -241,15 +231,8 @@ define([
      * @returns {atlas.model.Style} - The old style.
      */
     modifyStyle: function(args) {
-      return this._delegateToForm('modifyStyle', arguments);
-
-      // Call version on superclass GeoEntity to do the heavy lifting...
       var oldStyle = this._super(args);
-      // ... and propagate the change to Feature's footprint and mesh if they exist.
-      this._line && this._line.setStyle(this._style);
-      this._footprint && this._footprint.setStyle(this._style);
-      this._mesh && this._mesh.setStyle(this._style);
-      return oldStyle;
+      return this._delegateToForm('modifyStyle', arguments) || oldStyle;
     },
 
     /**
@@ -286,8 +269,6 @@ define([
      */
     translate: function(translation) {
       return this._delegateToForm('translate', arguments);
-      this._footprint && this._footprint.translate(translation);
-      this._mesh && this._mesh.translate(translation);
     },
 
     /**
@@ -297,8 +278,6 @@ define([
      */
     scale: function(scale) {
       return this._delegateToForm('scale', arguments);
-      this._footprint && this._footprint.scale(scale);
-      this._mesh && this._mesh.scale(scale);
     },
 
     /**
@@ -308,8 +287,6 @@ define([
      */
     rotate: function(rotation) {
       return this._delegateToForm('rotate', arguments);
-      this._footprint && this._footprint.rotate(rotation);
-      this._mesh && this._mesh.rotate(rotation);
     },
 
     /**
@@ -338,8 +315,6 @@ define([
      */
     onSelect: function() {
       return this._delegateToForm('onSelect');
-      this._footprint && this._footprint.onSelect();
-      this._mesh && this._mesh.onSelect();
     },
 
     /**
@@ -347,8 +322,6 @@ define([
      */
     onDeselect: function() {
       return this._delegateToForm('onDeselect');
-      this._footprint && this._footprint.onDeselect();
-      this._mesh && this._mesh.onDeselect();
     },
 
     /**
@@ -391,7 +364,7 @@ define([
      */
     hide: function() {
       this._visible = false;
-      return this._delegateToForm('hide');
+      return this._delegateToForm('hide') || this._visible;
     }
   }), // End class instance definition.
 
