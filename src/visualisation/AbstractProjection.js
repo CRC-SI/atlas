@@ -434,7 +434,7 @@ define([
         };
         for (i; i < sortedValues.length; i++) {
           var thisId = sortedValues[i].id,
-              thisValue = sortedValues[i].value;
+              thisValue = parseFloat(sortedValues[i].value) || 0;
           // Check value is still within the current bin.
           var inBin = bin.accept(thisValue);
           if (inBin === 1) {
@@ -444,7 +444,7 @@ define([
             binStats.entityIds.push(thisId);
             // Calculate statistical properties.
             binStats.count++;
-            binStats.sum += parseFloat(thisValue) || 0;
+            binStats.sum += thisValue;
             if (thisValue < binStats.min.value) { binStats.min = { 'id': thisId, 'value': thisValue };}
             if (thisValue > binStats.max.value) { binStats.max = { 'id': thisId, 'value': thisValue };}
           } // else value to small for this bin, try next value.

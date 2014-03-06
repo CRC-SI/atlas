@@ -173,7 +173,7 @@ define([
       if ('fixedProj' in codomain) {
         return codomain.fixedProj;
       } else if ('startProj' in codomain && 'endProj' in codomain) {
-        return codomain.startProj + regressionFactor * codomain.endProj;
+        return codomain.startProj + regressionFactor * (codomain.endProj - codomain.startProj);
       }
       throw new DeveloperError('Unsupported codomain supplied.');
     }
