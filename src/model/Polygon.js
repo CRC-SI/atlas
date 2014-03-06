@@ -145,7 +145,7 @@ define([
       } else if (polygonData.style) {
         this._style = polygonData.style;
       } else {
-        this._style = Polygon.DEFAULT_STYLE();
+        this._style = Polygon.getDefaultStyle();
       }
     },
 
@@ -400,17 +400,17 @@ define([
      * Causes the Polygon to be rendered with the selection style.
      */
     onSelect: function() {
-      this.setStyle(Polygon.SELECTED_STYLE());
+      this.setStyle(Polygon.getSelectedStyle());
       this.setDirty('style');
     },
 
     /**
      * Handles the behaviour of the Polygon when it is deselected.
      * Causes the Polygon to be rendered with either the previously set style or
-     * the <code>DEFAULT_STYLE</code>.
+     * the <code>getDefaultStyle</code>.
      */
     onDeselect: function() {
-      this.setStyle(this._previousStyle || Polygon.DEFAULT_STYLE());
+      this.setStyle(this._previousStyle || Polygon.getDefaultStyle());
       this.setDirty('style');
     }
   });
@@ -423,13 +423,13 @@ define([
    * Defines the default style to use when rendering a polygon.
    * @type {atlas.model.Style}
    */
-  Polygon.DEFAULT_STYLE = function () {return new Style({fillColour: Colour.GREEN}); };
+  Polygon.getDefaultStyle = function () {return new Style({fillColour: Colour.GREEN}); };
 
   /**
    * Defines the default style to use when rendering a selected polygon.
    * @type {atlas.model.Style}
    */
-  Polygon.SELECTED_STYLE = function () { return new Style({fillColour: Colour.RED}); };
+  Polygon.getSelectedStyle = function () { return new Style({fillColour: Colour.RED}); };
 
   return Polygon;
 });
