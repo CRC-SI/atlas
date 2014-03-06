@@ -110,6 +110,13 @@ define([
     _area: null,
 
     /**
+     * Whether the Polygon should be rendered as an extruded polygon or a 2D polygon.
+     * @type {Boolean}
+     * @protected
+     */
+    _showAsExtrusion: false,
+
+    /**
      * Constructs a new Polygon
      * @ignore
      */
@@ -215,6 +222,20 @@ define([
      */
     getElevation: function() {
       return this._elevation;
+    },
+
+    /**
+     * Enables showing the polygon as an extruded polygon.
+     */
+    enableExtrusion: function() {
+      this._showAsExtrusion = true;
+    },
+
+    /**
+     * Disables showing the polygon as an extruded polygon.
+     */
+    disableExtrusion: function() {
+      this._showAsExtrusion = false;
     },
 
     /**
