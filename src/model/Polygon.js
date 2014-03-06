@@ -140,10 +140,10 @@ define([
       this._zIndex = parseFloat(polygonData.zIndex) || this._zIndex;
       this._zIndexOffset = parseFloat(polygonData.zIndexOffset) || this._zIndexOffset;
       this._material = (polygonData.material || Material.DEFAULT);
-      if (args.color) {
-        this._style = new Style({fillColour: args.color});
+      if (polygonData.color) {
+        this._style = new Style({fillColour: polygonData.color});
       } else if (polygonData.style) {
-        this._style = args.style;
+        this._style = polygonData.style;
       } else {
         this._style = Polygon.DEFAULT_STYLE();
       }

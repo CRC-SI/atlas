@@ -138,7 +138,7 @@ define([
    */
   EntityManager._parseC3MLpolygon = function (c3ml) {
     return {
-      footprint: {
+      polygon: {
         vertices: c3ml.coordinates,
         color: c3ml.color,
         height: c3ml.height,
