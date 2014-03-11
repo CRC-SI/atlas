@@ -322,6 +322,7 @@ define([
         throw new DeveloperError('Tried to render projection ' + artifact + ' without adding a projection object.');
       } else {
         this._projections[artifact].render();
+        this._atlasManagers.event.handleInternalEvent('projection/render/complete', {name: artifact});
       }
     },
 
@@ -336,6 +337,7 @@ define([
         throw new DeveloperError('Tried to unrender projection ' + artifact + ' without adding a projection object.');
       } else {
         this._projections[artifact].unrender();
+        this._atlasManagers.event.handleInternalEvent('projection/unrender/complete', {name: artifact});
       }
     },
 
