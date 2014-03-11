@@ -133,15 +133,25 @@ define([
     },
 
     createBookmark: function () {
-      throw new DeveloperError('CameraManager.createBookmark not yet implemented.');
+      var bookmark = {
+        id: this._bookmarks.length,
+        camera: this.getCameraMetrics
+      };
+      Log.debug('Created bookmark ' + id);
+      this._bookmarks.push(bookmark);
+      return bookmark;
     },
 
     removeBookmark: function () {
       throw new DeveloperError('CameraManager.removeBookmark not yet implemented.');
     },
 
-    gotoBookmark: function () {
-      throw new DeveloperError('CameraManager.gotoBookmark not yet implemented.');
+    gotoBookmark: function (id) {
+      if (!this._bookmarks[id]) {
+        Log.debug('Tried to go to non-existent bookmark ' + id);
+        return;
+      }
+      this._current.zoomTo(mixin({duration: 0}, this._bookmarks[id]));
     },
 
     lockCamera: function () {},
