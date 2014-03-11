@@ -1,10 +1,11 @@
 define([
+  'atlas/util/Class',
   'atlas/util/DeveloperError',
   'atlas/util/default',
   'atlas/util/mixin',
   'atlas/camera/Camera',
   'atlas/lib/utility/Log'
-], function (DeveloperError, defaultValue, mixin, Camera, Log) {
+], function (Class, DeveloperError, defaultValue, mixin, Camera, Log) {
 
   /**
    * Constructs a new CameraManager object.
@@ -18,133 +19,135 @@ define([
    * @alias atlas.camera.CameraManager
    * @constructor
    */
-  var CameraManager = function (atlasManagers, options) {
-    this._options = mixin({
-      forceCustomControl: true
-    }, options);
-
-    this._atlasManagers = atlasManagers;
-    this._atlasManagers.camera = this;
-
+  var CameraManager = Class.extend( /** @lends atlas.camera.CameraManager# */ {
     /**
      * The current Camera.
      * @type atlas.camera.Camera
      */
-    this._current = null;
+    _current: null,
 
     /**
      * List of currently saved Bookmarks.
      * @type Object
      */
-    this._bookmarks = null;
-  };
+    _bookmarks: null,
 
-  /**
-   * Used to set up parts of the CameraManager that require other Atlas managers to already
-   * be created.
-   */
-  CameraManager.prototype.setup = function () {
-    this._bindEvents();
-    // TODO(bpstudds): Properly override (Cesium) camera controls.
-    //this._options.forceCustomControl && this._bindControlEvents();
-  };
+    _init: function (atlasManagers, options) {
+      this._options = mixin({
+        forceCustomControl: true
+      }, options);
 
-  // Binds event handlers with the Event Manager
-  CameraManager.prototype._bindEvents = function () {
-    var handlers = [
-      {
-        source: 'extern',
-        name: 'camera/zoomTo',
-        callback: function (args) {
-          if (this._camera === null) {
-            this._camera = new Camera();
-          }
-          this._camera.zoomTo(args.position, args.orientation, args.duration);
-        }.bind(this)
+      this._atlasManagers = atlasManagers;
+      this._atlasManagers.camera = this;
+    },
+
+    /**
+     * Used to set up parts of the CameraManager that require other Atlas managers to already
+     * be created.
+     */
+    setup: function () {
+      this._bindEvents();
+      // TODO(bpstudds): Properly override (Cesium) camera controls.
+      //this._options.forceCustomControl && this._bindControlEvents();
+    },
+
+    // Binds event handlers with the Event Manager
+    _bindEvents: function () {
+      var handlers = [
+        {
+          source: 'extern',
+          name: 'camera/zoomTo',
+          callback: function (args) {
+            if (this._camera === null) {
+              this._camera = new Camera();
+            }
+            this._camera.zoomTo(args.position, args.orientation, args.duration);
+          }.bind(this)
+        }
+      ];
+      this._atlasManagers.event.addEventHandlers(handlers);
+    },
+
+    _bindControlEvents: function () {
+      var handlers = [
+        {
+          source: 'intern',
+          name: 'input/leftdown',
+          callback: this._updateControl.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'input/rightdown',
+          callback: this._updateControl.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'input/middledown',
+          callback: this._updateControl.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'input/leftup',
+          callback: this._stopControl.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'input/rightup',
+          callback: this._stopControl.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'input/middleup',
+          callback: this._stopControl.bind(this)
+        }
+      ];
+      this._atlasManagers.event.addEventHandlers(handlers);
+    },
+
+    getCameraMetrics: function () {
+      return {
+        position: this._current._position,
+        orientation: this._current._orientation
+      };
+    },
+
+    _updateControl: function (event) {
+      var pos = event.pos
+      this._control = this._control || {};
+
+      if (this._atlasManagers.entity.getAt(pos).length > 0) { return; }
+
+      this._control.inControl = true;
+      this._control.action = event.button;
+      Log.debug('CameraManager', 'updating control', this._control.action);
+      this._control.curPos = pos;
+      this._camera.inputHandlers[this._control.action] && this._camera.inputHandlers[this._control.action](event);
+    },
+
+    _stopControl: function (event) {
+      if (this._control && this._control.inControl) {
+        Log.debug('CameraManager', 'stop control', this._control.action);
+        this._control.inControl = false;
+        this._camera.inputHandlers[this._control.action](event);
       }
-    ];
-    this._atlasManagers.event.addEventHandlers(handlers);
-  };
+    },
 
-  CameraManager.prototype._bindControlEvents = function () {
-    var handlers = [
-      {
-        source: 'intern',
-        name: 'input/leftdown',
-        callback: this._updateControl.bind(this)
-      },
-      {
-        source: 'intern',
-        name: 'input/rightdown',
-        callback: this._updateControl.bind(this)
-      },
-      {
-        source: 'intern',
-        name: 'input/middledown',
-        callback: this._updateControl.bind(this)
-      },
-      {
-        source: 'intern',
-        name: 'input/leftup',
-        callback: this._stopControl.bind(this)
-      },
-      {
-        source: 'intern',
-        name: 'input/rightup',
-        callback: this._stopControl.bind(this)
-      },
-      {
-        source: 'intern',
-        name: 'input/middleup',
-        callback: this._stopControl.bind(this)
-      }
-    ];
-    this._atlasManagers.event.addEventHandlers(handlers);
-  };
+    createBookmark: function () {
+      throw new DeveloperError('CameraManager.createBookmark not yet implemented.');
+    },
 
-  CameraManager.prototype.getCameraMetrics = function () {
-    return {
-      position: this._current._position,
-      orientation: this._current._orientation
-    };
-  };
+    removeBookmark: function () {
+      throw new DeveloperError('CameraManager.removeBookmark not yet implemented.');
+    },
 
-  CameraManager.prototype._updateControl = function (event) {
-    var pos = event.pos
-    this._control = this._control || {};
+    gotoBookmark: function () {
+      throw new DeveloperError('CameraManager.gotoBookmark not yet implemented.');
+    },
 
-    if (this._atlasManagers.entity.getAt(pos).length > 0) { return; }
+    lockCamera: function () {},
 
-    this._control.inControl = true;
-    this._control.action = event.button;
-    Log.debug('CameraManager', 'updating control', this._control.action);
-    this._control.curPos = pos;
-    this._camera.inputHandlers[this._control.action] && this._camera.inputHandlers[this._control.action](event);
-  };
-
-  CameraManager.prototype._stopControl = function (event) {
-    if (this._control && this._control.inControl) {
-      Log.debug('CameraManager', 'stop control', this._control.action);
-      this._control.inControl = false;
-      this._camera.inputHandlers[this._control.action](event);
-    }
-  };
-
-  CameraManager.prototype.createBookmark = function () {
-    throw new DeveloperError('CameraManager.createBookmark not yet implemented.');
-  };
-
-  CameraManager.prototype.removeBookmark = function () {
-    throw new DeveloperError('CameraManager.removeBookmark not yet implemented.');
-  };
-
-  CameraManager.prototype.gotoBookmark = function () {
-    throw new DeveloperError('CameraManager.gotoBookmark not yet implemented.');
-  };
-
-  CameraManager.prototype.lockCamera = function () {};
-
-  CameraManager.prototype.unlockCamera = function () {};
+    unlockCamera: function () {}
+  });
 
   return CameraManager;
 });
