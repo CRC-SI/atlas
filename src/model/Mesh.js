@@ -100,7 +100,7 @@ define([
 
       // Set the Mesh's style based on the hierarchy: a Mesh specific style,
       // inherit the parent Feature's style, or use the Mesh default style.
-      this._style = meshData.style || args.style || Mesh.DEFAULT_STYLE;
+      this._style = meshData.style || args.style || Mesh.getDefaultStyle;
 
       // Parse all the things!
       if (meshData.positions && meshData.positions.length) {
@@ -213,13 +213,13 @@ define([
        * The default style of a Mesh.
        * @type {atlas.model.Colour}
        */
-      DEFAULT_STYLE: new Style({fillColour: Colour.GREY}),
+      getDefaultStyle: function () { return new Style({fillColour: Colour.GREY}); },
 
       /**
        * The default selected style of a Mesh.
        * @type {atlas.model.Colour}
        */
-      SELECTED_STYLE: new Style({fillColour: Colour.RED})
+      getSelectedStyle: function() { return new Style({fillColour: Colour.RED}); }
     }
   ); // End class mixin
 

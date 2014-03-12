@@ -85,6 +85,8 @@ define([
       args.eventManager = this._atlasManagers.event;
       // Add the RenderManager to the args for the feature.
       args.renderManager = this._atlasManagers.render;
+      // Add the EntityManager to the args for the feature.
+      args.entityManager = this;
       Log.debug('Creating entity', id);
       return (this._entities[id] = new this._entityTypes.Feature(id, args));
     }
@@ -154,7 +156,7 @@ define([
    */
   EntityManager._parseC3MLpolygon = function (c3ml) {
     return {
-      footprint: {
+      polygon: {
         vertices: c3ml.coordinates,
         color: c3ml.color,
         height: c3ml.height,
@@ -213,6 +215,21 @@ define([
       this._entities[id].cleanUp();
       delete this._entities[id];
     }
+  };
+
+  /**
+   * Returns the GeoEntity instances that are rendered and visible.
+   * @returns {Object.<String, atlas.model.GeoEntity>} A map of visible GeoEntity ID to GeoEntity.
+   */
+  EntityManager.prototype.getVisibleEntities = function () {
+    var visible = {};
+    Object.keys(this._entities).forEach(function(id) {
+      var entity = this._entities[id];
+      if (entity.isVisible()) {
+        visible[id] = entity;
+      }
+    }, this);
+    return visible;
   };
 
   /**

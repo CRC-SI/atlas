@@ -52,6 +52,13 @@ define([
      * @type {Array.<String>}
      * @protected
      */
+    _childrenIds: null,
+
+    /**
+     * Array of references to the child GeoEntities.
+     * @type {Array.<atlas.model.GeoEntity}
+     * @protected
+     */
     _children: null,
 
     /**
@@ -60,6 +67,13 @@ define([
      * @protected
      */
     _renderManager: null,
+
+    /**
+     * The EntityManager for the GeoEntity.
+     * @type {atlas.entity.EntityManager}
+     * @protected
+     */
+    _entityManager: null,
 
     /**
      * The geometric centroid of the GeoEntity.
@@ -118,6 +132,12 @@ define([
      */
     _style: null,
 
+    /**
+     * Whether the GeoEntity is selected.
+     * @type {Boolean}
+     */
+    _selected: false,
+
     _init: function (id, args) {
       // Call the superclass' (EventTarget) constructor.
       this._super(args.eventManager, args.parent);
@@ -137,8 +157,10 @@ define([
         this._style = args.style;
       }
       this._id = id.toString();
+      this._childrenIds = args.childrenIds || [];
       this._renderManager = args.renderManager;
       this._eventManager = args.eventManager;
+      this._entityManager = args.entityManager;
     },
 
     // -------------------------------------------
@@ -158,6 +180,13 @@ define([
      */
     getCentroid: function() {
       throw new DeveloperError('Can not call abstract method of GeoEntity');
+    },
+
+    getChildren: function() {
+      // TODO(bpstudds): Adding children and removing children needs support.
+      if (this._children !== null) { return this._children; }
+      this._children = this._entityManager.getByIds(this._childrenIds);
+      return this._children;
     },
 
     /**
@@ -194,7 +223,14 @@ define([
       }
     },
 
+    /**
+     *
+     * @param {String} [component] A specific component to check.
+     * @returns {Boolean} Whether the given <code>component</code> is dirty, or if
+     * <code>component</code> is not given, the GeoEntity as a whole.
+     */
     isDirty: function(component) {
+      if (component === undefined) { return Object.keys(this._dirty).length > 0; }
       return component in this._dirty;
     },
 
@@ -261,22 +297,28 @@ define([
 
     /**
      * Modifies specific components of the GeoEntity's style.
-     * @param {Object} args - The new values for the Style components.
-     * @param {atlas.model.Colour} [args.fillColour] - The new fill colour.
-     * @param {atlas.model.Colour} [args.borderColour] - The new border colour.
-     * @param {Number} [args.borderWidth] - The new border width colour.
+     * @param {Object} newStyle - The new values for the Style components.
+     * @param {atlas.model.Colour} [newStyle.fillColour] - The new fill colour.
+     * @param {atlas.model.Colour} [newStyle.borderColour] - The new border colour.
+     * @param {Number} [newStyle.borderWidth] - The new border width colour.
      * @returns {Object} A mapping of parameters that have been changed to their old value.
      */
-    modifyStyle: function (args) {
-      if (Object.keys(args).length <= 0) { return {}; }
+    modifyStyle: function (newStyle) {
+      if (Object.keys(newStyle).length <= 0) { return {}; }
 
       this.setDirty('style');
-      if (!this._style) { this._style = Style.DEFAULT(); }
       var oldStyle = {};
-      // Change values
-      args.fillColour && (oldStyle.fillColour = this._style.setFillColour(args.fillColour));
-      args.borderColour && (oldStyle.borderColour = this._style.setBorderColour(args.borderColour));
-      args.borderWidth && (oldStyle.borderWidth = this._style.setBorderWidth(args.borderWidth));
+      // Work out what's changing
+      newStyle.fillColour && (oldStyle.fillColour = this._style.getFillColour());
+      newStyle.borderColour && (oldStyle.borderColour = this._style.getBorderColour());
+      newStyle.borderWidth && (oldStyle.borderWidth = this._style.getBorderWidth());
+      // Generate new style based on what's changed.
+      var newStyle = mixin({
+        fillColour: this._style.getFillColour(),
+        borderColour: this._style.getBorderColour(),
+        borderWidth: this._style.getBorderWidth()
+      }, newStyle);
+      this._style = new Style(newStyle);
       return oldStyle;
     },
 

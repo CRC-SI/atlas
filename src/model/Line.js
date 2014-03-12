@@ -29,18 +29,18 @@ define([
      * Constructs a new {@link Line}.
      * @ignore
      */
-    _init: function(id, args) {
+    _init: function(id, lineData, args) {
       this._super(id, args);
-      if (typeof args.vertices === 'string') {
+      if (typeof lineData.vertices === 'string') {
         var wkt = WKT.getInstance(),
-            vertices = wkt.verticesFromWKT(args.vertices);
+            vertices = wkt.verticesFromWKT(lineData.vertices);
         if (vertices instanceof Array) {
           this._vertices = vertices;
         } else {
           throw new Error('Invalid vertices for Line ' + id);
         }
       } else {
-        this._vertices = defaultValue(args.vertices, []);
+        this._vertices = defaultValue(lineData.vertices, []);
       }
     },
 

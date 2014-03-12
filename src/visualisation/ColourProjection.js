@@ -46,7 +46,7 @@ define([
       Log.debug('rendering id', entity.getId());
       var newColour = this._regressProjectionValueFromCodomain(attributes, this._configuration.codomain),
           oldColour = entity.modifyStyle(newColour);
-      entity.show();
+      entity.isVisible() && entity.show();
       this._effects[entity.getId()] = { 'oldValue': oldColour, 'newValue': newColour };
     },
 
@@ -61,7 +61,7 @@ define([
       var id = entity.getId(),
           oldColour = this._effects[id].oldValue;
       entity.modifyStyle(oldColour);
-      entity.show();
+      entity.isVisible() && entity.show();
       delete this._effects[id];
     },
 

@@ -110,16 +110,23 @@ define([
     _area: null,
 
     /**
+     * Whether the Polygon should be rendered as an extruded polygon or a 2D polygon.
+     * @type {Boolean}
+     * @protected
+     */
+    _showAsExtrusion: false,
+
+    /**
      * Constructs a new Polygon
      * @ignore
      */
-    _init: function(id, args) {
+    _init: function(id, polygonData, args) {
       args = mixin({}, args);
       this._super(id, args);
-      if (typeof args.vertices === 'string') {
+      if (typeof polygonData.vertices === 'string') {
         // TODO(aramk) Add support for MULTIPOLYGON by not taking the first item.
         var wkt = WKT.getInstance(),
-            vertices = wkt.verticesFromWKT(args.vertices);
+            vertices = wkt.verticesFromWKT(polygonData.vertices);
         if (vertices[0] instanceof Array) {
           this._vertices = vertices[0];
         } else {
@@ -128,12 +135,18 @@ define([
       } else {
         this._vertices = defaultValue(args.vertices, []);
       }
-      this._height = parseFloat(args.height) || this._height;
-      this._elevation = parseFloat(args.elevation) || this._elevation;
-      this._zIndex = parseFloat(args.zIndex) || this._zIndex;
-      this._zIndexOffset = parseFloat(args.zIndexOffset) || this._zIndexOffset;
-      this._style = defaultValue(args.style, Polygon.DEFAULT_STYLE);
-      this._material = defaultValue(args.material, Material.DEFAULT);
+      this._height = parseFloat(polygonData.height) || this._height;
+      this._elevation = parseFloat(polygonData.elevation) || this._elevation;
+      this._zIndex = parseFloat(polygonData.zIndex) || this._zIndex;
+      this._zIndexOffset = parseFloat(polygonData.zIndexOffset) || this._zIndexOffset;
+      this._material = (polygonData.material || Material.DEFAULT);
+      if (polygonData.color) {
+        this._style = new Style({fillColour: polygonData.color});
+      } else if (polygonData.style) {
+        this._style = polygonData.style;
+      } else {
+        this._style = Polygon.getDefaultStyle();
+      }
     },
 
     // -------------------------------------------
@@ -209,6 +222,20 @@ define([
      */
     getElevation: function() {
       return this._elevation;
+    },
+
+    /**
+     * Enables showing the polygon as an extruded polygon.
+     */
+    enableExtrusion: function() {
+      this._showAsExtrusion = true;
+    },
+
+    /**
+     * Disables showing the polygon as an extruded polygon.
+     */
+    disableExtrusion: function() {
+      this._showAsExtrusion = false;
     },
 
     /**
@@ -373,16 +400,18 @@ define([
      * Causes the Polygon to be rendered with the selection style.
      */
     onSelect: function() {
-      this.setStyle(Polygon.SELECTED_STYLE);
+      this.setStyle(Polygon.getSelectedStyle());
+      this.setDirty('style');
     },
 
     /**
      * Handles the behaviour of the Polygon when it is deselected.
      * Causes the Polygon to be rendered with either the previously set style or
-     * the <code>DEFAULT_STYLE</code>.
+     * the <code>getDefaultStyle</code>.
      */
     onDeselect: function() {
-      this.setStyle(this._previousStyle || Polygon.DEFAULT_STYLE);
+      this.setStyle(this._previousStyle || Polygon.getDefaultStyle());
+      this.setDirty('style');
     }
   });
 
@@ -392,15 +421,15 @@ define([
 
   /**
    * Defines the default style to use when rendering a polygon.
-   * @type {atlas.model.Colour}
+   * @type {atlas.model.Style}
    */
-  Polygon.DEFAULT_STYLE = new Style({fillColour: Colour.GREEN});
+  Polygon.getDefaultStyle = function () {return new Style({fillColour: Colour.GREEN}); };
 
   /**
    * Defines the default style to use when rendering a selected polygon.
-   * @type {atlas.model.Colour}
+   * @type {atlas.model.Style}
    */
-  Polygon.SELECTED_STYLE = new Style({fillColour: Colour.RED});
+  Polygon.getSelectedStyle = function () { return new Style({fillColour: Colour.RED}); };
 
   return Polygon;
 });

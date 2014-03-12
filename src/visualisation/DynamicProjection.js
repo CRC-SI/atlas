@@ -52,6 +52,13 @@ define([
      */
     _delta: null,
 
+    /**
+     * Whether the dynamic projection should loop
+     * @type {Boolean}
+     * @protected
+     */
+    _restart: false,
+
     _init: function (staticPrj, data, args) {
       if (!staticPrj) {
         throw new DeveloperError('Static projection required to construct Dynamic projection.')
@@ -93,6 +100,7 @@ define([
 
     _getValuesForIndex: function (index) {
       index = Math.floor(index);
+      if (index >= this._data.length) { return; }
       return this._data[index].values;
       // TODO(bpstudds): Support interpolation of the data.
       var previousIndex, nextIndex;
@@ -103,7 +111,7 @@ define([
           return this._data[i].values;
         }
       }
-      throw null;
+      return null;
     },
 
     /**
@@ -187,9 +195,8 @@ define([
         // Get the values to use for the next render. this._index is preset as appropriate by
         // start(). If there are no values, pause the projection
         var values = this._getValuesForIndex(this._index);
-        if (!values) {
-          // TODO(bpstudds): Make restarting the render optional.
-          if (this._restart = true) {
+        if (values === undefined) {
+          if (this._restart === true) {
             this._index = this._data[0].index;
           } else {
             this.pause();

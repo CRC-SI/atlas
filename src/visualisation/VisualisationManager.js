@@ -100,6 +100,13 @@ define([
         },
         {
           source: 'extern',
+          name: 'projection/remove/all',
+          callback: function () {
+            this.removeAll();
+          }.bind(this)
+        },
+        {
+          source: 'extern',
           name: 'projection/dynamic/add',
           /*
            * Creates a new dynamic projection.
@@ -227,7 +234,7 @@ define([
       }
       this._projections[target] = projection;
 
-      this._overlays[target] && this._overlays.remove();
+      this._overlays[target] && this._overlays[target].remove();
       this._overlays[target] = new Overlay({
         parent: this._atlasManagers.dom.getDom(),
         dimensions: {top: 0, left: 0},
@@ -290,6 +297,16 @@ define([
       return removedProjection;
     },
 
+    /**
+     * Removes projections on all artifacts.
+     * @returns {Object.<String, atlas.visualisation.AbstractProjection>} The removed projections.
+     */
+    removeAll: function () {
+      return Object.keys(this._projections).map(function(artifact) {
+        return this.remove(artifact);
+      }.bind(this));
+    },
+
     // -------------------------------------------
     // BEHAVIOUR
     // -------------------------------------------
@@ -302,9 +319,10 @@ define([
       // TODO(bpstudds): Add function to render all currently managed Projections.
       // TODO(bpstudds): Add support for rendering a subset of entities.
       if (!this._projections[artifact]) {
-        throw new DeveloperError('Tried to render projection', artifact, 'without adding a projection object.');
+        throw new DeveloperError('Tried to render projection ' + artifact + ' without adding a projection object.');
       } else {
         this._projections[artifact].render();
+        this._atlasManagers.event.handleInternalEvent('projection/render/complete', {name: artifact});
       }
     },
 
@@ -316,9 +334,10 @@ define([
       // TODO(bpstudds): Add function to unrender all currently managed Projections.
       // TODO(bpstudds): Add support for un-rendering a subset of entities.
       if (!this._projections[artifact]) {
-        throw new DeveloperError('Tried to unrender projection', artifact, 'without adding a projection object.');
+        throw new DeveloperError('Tried to unrender projection ' + artifact + ' without adding a projection object.');
       } else {
         this._projections[artifact].unrender();
+        this._atlasManagers.event.handleInternalEvent('projection/unrender/complete', {name: artifact});
       }
     },
 
@@ -334,11 +353,7 @@ define([
       if (!prj) {
         throw new DeveloperError('Tried to toggle render of projection', artifact, 'without adding a projection object.');
       } else {
-        if (Object.keys(prj._effects).length === 0) {
-          prj.render();
-        } else {
-          prj.unrender();
-        }
+        prj.isRendered() ? prj.unrender() : prj.render();
       }
     },
 

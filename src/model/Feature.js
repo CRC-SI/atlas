@@ -97,7 +97,7 @@ define([
       if (args.line) {
         this._displayMode = defaultValue(args.displayMode, 'line');
       }
-      if (args.footprint){
+      if (args.polygon){
         this._displayMode = defaultValue(args.displayMode, 'extrusion');
       }
       if (args.mesh) {
@@ -105,7 +105,7 @@ define([
       }
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
-      this._style = args.style || Feature.DEFAULT_STYLE;
+      this._style = args.style || Feature.getDefaultStyle();
     },
 
     // -------------------------------------------
@@ -141,7 +141,7 @@ define([
 
     _delegateToForm: function(method, args) {
       var form = this.getForm();
-      return form && form[method].apply(form, arguments);
+      return form && form[method].apply(form, args);
     },
 
     isRenderable: function() {
@@ -165,16 +165,16 @@ define([
      * @param {Number} elevation - The elevation of the feature.
      */
     setElevation: function(elevation) {
-      this.setDirty('vertices');
+      var oldElevation = this._elevation;
       this._elevation = elevation;
-      this.show();
+      return this._delegateToForm('setElevation', arguments) || oldElevation;
     },
 
     /**
      * @returns {number} The elevation of the base of the feature.
      */
     getElevation: function() {
-      return this._elevation;
+      return this._delegateToForm('getElevation') || this._elevation;
     },
 
     setFootprint: function(footprint) {
@@ -190,19 +190,16 @@ define([
      * @returns {Number} The previous height.
      */
     setHeight: function(height) {
-      // TODO(aramk) Fail if it's not an extrusion.
       var oldHeight = this._height;
       this._height = height;
-      this.setDirty('vertices');
-      this.show();
-      return oldHeight;
+      return this._delegateToForm('setHeight', arguments) || oldHeight;
     },
 
     /**
      * @returns {number} The extruded height of the Feature to form a prism.
      */
     getHeight: function() {
-      return this._height;
+      return this._delegateToForm('getHeight') || this._height;
     },
 
     setMesh: function(mesh) {
@@ -212,6 +209,16 @@ define([
       this._mesh = mesh;
     },
 
+    setStyle: function (style) {
+      var oldStyle = this._style;
+      this._style = style;
+      return this._delegateToForm('setStyle', arguments) || oldStyle;
+    },
+
+    getStyle: function () {
+      return this._delegateToForm('getStyle') || this._style;
+    },
+
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------
@@ -219,18 +226,14 @@ define([
     /**
      * Modifies specific components of the Feature's style.
      * @param {Object} args - The new values for the Style components.
-     * @param {atlas.model.Colour} [args.fill] - The new fill colour.
-     * @param {atlas.model.Colour} [args.border] - The new border colour.
+     * @param {atlas.model.Colour} [args.fillColour] - The new fill colour.
+     * @param {atlas.model.Colour} [args.borderColour] - The new border colour.
      * @param {Number} [args.borderWidth] - The new border width colour.
      * @returns {atlas.model.Style} - The old style.
      */
     modifyStyle: function(args) {
-      // Call version on superclass GeoEntity to do the heavy lifting...
       var oldStyle = this._super(args);
-      // ... and propagate the change to Feature's footprint and mesh if they exist.
-      this._footprint && this._footprint.setStyle(this._style);
-      this._mesh && this._mesh.setStyle(this._style);
-      return oldStyle;
+      return this._delegateToForm('modifyStyle', arguments) || oldStyle;
     },
 
     /**
@@ -266,8 +269,7 @@ define([
      * @param {atlas.model.Vertex} translation - The vector to translate the Feature by.
      */
     translate: function(translation) {
-      this._footprint && this._footprint.translate(translation);
-      this._mesh && this._mesh.translate(translation);
+      return this._delegateToForm('translate', arguments);
     },
 
     /**
@@ -276,8 +278,7 @@ define([
      * @param {atlas.model.Vertex} scale - The vector to scale the Feature by.
      */
     scale: function(scale) {
-      this._footprint && this._footprint.scale(scale);
-      this._mesh && this._mesh.scale(scale);
+      return this._delegateToForm('scale', arguments);
     },
 
     /**
@@ -286,16 +287,15 @@ define([
      * @param {atlas.model.Vertex} rotation - The vector to rotate the Feature by.
      */
     rotate: function(rotation) {
-      this._footprint && this._footprint.rotate(rotation);
-      this._mesh && this._mesh.rotate(rotation);
+      return this._delegateToForm('rotate', arguments);
     },
 
     /**
      * Clean up the Feature so it can be deleted by the RenderManager.
      */
     remove: function() {
-      // TODO(aramk) switch to Resig's Extend.js
-      Feature.base.remove.apply(this, arguments);
+      this._super();
+
       // Remove mesh and footprint.
       if (this._mesh !== null) {
         this._mesh.remove();
@@ -315,16 +315,14 @@ define([
      * Handles the behaviour of the Feature when it is selected.
      */
     onSelect: function() {
-      this._footprint && this._footprint.onSelect();
-      this._mesh && this._mesh.onSelect();
+      return this._delegateToForm('onSelect');
     },
 
     /**
      * Handles the behaviour of the Feature when it is deselected.
      */
     onDeselect: function() {
-      this._footprint && this._footprint.onDeselect();
-      this._mesh && this._mesh.onDeselect();
+      return this._delegateToForm('onDeselect');
     },
 
     /**
@@ -342,15 +340,14 @@ define([
         this._mesh && this._mesh.hide();
         this._line && this._line.hide();
         if (this._footprint) {
-          this._footprint.setHeight(0);
+          this._footprint.disableExtrusion();
           this._visible = this._footprint.show();
         }
       } else if (this._displayMode === 'extrusion') {
         this._mesh && this._mesh.hide();
         this._line && this._line.hide();
         if (this._footprint) {
-          this._footprint.setHeight(this._height);
-          this._footprint.setElevation(this._elevation);
+          this._footprint.enableExtrusion();
           this._visible = this._footprint.show();
         }
       } else if (this._displayMode === 'mesh') {
@@ -368,12 +365,7 @@ define([
      */
     hide: function() {
       this._visible = false;
-      if (this._footprint) {
-        this._footprint.hide();
-      }
-      if (this._mesh) {
-        this._mesh.hide();
-      }
+      return this._delegateToForm('hide') || this._visible;
     }
   }), // End class instance definition.
 
@@ -382,7 +374,7 @@ define([
       // -------------------------------------------
 
       {
-        DEFAULT_STYLE: new Style(Colour.GREEN, Colour.GREEN, 1)
+        getDefaultStyle: function () { return new Style({fillColour: Colour.GREEN}); }
       }
   ); // End class mixin;
 
