@@ -161,7 +161,7 @@ define([
     zoomTo: function (position, orientation, duration) {
       if (position === undefined) {
         throw new DeveloperError('Can not move camera without specifying position');
-      } else if (typeof position === 'object') {
+      } else if (position.position) {
         orientation = position.orientation;
         duration = position.duration;
         position = position.position;

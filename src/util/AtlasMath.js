@@ -5,6 +5,20 @@ define([
    * @exports atlas.util.AtlasMath
    */
   return {
+
+    // -------------------------------------------
+    // CONVERSIONS
+    // -------------------------------------------
+
+    /**
+     * @param {Number} radians - Values to convert to degrees.
+     * @returns {Number}
+     */
+    toDegrees: function (radians) {
+      radians = parseInt(radians, 10) || 0;
+      return radians / Math.PI * 180;
+    },
+
     /**
      * @param {Number} degrees - Values to convert to radians.
      * @returns {Number}
@@ -14,13 +28,19 @@ define([
       return degrees * Math.PI / 180;
     },
 
+    // -------------------------------------------
+    // FUNCTIONS
+    // -------------------------------------------
+
     /**
-     * @param {Number} radians - Values to convert to degrees.
+     * Linearly interpolates between two values.
+     * @param {Number} lo - The value to interpolate from.
+     * @param {Number} hi - The value to interpolate to.
+     * @param {Number} f - The interpolation factor.
      * @returns {Number}
      */
-    toDegrees: function (radians) {
-      radians = parseInt(radians, 10) || 0;
-      return radians / Math.PI * 180;
+    lerp: function (lo, hi, f) {
+      return lo + (hi - lo) * f;
     },
 
     /**
@@ -38,6 +58,16 @@ define([
       if (x < lo) return lo;
       if (x > hi) return hi;
       return x;
+    },
+
+    /**
+     * Rounds a number to a given precision.
+     * @param val
+     * @param precision
+     * @returns {number}
+     */
+    round: function (val, precision) {
+      return Math.round(val / precision) * precision;
     }
   };
 });

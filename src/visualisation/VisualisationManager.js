@@ -208,6 +208,15 @@ define([
       return new DynamicProjection(staticPrj, args.data, args);
     },
 
+    showLegend: function () {
+      var html = this._projections['colour'].getLegend();
+      this._legends = new Overlay({
+        dimensions: {top:300, left:0},
+        content: html
+      });
+      this._legends.show();
+    },
+
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------
@@ -246,6 +255,7 @@ define([
           event.button === 0 && this.toggleRender(target)
         }
       }(target).bind(this));
+      this.showLegend();
       return ret;
     },
 
@@ -354,24 +364,6 @@ define([
         prj.isRendered() ? prj.unrender() : prj.render();
       }
     },
-
-    _testHeight: function (valueMap) {
-      var ids = Object.keys(valueMap),
-          entities = this._atlasManagers.entity.getByIds(ids),
-          codomain = {startProj: Math.random() * 20, endProj: 20 + Math.random() * 300},
-          heightProj = new HeightProjection({type: 'continuous', codomain: codomain, values: valueMap, entities: entities});
-      this.addProjection(heightProj);
-      heightProj.render();
-    },
-
-    _testColour: function (valueMap) {
-      var ids = Object.keys(valueMap),
-          entities = this._atlasManagers.entity.getByIds(ids),
-          codomain = {startProj: Colour.BLUE, endProj: Colour.RED},
-          colourProj = new ColourProjection({type: 'continuous', codomain: codomain, values: valueMap, entities: entities});
-      this.addProjection(colourProj);
-      colourProj.render();
-    }
   });
   return VisualisationManager;
 });

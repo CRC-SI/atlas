@@ -1,11 +1,12 @@
 define([
+  'atlas/util/AtlasMath',
   'atlas/util/DeveloperError',
   'atlas/lib/tinycolor',
   'atlas/model/Colour',
   // Base class.
   'atlas/visualisation/AbstractProjection',
   'atlas/lib/utility/Log'
-], function (DeveloperError, tinycolour, Colour, AbstractProjection, Log) {
+], function (AtlasMath, DeveloperError, tinycolour, Colour, AbstractProjection, Log) {
 
   /**
    * @classdesc A ColourProjection is used to project GeoEntity parameter values
@@ -18,6 +19,44 @@ define([
     ARTIFACT: 'colour',
 
     DEFAULT_CODOMAIN: {fixedProj: Colour.RED},
+
+    // -------------------------------------------
+    // GETTERS AND SETTERS
+    // -------------------------------------------
+
+    /**
+     * @returns {String} A HTML string describing a legend of projection colour to
+     * parameter value.
+     */
+    getLegend: function () {
+      var html,
+         generateLegend = function (bin, codomain) {
+           if ('fixedProj' in codomain) {
+           } else if ('startProj' in codomain && 'endProj' in codomain) {
+             var legend = '<tr>';
+             [0, 0.25, 0.5, 0.75, 1].forEach(function(f) {
+              var colour = codomain.startProj.interpolate(codomain.endProj, f),
+                  value = AtlasMath.lerp(bin.firstValue, bin.lastValue, f);
+              legend += '<td style="background-color:' + colour.toHexString() + ';">' + AtlasMath.round(value, 0.01) + '</td>';
+             });
+             legend +='</tr>';
+             return legend;
+           }
+           return '';
+         };
+
+      html = '<table>';
+      this._bins.forEach(function (bin) {
+        var codomain = this._configuration.codomain;
+        if (this._configuration.codomain instanceof Array) {
+          codomain = this._configuration.codomain[bin.binId];
+        }
+        html += generateLegend(bin, codomain);
+      }, this);
+      html += '</table>';
+      console.debug(html);
+      return html;
+    },
 
     /**
      * Returns the state before the Projection has been applied, or if the Projection has not been
@@ -34,6 +73,10 @@ define([
       }, this);
       return state;
     },
+
+    // -------------------------------------------
+    // RENDERING
+    // -------------------------------------------
 
     /**
      * Renders the effects of the Projection on a single GeoEntity.
@@ -85,15 +128,10 @@ define([
       if ('fixedProj' in codomain) {
         return {fillColour: codomain.fixedProj};
       } else if ('startProj' in codomain && 'endProj' in codomain) {
-        var startColour = codomain['startProj'].toHsv(),
-            endColour = codomain['endProj'].toHsv(),
-            diff = endColour.h - startColour.h,
-            newHsv = {
-              h: startColour.h + diff * regressionFactor,
-              s: startColour.s,
-              v: startColour.v
-            };
-        return {fillColour: Colour.fromHsv(newHsv)};
+        var startColour = codomain['startProj'],
+            endColour = codomain['endProj'],
+            newColour = startColour.interpolate(endColour, regressionFactor);
+        return {fillColour: newColour};
       }
       throw new DeveloperError('Unsupported codomain supplied.');
     }

@@ -123,19 +123,15 @@ define([
      * @ignore
      */
     _init: function (args) {
-      if (!args.values) {
-        throw new DeveloperError('Can not construct Projection without values');
-      }
-      if (!args.entities) {
-        throw new DeveloperError('Can not construct Projection without entities');
-      }
       args = mixin({
         type: 'continuous',
         values: {},
-        entities: {},
         bins: 1,
         codomain: this.DEFAULT_CODOMAIN
       }, args);
+      if (!args.entities) {
+        throw new DeveloperError('Can not construct Projection without entities');
+      }
       if (!this.SUPPORTED_PROJECTIONS[args.type]) {
         throw new DeveloperError('Tried to instantiate Projection with unsupported type', args.type);
       }
@@ -153,6 +149,72 @@ define([
       // TODO(bpstudds): Do we need to calculate this for a discrete projection?
       this._attributes = this._calculateValueAttributes();
     },
+
+    // -------------------------------------------
+    // GETTERS AND SETTERS
+    // -------------------------------------------
+
+    /**
+     * @returns {Object} The configuration of the Projection.
+     */
+    getConfiguration: function () {
+      return this._configuration;
+    },
+
+    /**
+     * @returns {String} The type of the Projection.
+     */
+    getType: function () {
+      return this._type;
+    },
+
+    /**
+     * @returns {String} HTML describing a legend of the projection values to parameter values.
+     * @abstract
+     */
+    getLegend: function () {},
+
+    /**
+     * Sets the previous state, or the state of the render before the Projection is applied. ie.
+     * sets what will be re-rendered when the Projection is removed.
+     */
+    setPreviousState: function (state) {
+      Object.keys(state).forEach(function (id) {
+        this._effects[id].oldValue = state[id];
+      }, this);
+    },
+
+    /**
+     * Returns the state before the Projection has been applied.
+     * @returns {Object.<String, Object>}
+     */
+    getPreviousState: function () {
+      var state = {};
+      if (this._effects) {
+        Object.keys(this._entities).forEach(function (id) {
+          state[id] = this._entities[id].oldValue;
+        }, this);
+      }
+      return state;
+    },
+
+    /**
+     * @returns {Object.<String, Number>} The map of Entity ID to value for the Projection.
+     */
+    getValues: function () {
+      return this._values;
+    },
+
+    /**
+     * @returns {Boolean} Whether the Projection is currently rendered.
+     */
+    isRendered: function () {
+      return this._rendered;
+    },
+
+    // -------------------------------------------
+    // RENDERING
+    // -------------------------------------------
 
     /**
      * Renders the effects of the Projection on all or a subset of the GeoEntities linked
@@ -221,6 +283,10 @@ define([
      * @param {Object} params - Data required to update the GeoEntity.
      */
 
+    // -------------------------------------------
+    // MODIFIERS
+    // -------------------------------------------
+
     /**
      * Updates the projection with a new set of values and configuration data.
      * @param {Object} args - The data to update the projection with.
@@ -238,58 +304,6 @@ define([
         // TODO(bpstudds): Allow for updating a subset of parameters.
         this._attributes = this._calculateValueAttributes();
       }
-    },
-
-    /**
-     * @returns {Object} The configuration of the Projection.
-     */
-    getConfiguration: function () {
-      return this._configuration;
-    },
-
-    /**
-     * @returns {String} The type of the Projection.
-     */
-    getType: function () {
-      return this._type;
-    },
-
-    /**
-     * Sets the previous state, or the state of the render before the Projection is applied. ie.
-     * sets what will be re-rendered when the Projection is removed.
-     */
-    setPreviousState: function (state) {
-      Object.keys(state).forEach(function (id) {
-        this._effects[id].oldValue = state[id];
-      }, this);
-    },
-
-    /**
-     * Returns the state before the Projection has been applied.
-     * @returns {Object.<String, Object>}
-     */
-    getPreviousState: function () {
-      var state = {};
-      if (this._effects) {
-        Object.keys(this._entities).forEach(function (id) {
-          state[id] = this._entities[id].oldValue;
-        }, this);
-      }
-      return state;
-    },
-
-    /**
-     * @returns {Object.<String, Number>} The map of Entity ID to value for the Projection.
-     */
-    getValues: function () {
-      return this._values;
-    },
-
-    /**
-     * @returns {Boolean} Whether the Projection is currently rendered.
-     */
-    isRendered: function () {
-      return this._rendered;
     },
 
     /**
@@ -400,8 +414,6 @@ define([
       }, this);
       return bins;
     },
-
-
 
     /**
      * Calculates the statistical properties for all parameter values, segregating each value into

@@ -38,9 +38,25 @@ define([
       return 'rgba(' + [this.red * 255, this.green * 255, this.blue * 255, this.alpha].join(', ') + ')';
     },
 
+    toHexString: function () {
+      var hex = function (a) { return a.toString(16); };
+      return '#' + hex(this.red * 255) + hex(this.green * 255) + hex(this.blue * 255);
+    },
+
     toHsv: function () {
       var tiny = Tinycolor(this.toString());
       return tiny.toHsv();
+    },
+
+    interpolate: function (other, lerp) {
+      return this.interpolateByHue(other, lerp);
+    },
+
+    interpolateByHue: function (other, lerp) {
+      var hsv1 = this.toHsv(),
+          hsv2 = other.toHsv();
+      hsv1.h = AtlasMath.lerp(hsv2.h, hsv1.h, lerp);
+      return Colour.fromHsv(hsv1);
     }
   });
 
