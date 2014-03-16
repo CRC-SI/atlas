@@ -74,7 +74,7 @@ define([
             color = codomain.startProj.interpolate(codomain.endProj, regression),
             element = {
               value: r(bin.firstValue) + '&#2122' + r(bin.lastValue),
-              'background-color': color
+              bgColour: color
             };
         row.push(element);
       }
@@ -95,14 +95,13 @@ define([
       this._bins.forEach(function (bin, i) {
         var codomain = this.getCodomain(i),
             row = [],
-            r = function (p) { return function (x) { return AtlasMath.round(x, p); }}(0.01);
-        [0, 0.25, 0.5, 0.75].forEach(function(f) {
-          var regression = bin.binId / bin.numBins,
-              // TODO(bpstudds): This won't work with a fixed projection.
-              color = codomain.startProj.interpolate(codomain.endProj, regression),
+            r = function (x) {  return x.toPrecision(4) };
+        [0, 0.25, 0.5, 0.75, 1].forEach(function(f) {
+          var // TODO(bpstudds): This won't work with a fixed projection.
+              color = codomain.startProj.interpolate(codomain.endProj, f),
               element = {
                 value: r(bin.firstValue + f * bin.range).toString(),
-                'background-color': color
+                bgColour: color
               };
           row.push(element);
         });

@@ -208,13 +208,23 @@ define([
       return new DynamicProjection(staticPrj, args.data, args);
     },
 
-    showLegend: function () {
-      var html = this._projections['colour'].getLegend();
+    showLegends: function () {
+      if (!this._projections['colour']) { return; }
+
+      var legendData = this._projections['colour'].getLegend();
+          html = Overlay.generateTable(legendData);
       this._legends = new Overlay({
-        dimensions: {top:300, left:0},
+        parent: this._atlasManagers.dom.getDom(),
+        dimensions: {top:0, left:300},
         content: html
       });
       this._legends.show();
+    },
+
+    hideLegends: function () {
+      if (this._legends) {
+        this._legends.remove();
+      }
     },
 
     // -------------------------------------------
@@ -255,7 +265,6 @@ define([
           event.button === 0 && this.toggleRender(target)
         }
       }(target).bind(this));
-      this.showLegend();
       return ret;
     },
 
@@ -332,6 +341,7 @@ define([
         throw new DeveloperError('Tried to render projection ' + artifact + ' without adding a projection object.');
       } else {
         this._projections[artifact].render();
+        artifact === 'colour' && this.showLegends();
       }
     },
 
@@ -346,6 +356,7 @@ define([
         throw new DeveloperError('Tried to unrender projection ' + artifact + ' without adding a projection object.');
       } else {
         this._projections[artifact].unrender();
+        artifact === 'colour' && this.hideLegends();
       }
     },
 
@@ -361,9 +372,9 @@ define([
       if (!prj) {
         throw new DeveloperError('Tried to toggle render of projection', artifact, 'without adding a projection object.');
       } else {
-        prj.isRendered() ? prj.unrender() : prj.render();
+        prj.isRendered() ? this.unrender(artifact) : this.render(artifact);
       }
-    },
+    }
   });
   return VisualisationManager;
-});
+})
