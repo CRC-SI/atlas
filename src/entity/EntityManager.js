@@ -114,7 +114,7 @@ define([
    * @protected
    */
   EntityManager._parseC3ML = function (c3ml) {
-    var geometry,
+    var geometry = {},
     // Map of C3ML type to parse of that type.
         parsers = {
           line: EntityManager._parseC3MLline,

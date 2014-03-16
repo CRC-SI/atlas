@@ -151,7 +151,7 @@ define([
       if (id === undefined || typeof id === 'object') {
         throw new DeveloperError('Can not create instance of GeoEntity without an ID');
       }
-      if (args.style === undefined) {
+      if (!args.style) {
         this._style = GeoEntity.DEFAULT_STYLE;
       } else {
         this._style = args.style;
