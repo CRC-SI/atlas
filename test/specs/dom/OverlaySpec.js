@@ -77,7 +77,7 @@ define([
           id: 'anId'
         };
         var html = Overlay.parseStyling(data);
-        expect(html).toEqual('class="aClass" id="anId" ');
+        expect(html).toEqual('class="aClass" id="anId"');
       });
 
       it ('with inline tag styles', function () {
@@ -85,7 +85,7 @@ define([
           bgColour: Colour.RED
         };
         var html = Overlay.parseStyling(data);
-        expect(html).toEqual('style="background-color:#ff00;"');
+        expect(html).toEqual('style="background-color:#ff0000;"');
       });
 
       it ('handling blank data', function () {
@@ -93,6 +93,28 @@ define([
         expect(html).toEqual('');
         var html = Overlay.parseStyling();
         expect(html).toEqual('');
+      })
+
+      it ('as a plain table', function () {
+        var data = [
+          [ {value: 0}, {value: 10} ],
+          [ {value: 1}, {value: 11} ]
+        ];
+        var html = Overlay.generateTable(data);
+        expect(html).toEqual('<table><tr><td>0</td><td>10</td></tr><tr><td>1</td><td>11</td></tr></table>')
+      });
+
+      it ('as a table with background colour', function () {
+        var data = [
+          [ {value: 0, bgColour: Colour.RED}, {value: 10, bgColour: Colour.BLUE} ],
+          [ {value: 1}, {value: 11, bgColour: Colour.GREEN} ]
+        ];
+        var html = Overlay.generateTable(data);
+        expect(html).toEqual(
+          '<table>' +
+          '<tr><td style="background-color:#ff0000;">0</td><td style="background-color:#0000ff;">10</td></tr>' +
+          '<tr><td>1</td><td style="background-color:#00ff00;">11</td></tr></table>'
+        )
       })
     });
   }); // End 'An Overlay'.

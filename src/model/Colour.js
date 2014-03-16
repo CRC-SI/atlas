@@ -46,7 +46,11 @@ define([
     },
 
     toHexString: function () {
-      var hex = function (a) { return a.toString(16); };
+      var hex = function (a) {
+        var str = a.toString(16);
+        if (a < 16) { str = '0' + str; }
+        return str;
+      };
       return '#' + hex(this.red * 255) + hex(this.green * 255) + hex(this.blue * 255);
     },
 

@@ -131,6 +131,24 @@ define([
         if (style !== '') {
           html += 'style="' + style +'"';
         }
+        return (html = html.trim());
+      },
+
+      generateTable: function (data) {
+        if (!data.length || data.length === 0) { return ''; }
+        var html = '<table>';
+        data.forEach(function (row) {
+          html += '<tr>'
+          var elements = row instanceof Array? row : [row];
+          elements.forEach(function (element) {
+            var style = Overlay.parseStyling(element);
+            html += '<td';
+            html += style !== '' ? ' ' + style : '';
+            html += '>' + element.value + '</td>';
+          });
+          html += '</tr>';
+        });
+        html += '</table>';
         return html;
       }
     }
