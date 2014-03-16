@@ -121,7 +121,18 @@ define([
 //////
 // STATICS
     {
-
+      parseStyling: function (data) {
+        var html = '',
+            style = '',
+            data = data || {};
+        data.class && (html += 'class="' + data.class +'" ');
+        data.id && (html += 'id="' + data.id +'" ');
+        data.bgColour && (style += 'background-color:' + data.bgColour.toHexString() + ';');
+        if (style !== '') {
+          html += 'style="' + style +'"';
+        }
+        return html;
+      }
     }
   ); // End class definition
 

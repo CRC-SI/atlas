@@ -1,7 +1,8 @@
 define([
+  'atlas/model/Colour',
   // Code under test.
   'atlas/dom/Overlay'
-], function (Overlay) {
+], function (Colour, Overlay) {
 
   describe('An Overlay', function () {
     var parent,
@@ -67,6 +68,32 @@ define([
       overlay.remove();
       console.debug(parent.children);
       expect(parent.children.length).toBe(0);
+    });
+
+    describe ('can generate HTML', function () {
+      it ('with tag class and id', function () {
+        var data = {
+          class: 'aClass',
+          id: 'anId'
+        };
+        var html = Overlay.parseStyling(data);
+        expect(html).toEqual('class="aClass" id="anId" ');
+      });
+
+      it ('with inline tag styles', function () {
+        var data = {
+          bgColour: Colour.RED
+        };
+        var html = Overlay.parseStyling(data);
+        expect(html).toEqual('style="background-color:#ff00;"');
+      });
+
+      it ('handling blank data', function () {
+        var html = Overlay.parseStyling({});
+        expect(html).toEqual('');
+        var html = Overlay.parseStyling();
+        expect(html).toEqual('');
+      })
     });
   }); // End 'An Overlay'.
 });
