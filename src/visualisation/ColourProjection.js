@@ -25,37 +25,90 @@ define([
     // -------------------------------------------
 
     /**
-     * @returns {String} A HTML string describing a legend of projection colour to
-     * parameter value.
+     * Gets the codomain for the specified bin, or the first defined bin.
+     * @param {Number} [binId=0] - The bin ID of the bin to retrieve.
+     * @returns {Object} The bin configuration object.
+     */
+    getCodomain: function (binId) {
+      if (!(this._configuration.codomain instanceof Array)) {
+        return this._configuration.codomain;
+      } else {
+        if (binId) {
+          return this._configuration.codomain[binId];
+        } else {
+          return this._configuration.codomain[0];
+        }
+      }
+    },
+
+    /**
+     * @returns {Array.<Array>} A 2D array of the legend which can be converted by
+     * {@link atlas.dom.Overlay} to a table.
      */
     getLegend: function () {
-      var html,
-         generateLegend = function (bin, codomain) {
-           if ('fixedProj' in codomain) {
-           } else if ('startProj' in codomain && 'endProj' in codomain) {
-             var legend = '<tr>';
-             [0, 0.25, 0.5, 0.75, 1].forEach(function(f) {
-              var colour = codomain.startProj.interpolate(codomain.endProj, f),
-                  value = AtlasMath.lerp(bin.firstValue, bin.lastValue, f);
-              legend += '<td style="background-color:' + colour.toHexString() + ';">' + AtlasMath.round(value, 0.01) + '</td>';
-             });
-             legend +='</tr>';
-             return legend;
-           }
-           return '';
-         };
+      if (this._type === 'discrete') {
+        return this._getDiscreteLegend();
+      } else {
+        return this._getContinuousLegends();
+      }
+    },
 
-      html = '<table>';
-      this._bins.forEach(function (bin) {
-        var codomain = this._configuration.codomain;
-        if (this._configuration.codomain instanceof Array) {
-          codomain = this._configuration.codomain[bin.binId];
-        }
-        html += generateLegend(bin, codomain);
+    /**
+     * Gets the legend for a discrete projection.
+     * @returns {Array.<Array>} As per {@link atlas.model.ColourProjection~getLegend}
+     * @private
+     */
+    _getDiscreteLegend: function () {
+      var legend = [],
+          row = [],
+          r = function (p) { return function (x) { return AtlasMath.round(x, p); }}(0.01),
+          codomain = this.getCodomain();
+
+      // TODO(bpstudds): Does forEach iterate in order?
+      // With the way discrete projections currently work, there can only be one codomain
+      // per projection and each bin is a discrete element of the legend.
+      for (var i = 0; i < this._bins.length; i++) {
+        var bin = this._bins[i],
+            regression = bin.binId / bin.numBins,
+            // TODO(bpstudds): This won't work with a fixed projection.
+            color = codomain.startProj.interpolate(codomain.endProj, regression),
+            element = {
+              value: r(bin.firstValue) + '&#2122' + r(bin.lastValue),
+              'background-color': color
+            };
+        row.push(element);
+      }
+      legend.push(row);
+      return legend;
+    },
+
+    /**
+     * Gets the legend for a continuous projection.
+     * @returns {Array.<Array>} As per {@link atlas.model.ColourProjection~getLegend}
+     * @private
+     */
+    _getContinuousLegends: function () {
+      var legend = [];
+      // With the way continuous projections work, there can be multiple codomains
+      // per projection and each bin needs an entire legend to itself.
+      // Usually, there will only be one bin per continuous projection though.
+      this._bins.forEach(function (bin, i) {
+        var codomain = this.getCodomain(i),
+            row = [],
+            r = function (p) { return function (x) { return AtlasMath.round(x, p); }}(0.01);
+        [0, 0.25, 0.5, 0.75].forEach(function(f) {
+          var regression = bin.binId / bin.numBins,
+              // TODO(bpstudds): This won't work with a fixed projection.
+              color = codomain.startProj.interpolate(codomain.endProj, regression),
+              element = {
+                value: r(bin.firstValue + f * bin.range).toString(),
+                'background-color': color
+              };
+          row.push(element);
+        });
+        legend.push(row);
       }, this);
-      html += '</table>';
-      console.debug(html);
-      return html;
+      return legend;
     },
 
     /**
@@ -123,8 +176,9 @@ define([
         codomain = codomain[attributes.binId];
       }
       // TODO(bpstudds): Allow for more projection types then continuous and discrete?
+      // TODO(bpstudds): The regressionFactor for discrete isn't in [0, 1).
       var regressionFactor = this._type === 'continuous' ?
-          attributes.absRatio : attributes.binId / (attributes.numBins - 1);
+          attributes.absRatio : attributes.binId / (attributes.numBins);
       if ('fixedProj' in codomain) {
         return {fillColour: codomain.fixedProj};
       } else if ('startProj' in codomain && 'endProj' in codomain) {

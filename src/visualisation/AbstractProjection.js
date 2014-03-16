@@ -317,21 +317,11 @@ define([
     _configureBins: function () {
       var binConf = this._configuration.bins,
           bins = [];
-      if (binConf === undefined || typeof binConf === 'number') {
-        var numBins = binConf || 1;
-        if (numBins === 1) {
-          bins = [{
-            binId: 0,
-            numBins: numBins,
-            accept: function () { return 0; },
-            firstValue: Number.NEGATIVE_INFINITY,
-            lastValue: Number.POSITIVE_INFINITY
-          }];
-        } else {
-          // Create bins by splitting up the range of input parameter values into equal divisions.
-          var populationStats = this._calculatePopulationStatistics();
-          bins = this._configureEqualSizedBins(numBins, populationStats.min.value, populationStats.max.value, true);
-        }
+      if (!binConf || typeof binConf === 'number') {
+        // Create bins by splitting up the range of input parameter values into equal divisions.
+        var numBins = binConf || 1,
+            populationStats = this._calculatePopulationStatistics();
+        bins = this._configureEqualSizedBins(numBins, populationStats.min.value, populationStats.max.value, true);
       } else if (binConf instanceof Array) {
         bins = this._configureBinsFromArray(binConf);
       } else if (binConf.numBins && binConf.firstValue !== undefined && binConf.lastValue !== undefined) {
@@ -409,7 +399,7 @@ define([
         if (bin.firstValue < previousLastValue || bin.lastValue < bin.firstValue) {
           throw new DeveloperError('Incorrect bins configuration provided', this._configuration.bins);
         }
-        bins.push({binId: i, numBins: numBins, firstValue: bin.firstValue, lastValue: bin.lastValue});
+        bins.push({binId: i, numBins: numBins, firstValue: bin.firstValue, lastValue: bin.lastValue, range: (bin.lastValue - bin.firstValue)});
         previousLastValue = bin.lastValue;
       }, this);
       return bins;

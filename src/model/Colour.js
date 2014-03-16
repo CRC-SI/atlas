@@ -4,6 +4,13 @@ define([
   'atlas/util/FreezeObject',
   'atlas/lib/tinycolor'
 ], function(AtlasMath, Class, freeze, Tinycolor) {
+  var __DEBUG__ = true;
+
+  if (__DEBUG__) {
+    freeze = function (o) {
+      return o;
+    }
+  }
 
   /**
    * @classdesc Constructs a colour specified by red, green, blue and alpha

@@ -46,7 +46,6 @@ define([
           expect(colourProj._entities[0].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.RED});
           expect(colourProj._entities[2].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.RED});
           expect(colourProj._entities[4].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.RED});
-          expect(colourProj.getLegend()).toEqual('<table><tr><td>&#x2212&#x2212&#x221E - &#x221E</td></tr></table>');
         });
 
         it('with a single codomain', function () {
@@ -66,14 +65,13 @@ define([
           expect(colourProj._stats[0].entityIds).toEqual(['0', '1']);
           expect(colourProj._stats[1].entityIds).toEqual(['2']);
           expect(colourProj._stats[2].entityIds).toEqual(['3', '4']);
-          expect(colourProj.getLegend()).toEqual('<table><tr><td>0</td><td>1.33</td><td>2.66</td></tr></table>');
           //expect(colourProj._entities[0].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.BLUE});
           //expect(colourProj._entities[2].modifyStyle).toHaveBeenCalledWith({fill: Colour.BLUE});
           //expect(colourProj._entities[4].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.RED});
         });
       }); // End 'for a discrete projection'.
 
-      xdescribe('for a continuous projection', function () {
+      describe('for a continuous projection', function () {
         it('with a single codomain', function () {
           // This test _will_ fail if Colour.BLUE and Colour.GREEN are frozen.
           var codomain = {regressBy: 'hue', startProj: Colour.BLUE, endProj: Colour.GREEN};
@@ -92,7 +90,7 @@ define([
         })
       });
 
-      xdescribe('by default', function () {
+      describe('by default', function () {
         // TODO(bpstudds): Modify tests so the expected values are not hardcoded.
 
         beforeEach(function () {
@@ -133,7 +131,7 @@ define([
       }); // End 'by default'.
     }); // End 'can be constructed'.
 
-    xdescribe('when constructed can unrender effects', function () {
+    describe('when constructed can unrender effects', function () {
       beforeEach(function () {
         colourProj = new ColourProjection({values: someValues, entities: someEntities});
         colourProj.render();
@@ -177,5 +175,70 @@ define([
         });
       });
     }); // End 'can unrender effects'
+
+    describe ('can generate a legend', function () {
+      beforeEach (function () {
+        var legend;
+        args = {
+          values: someValues,
+          entities: someEntities,
+          codomain: {startProj: Colour.RED, endProj: Colour.RED}
+        };
+      });
+
+      describe ('for a continuous projection', function () {
+        beforeEach (function () {
+          args.type = 'continuous';
+          delete args.bins;
+        });
+
+        it ('with 1 legend (=== 1 bin)', function () {
+          var expected = [
+            { value: '0', 'background-color': Colour.RED},
+            { value: '1', 'background-color': Colour.RED},
+            { value: '2', 'background-color': Colour.RED},
+            { value: '3', 'background-color': Colour.RED},
+          ];
+          colourProj = new ColourProjection(args);
+          colourProj.render();
+          legend = colourProj.getLegend();
+          expect(legend[0]).toNotBe(null);
+          expect(legend[0]).toEqual(expected);
+        });
+      });
+
+      describe ('for a discrete projection', function () {
+        beforeEach (function () {
+          args.type = 'discrete'
+        });
+
+        it ('with 1 bin and 1 legend', function () {
+          var expected = {
+            value: '0&#21224',
+            'background-color': Colour.RED
+          };
+          args.bins = 1;
+          colourProj = new ColourProjection(args);
+          colourProj.render();
+          legend = colourProj.getLegend();
+          expect(legend[0]).toNotBe(null);
+          expect(legend[0][0]).toEqual(expected);
+        });
+
+        it ('with 3 bins and 1 legend', function () {
+          var expected = [
+            { value: '0&#21221.33', 'background-color': Colour.RED},
+            { value: '1.33&#21222.67', 'background-color': Colour.RED},
+            { value: '2.67&#21224', 'background-color': Colour.RED},
+          ];
+          args.bins = 3;
+          colourProj = new ColourProjection(args);
+          colourProj.render();
+          legend = colourProj.getLegend();
+          expect(legend[0]).toNotBe(null);
+          expect(legend[0]).toEqual(expected);
+        });
+      }); // End 'for a discrete projection'
+    }); // End 'can generate a legend'
   }); // End 'A ColourProjection'
 });
