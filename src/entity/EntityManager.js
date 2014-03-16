@@ -102,7 +102,7 @@ define([
       var id = c3ml.id;
       var args = EntityManager._parseC3ML(c3ml);
       this._entities[id] = this.createFeature(id, args);
-      this._entities[id].show();
+      args.show && this._entities[id].show();
     }, this);
   };
 
@@ -114,12 +114,13 @@ define([
    * @protected
    */
   EntityManager._parseC3ML = function (c3ml) {
-    var geometry = {};
+    var geometry = {},
     // Map of C3ML type to parse of that type.
-    var parsers = {
-      mesh: EntityManager._parseC3MLmesh,
-      polygon: EntityManager._parseC3MLpolygon
-    };
+        parsers = {
+          line: EntityManager._parseC3MLline,
+          mesh: EntityManager._parseC3MLmesh,
+          polygon: EntityManager._parseC3MLpolygon
+        };
     // Generate the Geometry for the C3ML type if it is supported.
     parsers[c3ml.type] && (geometry = parsers[c3ml.type](c3ml));
     return mixin({
@@ -128,6 +129,23 @@ define([
       parent: c3ml.parent,
       children: c3ml.children
     }, geometry);
+  };
+
+  /**
+   * Parses a C3ML line object to an format supported by Atlas.
+   * @param {Object} c3ml - The C3ML object to be parsed
+   * @returns {Object} The parsed C3ML.
+   * @private
+   */
+  EntityManager._parseC3MLline = function (c3ml) {
+    return {
+      line: {
+        vertices: c3ml.coordinates,
+        color: c3ml.color,
+        height: c3ml.height,
+        elevation: c3ml.altitude
+      }
+    }
   };
 
   /**
