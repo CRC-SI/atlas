@@ -342,6 +342,7 @@ define([
       } else {
         this._projections[artifact].render();
         artifact === 'colour' && this.showLegends();
+        this._atlasManagers.event.handleInternalEvent('projection/render/complete', {name: artifact});
       }
     },
 
@@ -357,6 +358,7 @@ define([
       } else {
         this._projections[artifact].unrender();
         artifact === 'colour' && this.hideLegends();
+        this._atlasManagers.event.handleInternalEvent('projection/unrender/complete', {name: artifact});
       }
     },
 

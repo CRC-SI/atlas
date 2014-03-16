@@ -131,6 +131,12 @@ define([
      */
     _style: null,
 
+    /**
+     * Whether the GeoEntity is selected.
+     * @type {Boolean}
+     */
+    _selected: false,
+
     _init: function (id, args) {
       // Call the superclass' (EventTarget) constructor.
       this._super(args.eventManager, args.parent);
