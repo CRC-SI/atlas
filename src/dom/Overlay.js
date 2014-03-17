@@ -149,18 +149,39 @@ define([
        * the column. Each array element should conform to the <code>data</code> parameter
        * of {@link atlas.dom.Overlay~parseAttributes}, as well as having a <code>value</code>
        * property which will be placed into the cell.
-       * @param {Array.<Array.<Object>>} data - The table data.
-       * @returns {string}
+       * @param {Object} data - The table data.
+       * @returns {String}
+       *
+       * @example <caption>Form of data expected by generateTable</caption>
+       * data = {
+       *   id: 'tableID',
+       *   class: 'tableClass',
+       *   rows: [
+       *     { id: 'row1_ID',
+       *       cells: [
+       *         { value: 'cellContents', class: 'class', bgColour = Colour.RED, ... }
+       *         { value: 'cellContents2', bgColour = Colour.GREEN, ... }
+       *       ]
+       *     },
+       *     { id: 'row2_ID',
+       *       cells: [
+       *         { value: 'cellContents', class: 'class', bgColour = Colour.RED, ... }
+       *         { value: 'cellContents2', bgColour = Colour.GREEN, ... }
+       *       ]
+       *     }
+       *   ]
+       * }
        */
       generateTable: function (data) {
-        if (!data.length || data.length === 0) { return ''; }
-        var html = '<table>';
-        data.forEach(function (row) {
-          html += '<tr>'
-          var elements = row instanceof Array? row : [row];
-          elements.forEach(function (element) {
-            var attributes = Overlay.parseAttributes(element);
-            html += '<td' + attributes + '>' + element.value + '</td>';
+        if (!data || !data.rows) { return ''; }
+        var tableAttributes = Overlay.parseAttributes(data),
+            html = '<table' + tableAttributes + '>';
+        data.rows.forEach(function (row) {
+          var rowAttributes = Overlay.parseAttributes(row);
+          html += '<tr' + rowAttributes + '>';
+          row.cells.forEach(function (cell) {
+            var cellAttributes = Overlay.parseAttributes(cell);
+            html += '<td' + cellAttributes + '>' + cell.value + '</td>';
           });
           html += '</tr>';
         });

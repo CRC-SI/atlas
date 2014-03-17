@@ -96,24 +96,43 @@ define([
       })
 
       it ('as a plain table', function () {
-        var data = [
-          [ {value: 0}, {value: 10} ],
-          [ {value: 1}, {value: 11} ]
-        ];
-        var html = Overlay.generateTable(data);
-        expect(html).toEqual('<table><tr><td>0</td><td>10</td></tr><tr><td>1</td><td>11</td></tr></table>')
+        var data = {
+              id: 'table',
+              rows: [
+                {
+                  id: 'row1',
+                  cells: [ {value: 0}, {value: 10} ]
+                },
+                {
+                  cells: [ {value: 1}, {value: 11} ]
+                }
+              ]
+            },
+            html = Overlay.generateTable(data);
+        expect(html).toEqual(
+          '<table id="table">' +
+            '<tr id="row1"><td>0</td><td>10</td></tr>' +
+            '<tr><td>1</td><td>11</td></tr>' +
+          '</table>')
       });
 
       it ('as a table with background colour', function () {
-        var data = [
-          [ {value: 0, bgColour: Colour.RED}, {value: 10, bgColour: Colour.BLUE} ],
-          [ {value: 1}, {value: 11, bgColour: Colour.GREEN} ]
-        ];
-        var html = Overlay.generateTable(data);
+        var data = {
+              rows: [
+                {
+                  cells: [ {value: 0, bgColour: Colour.RED}, {value: 10, bgColour: Colour.BLUE} ]
+                },
+                {
+                  cells: [ {value: 1}, {value: 11, bgColour: Colour.GREEN} ]
+                }
+              ]
+            },
+            html = Overlay.generateTable(data);
         expect(html).toEqual(
           '<table>' +
-          '<tr><td style="background-color:#ff0000;">0</td><td style="background-color:#0000ff;">10</td></tr>' +
-          '<tr><td>1</td><td style="background-color:#00ff00;">11</td></tr></table>'
+            '<tr><td style="background-color:#ff0000;">0</td><td style="background-color:#0000ff;">10</td></tr>' +
+            '<tr><td>1</td><td style="background-color:#00ff00;">11</td></tr>' +
+          '</table>'
         )
       })
     });
