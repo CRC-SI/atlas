@@ -72,7 +72,6 @@ define([
    * Translates from the last location to the current location of the event for all entities.
    */
   TranslationModule.prototype.update = function(args) {
-    if (this._entities === undefined) { return; }
     if (!this._entities) { return; }
 
     var screenDiff = new Vertex(args.position.x, args.position.y).subtract(this._lastScreenCoords).absolute();
@@ -103,12 +102,11 @@ define([
    */
   TranslationModule.prototype.cancel = function(args) {
     if (!this._entities) {
+      Log.debug('No translation is taking place - cannot cancel', name, args);
+    } else {
       this._atlasManagers.camera.unlockCamera();
-
       this._translate(this._lastLocation, this._originalLocation);
       this._reset();
-    } else {
-      Log.debug('No translation is taking place - cannot cancel', name, args);
     }
   };
 
