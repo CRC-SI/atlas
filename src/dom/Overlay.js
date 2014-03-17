@@ -121,7 +121,15 @@ define([
 //////
 // STATICS
     {
-      parseStyling: function (data) {
+      /**
+       * Converts a map of attributes to a HTML string.
+       * @param {Object} data - The map of attributes to values.
+       * @param {String} [data.class=''] - The CSS class of the tag.
+       * @param {String} [data.id=''] - The ID of the tag.
+       * @param {atlas.model.Colour} [data.bgColour=null] - The CSS background-color to apply to the tag.
+       * @returns {String} The HTML string of the attributes.
+       */
+      parseAttributes: function (data) {
         var html = '',
             style = '',
             data = data || {};
@@ -131,9 +139,19 @@ define([
         if (style !== '') {
           html += 'style="' + style +'"';
         }
-        return (html = html.trim());
+        if (html === '') { return ''; }
+        return (html = ' ' + html.trim());
       },
 
+      /**
+       * Generates a HTML table from a 2D array of objects describing the table. The first
+       * index of the 2D array represents a row in the table, the second index represents
+       * the column. Each array element should conform to the <code>data</code> parameter
+       * of {@link atlas.dom.Overlay~parseAttributes}, as well as having a <code>value</code>
+       * property which will be placed into the cell.
+       * @param {Array.<Array.<Object>>} data - The table data.
+       * @returns {string}
+       */
       generateTable: function (data) {
         if (!data.length || data.length === 0) { return ''; }
         var html = '<table>';
@@ -141,10 +159,8 @@ define([
           html += '<tr>'
           var elements = row instanceof Array? row : [row];
           elements.forEach(function (element) {
-            var style = Overlay.parseStyling(element);
-            html += '<td';
-            html += style !== '' ? ' ' + style : '';
-            html += '>' + element.value + '</td>';
+            var attributes = Overlay.parseAttributes(element);
+            html += '<td' + attributes + '>' + element.value + '</td>';
           });
           html += '</tr>';
         });

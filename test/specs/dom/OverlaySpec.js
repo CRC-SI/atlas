@@ -76,22 +76,22 @@ define([
           class: 'aClass',
           id: 'anId'
         };
-        var html = Overlay.parseStyling(data);
-        expect(html).toEqual('class="aClass" id="anId"');
+        var html = Overlay.parseAttributes(data);
+        expect(html).toEqual(' class="aClass" id="anId"');
       });
 
       it ('with inline tag styles', function () {
         var data = {
           bgColour: Colour.RED
         };
-        var html = Overlay.parseStyling(data);
-        expect(html).toEqual('style="background-color:#ff0000;"');
+        var html = Overlay.parseAttributes(data);
+        expect(html).toEqual(' style="background-color:#ff0000;"');
       });
 
       it ('handling blank data', function () {
-        var html = Overlay.parseStyling({});
+        var html = Overlay.parseAttributes({});
         expect(html).toEqual('');
-        var html = Overlay.parseStyling();
+        var html = Overlay.parseAttributes();
         expect(html).toEqual('');
       })
 

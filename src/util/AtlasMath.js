@@ -59,15 +59,5 @@ define([
       if (x > hi) return hi;
       return x;
     },
-
-    /**
-     * Rounds a number to a given precision.
-     * @param val
-     * @param precision
-     * @returns {number}
-     */
-    round: function (val, precision) {
-      return Math.round(val / precision) * precision;
-    }
   };
 });

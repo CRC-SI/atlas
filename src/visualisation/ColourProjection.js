@@ -42,14 +42,14 @@ define([
     },
 
     /**
-     * @returns {Array.<Array>} A 2D array of the legend which can be converted by
-     * {@link atlas.dom.Overlay} to a table.
+     * @returns {Array.<Array.<Object>>} A 2D array of the data representing the
+     * legend which can be converted by {@link atlas.dom.Overlay} to a table.
      */
     getLegend: function () {
       if (this._type === 'discrete') {
-        return this._getDiscreteLegend();
+        return this._legend = (this._legend || this._buildDiscreteLegend());
       } else {
-        return this._getContinuousLegends();
+        return this._legend = (this._legend || this._buildContinuousLegend());
       }
     },
 
@@ -58,10 +58,10 @@ define([
      * @returns {Array.<Array>} As per {@link atlas.model.ColourProjection~getLegend}
      * @private
      */
-    _getDiscreteLegend: function () {
+    _buildDiscreteLegend: function () {
       var legend = [],
           row = [],
-          r = function (p) { return function (x) { return AtlasMath.round(x, p); }}(0.01),
+          round = function (x) { return x.toPrecision(4); }
           codomain = this.getCodomain();
 
       // TODO(bpstudds): Does forEach iterate in order?
@@ -73,7 +73,7 @@ define([
             // TODO(bpstudds): This won't work with a fixed projection.
             color = codomain.startProj.interpolate(codomain.endProj, regression),
             element = {
-              value: r(bin.firstValue) + '&#2122' + r(bin.lastValue),
+              value: round(bin.firstValue) + '&#2122' + round(bin.lastValue),
               bgColour: color
             };
         row.push(element);
@@ -87,7 +87,7 @@ define([
      * @returns {Array.<Array>} As per {@link atlas.model.ColourProjection~getLegend}
      * @private
      */
-    _getContinuousLegends: function () {
+    _buildContinuousLegend: function () {
       var legend = [];
       // With the way continuous projections work, there can be multiple codomains
       // per projection and each bin needs an entire legend to itself.
@@ -95,12 +95,12 @@ define([
       this._bins.forEach(function (bin, i) {
         var codomain = this.getCodomain(i),
             row = [],
-            r = function (x) {  return x.toPrecision(4) };
+            round = function (x) {  return x.toPrecision(4) };
         [0, 0.25, 0.5, 0.75, 1].forEach(function(f) {
           var // TODO(bpstudds): This won't work with a fixed projection.
               color = codomain.startProj.interpolate(codomain.endProj, f),
               element = {
-                value: r(bin.firstValue + f * bin.range).toString(),
+                value: round(bin.firstValue + f * bin.range).toString(),
                 bgColour: color
               };
           row.push(element);

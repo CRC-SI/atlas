@@ -169,10 +169,12 @@ define([
     },
 
     /**
-     * @returns {String} HTML describing a legend of the projection values to parameter values.
-     * @abstract
+     * @returns {Array.<Array.<Object>>} A 2D array of data representing the legend
+     * which can be converted by {@link atlas.dom.Overlay} to a table.
      */
-    getLegend: function () {},
+    getLegend: function () {
+      return [];
+    },
 
     /**
      * Sets the previous state, or the state of the render before the Projection is applied. ie.
@@ -301,6 +303,7 @@ define([
         // TODO(bpstudds): Allow for updating a subset of parameters.
         delete this._stats;
         delete this._attributes;
+        if (this._legend) { this._legend = null; }
         // TODO(bpstudds): Allow for updating a subset of parameters.
         this._attributes = this._calculateValueAttributes();
       }
@@ -399,7 +402,8 @@ define([
         if (bin.firstValue < previousLastValue || bin.lastValue < bin.firstValue) {
           throw new DeveloperError('Incorrect bins configuration provided', this._configuration.bins);
         }
-        bins.push({binId: i, numBins: numBins, firstValue: bin.firstValue, lastValue: bin.lastValue, range: (bin.lastValue - bin.firstValue)});
+        bins.push({binId: i, numBins: numBins, firstValue: bin.firstValue,
+            lastValue: bin.lastValue, range: (bin.lastValue - bin.firstValue)});
         previousLastValue = bin.lastValue;
       }, this);
       return bins;

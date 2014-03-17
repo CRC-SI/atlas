@@ -194,10 +194,11 @@ define([
 
         it ('with 1 legend (=== 1 bin)', function () {
           var expected = [
-            { value: '0', 'background-color': Colour.RED},
-            { value: '1', 'background-color': Colour.RED},
-            { value: '2', 'background-color': Colour.RED},
-            { value: '3', 'background-color': Colour.RED},
+            { value: '0.000', 'bgColour': Colour.RED},
+            { value: '1.000', 'bgColour': Colour.RED},
+            { value: '2.000', 'bgColour': Colour.RED},
+            { value: '3.000', 'bgColour': Colour.RED},
+            { value: '4.000', 'bgColour': Colour.RED},
           ];
           colourProj = new ColourProjection(args);
           colourProj.render();
@@ -214,8 +215,8 @@ define([
 
         it ('with 1 bin and 1 legend', function () {
           var expected = {
-            value: '0&#21224',
-            'background-color': Colour.RED
+            value: '0.000&#21224.000',
+            'bgColour': Colour.RED
           };
           args.bins = 1;
           colourProj = new ColourProjection(args);
@@ -227,9 +228,9 @@ define([
 
         it ('with 3 bins and 1 legend', function () {
           var expected = [
-            { value: '0&#21221.33', 'background-color': Colour.RED},
-            { value: '1.33&#21222.67', 'background-color': Colour.RED},
-            { value: '2.67&#21224', 'background-color': Colour.RED},
+            { value: '0.000&#21221.333', 'bgColour': Colour.RED},
+            { value: '1.333&#21222.667', 'bgColour': Colour.RED},
+            { value: '2.667&#21224.000', 'bgColour': Colour.RED},
           ];
           args.bins = 3;
           colourProj = new ColourProjection(args);
