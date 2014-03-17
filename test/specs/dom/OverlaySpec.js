@@ -101,10 +101,10 @@ define([
               rows: [
                 {
                   id: 'row1',
-                  cells: [ {value: 0}, {value: 10} ]
+                  cells: [ {value: '0'}, {value: '10'} ]
                 },
                 {
-                  cells: [ {value: 1}, {value: 11} ]
+                  cells: [ {value: '1'}, {value: '11'} ]
                 }
               ]
             },
@@ -120,10 +120,10 @@ define([
         var data = {
               rows: [
                 {
-                  cells: [ {value: 0, bgColour: Colour.RED}, {value: 10, bgColour: Colour.BLUE} ]
+                  cells: [ {value: '0', bgColour: Colour.RED}, {value: '10', bgColour: Colour.BLUE} ]
                 },
                 {
-                  cells: [ {value: 1}, {value: 11, bgColour: Colour.GREEN} ]
+                  cells: [ {value: '1'}, {value: '11', bgColour: Colour.GREEN} ]
                 }
               ]
             },

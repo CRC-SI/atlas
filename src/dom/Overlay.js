@@ -135,6 +135,7 @@ define([
             data = data || {};
         data.class && (html += 'class="' + data.class +'" ');
         data.id && (html += 'id="' + data.id +'" ');
+        data.background && (style += 'background:' + data.background + ';');
         data.bgColour && (style += 'background-color:' + data.bgColour.toHexString() + ';');
         data.width && (style += 'width:' + data.width + ';');
         if (style !== '') {

@@ -60,9 +60,9 @@ define([
      * @private
      */
     _buildDiscreteLegend: function () {
-      var legend = {},
-          rows = [],
-          cells = [],
+      var legend = {
+            rows: []
+          },
           round = function (x) { return x.toPrecision(4); },
           codomain = this.getCodomain();
 
@@ -78,9 +78,8 @@ define([
               { bgColour: color, width: '1em' },
               { value: round(bin.firstValue) + '&ndash;' + round(bin.lastValue) }
             ];
-        rows.push({cells: [element]});
+        legend.rows.push({cells: elements});
       }
-      legend.rows = rows;
       return legend;
     },
 
@@ -101,11 +100,12 @@ define([
             round = function (x) {  return x.toPrecision(4) };
         [0, 0.25, 0.5, 0.75].forEach(function(f, i) {
           // TODO(bpstudds): This won't work with a fixed projection.
-          var color = codomain.startProj.interpolate(codomain.endProj, f),
+          var colour1 = codomain.startProj.interpolate(codomain.endProj, f).toHexString(),
+              colour2 = codomain.startProj.interpolate(codomain.endProj, (f + 0.25)).toHexString(),
               lowerBound = round(bin.firstValue + f * bin.range),
               upperBound = round(bin.firstValue + (f + 0.25) * bin.range),
               elements = [
-                { bgColour: color, width: '1em' },
+                { background: 'linear-gradient(to bottom,' + colour1 + ',' + colour2 + ')', width: '1em' },
                 { value: lowerBound + '&ndash;' + upperBound }
               ];
           // TODO(bpstudds): This won't work with more than one bin.

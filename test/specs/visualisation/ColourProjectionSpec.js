@@ -194,17 +194,16 @@ define([
 
         it ('with 1 legend (=== 1 bin)', function () {
           var expected = [
-            { value: '0.000', 'bgColour': Colour.RED},
-            { value: '1.000', 'bgColour': Colour.RED},
-            { value: '2.000', 'bgColour': Colour.RED},
-            { value: '3.000', 'bgColour': Colour.RED},
-            { value: '4.000', 'bgColour': Colour.RED},
+            { cells: [ { bgColour : 'linear-gradient(to bottom,#ff0000,#ff0000)', width : '1em' }, {value: '0.000&ndash;1.000'} ] },
+            { cells: [ { bgColour : 'linear-gradient(to bottom,#ff0000,#ff0000)', width : '1em' }, {value: '1.000&ndash;2.000'} ] },
+            { cells: [ { bgColour : 'linear-gradient(to bottom,#ff0000,#ff0000)', width : '1em' }, {value: '2.000&ndash;3.000'} ] },
+            { cells: [ { bgColour : 'linear-gradient(to bottom,#ff0000,#ff0000)', width : '1em' }, {value: '3.000&ndash;4.000'} ] }
           ];
           colourProj = new ColourProjection(args);
           colourProj.render();
           legend = colourProj.getLegend();
-          expect(legend[0]).toNotBe(null);
-          expect(legend[0]).toEqual(expected);
+          expect(legend).toNotBe(null);
+          expect(legend.rows).toEqual(expected);
         });
       });
 
@@ -214,30 +213,31 @@ define([
         });
 
         it ('with 1 bin and 1 legend', function () {
-          var expected = {
-            value: '0.000&#21224.000',
-            'bgColour': Colour.RED
-          };
+          var expected = [
+                { bgColour : Colour.RED, width : '1em' },
+                { value : '0.000&ndash;4.000' }
+              ];
           args.bins = 1;
           colourProj = new ColourProjection(args);
           colourProj.render();
           legend = colourProj.getLegend();
-          expect(legend[0]).toNotBe(null);
-          expect(legend[0][0]).toEqual(expected);
+          expect(legend).toNotBe(null);
+          expect(legend.rows[0]).toNotBe(null);
+          expect(legend.rows[0].cells).toEqual(expected);
         });
 
         it ('with 3 bins and 1 legend', function () {
           var expected = [
-            { value: '0.000&#21221.333', 'bgColour': Colour.RED},
-            { value: '1.333&#21222.667', 'bgColour': Colour.RED},
-            { value: '2.667&#21224.000', 'bgColour': Colour.RED},
+            { cells: [ { bgColour : Colour.RED, width : '1em' }, {value: '0.000&ndash;1.333'} ] },
+            { cells: [ { bgColour : Colour.RED, width : '1em' }, {value: '1.333&ndash;2.667'} ] },
+            { cells: [ { bgColour : Colour.RED, width : '1em' }, {value: '2.667&ndash;4.000'} ] }
           ];
           args.bins = 3;
           colourProj = new ColourProjection(args);
           colourProj.render();
           legend = colourProj.getLegend();
-          expect(legend[0]).toNotBe(null);
-          expect(legend[0]).toEqual(expected);
+          expect(legend).toNotBe(null);
+          expect(legend.rows).toEqual(expected);
         });
       }); // End 'for a discrete projection'
     }); // End 'can generate a legend'

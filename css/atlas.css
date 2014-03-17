@@ -4,7 +4,8 @@
 
 .atlas .overlay {
   position: absolute;
-  background-color: #d3d3d3;
+  background-color: #ffffff;
+  opacity: 0.8;
   top: 0;
   left: 0;
   padding: 3px;
@@ -13,4 +14,12 @@
 
 .atlas .overlay.hidden {
   display: none;
+}
+
+.atlas .overlay .legend {
+  line-height: 150%;
+}
+
+.atlas .overlay .legend table {
+  border-collapse: collapse;
 }
