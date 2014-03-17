@@ -74,10 +74,10 @@ define([
             regression = bin.binId / bin.numBins,
             // TODO(bpstudds): This won't work with a fixed projection.
             color = codomain.startProj.interpolate(codomain.endProj, regression),
-            element = {
-              value: round(bin.firstValue) + '&ndash;' + round(bin.lastValue),
-              bgColour: color
-            };
+            elements = [
+              { bgColour: color, width: '1em' },
+              { value: round(bin.firstValue) + '&ndash;' + round(bin.lastValue) }
+            ];
         rows.push({cells: [element]});
       }
       legend.rows = rows;
@@ -104,12 +104,12 @@ define([
           var color = codomain.startProj.interpolate(codomain.endProj, f),
               lowerBound = round(bin.firstValue + f * bin.range),
               upperBound = round(bin.firstValue + (f + 0.25) * bin.range),
-              element = {
-                value: lowerBound + '&ndash;' + upperBound,
-                bgColour: color
-              };
+              elements = [
+                { bgColour: color, width: '1em' },
+                { value: lowerBound + '&ndash;' + upperBound }
+              ];
           // TODO(bpstudds): This won't work with more than one bin.
-          legend.rows.push({cells: [element]});
+          legend.rows.push({cells: elements});
         });
       }, this);
       return legend;

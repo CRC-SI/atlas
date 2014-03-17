@@ -136,6 +136,7 @@ define([
         data.class && (html += 'class="' + data.class +'" ');
         data.id && (html += 'id="' + data.id +'" ');
         data.bgColour && (style += 'background-color:' + data.bgColour.toHexString() + ';');
+        data.width && (style += 'width:' + data.width + ';');
         if (style !== '') {
           html += 'style="' + style +'"';
         }
@@ -181,7 +182,7 @@ define([
           html += '<tr' + rowAttributes + '>';
           row.cells.forEach(function (cell) {
             var cellAttributes = Overlay.parseAttributes(cell);
-            html += '<td' + cellAttributes + '>' + cell.value + '</td>';
+            html += '<td' + cellAttributes + '>' + (cell.value || '') + '</td>';
           });
           html += '</tr>';
         });
