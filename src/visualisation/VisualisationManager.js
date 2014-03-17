@@ -215,7 +215,7 @@ define([
           html = Overlay.generateTable(legendData);
       this._legends = new Overlay({
         parent: this._atlasManagers.dom.getDom(),
-        dimensions: {top: 0, left: 300},
+        dimensions: {top: 300, left: 0},
         content: html
       });
       this._legends.show();
