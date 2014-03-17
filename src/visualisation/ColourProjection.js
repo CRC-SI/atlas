@@ -42,8 +42,9 @@ define([
     },
 
     /**
-     * @returns {Array.<Array.<Object>>} A 2D array of the data representing the
+     * @returns {Object} A mapping of the data representing the
      * legend which can be converted by {@link atlas.dom.Overlay} to a table.
+     * @see {@link atlas.dom.Overlay#generateTable}
      */
     getLegend: function () {
       if (this._type === 'discrete') {
@@ -55,13 +56,14 @@ define([
 
     /**
      * Gets the legend for a discrete projection.
-     * @returns {Array.<Array>} As per {@link atlas.model.ColourProjection~getLegend}
+     * @returns {Object} As per {@link atlas.model.ColourProjection~getLegend}
      * @private
      */
     _buildDiscreteLegend: function () {
-      var legend = [],
-          row = [],
-          round = function (x) { return x.toPrecision(4); }
+      var legend = {},
+          rows = [],
+          cells = [],
+          round = function (x) { return x.toPrecision(4); },
           codomain = this.getCodomain();
 
       // TODO(bpstudds): Does forEach iterate in order?
@@ -76,25 +78,30 @@ define([
               value: round(bin.firstValue) + '&#2122' + round(bin.lastValue),
               bgColour: color
             };
-        row.push(element);
+        cells.push(element);
       }
-      legend.push(row);
+      rows.push({cells: cells});
+      legend.rows = rows;
       return legend;
     },
 
     /**
      * Gets the legend for a continuous projection.
-     * @returns {Array.<Array>} As per {@link atlas.model.ColourProjection~getLegend}
+     * @returns {Object} As per {@link atlas.model.ColourProjection~getLegend}
      * @private
      */
     _buildContinuousLegend: function () {
-      var legend = [];
+      var legend = {
+            rows: []
+          };
       // With the way continuous projections work, there can be multiple codomains
       // per projection and each bin needs an entire legend to itself.
       // Usually, there will only be one bin per continuous projection though.
       this._bins.forEach(function (bin, i) {
         var codomain = this.getCodomain(i),
-            row = [],
+            row = {
+              cells: []
+            },
             round = function (x) {  return x.toPrecision(4) };
         [0, 0.25, 0.5, 0.75, 1].forEach(function(f) {
           var // TODO(bpstudds): This won't work with a fixed projection.
@@ -103,9 +110,9 @@ define([
                 value: round(bin.firstValue + f * bin.range).toString(),
                 bgColour: color
               };
-          row.push(element);
+          row.cells.push(element);
         });
-        legend.push(row);
+        legend.rows.push(row);
       }, this);
       return legend;
     },
