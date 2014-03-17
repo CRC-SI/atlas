@@ -75,7 +75,7 @@ define([
             // TODO(bpstudds): This won't work with a fixed projection.
             color = codomain.startProj.interpolate(codomain.endProj, regression),
             element = {
-              value: round(bin.firstValue) + '&#2122' + round(bin.lastValue),
+              value: round(bin.firstValue) + '&ndash;' + round(bin.lastValue),
               bgColour: color
             };
         cells.push(element);
@@ -103,11 +103,13 @@ define([
               cells: []
             },
             round = function (x) {  return x.toPrecision(4) };
-        [0, 0.25, 0.5, 0.75, 1].forEach(function(f) {
+        [0, 0.25, 0.5, 0.75].forEach(function(f) {
           var // TODO(bpstudds): This won't work with a fixed projection.
               color = codomain.startProj.interpolate(codomain.endProj, f),
+              lowerBound = round(bin.firstValue + f * bin.range),
+              upperBound = round(bin.firstValue + (f + 0.25) * bin.range),
               element = {
-                value: round(bin.firstValue + f * bin.range).toString(),
+                value: lowerBound + '&ndash;' + upperBound,
                 bgColour: color
               };
           row.cells.push(element);
