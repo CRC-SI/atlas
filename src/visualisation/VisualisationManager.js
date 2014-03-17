@@ -211,8 +211,10 @@ define([
     showLegends: function () {
       if (!this._projections['colour']) { return; }
 
-      var legendData = this._projections['colour'].getLegend();
-          html = Overlay.generateTable(legendData);
+      var legendData = this._projections['colour'].getLegend(),
+          legendHtml = Overlay.generateTable(legendData),
+          title = this._projections['colour'].getTitle(),
+          html = title + legendHtml;
       this._legends = new Overlay({
         parent: this._atlasManagers.dom.getDom(),
         dimensions: {top: 300, left: 0},

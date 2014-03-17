@@ -34,6 +34,13 @@ define([
     SUPPORTED_PROJECTIONS: {'continuous': true, 'discrete': true},
 
     /**
+     * The title of the Projection. Has no effect on behaviour.
+     * @type {String}
+     * @protected
+     */
+    _title: null,
+
+    /**
      * The type of the projection, currently only 'continuous' is supported.
      * @type {String}
      * @protected
@@ -124,6 +131,7 @@ define([
      */
     _init: function (args) {
       args = mixin({
+        title: '',
         type: 'continuous',
         values: {},
         bins: 1,
@@ -135,6 +143,7 @@ define([
       if (!this.SUPPORTED_PROJECTIONS[args.type]) {
         throw new DeveloperError('Tried to instantiate Projection with unsupported type', args.type);
       }
+      this._title = args.title;
       this._type = args.type;
       this._effects = {};
       this._entities = args.entities;
@@ -198,6 +207,13 @@ define([
         }, this);
       }
       return state;
+    },
+
+    /**
+     * @returns {String} The title of the projection.
+     */
+    getTitle: function () {
+      return this._title;
     },
 
     /**
