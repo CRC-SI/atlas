@@ -139,15 +139,15 @@ define([
     _selected: false,
 
     _init: function (id, args) {
+      if (typeof id === 'object') {
+        args = id;
+        id = args.id;
+      }
       // Call the superclass' (EventTarget) constructor.
       this._super(args.eventManager, args.parent);
       this.clean();
       this.setDirty('entity');
 
-      if (typeof id === 'object') {
-        args = id;
-        id = args.id;
-      }
       if (id === undefined || typeof id === 'object') {
         throw new DeveloperError('Can not create instance of GeoEntity without an ID');
       }
@@ -359,9 +359,7 @@ define([
      *
      * @abstract
      */
-    rotate: function (rotation) {
-      throw new DeveloperError('Can not call abstract method of GeoEntity.');
-    },
+    rotate: function (rotation) {},
 
     /**
      * Function to build the GeoEntity so it can be rendered.
