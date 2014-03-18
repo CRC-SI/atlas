@@ -4,6 +4,13 @@ define([
   'atlas/util/FreezeObject',
   'atlas/lib/tinycolor'
 ], function(AtlasMath, Class, freeze, Tinycolor) {
+  var __DEBUG__ = true;
+
+  if (__DEBUG__) {
+    freeze = function (o) {
+      return o;
+    }
+  }
 
   /**
    * @classdesc Constructs a colour specified by red, green, blue and alpha
@@ -34,13 +41,54 @@ define([
     // GETTERS AND SETTERS
     // -------------------------------------------
 
+    /**
+     * @returns {string} The colour as a string in the format 'rbga([RED], [GREEN], [BLUE], [ALPHA])'
+     */
     toString: function () {
       return 'rgba(' + [this.red * 255, this.green * 255, this.blue * 255, this.alpha].join(', ') + ')';
     },
 
+    /**
+     * @returns {string} The colour as a string in the CSS hex format.
+     */
+    toHexString: function () {
+      var hex = function (a) {
+        var str = a.toString(16);
+        if (a < 16) { str = '0' + str; }
+        return str;
+      };
+      return '#' + hex(this.red * 255) + hex(this.green * 255) + hex(this.blue * 255);
+    },
+
+    /**
+     * @returns {Object} The colour as a tinycolor HSV object.
+     */
     toHsv: function () {
       var tiny = Tinycolor(this.toString());
       return tiny.toHsv();
+    },
+
+    /**
+     * Linearly interpolates between this colour and another colour.
+     * @param {atlas.model.Colour} other - The end colour to interpolate to.
+     * @param {Number} lerpFactor - The linear interpolation factor in the range [0,1].
+     * @returns {atlas.model.Colour} The interpolated colour.
+     */
+    interpolate: function (other, lerpFactor) {
+      return this.interpolateByHue(other, lerpFactor);
+    },
+
+    /**
+     * Linearly interpolates between this colour and another colour using the hue value.
+     * @param {atlas.model.Colour} other - The end colour to interpolate to.
+     * @param {Number} lerpFactor - The linear interpolation factor in the range [0,1].
+     * @returns {atlas.model.Colour} The interpolated colour.
+     */
+    interpolateByHue: function (other, lerpFactor) {
+      var hsv1 = this.toHsv(),
+          hsv2 = other.toHsv();
+      hsv1.h = AtlasMath.lerp(hsv2.h, hsv1.h, lerpFactor);
+      return Colour.fromHsv(hsv1);
     }
   });
 
@@ -64,6 +112,11 @@ define([
     }
   };
 
+  /**
+   * Generates an Atlas Colour object from a hsv value.
+   * @param hsv - The HSV colour.
+   * @returns {atlas.model.Colour} - The converted colour.
+   */
   Colour.fromHsv = function (hsv) {
     var tiny = Tinycolor(hsv).toRgb();
     return new Colour(tiny.r / 255, tiny.g / 255, tiny.b / 255, 1);

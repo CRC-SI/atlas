@@ -34,6 +34,13 @@ define([
     SUPPORTED_PROJECTIONS: {'continuous': true, 'discrete': true},
 
     /**
+     * The title of the Projection. Has no effect on behaviour.
+     * @type {String}
+     * @protected
+     */
+    _title: null,
+
+    /**
      * The type of the projection, currently only 'continuous' is supported.
      * @type {String}
      * @protected
@@ -123,22 +130,20 @@ define([
      * @ignore
      */
     _init: function (args) {
-      if (!args.values) {
-        throw new DeveloperError('Can not construct Projection without values');
-      }
-      if (!args.entities) {
-        throw new DeveloperError('Can not construct Projection without entities');
-      }
       args = mixin({
+        title: '',
         type: 'continuous',
         values: {},
-        entities: {},
         bins: 1,
         codomain: this.DEFAULT_CODOMAIN
       }, args);
+      if (!args.entities) {
+        throw new DeveloperError('Can not construct Projection without entities');
+      }
       if (!this.SUPPORTED_PROJECTIONS[args.type]) {
         throw new DeveloperError('Tried to instantiate Projection with unsupported type', args.type);
       }
+      this._title = args.title;
       this._type = args.type;
       this._effects = {};
       this._entities = args.entities;
@@ -153,6 +158,81 @@ define([
       // TODO(bpstudds): Do we need to calculate this for a discrete projection?
       this._attributes = this._calculateValueAttributes();
     },
+
+    // -------------------------------------------
+    // GETTERS AND SETTERS
+    // -------------------------------------------
+
+    /**
+     * @returns {Object} The configuration of the Projection.
+     */
+    getConfiguration: function () {
+      return this._configuration;
+    },
+
+    /**
+     * @returns {String} The type of the Projection.
+     */
+    getType: function () {
+      return this._type;
+    },
+
+    /**
+     * @returns {Array.<Array.<Object>>} A 2D array of data representing the legend
+     * which can be converted by {@link atlas.dom.Overlay} to a table.
+     */
+    getLegend: function () {
+      return [];
+    },
+
+    /**
+     * Sets the previous state, or the state of the render before the Projection is applied. ie.
+     * sets what will be re-rendered when the Projection is removed.
+     */
+    setPreviousState: function (state) {
+      Object.keys(state).forEach(function (id) {
+        this._effects[id].oldValue = state[id];
+      }, this);
+    },
+
+    /**
+     * Returns the state before the Projection has been applied.
+     * @returns {Object.<String, Object>}
+     */
+    getPreviousState: function () {
+      var state = {};
+      if (this._effects) {
+        Object.keys(this._entities).forEach(function (id) {
+          state[id] = this._entities[id].oldValue;
+        }, this);
+      }
+      return state;
+    },
+
+    /**
+     * @returns {String} The title of the projection.
+     */
+    getTitle: function () {
+      return this._title;
+    },
+
+    /**
+     * @returns {Object.<String, Number>} The map of Entity ID to value for the Projection.
+     */
+    getValues: function () {
+      return this._values;
+    },
+
+    /**
+     * @returns {Boolean} Whether the Projection is currently rendered.
+     */
+    isRendered: function () {
+      return this._rendered;
+    },
+
+    // -------------------------------------------
+    // RENDERING
+    // -------------------------------------------
 
     /**
      * Renders the effects of the Projection on all or a subset of the GeoEntities linked
@@ -199,7 +279,7 @@ define([
     /**
      * Process all (or a subset) of GeoEntities and applies a given function to them.
      * @param {atlas.visualisation.AbstractProjection~UpdateEntityCb} f - The function to apply to the GeoEntities.
-     * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
+     * @param {String|Array.<String>} [id] - Either a single GeoEntity ID, an array of IDs, or nothing.
      * @private
      */
     _mapToEntitiesById: function (f, id) {
@@ -221,6 +301,10 @@ define([
      * @param {Object} params - Data required to update the GeoEntity.
      */
 
+    // -------------------------------------------
+    // MODIFIERS
+    // -------------------------------------------
+
     /**
      * Updates the projection with a new set of values and configuration data.
      * @param {Object} args - The data to update the projection with.
@@ -235,61 +319,10 @@ define([
         // TODO(bpstudds): Allow for updating a subset of parameters.
         delete this._stats;
         delete this._attributes;
+        if (this._legend) { this._legend = null; }
         // TODO(bpstudds): Allow for updating a subset of parameters.
         this._attributes = this._calculateValueAttributes();
       }
-    },
-
-    /**
-     * @returns {Object} The configuration of the Projection.
-     */
-    getConfiguration: function () {
-      return this._configuration;
-    },
-
-    /**
-     * @returns {String} The type of the Projection.
-     */
-    getType: function () {
-      return this._type;
-    },
-
-    /**
-     * Sets the previous state, or the state of the render before the Projection is applied. ie.
-     * sets what will be re-rendered when the Projection is removed.
-     */
-    setPreviousState: function (state) {
-      Object.keys(state).forEach(function (id) {
-        this._effects[id].oldValue = state[id];
-      }, this);
-    },
-
-    /**
-     * Returns the state before the Projection has been applied.
-     * @returns {Object.<String, Object>}
-     */
-    getPreviousState: function () {
-      var state = {};
-      if (this._effects) {
-        Object.keys(this._entities).forEach(function (id) {
-          state[id] = this._entities[id].oldValue;
-        }, this);
-      }
-      return state;
-    },
-
-    /**
-     * @returns {Object.<String, Number>} The map of Entity ID to value for the Projection.
-     */
-    getValues: function () {
-      return this._values;
-    },
-
-    /**
-     * @returns {Boolean} Whether the Projection is currently rendered.
-     */
-    isRendered: function () {
-      return this._rendered;
     },
 
     /**
@@ -303,21 +336,11 @@ define([
     _configureBins: function () {
       var binConf = this._configuration.bins,
           bins = [];
-      if (binConf === undefined || typeof binConf === 'number') {
-        var numBins = binConf || 1;
-        if (numBins === 1) {
-          bins = [{
-            binId: 0,
-            numBins: numBins,
-            accept: function () { return 0; },
-            firstValue: Number.NEGATIVE_INFINITY,
-            lastValue: Number.POSITIVE_INFINITY
-          }];
-        } else {
-          // Create bins by splitting up the range of input parameter values into equal divisions.
-          var populationStats = this._calculatePopulationStatistics();
-          bins = this._configureEqualSizedBins(numBins, populationStats.min.value, populationStats.max.value, true);
-        }
+      if (!binConf || typeof binConf === 'number') {
+        // Create bins by splitting up the range of input parameter values into equal divisions.
+        var numBins = binConf || 1,
+            populationStats = this._calculatePopulationStatistics();
+        bins = this._configureEqualSizedBins(numBins, populationStats.min.value, populationStats.max.value, true);
       } else if (binConf instanceof Array) {
         bins = this._configureBinsFromArray(binConf);
       } else if (binConf.numBins && binConf.firstValue !== undefined && binConf.lastValue !== undefined) {
@@ -395,13 +418,12 @@ define([
         if (bin.firstValue < previousLastValue || bin.lastValue < bin.firstValue) {
           throw new DeveloperError('Incorrect bins configuration provided', this._configuration.bins);
         }
-        bins.push({binId: i, numBins: numBins, firstValue: bin.firstValue, lastValue: bin.lastValue});
+        bins.push({binId: i, numBins: numBins, firstValue: bin.firstValue,
+            lastValue: bin.lastValue, range: (bin.lastValue - bin.firstValue)});
         previousLastValue = bin.lastValue;
       }, this);
       return bins;
     },
-
-
 
     /**
      * Calculates the statistical properties for all parameter values, segregating each value into

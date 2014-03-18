@@ -55,6 +55,32 @@ define([
       }
     },
 
+    // -------------------------------------------
+    // GETTERS AND SETTERS
+    // -------------------------------------------
+
+    getPosition: function () {},
+
+    setPosition: function (position) {
+      var newCamera = {
+        position: position,
+        orientation: this.getOrientation(),
+        duration: 0
+      };
+      this._animateCamera(newCamera);
+    },
+
+    getOrientation: function () {},
+
+    setOrientation: function (orientation) {
+      var newCamera = {
+        position: this.getPosition(),
+        orientation: orientation,
+        duration: 0
+      };
+      this._animateCamera(newCamera);
+    },
+
     /**
      * Internal function to handle the renderer specifics to change the Camera's
      * orientation and position. It updates <code>_position</code> and <code>_orientation</code>
@@ -130,11 +156,15 @@ define([
      * @property {Number} [orientation.tilt=0] - The tilt (or pitch) about the Camera's transverse axis in decimal degrees in the range [0, 180]. At 0 degrees the Camera is pointing at the point directly below it, at 180 degrees it is looking the opposite direction.
      * @property {Number} [orientation.bearing=0] - The bearing (or yaw) about the normal axis from the surface to the camera in decimal degrees in the range [0, 360]. At 0 (and 360) degrees the Camera is facing North, 90 degrees it is facing East, etc.
      * @property {Number} [orientation.rotation=0] - The rotation (or roll) about the orientation vector of the Camera in decimal degrees in the range [-180, 180].
-     * @param {Number} duration=0 - The duration of the zoom animation in milliseconds.
+     * @param {Number} [duration=0] - The duration of the zoom animation in milliseconds.
      */
     zoomTo: function (position, orientation, duration) {
       if (position === undefined) {
         throw new DeveloperError('Can not move camera without specifying position');
+      } else if (position.position) {
+        orientation = position.orientation;
+        duration = position.duration;
+        position = position.position;
       }
       var nextCamera = {
         position: position,

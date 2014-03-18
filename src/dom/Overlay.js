@@ -31,6 +31,12 @@ define([
     _parent: null,
 
     /**
+     * The class(es) to apply to the Overlay HTML.
+     * @type {String}
+     */
+    _class: null,
+
+    /**
      * The position of the Overlay
      * @type {Object}
      * @property {Number} top - Distance in pixels from the top edge of the Parent.
@@ -56,12 +62,14 @@ define([
       //this._super(parent, position, content);
       args = mixin({
         parent: document,
+        'class': '',
         dimensions: {top: 0, left: 0},
         content: ''
       }, args);
       if (typeof args.parent === 'string') { args.parent = document.getElementById(parent); }
 
       this._parent = args.parent;
+      this._class = args.class;
       this._dimensions = args.dimensions;
       this._content = args.content;
       // Construct element and append it to the parent.
@@ -76,6 +84,7 @@ define([
     _render: function () {
       var element = document.createElement('div');
       element.classList.add('overlay');
+      this._class !== '' && element.classList.add(this._class);
       element.innerHTML = this._content;
 
       // Set the Overlay's position.
@@ -121,7 +130,75 @@ define([
 //////
 // STATICS
     {
+      /**
+       * Converts a map of attributes to a HTML string.
+       * @param {Object} data - The map of attributes to values.
+       * @param {String} [data.class=''] - The CSS class of the tag.
+       * @param {String} [data.id=''] - The ID of the tag.
+       * @param {atlas.model.Colour} [data.bgColour=null] - The CSS background-color to apply to the tag.
+       * @returns {String} The HTML string of the attributes.
+       */
+      parseAttributes: function (data) {
+        var html = '',
+            style = '',
+            data = data || {};
+        data.class && (html += 'class="' + data.class +'" ');
+        data.id && (html += 'id="' + data.id +'" ');
+        data.background && (style += 'background:' + data.background + ';');
+        data.bgColour && (style += 'background-color:' + data.bgColour.toHexString() + ';');
+        data.width && (style += 'width:' + data.width + ';');
+        if (style !== '') {
+          html += 'style="' + style +'"';
+        }
+        if (html === '') { return ''; }
+        return (html = ' ' + html.trim());
+      },
 
+      /**
+       * Generates a HTML table from a 2D array of objects describing the table. The first
+       * index of the 2D array represents a row in the table, the second index represents
+       * the column. Each array element should conform to the <code>data</code> parameter
+       * of {@link atlas.dom.Overlay~parseAttributes}, as well as having a <code>value</code>
+       * property which will be placed into the cell.
+       * @param {Object} data - The table data.
+       * @returns {String}
+       *
+       * @example <caption>Form of data expected by generateTable</caption>
+       * data = {
+       *   id: 'tableID',
+       *   class: 'tableClass',
+       *   rows: [
+       *     { id: 'row1_ID',
+       *       cells: [
+       *         { value: 'cellContents', class: 'class', bgColour = Colour.RED, ... }
+       *         { value: 'cellContents2', bgColour = Colour.GREEN, ... }
+       *       ]
+       *     },
+       *     { id: 'row2_ID',
+       *       cells: [
+       *         { value: 'cellContents', class: 'class', bgColour = Colour.RED, ... }
+       *         { value: 'cellContents2', bgColour = Colour.GREEN, ... }
+       *       ]
+       *     }
+       *   ]
+       * }
+       */
+      generateTable: function (data) {
+        if (!data || !data.rows) { return ''; }
+        var tableAttributes = Overlay.parseAttributes(data),
+            html = '<table' + tableAttributes + '>';
+        data.rows.forEach(function (row) {
+          var rowAttributes = Overlay.parseAttributes(row);
+          html += '<tr' + rowAttributes + '>';
+          row.cells.forEach(function (cell) {
+            var cellAttributes = Overlay.parseAttributes(cell);
+            html += '<td' + cellAttributes + '>' + (cell.value || '') + '</td>';
+          });
+          html += '</tr>';
+        });
+        html += '</table>';
+        return html;
+      }
     }
   ); // End class definition
 

@@ -208,6 +208,28 @@ define([
       return new DynamicProjection(staticPrj, args.data, args);
     },
 
+    showLegends: function () {
+      if (!this._projections['colour']) { return; }
+
+      var legendData = this._projections['colour'].getLegend(),
+          legendHtml = Overlay.generateTable(legendData),
+          title = this._projections['colour'].getTitle(),
+          html = title + legendHtml;
+      this._legends = new Overlay({
+        parent: this._atlasManagers.dom.getDom(),
+        'class': 'legend',
+        dimensions: {top: 0, left: 0},
+        content: html
+      });
+      this._legends.show();
+    },
+
+    hideLegends: function () {
+      if (this._legends) {
+        this._legends.remove();
+      }
+    },
+
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------
@@ -234,10 +256,11 @@ define([
       }
       this._projections[target] = projection;
 
+      // TODO(bpstudds): This test button is to be removed.
       this._overlays[target] && this._overlays[target].remove();
       this._overlays[target] = new Overlay({
         parent: this._atlasManagers.dom.getDom(),
-        dimensions: {top: 0, left: 0},
+        dimensions: {top: 0, left: 400},
         content: '<button id="visual-btn-' + target + '">' + target + '</button>'
       });
       document.getElementById('visual-btn-'+target).addEventListener('click', function (target) {
@@ -322,6 +345,7 @@ define([
         throw new DeveloperError('Tried to render projection ' + artifact + ' without adding a projection object.');
       } else {
         this._projections[artifact].render();
+        artifact === 'colour' && this.showLegends();
         this._atlasManagers.event.handleInternalEvent('projection/render/complete', {name: artifact});
       }
     },
@@ -337,6 +361,7 @@ define([
         throw new DeveloperError('Tried to unrender projection ' + artifact + ' without adding a projection object.');
       } else {
         this._projections[artifact].unrender();
+        artifact === 'colour' && this.hideLegends();
         this._atlasManagers.event.handleInternalEvent('projection/unrender/complete', {name: artifact});
       }
     },
@@ -353,27 +378,9 @@ define([
       if (!prj) {
         throw new DeveloperError('Tried to toggle render of projection', artifact, 'without adding a projection object.');
       } else {
-        prj.isRendered() ? prj.unrender() : prj.render();
+        prj.isRendered() ? this.unrender(artifact) : this.render(artifact);
       }
-    },
-
-    _testHeight: function (valueMap) {
-      var ids = Object.keys(valueMap),
-          entities = this._atlasManagers.entity.getByIds(ids),
-          codomain = {startProj: Math.random() * 20, endProj: 20 + Math.random() * 300},
-          heightProj = new HeightProjection({type: 'continuous', codomain: codomain, values: valueMap, entities: entities});
-      this.addProjection(heightProj);
-      heightProj.render();
-    },
-
-    _testColour: function (valueMap) {
-      var ids = Object.keys(valueMap),
-          entities = this._atlasManagers.entity.getByIds(ids),
-          codomain = {startProj: Colour.BLUE, endProj: Colour.RED},
-          colourProj = new ColourProjection({type: 'continuous', codomain: codomain, values: valueMap, entities: entities});
-      this.addProjection(colourProj);
-      colourProj.render();
     }
   });
   return VisualisationManager;
-});
+})
