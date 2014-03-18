@@ -144,7 +144,8 @@ define([
         color: c3ml.color,
         height: c3ml.height,
         elevation: c3ml.altitude
-      }
+      },
+      show: true
     }
   };
 
@@ -158,10 +159,12 @@ define([
     return {
       polygon: {
         vertices: c3ml.coordinates,
+        holes: c3ml.holes,
         color: c3ml.color,
         height: c3ml.height,
         elevation: c3ml.altitude
-      }
+      },
+      show: true
     }
   };
 
@@ -181,7 +184,8 @@ define([
         geoLocation: c3ml.geoLocation,
         scale: c3ml.scale,
         rotation: c3ml.rotation
-      }
+      },
+      show: true
     }
   };
 
