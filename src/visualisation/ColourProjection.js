@@ -64,7 +64,7 @@ define([
             'class': 'legend',
             rows: []
           },
-          round = function (x) { return x.toPrecision(4); },
+          round = function (x) { return x.toFixed(1); },
           codomain = this.getCodomain();
 
       // TODO(bpstudds): Does forEach iterate in order?
@@ -72,18 +72,18 @@ define([
       // per projection and each bin is a discrete element of the legend.
       for (var i = 0; i < this._bins.length; i++) {
         var bin = this._bins[i],
-            regression = bin.binId / bin.numBins,
+            regression = bin.numBins === 1 ? 0.5 : bin.binId / (bin.numBins - 1),
             // TODO(bpstudds): This won't work with a fixed projection.
             color = codomain.startProj.interpolate(codomain.endProj, regression),
             elements = [
               { bgColour: color, width: '1em' },
-              { value: round(bin.firstValue) },
-              { value: '&ndash;' },
+              { value: '&nbsp;&nbsp;&nbsp;' + round(bin.firstValue) },
+              { value: '&nbsp;&ndash;&nbsp;' },
               { value: round(bin.lastValue) }
             ];
         legend.rows.push({cells: elements});
       }
-      return '<div class="legend">' + legend + '</div>';
+      return legend;
     },
 
     /**
@@ -188,7 +188,7 @@ define([
       // TODO(bpstudds): Allow for more projection types then continuous and discrete?
       // TODO(bpstudds): The regressionFactor for discrete isn't in [0, 1).
       var regressionFactor = this._type === 'continuous' ?
-          attributes.absRatio : attributes.binId / (attributes.numBins);
+          attributes.absRatio : attributes.numBins === 1 ? 0.5 : attributes.binId / (attributes.numBins - 1);
       if ('fixedProj' in codomain) {
         return {fillColour: codomain.fixedProj};
       } else if ('startProj' in codomain && 'endProj' in codomain) {

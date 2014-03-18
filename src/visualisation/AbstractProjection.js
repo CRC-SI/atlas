@@ -279,7 +279,7 @@ define([
     /**
      * Process all (or a subset) of GeoEntities and applies a given function to them.
      * @param {atlas.visualisation.AbstractProjection~UpdateEntityCb} f - The function to apply to the GeoEntities.
-     * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
+     * @param {String|Array.<String>} [id] - Either a single GeoEntity ID, an array of IDs, or nothing.
      * @private
      */
     _mapToEntitiesById: function (f, id) {
