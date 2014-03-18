@@ -47,7 +47,7 @@ define([
 
     _init: function (position, orientation) {
       this._position = mixin({lat: -37, lng: 144, elevation: 20000}, position);
-      this._orientation = mixin({tilt: 0, bearing: 0, heading: 0}, orientation);
+      this._orientation = mixin({tilt: 0, bearing: 0, rotation: 0}, orientation);
       this.inputHandlers = {
         left: this.pan.bind(this),
         right: this.zoom.bind(this),
@@ -59,7 +59,9 @@ define([
     // GETTERS AND SETTERS
     // -------------------------------------------
 
-    getPosition: function () {},
+    getPosition: function () {
+      return this._position;
+    },
 
     setPosition: function (position) {
       var newCamera = {
@@ -70,7 +72,9 @@ define([
       this._animateCamera(newCamera);
     },
 
-    getOrientation: function () {},
+    getOrientation: function () {
+      return this._orientation;
+    },
 
     setOrientation: function (orientation) {
       var newCamera = {
