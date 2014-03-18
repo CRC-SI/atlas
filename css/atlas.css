@@ -4,22 +4,26 @@
 
 .atlas .overlay {
   position: absolute;
-  background-color: #ffffff;
-  opacity: 0.8;
+  background-color: rgba(255, 255, 255, 0.8);
   top: 0;
   left: 0;
-  padding: 3px;
+  padding: 5px;
   vertical-align: middle;
 }
 
-.atlas .overlay.hidden {
+.atlas .overlay .hidden {
   display: none;
 }
 
-.atlas .overlay .legend {
+/*.atlas .overlay.legend {
+  padding: 5px;
   line-height: 150%;
-}
-
-.atlas .overlay .legend table {
   border-collapse: collapse;
+}*/
+
+.atlas .overlay.legend table {
+  margin: 5px;
+  line-height: 150%;
+  border-collapse: collapse;
+  text-align: right;
 }

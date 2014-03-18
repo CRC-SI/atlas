@@ -61,6 +61,7 @@ define([
      */
     _buildDiscreteLegend: function () {
       var legend = {
+            'class': 'legend',
             rows: []
           },
           round = function (x) { return x.toPrecision(4); },
@@ -76,11 +77,13 @@ define([
             color = codomain.startProj.interpolate(codomain.endProj, regression),
             elements = [
               { bgColour: color, width: '1em' },
-              { value: round(bin.firstValue) + '&ndash;' + round(bin.lastValue) }
+              { value: round(bin.firstValue) },
+              { value: '&ndash;' },
+              { value: round(bin.lastValue) }
             ];
         legend.rows.push({cells: elements});
       }
-      return legend;
+      return '<div class="legend">' + legend + '</div>';
     },
 
     /**
@@ -90,6 +93,7 @@ define([
      */
     _buildContinuousLegend: function () {
       var legend = {
+            //'class': 'legend',
             rows: []
           };
       // With the way continuous projections work, there can be multiple codomains
@@ -97,7 +101,7 @@ define([
       // Usually, there will only be one bin per continuous projection though.
       this._bins.forEach(function (bin, i) {
         var codomain = this.getCodomain(i),
-            round = function (x) {  return x.toPrecision(4) };
+            round = function (x) {  return x.toFixed(1) };
         [0, 0.25, 0.5, 0.75].forEach(function(f, i) {
           // TODO(bpstudds): This won't work with a fixed projection.
           var colour1 = codomain.startProj.interpolate(codomain.endProj, f).toHexString(),
@@ -106,7 +110,9 @@ define([
               upperBound = round(bin.firstValue + (f + 0.25) * bin.range),
               elements = [
                 { background: 'linear-gradient(to bottom,' + colour1 + ',' + colour2 + ')', width: '1em' },
-                { value: lowerBound + '&ndash;' + upperBound }
+                { value: '&nbsp;&nbsp;&nbsp;' + lowerBound },
+                { value: '&nbsp;&ndash;&nbsp;' },
+                { value: upperBound }
               ];
           // TODO(bpstudds): This won't work with more than one bin.
           legend.rows.push({cells: elements});

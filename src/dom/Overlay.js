@@ -31,6 +31,12 @@ define([
     _parent: null,
 
     /**
+     * The class(es) to apply to the Overlay HTML.
+     * @type {String}
+     */
+    _class: null,
+
+    /**
      * The position of the Overlay
      * @type {Object}
      * @property {Number} top - Distance in pixels from the top edge of the Parent.
@@ -56,12 +62,14 @@ define([
       //this._super(parent, position, content);
       args = mixin({
         parent: document,
+        'class': '',
         dimensions: {top: 0, left: 0},
         content: ''
       }, args);
       if (typeof args.parent === 'string') { args.parent = document.getElementById(parent); }
 
       this._parent = args.parent;
+      this._class = args.class;
       this._dimensions = args.dimensions;
       this._content = args.content;
       // Construct element and append it to the parent.
@@ -76,6 +84,7 @@ define([
     _render: function () {
       var element = document.createElement('div');
       element.classList.add('overlay');
+      this._class !== '' && element.classList.add(this._class);
       element.innerHTML = this._content;
 
       // Set the Overlay's position.
