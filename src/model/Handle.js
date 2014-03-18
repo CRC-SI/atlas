@@ -13,8 +13,8 @@ define([
    */
   return GeoEntity.extend( /** @lends atlas.model.Handle# */ {
     /**
-     * The a map of ID to linked GeoEntities.
-     * @type {Object.<String, atlas.model.GeoEntity>}
+     * A array of the linked GeoEntities.
+     * @type {Array.<atlas.model.GeoEntity}
      */
     _linked: null,
 
