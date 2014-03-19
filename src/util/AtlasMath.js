@@ -15,8 +15,8 @@ define([
      * @returns {Number}
      */
     toDegrees: function (radians) {
-      radians = parseInt(radians, 10) || 0;
-      return radians / Math.PI * 180;
+      radians = parseFloat(radians) || 0.0;
+      return radians / Math.PI * 180.0;
     },
 
     /**
@@ -24,8 +24,8 @@ define([
      * @returns {Number}
      */
     toRadians: function (degrees) {
-      degrees = parseInt(degrees, 10) || 0;
-      return degrees * Math.PI / 180;
+      degrees = parseFloat(degrees) || 0.0;
+      return degrees * Math.PI / 180.0;
     },
 
     // -------------------------------------------
