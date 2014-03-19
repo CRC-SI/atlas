@@ -47,8 +47,12 @@ define([
     _orientation: null,
 
     _init: function (args) {
-      this._position = mixin({lat: -37, lng: 144, elevation: 20000}, args.position);
-      this._orientation = mixin({tilt: 0, bearing: 0, rotation: 0}, args.orientation);
+      args = mixin({
+        position: {lat: -37, lng: 144, elevation: 20000},
+        orientation: {tilt: 0, bearing: 0, rotation: 0}
+      }, args);
+      this._position = args.position;
+      this._orientation = args.orientation;
       this.inputHandlers = {
         left: this.pan.bind(this),
         right: this.zoom.bind(this),

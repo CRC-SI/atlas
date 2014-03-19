@@ -21,7 +21,7 @@ define([
       });
 
       it ('with a given initial position', function () {
-        camera = new Camera(aPosition, anOrientation);
+        camera = new Camera({position: aPosition, orientation: anOrientation});
         expect(camera.getPosition()).toEqual(aPosition);
         expect(camera.getOrientation()).toEqual(anOrientation);
       });
