@@ -13,14 +13,15 @@ define([
    * or a bookmarked location, and to manual move the Camera.
    * @author Brendan Studds
    *
-   * @param {Object} [position] - The initial position of the Camera.
-   * @property {Number} [position.lat=-37] - The initial latitude in decimal degrees in the range [-90, 90].
-   * @property {Number} [position.lng=144] - The initial longitude in decimal degrees in the range [-180, 180].
-   * @property {Number} [position.elevation=20000] - The initial elevation above the Earth's surface metres.
-   * @param {Object} [orientation] - The initial orientation of the Camera.
-   * @property {Number} [orientation.tilt=0] - The tilt (or pitch) about the Camera's transverse axis in decimal degrees in the range [0, 180]. At 0 degrees the Camera is pointing at the point directly below it, at 180 degrees it is looking the opposite direction.
-   * @property {Number} [orientation.bearing=0] - The bearing (or yaw) about the normal axis from the surface to the camera in decimal degrees in the range [0, 360]. At 0 (and 360) degrees the Camera is facing North, 90 degrees it is facing East, etc.
-   * @property {Number} [orientation.rotation=0] - The rotation (or roll) about the orientation vector of the Camera in decimal degrees in the range [-180, 180].
+   * @param {Object} args - The constructor argument object.
+   * @param {Object} [args.position] - The initial position of the Camera.
+   * @property {Number} [args.position.lat=-37] - The initial latitude in decimal degrees in the range [-90, 90].
+   * @property {Number} [args.position.lng=144] - The initial longitude in decimal degrees in the range [-180, 180].
+   * @property {Number} [args.position.elevation=20000] - The initial elevation above the Earth's surface metres.
+   * @param {Object} [args.orientation] - The initial orientation of the Camera.
+   * @property {Number} [args.orientation.tilt=0] - The tilt (or pitch) about the Camera's transverse axis in decimal degrees in the range [0, 180]. At 0 degrees the Camera is pointing at the point directly below it, at 180 degrees it is looking the opposite direction.
+   * @property {Number} [args.orientation.bearing=0] - The bearing (or yaw) about the normal axis from the surface to the camera in decimal degrees in the range [0, 360]. At 0 (and 360) degrees the Camera is facing North, 90 degrees it is facing East, etc.
+   * @property {Number} [args.orientation.rotation=0] - The rotation (or roll) about the orientation vector of the Camera in decimal degrees in the range [-180, 180].
    *
    * @class atlas.camera.Camera
    * @abstract
@@ -45,9 +46,9 @@ define([
      */
     _orientation: null,
 
-    _init: function (position, orientation) {
-      this._position = mixin({lat: -37, lng: 144, elevation: 20000}, position);
-      this._orientation = mixin({tilt: 0, bearing: 0, rotation: 0}, orientation);
+    _init: function (args) {
+      this._position = mixin({lat: -37, lng: 144, elevation: 20000}, args.position);
+      this._orientation = mixin({tilt: 0, bearing: 0, rotation: 0}, args.orientation);
       this.inputHandlers = {
         left: this.pan.bind(this),
         right: this.zoom.bind(this),
@@ -91,14 +92,15 @@ define([
      * based on the input parameters.
      * This function should be called by the public API functions that have varying input depending
      * on purpose.
-     * @param {Object} position - The initial position of the Camera.
-     * @property {Number} position.lat - The initial latitude in decimal degrees in the range [-90, 90].
-     * @property {Number} position.lng - The initial longitude in decimal degrees in the range [-180, 180].
-     * @property {Number} position.elevation - The initial elevation above the Earth's surface metres.
-     * @param {Object} orientation - The initial orientation of the Camera.
-     * @property {Number} orientation.tilt - The tilt (or pitch) about the Camera's transverse axis in decimal degrees in the range [0, 180]. At 0 degrees the Camera is pointing at the point directly below it, at 180 degrees it is looking the opposite direction.
-     * @property {Number} orientation.bearing - The bearing (or yaw) about the normal axis from the surface to the camera in decimal degrees in the range [0, 360]. At 0 (and 360) degrees the Camera is facing North, 90 degrees it is facing East, etc.
-     * @property {Number} orientation.rotation - The rotation (or roll) about the orientation vector of the Camera in decimal degrees in the range [-180, 180].
+     * @param {Object} newCamera - The new camera data.
+     * @param {Object} newCamera.position - The initial position of the Camera.
+     * @property {Number} newCamera.position.lat - The initial latitude in decimal degrees in the range [-90, 90].
+     * @property {Number} newCamera.position.lng - The initial longitude in decimal degrees in the range [-180, 180].
+     * @property {Number} newCamera.position.elevation - The initial elevation above the Earth's surface metres.
+     * @param {Object} newCamera.orientation - The initial orientation of the Camera.
+     * @property {Number} newCamera.orientation.tilt - The tilt (or pitch) about the Camera's transverse axis in decimal degrees in the range [0, 180]. At 0 degrees the Camera is pointing at the point directly below it, at 180 degrees it is looking the opposite direction.
+     * @property {Number} newCamera.orientation.bearing - The bearing (or yaw) about the normal axis from the surface to the camera in decimal degrees in the range [0, 360]. At 0 (and 360) degrees the Camera is facing North, 90 degrees it is facing East, etc.
+     * @property {Number} newCamera.orientation.rotation - The rotation (or roll) about the orientation vector of the Camera in decimal degrees in the range [-180, 180].
      * @param {Number} newCamera.duration - The duration of the zoom animation in milliseconds.
      * @abstract
      */
