@@ -16,11 +16,11 @@ define([
       entity2 = new GeoEntity({id: '002'});
       vertex = new Vertex({x: 0, y: 0, z: 0});
       [entity1, entity2].forEach(function (entity) {
+        spyOn(entity, 'show');
         modifiers.forEach(function (method) {
           spyOn(entity, method);
         });
       });
-      spyOn(vertex, 'translate');
     });
 
     afterEach (function () {
@@ -31,83 +31,84 @@ define([
     });
 
     describe ('can be constructed', function () {
-      it ('with a GeoEntity', function () {
-        handle = new Handle(entity1);
+      it ('with a linked or target GeoEntity', function () {
+        handle = new Handle({linked: entity1});
         expect(handle).not.toBeNull();
         expect(handle.getLinked()).toEqual(entity1);
-        expect(handle._id).toEqual('handle' + Handle._nextId);
+        expect(handle.getTarget()).toEqual(entity1);
+        expect(handle._id).toEqual('handle100000');
+        handle = new Handle({linked: entity2, target: entity1});
+        expect(handle).not.toBeNull();
+        expect(handle.getLinked()).toEqual(entity2);
+        expect(handle.getTarget()).toEqual(entity2);
+        expect(handle._id).toEqual('handle100001');
       });
 
       it ('with a Vertex', function () {
-        handle = new Handle(vertex);
+        handle = new Handle({linked: vertex, target: entity1});
         expect(handle).not.toBeNull();
         expect(handle.getLinked()).toEqual(vertex);
-        expect(handle._id).toEqual('handle' + Handle._nextId);
+        expect(handle.getTarget()).toEqual(entity1);
       });
 
-      // Not any more
-      xit ('with multiple targets', function () {
-        handle = new Handle([entity1, entity2]);
-        expect(handle).not.toBeNull();
-        expect(handle.getLinked()).toEqual([entity1, entity2]);
-      });
-
-      it ('but fails without a target', function () {
-        var fail = function () {
+      it ('but fails without a link', function () {
+        var noArg = function () {
           return new Handle();
         };
-        expect(fail).toThrow();
+        expect(noArg).toThrow();
+        noArg = function () {
+          return new Handle({linked: null});
+        };
+        expect(noArg).toThrow();
       });
 
-      it ('but fails with a non-Vertex or GeoEntity target', function () {
-        var fail = function () {
-          return new Handle('string');
+      it ('but fails with a non-Vertex or GeoEntity link', function () {
+        var incorrectArg = function () {
+          return new Handle({linked: 'string'});
         };
-        expect(fail).toThrow();
-      })
+        expect(incorrectArg).toThrow();
+      });
+
+      it ('but fails if a Vertex is linked without a target', function () {
+        var incorrectArg = function () {
+          return new Handle({linked: vertex});
+        };
+        expect(incorrectArg).toThrow();
+      });
     });
 
     describe ('delegates modification calls', function () {
-      it ('to a single GeoEntity', function () {
-        handle = new Handle(entity1);
+      it ('when linked directly to a GeoEntity', function () {
+        handle = new Handle({linked: entity1});
         modifiers.forEach(function (method) {
+          spyOn(handle, method).andCallThrough();
           handle[method]();
           expect(entity1[method].calls.length).toEqual(1);
         });
+        expect(entity1.show.calls.length).toEqual(3);
       });
 
-      xit ('to multiple GeoEntities', function () {
-        handle = new Handle([entity1, entity2]);
-        modifiers.forEach(function (method) {
-          handle[method]();
-          expect(entity1[method].calls.length).toEqual(1);
-          expect(entity2[method].calls.length).toEqual(1);
-        });
+      it ('when linked to a Vertex, which then updates the GeoEntity', function () {
+        handle = new Handle({linked: vertex, target: entity1});
+        spyOn(entity1, 'setDirty');
+        handle.translate();
+        expect(vertex.translate.calls.length).toEqual(1);
+        expect(entity1.setDirty).toHaveBeenCalledWith('vertices');
+        expect(entity1.show.calls.length).toEqual(1);
       });
     });
 
     describe ('can be removed', function () {
 
       it ('from a single GeoEntity', function () {
-        handle = new Handle(entity1);
+        handle = new Handle({linked: entity1});
         handle.remove();
 
-        expect(handle.getLinked()).toEqual([]);
+        expect(handle.getLinked()).toBeNull();
+        expect(handle.getTarget()).toBeNull();
         modifiers.forEach(function (method) {
           expect(handle[method]).toThrow();
           expect(entity1[method].calls.length).toEqual(0);
-        });
-      });
-
-      it ('from multiple GeoEntities', function () {
-        handle = new Handle([entity1, entity2]);
-        handle.remove();
-
-        expect(handle.getLinked()).toEqual([]);
-        modifiers.forEach(function (method) {
-          expect(handle[method]).toThrow();
-          expect(entity1[method].calls.length).toEqual(0);
-          expect(entity2[method].calls.length).toEqual(0);
         });
       });
     })

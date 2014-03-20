@@ -32,20 +32,35 @@ define([
      */
     _linked: null,
 
+    /**
+     * The owner of the linked Vertex.
+     */
+    _target: null,
+
     _init: function (args) {
       if (!args.linked) {
         throw new DeveloperError('Can not create Handle without linked entity.');
-      } else if (args.linked instanceof Vertex && !args.target) {
-        throw new DeveloperError('Must specify target of Handle if linked to a Vertex.');
+      } else if (args.linked instanceof GeoEntity) {
+        args.target = args.linked;
+      } else if (args.linked instanceof Vertex) {
+        if (!(args.target instanceof GeoEntity)) {
+          throw new DeveloperError('Must specify the GeoEntity target of Handle if linked to a Vertex.');
+        }
+        this.rotate = function () { /* disable rotate */ };
+        this.scale = function () { /* disable scale */ };
+      } else {
+        throw new DeveloperError('Tried to link handle to unrecognised object.');
       }
-      this._linked = args.linked;
       this._id = Handle.getNextId();
+      this._linked = args.linked;
+      this._target = args.target;
     },
 
     remove: function () {
-      this._linked = [];
+      this._linked = null;
+      this._target = null;
       this._delegateToLinked = function () {
-        throw new Error('Tried to activate a removed Handle');
+        throw new Error('Tried to use a removed Handle');
       }
     },
 
@@ -57,11 +72,23 @@ define([
       return this._linked;
     },
 
+    getTarget: function () {
+      return this._target;
+    },
+
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------
     _delegateToLinked: function (method, args) {
-      this.getLinked().apply(this.getLinked(), args);
+      var linked = this.getLinked(),
+          target = this.getTarget();
+      Object.apply(linked, args);
+      if (linked !== target) {
+        // linked and target are only different if linked is a Vertex and target a GeoEntity.
+        target.setDirty('vertices');
+      }
+      // Update target with change.
+      target.show();
     },
 
     rotate: function () {

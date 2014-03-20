@@ -179,7 +179,7 @@ define([
      * @abstract
      */
     getCentroid: function() {
-      throw new DeveloperError('Can not call abstract method of GeoEntity');
+      throw new DeveloperError('Can not call abstract method "getCentroid" of GeoEntity');
     },
 
     getChildren: function() {
@@ -194,7 +194,7 @@ define([
      * @abstract
      */
     getArea: function() {
-      throw new DeveloperError('Can not call abstract method of GeoEntity');
+      throw new DeveloperError('Can not call abstract method "getArea" of GeoEntity');
     },
 
     /**
@@ -331,7 +331,9 @@ define([
      *
      * @abstract
      */
-    translate: function(translation) {},
+    translate: function(translation) {
+      throw new DeveloperError('Can not call abstract method "translate" of GeoEntity');
+    },
 
     /**
      * Scales the GeoEntity by the given vector. This scaling can be uniform in all axis or non-uniform.
@@ -345,7 +347,9 @@ define([
      *
      * @abstract
      */
-    scale: function(scale) {},
+    scale: function(scale) {
+      throw new DeveloperError('Can not call abstract method "scale" of GeoEntity');
+    },
 
     /**
      * Rotates the GeoEntity by the given vector.
@@ -359,7 +363,9 @@ define([
      *
      * @abstract
      */
-    rotate: function (rotation) {},
+    rotate: function (rotation) {
+      throw new DeveloperError('Can not call abstract method "rotate" of GeoEntity');
+    },
 
     /**
      * Function to build the GeoEntity so it can be rendered.
@@ -387,7 +393,7 @@ define([
      * @abstract
      */
     show: function () {
-      throw new DeveloperError('Can not call abstract method of GeoEntity');
+      throw new DeveloperError('Can not call abstract method "show" of GeoEntity');
     },
 
     /**
@@ -396,7 +402,7 @@ define([
      * @abstract
      */
     hide: function () {
-      throw new DeveloperError('Can not call abstract method of GeoEntity');
+      throw new DeveloperError('Can not call abstract method "hide" of GeoEntity');
     },
 
     /**

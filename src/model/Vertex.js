@@ -22,6 +22,12 @@ define([
     }
   };
 
+  Vertex.prototype.translate = function (other) {
+    this.x += other.x;
+    this.y += other.y;
+    this.z += other.z;
+  };
+
   Vertex.prototype.add = function (other) {
     return new Vertex(this.x + other.x, this.y + other.y, this.z + other.z);
   };
