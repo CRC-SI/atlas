@@ -82,7 +82,7 @@ define([
     _delegateToLinked: function (method, args) {
       var linked = this.getLinked(),
           target = this.getTarget();
-      Object.apply(linked, args);
+      linked[method].apply(linked, args);
       if (linked !== target) {
         // linked and target are only different if linked is a Vertex and target a GeoEntity.
         target.setDirty('vertices');

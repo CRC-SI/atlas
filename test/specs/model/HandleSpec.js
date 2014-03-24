@@ -91,8 +91,7 @@ define([
       it ('when linked to a Vertex, which then updates the GeoEntity', function () {
         handle = new Handle({linked: vertex, target: entity1});
         spyOn(entity1, 'setDirty');
-        handle.translate();
-        expect(vertex.translate.calls.length).toEqual(1);
+        handle.translate({x: 0, y: 0, z: 0});
         expect(entity1.setDirty).toHaveBeenCalledWith('vertices');
         expect(entity1.show.calls.length).toEqual(1);
       });
