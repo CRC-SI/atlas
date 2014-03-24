@@ -5,8 +5,9 @@ define([
   'atlas/model/Feature',
   'atlas/model/Polygon',
   'atlas/model/Mesh',
+  'atlas/model/Vertex',
   'atlas/lib/utility/Log'
-], function (DeveloperError, mixin, GeoEntity, Feature, Polygon, Mesh, Log) {
+], function (DeveloperError, mixin, GeoEntity, Feature, Polygon, Mesh, Vertex, Log) {
 
   var EntityManager = function (atlasManagers) {
     this._atlasManagers = atlasManagers;
@@ -132,6 +133,34 @@ define([
   };
 
   /**
+   * Takes an array of {x, y, z} coordinates and converts it to an array of
+   * {@see atlas.model.Vertex|Vertices}.
+   * @param {Object} coordinates - The {x, y, z} coordinates to convert.
+   * @returns {Array.<atlas.model.Vertex>} The convert coordinates.
+   * @protected
+   */
+  EntityManager._parseCoordinates = function (coordinates) {
+    var vertices = [];
+    for (var i = 0; i < coordinates.length; i++) {
+      vertices.push(EntityManager._coordinateAsVertex(coordinates[i]));
+    }
+    return vertices;
+  };
+
+  /**
+   * Converts a coordinate object to a {@link atlas.model.Vertex|Vertex}.
+   * @param  {Object} coordinate - The coordinate to be converted.
+   * @param {Number} coordinate.x - The latitude, given in decimal degrees.
+   * @param {Number} coordinate.y - The longitude, given in decimal degrees.
+   * @param {Number} coordinate.z - The altitude, given in metres.
+   * @returns {atlas.model.Vertex}
+   * @protected
+   */
+  EntityManager._coordinateAsVertex = function (coordinate) {
+    return new Vertex(coordinate.x, coordinate.y, coordinate.z);
+  };
+
+  /**
    * Parses a C3ML line object to an format supported by Atlas.
    * @param {Object} c3ml - The C3ML object to be parsed
    * @returns {Object} The parsed C3ML.
@@ -140,7 +169,7 @@ define([
   EntityManager._parseC3MLline = function (c3ml) {
     return {
       line: {
-        vertices: c3ml.coordinates,
+        vertices: EntityManager._parseCoordinates(c3ml.coordinates),
         color: c3ml.color,
         height: c3ml.height,
         elevation: c3ml.altitude
@@ -158,7 +187,7 @@ define([
   EntityManager._parseC3MLpolygon = function (c3ml) {
     return {
       polygon: {
-        vertices: c3ml.coordinates,
+        vertices: EntityManager._parseCoordinates(c3ml.coordinates),
         holes: c3ml.holes,
         color: c3ml.color,
         height: c3ml.height,
