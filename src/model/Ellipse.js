@@ -128,11 +128,23 @@ define([
     _init: function(id, ellipseData, args) {
       if (!ellipseData || !ellipseData.centroid) {
         throw new DeveloperError('Can not construct ellipse without centre.');
-      } else if (!ellipseData.semiMajor || !ellipseData.semiMinor) {
+      } else if (!parseFloat(ellipseData.semiMajor) || !parseFloat(ellipseData.semiMinor)) {
         throw new DeveloperError('Can not construct ellipse without semi major or semi minor axis.');
       }
       args = mixin({}, args);
+      ellipseData = mixin({
+        rotation: 0
+      }, ellipseData);
+      if (typeof id === 'object') {
+        ellipseData = id;
+        id = ellipseData.id;
+      }
       this._super(id, args);
+
+      this._centroid = ellipseData.centroid;
+      this._semiMajor = ellipseData.semiMajor;
+      this._semiMinor = ellipseData.semiMinor;
+      this._rotation = ellipseData.rotation;
       this._height = parseFloat(ellipseData.height) || this._height;
       this._elevation = parseFloat(ellipseData.elevation) || this._elevation;
       this._zIndex = parseFloat(ellipseData.zIndex) || this._zIndex;
@@ -221,6 +233,27 @@ define([
      */
     getHeight: function() {
       return this._height;
+    },
+
+    /**
+     * @returns {Number} The rotation of the Ellipse.
+     */
+    getRotation: function () {
+      return this._rotation;
+    },
+
+    /**
+     * @returns {Number} The semi major axis of the Ellipse.
+     */
+    getSemiMajorAxis: function () {
+      return this._semiMajor;
+    },
+
+    /**
+     * @returns {Number} The semi minor axis of the Ellipse.
+     */
+    getSemiMinorAxis: function () {
+      return this._semiMinor;
     },
 
     /**
