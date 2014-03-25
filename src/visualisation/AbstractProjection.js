@@ -288,8 +288,21 @@ define([
       ids.forEach(function (id) {
         var theEntity = this._entities[id];
         var theAttributes = this._attributes[id];
-        if (theEntity && theAttributes) {
-          f.call(this, theEntity, theAttributes);
+        if (theEntity) {
+          if (theAttributes) {
+            f.call(this, theEntity, theAttributes);
+          } else {
+            if (this._rendered) {
+              if (theEntity.isVisible()) {
+                this._effects[id] = {hidden: true};
+                theEntity.hide();
+              }
+            } else {
+              if (!theEntity.isVisible() && this._effects[id].hidden) {
+                theEntity.show();
+              }
+            }
+          }
         }
       }, this);
     },
@@ -536,17 +549,19 @@ define([
           var thisValue = this._values[id],
               thisAttribute = {},
               divisor;
-          thisAttribute.binId = bin.binId;
-          thisAttribute.numBins = bin.numBins;
-          thisAttribute.absRatio = bin.range !== 0 ?
-              (thisValue - bin.min.value) / (bin.range) : Number.POSITIVE_INFINITY;
-          thisAttribute.diffFromAverage = thisValue - bin.average;
-          thisAttribute.ratioFromAverage = (thisValue - bin.average);
-          divisor = thisAttribute.ratioFromAverage < 0 ?
-            (bin.average - bin.min.value) : (bin.max.value - bin.average);
-          thisAttribute.ratioFromAverage = divisor > 0 ? thisAttribute / divisor : Number.POSITIVE_INFINITY;
-          // Push onto new attribute onto attribute collection.
-          theAttributes[id] = thisAttribute;
+          if (thisValue !== undefined && thisValue !== null) {
+            thisAttribute.binId = bin.binId;
+            thisAttribute.numBins = bin.numBins;
+            thisAttribute.absRatio = bin.range !== 0 ?
+                (thisValue - bin.min.value) / (bin.range) : Number.POSITIVE_INFINITY;
+            thisAttribute.diffFromAverage = thisValue - bin.average;
+            thisAttribute.ratioFromAverage = (thisValue - bin.average);
+            divisor = thisAttribute.ratioFromAverage < 0 ?
+              (bin.average - bin.min.value) : (bin.max.value - bin.average);
+            thisAttribute.ratioFromAverage = divisor > 0 ? thisAttribute / divisor : Number.POSITIVE_INFINITY;
+            // Push onto new attribute onto attribute collection.
+            theAttributes[id] = thisAttribute;
+          }
         }, this);
       }, this);
       return theAttributes;
