@@ -141,7 +141,7 @@ define([
       }
       this._super(id, args);
 
-      this._centroid = ellipseData.centroid;
+      this._centroid = new Vertex(ellipseData.centroid);
       this._semiMajor = ellipseData.semiMajor;
       this._semiMinor = ellipseData.semiMinor;
       this._rotation = ellipseData.rotation;
