@@ -133,7 +133,7 @@ define([
           throw new Error('Invalid vertices for Polygon ' + id);
         }
       } else {
-        this._vertices = defaultValue(args.vertices, []);
+        this._vertices = defaultValue(polygonData.vertices, []);
       }
       this._height = parseFloat(polygonData.height) || this._height;
       this._elevation = parseFloat(polygonData.elevation) || this._elevation;

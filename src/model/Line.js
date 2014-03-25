@@ -26,6 +26,13 @@ define([
     _style: null,
 
     /**
+     * The width of the line segment.
+     * @type {Number}
+     * @private
+     */
+    _width: 10,
+
+    /**
      * Constructs a new {@link Line}.
      * @ignore
      */
@@ -42,6 +49,7 @@ define([
       } else {
         this._vertices = defaultValue(lineData.vertices, []);
       }
+      this._width = lineData.width || this._width;
     },
 
     /**
