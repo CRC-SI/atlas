@@ -418,8 +418,14 @@ define([
         if (bin.firstValue < previousLastValue || bin.lastValue < bin.firstValue) {
           throw new DeveloperError('Incorrect bins configuration provided', this._configuration.bins);
         }
+        var accept = function (x) {
+          if (x < this.firstValue) { return -1; }
+          if (x >= this.firstValue) { return 1; }
+          return 0;
+        };
         bins.push({binId: i, numBins: numBins, firstValue: bin.firstValue,
-            lastValue: bin.lastValue, range: (bin.lastValue - bin.firstValue)});
+            lastValue: bin.lastValue, range: (bin.lastValue - bin.firstValue),
+            accept: accept});
         previousLastValue = bin.lastValue;
       }, this);
       return bins;
