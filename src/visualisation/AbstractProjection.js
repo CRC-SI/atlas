@@ -288,7 +288,7 @@ define([
       ids.forEach(function (id) {
         var theEntity = this._entities[id];
         var theAttributes = this._attributes[id];
-        if (theEntity) {
+        if (theEntity && theAttributes) {
           f.call(this, theEntity, theAttributes);
         }
       }, this);
@@ -418,14 +418,14 @@ define([
         if (bin.firstValue < previousLastValue || bin.lastValue < bin.firstValue) {
           throw new DeveloperError('Incorrect bins configuration provided', this._configuration.bins);
         }
-        var accept = function (x) {
-          if (x < this.firstValue) { return -1; }
-          if (x >= this.firstValue) { return 1; }
-          return 0;
-        };
         bins.push({binId: i, numBins: numBins, firstValue: bin.firstValue,
             lastValue: bin.lastValue, range: (bin.lastValue - bin.firstValue),
-            accept: accept});
+            accept: function (x) {
+              if (x < this.firstValue) { return -1; }
+              if (x >= this.lastValue) { return 1; }
+              return 0;
+            }
+        });
         previousLastValue = bin.lastValue;
       }, this);
       return bins;
