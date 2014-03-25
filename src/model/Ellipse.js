@@ -309,6 +309,8 @@ define([
      * @param {Number} scale.y - The scale along the semi minor axis.
      */
     scale: function(scale) {
+      // TODO(bpstudds): How do we handle negative scale values?
+      // TODO(bpstudds): How do we handle semiMinor becoming larger than semiMajor?
       this._semiMajor *= (parseFloat(scale.x) || 1.0);
       this._semiMinor *= (parseFloat(scale.y) || 1.0);
       this.setDirty('model');
