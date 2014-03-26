@@ -20,6 +20,19 @@ define([
     },
 
     /**
+     * Converts a decimal degree to a degrees minutes seconds value.
+     * @param {Number} decimal - The decimal degree value.
+     * @returns {{degrees: Number, minutes: Number, seconds: Number}}
+     */
+    toDMS: function (decimal) {
+      var degrees = decimal.toFixed(0),
+          dminutes = ((decimal - degrees) * 60),
+          minutes = dminutes.toFixed(0),
+          seconds = (dminutes - minutes).toFixed(0);
+      return {degrees: degrees, minutes: minutes, seconds: seconds};
+    },
+
+    /**
      * @param {Number} degrees - Values to convert to radians.
      * @returns {Number}
      */
