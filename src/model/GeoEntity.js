@@ -133,6 +133,13 @@ define([
     _style: null,
 
     /**
+     * The style of the GeoEntity when before a change in style (e.g. during selection).
+     * @type {atlas.model.Style}
+     * @protected
+     */
+    _previousStyle: null,
+
+    /**
      * Whether the GeoEntity is selected.
      * @type {Boolean}
      */
@@ -461,7 +468,7 @@ define([
     onDisableEditing: function () {
       this._editEventHandler && this._editEventHandler.cancel();
     }
-  })
+  });
 
   // -------------------------------------------------
   // Statics

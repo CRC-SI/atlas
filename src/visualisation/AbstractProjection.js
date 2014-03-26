@@ -1,8 +1,10 @@
 define([
   'atlas/util/Class',
   'atlas/util/DeveloperError',
-  'atlas/util/mixin'
-], function (Class, DeveloperError, mixin) {
+  'atlas/util/mixin',
+  'atlas/model/Style',
+  'atlas/model/Colour'
+], function(Class, DeveloperError, mixin, Style, Colour) {
 
   /**
    * Constructs a new AbstractProjection object.
@@ -68,10 +70,11 @@ define([
     _values: null,
 
     /**
-     * A map of Entity ID to the effect the projection has.
+     * A map of Entity ID to the effect the projection has. It is
+     * assumed that every ID that appears in <code>_effects</code> appears in <code>_entities</code>
      * @type {Object.<String, Object>}
-     * @property {Number} oldVal - The value of an Entity's artifact before this projection was applied.
-     * @property {Number} newVal - The value of an Entity's artifact after this projection was applied.
+     * @property {Number} oldValue - The value of an Entity's artifact before this projection was applied.
+     * @property {Number} newValue - The value of an Entity's artifact after this projection was applied.
      * @protected
      */
     _effects: null,
@@ -129,7 +132,7 @@ define([
      * @see {@link atlas.visualisation.AbstractProjection}
      * @ignore
      */
-    _init: function (args) {
+    _init: function(args) {
       args = mixin({
         title: '',
         type: 'continuous',
@@ -141,22 +144,31 @@ define([
         throw new DeveloperError('Can not construct Projection without entities');
       }
       if (!this.SUPPORTED_PROJECTIONS[args.type]) {
-        throw new DeveloperError('Tried to instantiate Projection with unsupported type', args.type);
+        throw new DeveloperError('Tried to instantiate Projection with unsupported type',
+            args.type);
       }
       this._title = args.title;
       this._type = args.type;
-      this._effects = {};
       this._entities = args.entities;
+      this._initEffects();
       this._values = args.values;
       this._configuration = {
         bins: args.bins,
         codomain: args.codomain
       };
       // Calculate statistical properties for the binned values.
-      if (Object.keys(this._values).length === 0) { return; }
-      this._stats = this._calculateBinnedStatistics();
-      // TODO(bpstudds): Do we need to calculate this for a discrete projection?
-      this._attributes = this._calculateValueAttributes();
+//      if (Object.keys(this._values).length === 0) {
+//        this._stats = {};
+//        this._attributes = {};
+//      } else {
+
+      // TODO(aramk) Commented out above since data structures created here are expected, and won't
+      // be if we're projecting a single entity which doesn't have attributes (and will be disabled)
+      // since values are empty.
+        this._stats = this._calculateBinnedStatistics();
+        // TODO(bpstudds): Do we need to calculate this for a discrete projection?
+        this._attributes = this._calculateValueAttributes();
+//      }
     },
 
     // -------------------------------------------
@@ -166,14 +178,14 @@ define([
     /**
      * @returns {Object} The configuration of the Projection.
      */
-    getConfiguration: function () {
+    getConfiguration: function() {
       return this._configuration;
     },
 
     /**
      * @returns {String} The type of the Projection.
      */
-    getType: function () {
+    getType: function() {
       return this._type;
     },
 
@@ -181,7 +193,7 @@ define([
      * @returns {Array.<Array.<Object>>} A 2D array of data representing the legend
      * which can be converted by {@link atlas.dom.Overlay} to a table.
      */
-    getLegend: function () {
+    getLegend: function() {
       return [];
     },
 
@@ -189,8 +201,8 @@ define([
      * Sets the previous state, or the state of the render before the Projection is applied. ie.
      * sets what will be re-rendered when the Projection is removed.
      */
-    setPreviousState: function (state) {
-      Object.keys(state).forEach(function (id) {
+    setPreviousState: function(state) {
+      Object.keys(state).forEach(function(id) {
         this._effects[id].oldValue = state[id];
       }, this);
     },
@@ -199,34 +211,35 @@ define([
      * Returns the state before the Projection has been applied.
      * @returns {Object.<String, Object>}
      */
-    getPreviousState: function () {
+    getPreviousState: function() {
       var state = {};
-      if (this._effects) {
-        Object.keys(this._entities).forEach(function (id) {
-          state[id] = this._entities[id].oldValue;
-        }, this);
-      }
+      Object.keys(this._entities).forEach(function(id) {
+        var effects = this._effects[id];
+        if (effects) {
+          state[id] = effects.oldValue;
+        }
+      }, this);
       return state;
     },
 
     /**
      * @returns {String} The title of the projection.
      */
-    getTitle: function () {
+    getTitle: function() {
       return this._title;
     },
 
     /**
      * @returns {Object.<String, Number>} The map of Entity ID to value for the Projection.
      */
-    getValues: function () {
+    getValues: function() {
       return this._values;
     },
 
     /**
      * @returns {Boolean} Whether the Projection is currently rendered.
      */
-    isRendered: function () {
+    isRendered: function() {
       return this._rendered;
     },
 
@@ -239,7 +252,7 @@ define([
      * to this projection.
      * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
      */
-    render: function (id) {
+    render: function(id) {
       this._rendered = true;
       this._mapToEntitiesById(this._render, id);
     },
@@ -251,7 +264,7 @@ define([
      * @protected
      * @abstract
      */
-    _render: function (entity, attributes) {
+    _render: function(entity, attributes) {
       throw new DeveloperError('Tried to call abstract method "_render" of AbstractProjection.');
     },
 
@@ -260,7 +273,7 @@ define([
      * to this projection.
      * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
      */
-    unrender: function (id) {
+    unrender: function(id) {
       this._rendered = false;
       this._mapToEntitiesById(this._unrender, id);
     },
@@ -272,7 +285,7 @@ define([
      * @protected
      * @abstract
      */
-    _unrender: function (entity, attributes) {
+    _unrender: function(entity, attributes) {
       throw new DeveloperError('Tried to call abstract method "_unrender" of AbstractProjection.');
     },
 
@@ -282,10 +295,10 @@ define([
      * @param {String|Array.<String>} [id] - Either a single GeoEntity ID, an array of IDs, or nothing.
      * @private
      */
-    _mapToEntitiesById: function (f, id) {
+    _mapToEntitiesById: function(f, id) {
       var ids = this._constructIdList(id);
       // Process each entity for the win.
-      ids.forEach(function (id) {
+      ids.forEach(function(id) {
         var theEntity = this._entities[id];
         var theAttributes = this._attributes[id];
         if (theEntity) {
@@ -293,18 +306,73 @@ define([
             f.call(this, theEntity, theAttributes);
           } else {
             if (this._rendered) {
-              if (theEntity.isVisible()) {
-                this._effects[id] = {hidden: true};
-                theEntity.hide();
-              }
-            } else {
-              if (!theEntity.isVisible() && this._effects[id].hidden) {
-                theEntity.show();
-              }
+              this._disableEntity(id);
+            } else if (this._getEffect(id, 'disabled')) {
+              this._enableEntity(id);
             }
           }
         }
       }, this);
+    },
+
+    /**
+     * Disables the given entity by distinguishing it from projected entities.
+     * @param {atlas.model.GeoEntity} entity
+     * @private
+     */
+    _disableEntity: function(id) {
+      this._setEffect(id, 'disabled', true);
+      var entity = this._entities[id];
+      var disabledStyle = new Style({fillColour: Colour.GREY, borderColour: Colour.GREY,
+        borderWidth: 1});
+//      var disabledStyle = Style.DEFAULT();
+      var prevStyle = entity.setStyle(disabledStyle);
+      entity.show();
+      this._setEffect(id, 'prevStyle', prevStyle);
+    },
+
+    /**
+     * Enables the given entity by reversing the effects caused by {@link #_disableEntity}.
+     * @param {atlas.model.GeoEntity} entity
+     * @private
+     */
+    _enableEntity: function(id) {
+      this._removeEffect(id, 'disabled');
+      var prevStyle = this._getEffect(id, 'prevStyle'),
+          entity = this._entities[id];
+      entity.setStyle(prevStyle);
+      entity.show();
+      this._removeEffect(id, 'prevStyle');
+    },
+
+    _getEffect: function(id, name) {
+      var effects = this._effects[id];
+      return effects && effects[name];
+    },
+
+    _setEffect: function(id, name, value) {
+      var effects = this._initEffect(id);
+      effects[name] = value;
+    },
+
+    _removeEffect: function(id, name) {
+      var effects = this._initEffect(id);
+      delete effects[name];
+    },
+
+    _initEffect: function(id) {
+      var effects = this._effects[id];
+      if (!effects) {
+        effects = this._effects[id] = {};
+      }
+      return effects;
+    },
+
+    _initEffects: function() {
+      this._effects = {};
+      for (var id in this._entities) {
+        this._initEffect(id);
+      }
     },
 
     /**
@@ -325,14 +393,16 @@ define([
      * @param {Boolean} [args.addToExisting=false] - If true, existing data is updated. If false,
      *      any existing data related to the updated data is deleted
      */
-    update: function (args) {
+    update: function(args) {
       args.addToExisting = args.addToExisting === undefined ? false : args.addToExisting;
       if (args.values) {
         this._values = args.addToExisting ? mixin(this._values, args.values) : args.values;
         // TODO(bpstudds): Allow for updating a subset of parameters.
         delete this._stats;
         delete this._attributes;
-        if (this._legend) { this._legend = null; }
+        if (this._legend) {
+          this._legend = null;
+        }
         // TODO(bpstudds): Allow for updating a subset of parameters.
         this._attributes = this._calculateValueAttributes();
       }
@@ -346,18 +416,21 @@ define([
      * too small or too large respectively.
      * @protected
      */
-    _configureBins: function () {
+    _configureBins: function() {
       var binConf = this._configuration.bins,
           bins = [];
       if (!binConf || typeof binConf === 'number') {
         // Create bins by splitting up the range of input parameter values into equal divisions.
         var numBins = binConf || 1,
             populationStats = this._calculatePopulationStatistics();
-        bins = this._configureEqualSizedBins(numBins, populationStats.min.value, populationStats.max.value, true);
+        bins = this._configureEqualSizedBins(numBins, populationStats.min.value,
+            populationStats.max.value, true);
       } else if (binConf instanceof Array) {
         bins = this._configureBinsFromArray(binConf);
-      } else if (binConf.numBins && binConf.firstValue !== undefined && binConf.lastValue !== undefined) {
-        bins = this._configureEqualSizedBins(binConf.numBins, binConf.firstValue, binConf.lastValue, true);
+      } else if (binConf.numBins && binConf.firstValue !== undefined &&
+          binConf.lastValue !== undefined) {
+        bins = this._configureEqualSizedBins(binConf.numBins, binConf.firstValue, binConf.lastValue,
+            true);
       }
       return bins;
     },
@@ -373,7 +446,7 @@ define([
      * @returns {Array.<Object>} The array of bin objects.
      * @private
      */
-    _configureEqualSizedBins: function (numBins, firstValue, lastValue, acceptFinal) {
+    _configureEqualSizedBins: function(numBins, firstValue, lastValue, acceptFinal) {
       var bins = [],
           binFirst = firstValue,
           binStep = (lastValue - firstValue) / numBins;
@@ -384,7 +457,7 @@ define([
           firstValue: binFirst,
           lastValue: binFirst + binStep,
           range: binStep,
-          accept: function (value) {
+          accept: function(value) {
             if (this.firstValue <= value) {
               if (value < this.lastValue) {
                 return 0;
@@ -399,16 +472,16 @@ define([
       }
       // Set the top bin to be unbounded to ensure the largest value is picked up.
       if (acceptFinal) {
-        bins[numBins - 1].accept = function (value) {
-            if (this.firstValue <= value) {
-              if (value <= this.lastValue) {
-                return 0;
-              } else {
-                return 1;
-              }
+        bins[numBins - 1].accept = function(value) {
+          if (this.firstValue <= value) {
+            if (value <= this.lastValue) {
+              return 0;
             } else {
-              return -1
+              return 1;
             }
+          } else {
+            return -1
+          }
         };
       }
       return bins;
@@ -421,23 +494,32 @@ define([
      * @returns {Array}
      * @private
      */
-    _configureBinsFromArray: function (binArray) {
+    _configureBinsFromArray: function(binArray) {
       var bins = [],
           previousLastValue = Number.NEGATIVE_INFINITY,
           numBins = binArray.length;
-      binArray.forEach(function (bin, i) {
-        if (bin.firstValue === undefined || bin.firstValue === 'smallest') { bin.firstValue = Number.NEGATIVE_INFINITY; }
-        if (bin.lastValue === undefined || bin.lastValue === 'largest') { bin.lastValue = Number.POSITIVE_INFINITY; }
+      binArray.forEach(function(bin, i) {
+        if (bin.firstValue === undefined || bin.firstValue === 'smallest') {
+          bin.firstValue = Number.NEGATIVE_INFINITY;
+        }
+        if (bin.lastValue === undefined || bin.lastValue === 'largest') {
+          bin.lastValue = Number.POSITIVE_INFINITY;
+        }
         if (bin.firstValue < previousLastValue || bin.lastValue < bin.firstValue) {
-          throw new DeveloperError('Incorrect bins configuration provided', this._configuration.bins);
+          throw new DeveloperError('Incorrect bins configuration provided',
+              this._configuration.bins);
         }
         bins.push({binId: i, numBins: numBins, firstValue: bin.firstValue,
-            lastValue: bin.lastValue, range: (bin.lastValue - bin.firstValue),
-            accept: function (x) {
-              if (x < this.firstValue) { return -1; }
-              if (x >= this.lastValue) { return 1; }
-              return 0;
+          lastValue: bin.lastValue, range: (bin.lastValue - bin.firstValue),
+          accept: function(x) {
+            if (x < this.firstValue) {
+              return -1;
             }
+            if (x >= this.lastValue) {
+              return 1;
+            }
+            return 0;
+          }
         });
         previousLastValue = bin.lastValue;
       }, this);
@@ -450,7 +532,7 @@ define([
      * @returns {Array.<Object>}
      * @protected
      */
-    _calculateBinnedStatistics: function () {
+    _calculateBinnedStatistics: function() {
       this._bins = this._configureBins();
       var theStats = [],
           sortedValues = [];
@@ -464,7 +546,7 @@ define([
       // Declare for value loop counter outside _bins.forEach as each bin should process values
       // where the previous one left off.
       var i = 0;
-      this._bins.forEach(function (bin) {
+      this._bins.forEach(function(bin) {
         var binStats = {
           entityIds: [],
           count: 0,
@@ -486,15 +568,20 @@ define([
             // Calculate statistical properties.
             binStats.count++;
             binStats.sum += thisValue;
-            if (thisValue < binStats.min.value) { binStats.min = { 'id': thisId, 'value': thisValue };}
-            if (thisValue > binStats.max.value) { binStats.max = { 'id': thisId, 'value': thisValue };}
+            if (thisValue < binStats.min.value) {
+              binStats.min = { 'id': thisId, 'value': thisValue };
+            }
+            if (thisValue > binStats.max.value) {
+              binStats.max = { 'id': thisId, 'value': thisValue };
+            }
           } // else value to small for this bin, try next value.
 
           //if (thisValue < bin.firstValue) { continue; }
           //if (thisValue >= bin.lastValue) { break; }
         }
         // Calculate more stats
-        binStats.average = binStats.count !== 0 ? binStats.sum / binStats.count : Number.POSITIVE_INFINITY;
+        binStats.average =
+            binStats.count !== 0 ? binStats.sum / binStats.count : Number.POSITIVE_INFINITY;
         binStats.range = binStats.max.value - binStats.min.value;
         // TODO(bpstudds): Is this the most efficient way of doing this?
         theStats.push(mixin(binStats, bin));
@@ -510,7 +597,7 @@ define([
      * @returns {Object}
      * @protected
      */
-    _calculatePopulationStatistics: function () {
+    _calculatePopulationStatistics: function() {
       // TODO(bpstudds): Add the ability to specify which IDs to update see HeightProjection#render.
       var ids = Object.keys(this._values);
       var stats = {'sum': 0};
@@ -519,11 +606,15 @@ define([
         stats.max = { id: ids[0], value: this._values[ids[0]] };
         stats.count = ids.length;
         // Calculate min, max, and sum values.
-        ids.forEach(function (id) {
+        ids.forEach(function(id) {
           var thisValue = this._values[id];
           stats.sum += parseInt(thisValue, 10) || 0;
-          if (thisValue < stats.min.value) { stats.min = { 'id': id, 'value': thisValue };}
-          if (thisValue > stats.max.value) { stats.max = { 'id': id, 'value': thisValue };}
+          if (thisValue < stats.min.value) {
+            stats.min = { 'id': id, 'value': thisValue };
+          }
+          if (thisValue > stats.max.value) {
+            stats.max = { 'id': id, 'value': thisValue };
+          }
         }, this);
         stats.average = stats.sum / stats.count;
         stats.range = stats.max.value - stats.min.value;
@@ -538,14 +629,14 @@ define([
      * @returns {Object} The calculated parameters.
      * @protected
      */
-    _calculateValueAttributes: function () {
+    _calculateValueAttributes: function() {
       // Update the value statistics if necessary.
       this._stats = this._stats ? this._stats : this._calculateBinnedStatistics();
       var theAttributes = {};
       // Iterate through each bin...
-      this._stats.forEach( function (bin) {
+      this._stats.forEach(function(bin) {
         // and each entity which has a value in the bin.
-        bin.entityIds.forEach(function (id) {
+        bin.entityIds.forEach(function(id) {
           var thisValue = this._values[id],
               thisAttribute = {},
               divisor;
@@ -557,8 +648,9 @@ define([
             thisAttribute.diffFromAverage = thisValue - bin.average;
             thisAttribute.ratioFromAverage = (thisValue - bin.average);
             divisor = thisAttribute.ratioFromAverage < 0 ?
-              (bin.average - bin.min.value) : (bin.max.value - bin.average);
-            thisAttribute.ratioFromAverage = divisor > 0 ? thisAttribute / divisor : Number.POSITIVE_INFINITY;
+                (bin.average - bin.min.value) : (bin.max.value - bin.average);
+            thisAttribute.ratioFromAverage =
+                divisor > 0 ? thisAttribute / divisor : Number.POSITIVE_INFINITY;
             // Push onto new attribute onto attribute collection.
             theAttributes[id] = thisAttribute;
           }
@@ -575,14 +667,20 @@ define([
      * @returns {Array.<String>} - An array of GeoEntity IDs.
      * @protected
      */
-    _constructIdList: function (id) {
+    _constructIdList: function(id) {
       var ids = null;
       var allIds = Object.keys(this._entities);
       // If argument id was provided...
-      if (id && (typeof id).match(/(string|number)/)) { ids = [id]; }
-      if (id && id instanceof Array) { ids = id; }
+      if (id && (typeof id).match(/(string|number)/)) {
+        ids = [id];
+      }
+      if (id && id instanceof Array) {
+        ids = id;
+      }
       // ... use the entities it specifies instead of all the entities.
-      if (!ids) { ids = allIds; }
+      if (!ids) {
+        ids = allIds;
+      }
       return ids;
     }
   });
