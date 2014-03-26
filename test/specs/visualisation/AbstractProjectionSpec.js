@@ -61,7 +61,7 @@ define([
           {binId: 1, numBins: 2, min: {id: '6', value: 6}, max: {id: '8', value: 8}, count: 3, average: 7, sum: 21, range: 2, entityIds: ['6', '7', '8'], firstValue: 6, lastValue: 9}
         ];
         bins1 = [
-          { binId: 0, numBins: 1, firstValue: Number.NEGATIVE_INFINITY, lastValue: Number.POSITIVE_INFINITY }
+          { binId: 0, numBins: 1, firstValue: 0, lastValue: 9 }
         ];
         bins2openBelow= [
           { binId: 0, numBins: 2, firstValue: Number.NEGATIVE_INFINITY, lastValue: 5 },
@@ -73,7 +73,7 @@ define([
         ];
         bins2auto = [
           { binId: 0, numBins: 2, firstValue: 0, lastValue: 4.5 },
-          { binId: 1, numBins: 2, firstValue: 4.5, lastValue: Number.POSITIVE_INFINITY }
+          { binId: 1, numBins: 2, firstValue: 4.5, lastValue: 9 }
         ];
         bins2specifiedRange = [
           { binId: 0, numBins: 2, firstValue: 1, lastValue: 4 },
@@ -159,6 +159,7 @@ define([
               }, args);
               abPro = new parametrisedTestClass(args);
               expect(abPro._bins).toEqual(bins2specifiedRange);
+              expect(abPro._calculateValueAttributes()).not.toBeNull();
             });
           }); // End 'of variable capacity'
         }); // End 'with bins'

@@ -289,7 +289,20 @@ define([
         var theEntity = this._entities[id];
         var theAttributes = this._attributes[id];
         if (theEntity) {
-          f.call(this, theEntity, theAttributes);
+          if (theAttributes) {
+            f.call(this, theEntity, theAttributes);
+          } else {
+            if (this._rendered) {
+              if (theEntity.isVisible()) {
+                this._effects[id] = {hidden: true};
+                theEntity.hide();
+              }
+            } else {
+              if (!theEntity.isVisible() && this._effects[id].hidden) {
+                theEntity.show();
+              }
+            }
+          }
         }
       }, this);
     },
@@ -419,7 +432,13 @@ define([
           throw new DeveloperError('Incorrect bins configuration provided', this._configuration.bins);
         }
         bins.push({binId: i, numBins: numBins, firstValue: bin.firstValue,
-            lastValue: bin.lastValue, range: (bin.lastValue - bin.firstValue)});
+            lastValue: bin.lastValue, range: (bin.lastValue - bin.firstValue),
+            accept: function (x) {
+              if (x < this.firstValue) { return -1; }
+              if (x >= this.lastValue) { return 1; }
+              return 0;
+            }
+        });
         previousLastValue = bin.lastValue;
       }, this);
       return bins;
@@ -530,17 +549,19 @@ define([
           var thisValue = this._values[id],
               thisAttribute = {},
               divisor;
-          thisAttribute.binId = bin.binId;
-          thisAttribute.numBins = bin.numBins;
-          thisAttribute.absRatio = bin.range !== 0 ?
-              (thisValue - bin.min.value) / (bin.range) : Number.POSITIVE_INFINITY;
-          thisAttribute.diffFromAverage = thisValue - bin.average;
-          thisAttribute.ratioFromAverage = (thisValue - bin.average);
-          divisor = thisAttribute.ratioFromAverage < 0 ?
-            (bin.average - bin.min.value) : (bin.max.value - bin.average);
-          thisAttribute.ratioFromAverage = divisor > 0 ? thisAttribute / divisor : Number.POSITIVE_INFINITY;
-          // Push onto new attribute onto attribute collection.
-          theAttributes[id] = thisAttribute;
+          if (thisValue !== undefined && thisValue !== null) {
+            thisAttribute.binId = bin.binId;
+            thisAttribute.numBins = bin.numBins;
+            thisAttribute.absRatio = bin.range !== 0 ?
+                (thisValue - bin.min.value) / (bin.range) : Number.POSITIVE_INFINITY;
+            thisAttribute.diffFromAverage = thisValue - bin.average;
+            thisAttribute.ratioFromAverage = (thisValue - bin.average);
+            divisor = thisAttribute.ratioFromAverage < 0 ?
+              (bin.average - bin.min.value) : (bin.max.value - bin.average);
+            thisAttribute.ratioFromAverage = divisor > 0 ? thisAttribute / divisor : Number.POSITIVE_INFINITY;
+            // Push onto new attribute onto attribute collection.
+            theAttributes[id] = thisAttribute;
+          }
         }, this);
       }, this);
       return theAttributes;
