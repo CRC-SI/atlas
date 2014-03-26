@@ -15,8 +15,21 @@ define([
      * @returns {Number}
      */
     toDegrees: function (radians) {
-      radians = parseInt(radians, 10) || 0;
-      return radians / Math.PI * 180;
+      radians = parseFloat(radians) || 0.0;
+      return radians / Math.PI * 180.0;
+    },
+
+    /**
+     * Converts a decimal degree to a degrees minutes seconds value.
+     * @param {Number} decimal - The decimal degree value.
+     * @returns {{degrees: Number, minutes: Number, seconds: Number}}
+     */
+    toDMS: function (decimal) {
+      var degrees = decimal.toFixed(0),
+          dminutes = ((decimal - degrees) * 60),
+          minutes = dminutes.toFixed(0),
+          seconds = (dminutes - minutes).toFixed(0);
+      return {degrees: degrees, minutes: minutes, seconds: seconds};
     },
 
     /**
@@ -24,8 +37,8 @@ define([
      * @returns {Number}
      */
     toRadians: function (degrees) {
-      degrees = parseInt(degrees, 10) || 0;
-      return degrees * Math.PI / 180;
+      degrees = parseFloat(degrees) || 0.0;
+      return degrees * Math.PI / 180.0;
     },
 
     // -------------------------------------------
