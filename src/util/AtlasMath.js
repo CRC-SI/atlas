@@ -1,5 +1,6 @@
 define([
 ], function () {
+
   /**
    * Defines a bunch of handy math functions. That are probably defined elsewhere.
    * @exports atlas.util.AtlasMath
@@ -22,7 +23,7 @@ define([
     /**
      * Converts a decimal degree to a degrees minutes seconds value.
      * @param {Number} decimal - The decimal degree value.
-     * @returns {{degrees: Number, minutes: Number, seconds: Number}}
+     * @returns {Object} dms - The degree, minute, and second components.
      */
     toDMS: function (decimal) {
       var degrees = decimal.toFixed(0),
@@ -71,6 +72,6 @@ define([
       if (x < lo) return lo;
       if (x > hi) return hi;
       return x;
-    },
+    }
   };
 });
