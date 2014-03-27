@@ -56,7 +56,7 @@ define([
 
     /**
      * Array of references to the child GeoEntities.
-     * @type {Array.<atlas.model.GeoEntity}
+     * @type {Array.<atlas.model.GeoEntity>}
      * @protected
      */
     _children: null,
@@ -148,7 +148,7 @@ define([
       this.clean();
       this.setDirty('entity');
 
-      if (id === undefined || typeof id === 'object') {
+      if (!id || typeof id === 'object') {
         throw new DeveloperError('Can not create instance of GeoEntity without an ID');
       }
       if (!args.style) {
