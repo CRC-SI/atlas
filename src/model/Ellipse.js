@@ -3,13 +3,14 @@ define([
   'atlas/util/default',
   'atlas/util/mixin',
   'atlas/util/WKT',
-  './Vertex',
   './Colour',
-  './Style',
+  './GeoPoint',
   './Material',
+  './Style',
+  './Vertex',
   // Base class
   './GeoEntity'
-], function(DeveloperError, defaultValue, mixin, WKT, Vertex, Colour, Style, Material,
+], function(DeveloperError, defaultValue, mixin, WKT, Colour, GeoPoint, Material, Style, Vertex,
             GeoEntity) {
 
   /**
@@ -89,7 +90,7 @@ define([
 
     /**
      * The centroid of the Ellipse in latitude, longitude and elevation.
-     * @type {atlas.model.Vertex}
+     * @type {atlas.model.GeoPoint}
      * @private
      */
     _centroid: null,
@@ -141,7 +142,7 @@ define([
       }
       this._super(id, args);
 
-      this._centroid = new Vertex(ellipseData.centroid);
+      this._centroid = new GeoPoint(ellipseData.centroid);
       this._semiMajor = ellipseData.semiMajor;
       this._semiMinor = ellipseData.semiMinor;
       this._rotation = ellipseData.rotation;
