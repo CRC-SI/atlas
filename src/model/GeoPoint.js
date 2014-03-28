@@ -38,9 +38,14 @@ define([
      * Constructs a new GeoPoint object.
      * @ignore
      */
-    _init: function (lat, lng, elevation) {
-      this.latitude = parseFloat(lat) || 0.0;
-      this.longitude = parseFloat(lng) || 0.0;
+    _init: function (latitude, longitude, elevation) {
+      if (typeof latitude === 'object') {
+        longitude = latitude.longitude;
+        elevation = latitude.elevation;
+        latitude = latitude.latitude;
+      }
+      this.latitude = parseFloat(latitude) || 0.0;
+      this.longitude = parseFloat(longitude) || 0.0;
       this.elevation = parseFloat(elevation) || 0.0;
     },
 
@@ -59,8 +64,12 @@ define([
           latMarker = this.latitude < 0 ? 'S' : 'N',
           lngMarker = this.longitude < 0 ? 'W' : 'E',
           dms = '';
-    }
+    },
 
+    toRadians: function () {
+      return new GeoPoint(AtlasMath.toRadians(this.latitude),
+          AtlasMath.toRadians(this.longitude), this.elevation);
+    }
   }),
     {
       // -------------------------------------------
