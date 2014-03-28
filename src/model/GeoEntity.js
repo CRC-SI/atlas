@@ -143,6 +143,7 @@ define([
         args = id;
         id = args.id;
       }
+      id = id.toString();
       // Call the superclass' (EventTarget) constructor.
       this._super(args.eventManager, args.parent);
       this.clean();
