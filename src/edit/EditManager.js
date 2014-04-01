@@ -61,6 +61,31 @@ define([
       this.addModule('translation', new TranslationModule(this._atlasManagers));
       // TODO(aramk) Disabled translation by default.
       //    this.enableModule('translation');
+      this.bindEvents();
+    },
+
+    bindEvents: function () {
+      var handlers = [
+        {
+          source: 'intern',
+          name: 'input/keyup',
+          callback: function (event) {
+            // TODO(bpstudds): Make an enum for the keyboard event key values.
+            if (event.modifiers.ctrl && event.key === 69) {
+              console.log('toggling editing');
+              this.toggleModule('translation');
+            }
+          }.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'entity/select',
+          callback: function (event) {
+            this.edit(event.entities);
+          }.bind(this)
+        }
+      ];
+      this._atlasManagers.event.addEventHandlers(handlers);
     },
 
     /**
@@ -121,6 +146,18 @@ define([
         this.enableModule(name);
       } else {
         this.disableModule(name);
+      }
+    },
+
+    /**
+     * Toggles whether the module with the given name is active.
+     * @param {String} name - The name of the module.
+     */
+    toggleModule: function (name) {
+      if (this._enabledModules[name]) {
+        this.disableModule(name);
+      } else {
+        this.enableModule(name);
       }
     }
 
