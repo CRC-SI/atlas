@@ -81,7 +81,7 @@ define([
               { value: '&nbsp;&ndash;&nbsp;' },
               { value: round(bin.lastValue) }
             ];
-        legend.rows.push({cells: elements});
+        legend.rows.unshift({cells: elements});
       }
       return legend;
     },
@@ -109,13 +109,13 @@ define([
               lowerBound = round(bin.firstValue + f * bin.range),
               upperBound = round(bin.firstValue + (f + 0.25) * bin.range),
               elements = [
-                { background: 'linear-gradient(to bottom,' + colour1 + ',' + colour2 + ')', width: '1em' },
+                { background: 'linear-gradient(to top,' + colour1 + ',' + colour2 + ')', width: '1em' },
                 { value: '&nbsp;&nbsp;&nbsp;' + lowerBound },
                 { value: '&nbsp;&ndash;&nbsp;' },
                 { value: upperBound }
               ];
           // TODO(bpstudds): This won't work with more than one bin.
-          legend.rows.push({cells: elements});
+          legend.rows.unshift({cells: elements});
         });
       }, this);
       return legend;
