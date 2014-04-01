@@ -1,10 +1,17 @@
 define([
+  'atlas/util/Class',
   'atlas/util/DeveloperError',
   'atlas/util/mixin',
-  'atlas/model/Vertex',
-  // Base class
-  'atlas/model/GeoEntity'
-], function (DeveloperError, mixin, Vertex, GeoEntity) {
+  'atlas/model/GeoEntity',
+  'atlas/model/Vertex'
+], function (Class, DeveloperError, mixin, GeoEntity, Vertex) {
+
+  /**
+   * @typedef atlas.model.Vertex
+   * @ignore
+   */
+  var Handle;
+
   /**
    * @classdesc The Handle class is an interactive vector linked to a GeoEntity or Vertex.
    * The Handle provides an interface between the editing subsystem and GeoEntities.
@@ -13,29 +20,37 @@ define([
    * @param {atlas.model.GeoEntity} args.target - The owner of the linked <code>Vertex</code>.
    * @param {atlas.model.Vertex | atlas.model.GeoEntity} args.linked - The Vertex or GeoEntity that is linked to the Handle.
    * @class atlas.model.Handle
-   * @extends atlas.model.GeoEntity
    */
-  var Handle;
-  return mixin(Handle = GeoEntity.extend( /** @lends atlas.model.Handle# */ {
+  Handle = Class.extend( /** @lends atlas.model.Handle# */ {
 
     /**
      * ID of the Handle.
      * @type {String}
-     * @protected
+     * @private
      */
     _id: null,
 
     /**
      * The linked GeoEntity or Vertex.
      * @type {atlas.model.GeoEntity | atlas.model.Vertex}
-     * @protected
+     * @private
      */
     _linked: null,
 
     /**
-     * The owner of the linked Vertex.
+     * The owner of a linked Vertex, if the Handle is linked to a Vertex. Otherwise
+     * <code>_target</code> is equivalent to <code>_linked</code>.
+     * @type {atlas.model.GeoEntity}
+     * @private
      */
     _target: null,
+
+    /**
+     * The visual element of the Handle.
+     * @type {atlas.model.Ellipse}
+     * @private
+     */
+    _dot: null,
 
     _init: function (args) {
       if (!args.linked) {
@@ -51,27 +66,55 @@ define([
       } else {
         throw new DeveloperError('Tried to link handle to unrecognised object.');
       }
-      this._id = Handle.getNextId();
+      this._id = Handle._getNextId();
       this._linked = args.linked;
       this._target = args.target;
+
+      this.show();
     },
 
+    /**
+     * Shows the visual element of the Handle from rendering.
+     * @abstract
+     */
+    render: function () {
+      throw new DeveloperError('Handle.render() must be implemented.');
+    },
+
+    /**
+     * Removes the visual element of the Handle from rendering.
+     * @abstract
+     */
+    unrender: function () {
+      throw new DeveloperError('Handle.unrender() must be implemented.');
+    },
+
+    /**
+     * Removes the Handle from its linked object.
+     */
     remove: function () {
       this._linked = null;
       this._target = null;
       this._delegateToLinked = function () {
         throw new Error('Tried to use a removed Handle');
-      }
+      };
+      this.unrender();
     },
 
     // -------------------------------------------
     // GETTERS AND SETTERS
     // -------------------------------------------
 
+    /**
+     * @returns {atlas.model.GeoEntity|atlas.model.Vertex} The Handle's linked entity.
+     */
     getLinked: function () {
       return this._linked;
     },
 
+    /**
+     * @returns {atlas.model.GeoEntity} The Handle's target.
+     */
     getTarget: function () {
       return this._target;
     },
@@ -79,10 +122,19 @@ define([
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------
+
+    /**
+     * Delegates a given method to the Handle's linked and target Entities as required.
+     * @param {String} method - The method to apply.
+     * @param {Array} args - The arguments for the method.
+     * @private
+     */
     _delegateToLinked: function (method, args) {
       var linked = this.getLinked(),
           target = this.getTarget();
+      // Apply method to the linked entity.
       linked[method].apply(linked, args);
+      // If the linked entity is not the target, inform the target that it needs to update.
       if (linked !== target) {
         // linked and target are only different if linked is a Vertex and target a GeoEntity.
         target.setDirty('vertices');
@@ -91,33 +143,55 @@ define([
       target.show();
     },
 
+    /**
+     * Rotate the linked entity.
+     * See {@link atlas.model.GeoEntity} for arguments format.
+     */
     rotate: function () {
       this._delegateToLinked('rotate', arguments);
     },
 
+    /**
+     * Scale the linked entity.
+     * See {@link atlas.model.GeoEntity} for arguments format.
+     */
     scale: function () {
       this._delegateToLinked('scale', arguments);
     },
 
+    /**
+     * Translate the linked entity.
+     * See {@link atlas.model.GeoEntity} for arguments format.
+     */
     translate: function () {
       this._delegateToLinked('translate', arguments);
-    }
-  }),
-    {
-      // -------------------------------------------
-      // STATICS
-      // -------------------------------------------
+    },
 
-      /**
-       * ID to assign to the next created Handle.
-       * @type {Number}
-       * @protected
-       */
-      _nextId: 100000,
-
-      getNextId: function () {
-        return 'handle' + Handle._nextId++;
-      }
+    /**
+     * @returns {atlas.model.Handle}
+     */
+    getThis: function () {
+      return new Handle(this);
     }
-  );
+  });
+  // -------------------------------------------
+  // STATICS
+  // -------------------------------------------
+
+  /**
+   * ID to assign to the next created Handle.
+   * @type {Number}
+   * @private
+   */
+  Handle._nextId = 100000;
+
+  /**
+   * @returns {String} The next available Handle ID
+   * @private
+   */
+  Handle._getNextId = function () {
+    return 'handle' + Handle._nextId++;
+  };
+
+  return Handle;
 });
