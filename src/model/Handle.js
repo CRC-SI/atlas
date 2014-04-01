@@ -70,7 +70,7 @@ define([
       this._linked = args.linked;
       this._target = args.target;
 
-      this.show();
+      this.render();
     },
 
     /**

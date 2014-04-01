@@ -11,6 +11,10 @@ define([
         vertex,
         modifiers = ['translate', 'rotate', 'scale'];
 
+    // Override abstract render function.
+    Handle.prototype.render = function () {};
+    Handle.prototype.unrender = function () {};
+
     beforeEach (function () {
       entity1 = new GeoEntity({id: '001'});
       entity2 = new GeoEntity({id: '002'});
