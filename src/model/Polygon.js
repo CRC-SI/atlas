@@ -1,15 +1,16 @@
 define([
+  'atlas/model/Colour',
+  'atlas/model/Handle',
+  'atlas/model/Material',
+  'atlas/model/Style',
+  'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/default',
   'atlas/util/mixin',
   'atlas/util/WKT',
-  './Vertex',
-  './Colour',
-  './Style',
-  './Material',
   // Base class
-  './GeoEntity'
-], function(DeveloperError, defaultValue, mixin, WKT, Vertex, Colour, Style, Material,
+  'atlas/model/GeoEntity'
+], function(Colour, Handle, Material, Style, Vertex, DeveloperError, defaultValue, mixin, WKT,
             GeoEntity) {
 
   /**
@@ -222,6 +223,20 @@ define([
         this._elevation = elevation;
         this.setDirty('vertices');
       }
+    },
+
+    /**
+     * @returns {Array.<atlas.model.Handle>} A handle for each of the vertices in the Polygon, as well as
+     * one on the Polygon itself.
+     */
+    getEditingHandles: function () {
+      var handles = [];
+      handles.push(new Handle({centroid: this.getCentroid(), linked: this}));
+
+      this._vertices.forEach(function (vertex) {
+        handles.push(new Handle({centroid: vertex, linked: vertex, target: this}));
+      }.bind(this));
+      return handles;
     },
 
     /**
