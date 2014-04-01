@@ -7,7 +7,7 @@ define([
 ], function (Class, DeveloperError, mixin, GeoEntity, Vertex) {
 
   /**
-   * @typedef atlas.model.Vertex
+   * @typedef atlas.model.Handle
    * @ignore
    */
   var Handle;
@@ -165,13 +165,6 @@ define([
      */
     translate: function () {
       this._delegateToLinked('translate', arguments);
-    },
-
-    /**
-     * @returns {atlas.model.Handle}
-     */
-    getThis: function () {
-      return new Handle(this);
     }
   });
   // -------------------------------------------
