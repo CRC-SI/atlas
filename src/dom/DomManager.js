@@ -91,6 +91,26 @@ define([
       return this._currentDomNode;
     },
 
+    getBoundingRect: function () {
+      var element = this.getDom(),
+          style = window.getComputedStyle(element),
+          getCss = function (css) {
+            var f = style.getPropertyValue(css).replace('px', ''),
+                n = parseInt(f) || 0;
+            return n;
+          },
+          top = getCss('top') + getCss('margin-top') + getCss('padding') + getCss('padding-top') + element.offsetTop,
+          left = getCss('left') + getCss('margin-left') + getCss('padding') + getCss('padding-left') + element.offsetLeft,
+          height = getCss('height') - getCss('margin-bottom') - getCss('padding') - getCss('padding-bottom') + element.offsetHeight,
+          width = getCss('width') - getCss('margin-right') - getCss('padding') - getCss('padding-right') + element.offsetWidth;
+      return {
+        top: top,
+        left: left,
+        height: height,
+        width: width
+      };
+    },
+
     getHeight: function() {
       return this._currentDomNode.offsetHeight;
     },
