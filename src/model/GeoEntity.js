@@ -199,6 +199,13 @@ define([
     },
 
     /**
+     * @returns {[atlas.model.Handle]} An array of Handles used to edit the GeoEntity.
+     */
+    getEditingHandles: function () {
+      return [];
+    },
+
+    /**
      * @returns {Boolean} Whether the GeoEntity is currently visible.
      */
     isVisible: function() {
@@ -314,7 +321,7 @@ define([
       newStyle.borderColour && (oldStyle.borderColour = this._style.getBorderColour());
       newStyle.borderWidth && (oldStyle.borderWidth = this._style.getBorderWidth());
       // Generate new style based on what's changed.
-      var newStyle = mixin({
+      newStyle = mixin({
         fillColour: this._style.getFillColour(),
         borderColour: this._style.getBorderColour(),
         borderWidth: this._style.getBorderWidth()
@@ -468,7 +475,8 @@ define([
     onDisableEditing: function () {
       this._editEventHandler && this._editEventHandler.cancel();
     }
-  })
+
+  });
 
   // -------------------------------------------------
   // Statics
