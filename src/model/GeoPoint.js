@@ -42,10 +42,14 @@ define([
      * Constructs a new GeoPoint object.
      */
     _init: function (latitude, longitude, elevation) {
-      if (typeof latitude === 'object') {
+      if (latitude.latitude) {
         longitude = latitude.longitude;
         elevation = latitude.elevation;
         latitude = latitude.latitude;
+      } else if (latitude.x) {
+        longitude = latitude.y;
+        elevation = latitude.z;
+        latitude = latitude.x;
       }
       this.latitude = parseFloat(latitude) || 0.0;
       this.longitude = parseFloat(longitude) || 0.0;
@@ -93,9 +97,11 @@ define([
           this.longitude + other.longitude, this.elevation);
     }
   });
+
   // -------------------------------------------
   // STATICS
   // -------------------------------------------
+
   /**
    * Constructs a new GeoPoint from a Vertex object.
    * @param {atlas.model.Vertex} vertex - The vertex.
@@ -106,7 +112,7 @@ define([
    */
   GeoPoint.fromVertex = function (vertex) {
     if (!vertex) { return new GeoPoint(); }
-    return new GeoPoint(vertex.y, vertex.x, vertex.y);
+    return new GeoPoint(vertex.x, vertex.y, vertex.z);
   };
 
   /**
