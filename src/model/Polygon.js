@@ -226,20 +226,6 @@ define([
     },
 
     /**
-     * @returns {Array.<atlas.model.Handle>} A handle for each of the vertices in the Polygon, as well as
-     * one on the Polygon itself.
-     */
-    getEditingHandles: function () {
-      var handles = [];
-      handles.push(new Handle({centroid: this.getCentroid(), linked: this}));
-
-      this._vertices.forEach(function (vertex) {
-        handles.push(new Handle({centroid: vertex, linked: vertex, target: this}));
-      }.bind(this));
-      return handles;
-    },
-
-    /**
      * @returns {Number} The elevation of the base of the polygon (or prism).
      */
     getElevation: function() {
