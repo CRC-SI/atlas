@@ -9,6 +9,12 @@ define([
 ], function (DeveloperError, mixin, Event, Colour, Style, EventTarget) {
 
   /**
+   * @typedef atlas.model.GeoEntity
+   * @ignore
+   */
+  var GeoEntity;
+
+  /**
    * @classdesc A GeoEntity is an abstract class that represents an entity that
    * has a defined place in 3D space. A GeoEntity is a purely
    * abstract module that is extended by other atlas entities that specify
@@ -32,7 +38,7 @@ define([
    * @extends atlas.events.EventTarget
    * @class atlas.model.GeoEntity
    */
-   var GeoEntity = EventTarget.extend(/** @lends atlas.model.GeoEntity# */ {
+   GeoEntity = EventTarget.extend(/** @lends atlas.model.GeoEntity# */ {
     /**
      * The ID of the GeoEntity
      * @type {String}
