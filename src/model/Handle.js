@@ -26,14 +26,14 @@ define([
     /**
      * ID of the Handle.
      * @type {String}
-     * @private
+     * @protected
      */
     _id: null,
 
     /**
      * The linked GeoEntity or Vertex.
      * @type {atlas.model.GeoEntity | atlas.model.Vertex}
-     * @private
+     * @protected
      */
     _linked: null,
 
@@ -41,14 +41,14 @@ define([
      * The owner of a linked Vertex, if the Handle is linked to a Vertex. Otherwise
      * <code>_target</code> is equivalent to <code>_linked</code>.
      * @type {atlas.model.GeoEntity}
-     * @private
+     * @protected
      */
     _target: null,
 
     /**
      * The visual element of the Handle.
      * @type {atlas.model.Ellipse}
-     * @private
+     * @protected
      */
     _dot: null,
 
@@ -69,8 +69,6 @@ define([
       this._id = Handle._getNextId();
       this._linked = args.linked;
       this._target = args.target;
-
-      this.render();
     },
 
     /**
