@@ -1,8 +1,8 @@
 define([
-  'atlas/model/Vertex',
+  'atlas/model/GeoPoint',
   // Code under test.
   'atlas/model/Ellipse'
-], function (Vertex, Ellipse) {
+], function (GeoPoint, Ellipse) {
   describe ('An Ellipse', function () {
     var ellipse,
         data,
@@ -10,7 +10,7 @@ define([
 
     beforeEach (function () {
       data = {
-        centroid: new Vertex(0, 0, 0),
+        centroid: new GeoPoint(0, 0, 0),
         semiMajor: 20,
         semiMinor: 10
       };
@@ -90,17 +90,17 @@ define([
       describe ('by translation', function () {
         it ('in both axis', function () {
           ellipse.translate({x: 5, y: 10, z: 0});
-          expect(ellipse.getCentroid()).toEqual(new Vertex(5, 10, 0));
+          expect(ellipse.getCentroid()).toEqual(new GeoPoint(5, 10, 0));
         });
 
         it ('in semi major axis', function () {
           ellipse.translate({x: 5});
-          expect(ellipse.getCentroid()).toEqual(new Vertex(5, 0, 0));
+          expect(ellipse.getCentroid()).toEqual(new GeoPoint(5, 0, 0));
         });
 
         it ('in both axis', function () {
           ellipse.translate({y: 10});
-          expect(ellipse.getCentroid()).toEqual(new Vertex(0, 10, 0));
+          expect(ellipse.getCentroid()).toEqual(new GeoPoint(0, 10, 0));
         });
 
         it ('fails without an arg', function () {
