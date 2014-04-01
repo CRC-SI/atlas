@@ -21,12 +21,17 @@ define([
    * constructing a Ellipse.
    *
    * @param {Number} id - The ID of this Ellipse.
-   * @param {Object} [args] - Option arguments describing the Ellipse.
+   * @param {Object} ellipseData - Parameters regarding the Ellipse
+   * @param {atlas.model.GeoPoint} ellipseData.centroid - The centroid of the Ellipse.
+   * @param {Number} ellipseData.semiMajor - The semi major axis of the Ellipse.
+   * @param {Number} ellipseData.semiMinor - The semi minor axis of the Ellipse.
+   * @param {Number} [ellipseData.height=0] - The extruded height of the Ellipse to form a prism.
+   * @param {Number} [ellipseData.elevation] - The elevation of the base of the Ellipse.
+   * @param {atlas.model.Colour} [ellipseData.color] - The fill colour of the Ellipse.
+   * @param {atlas.model.Style} [ellipseData.style=defaultStyle] - The Style to apply to the Ellipse.
+   * @param {atlas.model.Material} [ellipseData.material=defaultMaterial] - The Material to apply to the Ellipse.
+   * @param {Object} [args] - Optional arguments describing the Ellipse.
    * @param {atlas.model.GeoEntity} [args.parent=null] - The parent entity of the Ellipse.
-   * @param {Number} [args.height=0] - The extruded height of the Ellipse to form a prism.
-   * @param {Number} [args.elevation] - The elevation of the base of the Ellipse.
-   * @param {atlas.model.Style} [args.style=defaultStyle] - The Style to apply to the Ellipse.
-   * @param {atlas.model.Material} [args.material=defaultMaterial] - The Material to apply to the Ellipse.
    * @returns {atlas.model.Ellipse}
    *
    * @class atlas.model.Ellipse
@@ -289,13 +294,11 @@ define([
 
     /**
      * Translates the Ellipse.
-     * @param {atlas.model.Vertex} translation - The vector from the Ellipse's current location to the desired location.
-     * @param {Number} translation.x - The change in latitude, given in decimal degrees.
-     * @param {Number} translation.y - The change in longitude, given in decimal degrees.
-     * @param {Number} translation.z - The change in altitude, given in metres.
+     * @param {atlas.model.GeoPoint | {latitude, longitude}} translation - Translates the Ellipse by
+     * a given amount in latitude and longitude.
      */
     translate: function(translation) {
-      this._centroid = this._centroid.add(translation);
+      this._centroid = this._centroid.translate(translation);
       this.setDirty('model');
       this.isVisible() && this.show();
     },
@@ -310,10 +313,19 @@ define([
      * @param {Number} scale.y - The scale along the semi minor axis.
      */
     scale: function(scale) {
-      // TODO(bpstudds): How do we handle negative scale values?
-      // TODO(bpstudds): How do we handle semiMinor becoming larger than semiMajor?
-      this._semiMajor *= (parseFloat(scale.x) || 1.0);
-      this._semiMinor *= (parseFloat(scale.y) || 1.0);
+      if (scale.x < 0 || scale.y < 0) {
+        throw new DeveloperError('Can not scale Ellipse negatively');
+      }
+      var major = this._semiMajor * (parseFloat(scale.x) || 1.0),
+          minor = this._semiMinor * (parseFloat(scale.y) || 1.0);
+      if (minor > major) {
+        var tempMinor = minor;
+        minor = major;
+        major = tempMinor;
+        this._rotation += 90;
+      }
+      this._semiMajor = major;
+      this._semiMinor = minor;
       this.setDirty('model');
       this.isVisible() && this.show();
     },
@@ -324,6 +336,8 @@ define([
      */
     rotate: function(rotation) {
       this._rotation += (parseFloat(rotation) || 0.0);
+      this.setDirty('model');
+      this.isVisible() && this.show();
     },
 
     // -------------------------------------------

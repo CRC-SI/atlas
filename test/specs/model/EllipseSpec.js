@@ -89,17 +89,17 @@ define([
 
       describe ('by translation', function () {
         it ('in both axis', function () {
-          ellipse.translate({x: 5, y: 10, z: 0});
+          ellipse.translate({latitude: 5, longitude: 10});
           expect(ellipse.getCentroid()).toEqual(new GeoPoint(5, 10, 0));
         });
 
         it ('in semi major axis', function () {
-          ellipse.translate({x: 5});
+          ellipse.translate({latitude: 5});
           expect(ellipse.getCentroid()).toEqual(new GeoPoint(5, 0, 0));
         });
 
-        it ('in both axis', function () {
-          ellipse.translate({y: 10});
+        it ('in semi minor axis', function () {
+          ellipse.translate({longitude: 10});
           expect(ellipse.getCentroid()).toEqual(new GeoPoint(0, 10, 0));
         });
 
@@ -128,6 +128,13 @@ define([
         it ('in the semi minor axis', function () {
           ellipse.scale({y: 0.5});
           expect(ellipse.getSemiMinorAxis()).toEqual(0.5 * data.semiMinor);
+        });
+
+        it ('and flips semi major and semi minor axis if required', function () {
+          ellipse.scale({x: 1, y: 3});
+          expect(ellipse.getSemiMajorAxis()).toEqual(3 * data.semiMinor);
+          expect(ellipse.getSemiMinorAxis()).toEqual(data.semiMajor);
+          expect(ellipse.getRotation()).toEqual(90);
         });
       }); // End 'by scale'
     }); // End 'can be modified'

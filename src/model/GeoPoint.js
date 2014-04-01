@@ -52,6 +52,10 @@ define([
       this.elevation = parseFloat(elevation) || 0.0;
     },
 
+    // -------------------------------------------
+    // GENERATORS AND CONVERTERS
+    // -------------------------------------------
+
     /**
      * @returns {atlas.model.Vertex} The GeoPoint as a new Vertex object.
      */
@@ -73,6 +77,20 @@ define([
     toRadians: function () {
       return new GeoPoint(AtlasMath.toRadians(this.latitude),
           AtlasMath.toRadians(this.longitude), this.elevation);
+    },
+
+    // -------------------------------------------
+    // MODIFIERS
+    // -------------------------------------------
+
+    /**
+     * Translates this GeoPoint by a given difference in latitude and longitude.
+     * @param {atlas.model.GeoPoint | {latitude, longitude}} other
+     * @returns {atlas.model.GeoPoint}
+     */
+    translate: function (other) {
+      return new GeoPoint(this.latitude + other.latitude,
+          this.longitude + other.longitude, this.elevation);
     }
   });
   // -------------------------------------------
