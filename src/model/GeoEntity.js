@@ -473,6 +473,7 @@ define([
             }
           }.bind(this)
       );
+      this._editingHandles = this.getEditingHandles();
     },
 
     /**
@@ -480,6 +481,9 @@ define([
      */
     onDisableEditing: function () {
       this._editEventHandler && this._editEventHandler.cancel();
+      this._editingHandles.forEach(function(handle) {
+        handle.remove();
+      })
     }
 
   });
