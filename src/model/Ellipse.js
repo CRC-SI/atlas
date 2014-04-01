@@ -134,8 +134,8 @@ define([
     _init: function(id, ellipseData, args) {
       if (!ellipseData || !ellipseData.centroid) {
         throw new DeveloperError('Can not construct ellipse without centre.');
-      } else if (!parseFloat(ellipseData.semiMajor) || !parseFloat(ellipseData.semiMinor)) {
-        throw new DeveloperError('Can not construct ellipse without semi major or semi minor axis.');
+      } else if (!parseFloat(ellipseData.semiMajor)) {
+        throw new DeveloperError('Can not construct ellipse without semi major axis.');
       }
       args = mixin({}, args);
       ellipseData = mixin({
@@ -148,8 +148,8 @@ define([
       this._super(id, args);
 
       this._centroid = new GeoPoint(ellipseData.centroid);
-      this._semiMajor = ellipseData.semiMajor;
-      this._semiMinor = ellipseData.semiMinor;
+      this._semiMajor = parseFloat(ellipseData.semiMajor);
+      this._semiMinor = parseFloat(ellipseData.semiMinor) || this._semiMajor;
       this._rotation = ellipseData.rotation;
       this._height = parseFloat(ellipseData.height) || this._height;
       this._elevation = parseFloat(ellipseData.elevation) || this._elevation;
