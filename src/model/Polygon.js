@@ -11,7 +11,12 @@ define([
   './GeoEntity'
 ], function(DeveloperError, defaultValue, mixin, WKT, Vertex, Colour, Style, Material,
             GeoEntity) {
-  "use strict";
+
+  /**
+   * @typedef atlas.model.Polygon
+   * @ignore
+   */
+  var Polygon;
 
   /**
    * @classdesc Represents a 2D polygon that can be rendered within an
@@ -21,19 +26,21 @@ define([
    * constructing a Polygon.
    *
    * @param {Number} id - The ID of this Polygon.
-   * @param {string|Array.<atlas.model.Vertex>} [args.vertices=[]] - The vertices of the Polygon.
+   * @param {Object} polygonData - Data describing the Polygon.
+   * @param {string|Array.<atlas.model.Vertex>} [polygonData.vertices=[]] - The vertices of the Polygon.
+   * @param {Number} [polygonData.height=0] - The extruded height of the Polygon to form a prism.
+   * @param {Number} [polygonData.elevation] - The elevation of the base of the Polygon (or prism).
+   * @param {atlas.model.Colour} [polygonData.color] - The fill colour of the Polygon (overridden/overrides Style)
+   * @param {atlas.model.Style} [polygonData.style=defaultStyle] - The Style to apply to the Polygon.
+   * @param {atlas.model.Material} [polygonData.material=defaultMaterial] - The Material to apply to the polygon.
    * @param {Object} [args] - Option arguments describing the Polygon.
    * @param {atlas.model.GeoEntity} [args.parent=null] - The parent entity of the Polygon.
-   * @param {Number} [args.height=0] - The extruded height of the Polygon to form a prism.
-   * @param {Number} [args.elevation] - The elevation of the base of the Polygon (or prism).
-   * @param {atlas.model.Style} [args.style=defaultStyle] - The Style to apply to the Polygon.
-   * @param {atlas.model.Material} [args.material=defaultMaterial] - The Material to apply to the polygon.
    * @returns {atlas.model.Polygon}
    *
    * @class atlas.model.Polygon
    * @extends atlas.model.GeoEntity
    */
-  var Polygon = GeoEntity.extend(/** @lends atlas.model.Polygon# */ {
+  Polygon = GeoEntity.extend(/** @lends atlas.model.Polygon# */ {
     // TODO(aramk) Either put docs on params and document the getters and setters which don't have
     // obvious usage/logic.
     // TODO(aramk) Units for height etc. are open to interpretation - define them as metres in docs.
