@@ -395,6 +395,8 @@ define([
      * may be required.
      */
     remove: function () {
+      if (!this._eventManager) { return; }
+
       this._eventManager.dispatchEvent(new Event(new EventTarget(),
         'entity/remove', {
           id: this.getId()
