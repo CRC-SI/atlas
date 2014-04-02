@@ -1,7 +1,5 @@
 .atlas {
   position: relative;
-  padding-left: 30px;
-  padding-top: 30px;
 }
 
 .atlas .overlay {
@@ -16,12 +14,6 @@
 .atlas .overlay .hidden {
   display: none;
 }
-
-/*.atlas .overlay.legend {
-  padding: 5px;
-  line-height: 150%;
-  border-collapse: collapse;
-}*/
 
 .atlas .overlay.legend table {
   margin: 5px;
