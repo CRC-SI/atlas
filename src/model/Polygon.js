@@ -210,7 +210,7 @@ define([
       // Remove vertex added to end
       this._vertices.pop();
       f = 3 * twiceArea;
-      this._centroid = new Vertex(x / f, y / f, p1.z);
+      this._centroid = new Vertex(x / f, y / f, p1.z + this.getElevation());
       return this._centroid;
     },
 
