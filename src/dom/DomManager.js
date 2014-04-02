@@ -91,24 +91,25 @@ define([
       return this._currentDomNode;
     },
 
-    getBoundingRect: function () {
+    /**
+     * Calculates the relative (x, y) coordinate in the Atlas widget for the given global (x, y)
+     * coordinate of an event.
+     *
+     * @param {Object} screenCoords - The absolute coordinates of the event to make relative.
+     * @param {Number} screenCoords.x - The absolute x coordinate.
+     * @param {Number} screenCoords.y - The absolute y coordinate.
+     * @returns {Object} An object with relative x and y coordinates.
+     */
+    translateEventCoords: function(screenCoords) {
       var element = this.getDom(),
           style = window.getComputedStyle(element),
           getCss = function (css) {
-            var f = style.getPropertyValue(css).replace('px', ''),
-                n = parseInt(f) || 0;
-            return n;
-          },
-          top = getCss('top') + getCss('margin-top') + getCss('padding') + getCss('padding-top') + element.offsetTop,
-          left = getCss('left') + getCss('margin-left') + getCss('padding') + getCss('padding-left') + element.offsetLeft,
-          height = getCss('height') - getCss('margin-bottom') - getCss('padding') - getCss('padding-bottom') + element.offsetHeight,
-          width = getCss('width') - getCss('margin-right') - getCss('padding') - getCss('padding-right') + element.offsetWidth;
+            return parseInt(style.getPropertyValue(css).replace('px', '')) || 0;
+          };
       return {
-        top: top,
-        left: left,
-        height: height,
-        width: width
-      };
+        x: screenCoords.x - element.getBoundingClientRect().left - getCss('padding-left'),
+        y: screenCoords.y - element.getBoundingClientRect().top - getCss('padding-top')
+      }
     },
 
     getHeight: function() {
