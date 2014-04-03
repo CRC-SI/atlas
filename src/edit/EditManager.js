@@ -27,6 +27,12 @@ define([
     _atlasManagers: null,
 
     /**
+     * Whether editing is enabled.
+     * @type {boolean}
+     */
+    _editing: null,
+
+    /**
      * Contains a mapping of module name to Module object.
      * @type {Object.<String,Object>}
      */
@@ -45,10 +51,18 @@ define([
      */
     _enabledModules: null,
 
+    /**
+     * An array of event listeners for user input. <code>_inputEventHandlers</code> is non-null
+     * when editing is enabled. When editing is disabled, the only event being listened for
+     * is the event to enable and disable editing.
+     */
+    _inputEventHandlers: null,
+
     _init: function (atlasManagers) {
       this._atlasManagers = atlasManagers;
       this._atlasManagers.edit = this;
 
+      this._editing = false;
       this._enabledModules = {};
       this._listeners = {};
       this._modules = {};
@@ -72,21 +86,62 @@ define([
           callback: function (event) {
             // TODO(bpstudds): Make an enum for the keyboard event key values.
             if (event.modifiers.ctrl && event.key === 69) {
+              // TODO(bpstudds) Flesh out this.
               console.log('toggling editing');
-              this.toggleModule('translation');
             }
           }.bind(this)
         },
         {
           source: 'intern',
+          name: 'input/leftdown',
+          callback: function (e) {
+            this.onLeftDown(e);
+          }.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'input/mousemove',
+          callback: function (e) {
+            this.onMouseMove(e);
+          }.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'input/leftup',
+          callback: function (e) {
+            this.onLeftUp(e);
+          }
+        },
+        {
+          source: 'intern',
           name: 'entity/select',
           callback: function (event) {
-            this.edit(event.entities);
+            // TODO(bpstudds) Flesh out this.
           }.bind(this)
         }
       ];
       this._atlasManagers.event.addEventHandlers(handlers);
     },
+
+    // -------------------------------------------
+    // EDITING STATE
+    // -------------------------------------------
+
+    enable: function () {
+      this._editing = true;
+    },
+
+    disable: function () {
+      this._editing = false;
+    },
+
+    toggleEditing: function () {
+      this._editing = !this._editing;
+    },
+
+    // -------------------------------------------
+    // MODULE MANAGEMENT
+    // -------------------------------------------
 
     /**
      * Adds a new module with the given name.
@@ -102,6 +157,14 @@ define([
       return this._modules[name];
     },
 
+    _delegateToModules: function (method, args) {
+      if (!this._editing) { return; }
+      Object.keys(this._enabledModules).forEach(function (modName) {
+        var module = this._enabledModules[modName];
+        module[method].apply(module, args);
+      }, this);
+    },
+
     /**
      * Enables an existing module.
      * @param {String} name - The name of the module.
@@ -110,14 +173,14 @@ define([
       var module = this.getModule(name);
       if (!module) return;
 
-      var bindings = module.getEventBindings();
+      /*var bindings = module.getEventBindings();
       if (!this._listeners[name]) this._listeners[name] = {};
       for (var event in bindings) {
         if (bindings.hasOwnProperty(event)) {
           this._listeners[name][event] = this._atlasManagers.event.addEventHandler('intern', event,
               bindings[event].bind(module));
         }
-      }
+      }*/
       this._enabledModules[name] = module;
     },
 
@@ -127,12 +190,12 @@ define([
      */
     disableModule: function(name) {
       // TODO(aramk) use "handler" or "listener" and not both?
-      var listeners = this._listeners[name];
-      for (var event in listeners) {
-        if (listeners.hasOwnProperty(event)) {
-          listeners[event].cancel();
-        }
-      }
+//      var listeners = this._listeners[name];
+//      for (var event in listeners) {
+//        if (listeners.hasOwnProperty(event)) {
+//          listeners[event].cancel();
+//        }
+//      }
       delete this._enabledModules[name];
     },
 
@@ -159,6 +222,30 @@ define([
       } else {
         this.enableModule(name);
       }
+    },
+
+    // -------------------------------------------
+    // EVENT HANDLERS
+    // -------------------------------------------
+
+    /**
+     * Handles initiating a mouse drag with a left click. If a Handle is not clicked,
+     * nothing occurs.
+     * @param e
+     */
+    onLeftDown: function (e) {
+      // TODO(bpstudds): Check whether a Handle was clicked.
+      this._delegateToModules('start', e);
+    },
+
+    onMouseMove: function (e) {
+      // TODO(bpstudds): This should only be active if a drag has started.
+      this._delegateToModules('update', e);
+    },
+
+    onLeftUp: function (e) {
+      // TODO(bpstudds): This should only be active if a drag has started.
+      this._delegateToModules('end', e);
     }
 
   });
