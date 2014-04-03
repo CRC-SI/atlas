@@ -52,6 +52,12 @@ define([
      */
     _dot: null,
 
+    /**
+     * The radius of the dot visual element in metres.
+     * @type {number}
+     */
+    _dotRadius: null,
+
     _init: function (args) {
       if (!args.linked) {
         throw new DeveloperError('Can not create Handle without linked entity.');
@@ -69,6 +75,7 @@ define([
       this._id = Handle._getNextId();
       this._linked = args.linked;
       this._target = args.target;
+      this._dotRadius = args.dotRadius || Handle.DOT_RADIUS;
     },
 
     /**
@@ -169,6 +176,12 @@ define([
   // -------------------------------------------
   // STATICS
   // -------------------------------------------
+
+  /**
+   * The radius of the dot in metres.
+   * @type {number}
+   */
+  Handle.DOT_RADIUS = 0.5;
 
   /**
    * ID to assign to the next created Handle.
