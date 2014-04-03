@@ -19,7 +19,13 @@ define([
      * Contains a mapping of ID to GeoEntity of all GeoEntities in atlas.
      * @type {Object.<String,atlas.model.GeoEntity>}
      */
-    _entities: {},
+    _entities: null,
+
+    /**
+     * A map of handle ID to Handle objects.
+     * @type {Object.<String, atlas.model.Handle>}
+     */
+    _handles: null,
 
     /**
      * Contains a mapping of GeoEntity subclass names to the constructor object
@@ -37,15 +43,8 @@ define([
     _init: function (atlasManagers) {
       this._atlasManagers = atlasManagers;
       this._atlasManagers.entity = this;
-    },
-
-
-    bindEvents: function () {
-      Log.debug('atlas/entity/EntityManager', 'Binding events');
-      this._atlasManagers.event.addEventHandler('extern', 'entity/bulk/show', function (args) {
-        Log.debug('A entity/bulk/show is being handled.');
-        this.bulkCreate(args.features);
-      }.bind(this));
+      this._entities = {};
+      this._handles = {};
     },
 
     setup: function (args) {
@@ -53,6 +52,34 @@ define([
         this.setGeoEntityTypes(args.constructors);
       }
       this.bindEvents();
+    },
+
+    bindEvents: function () {
+      var handlers = [
+        {
+          source: 'extern',
+          name: 'entity/bulk/show',
+          callback: function (event) {
+            Log.debug('A entity/bulk/show is being handled.');
+            this.bulkCreate(event.features);
+          }.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'entity/remove',
+          callback: function (event) {
+            event.id && this.remove(event.id);
+          }
+        },
+        {
+          source: 'intern',
+          name: 'handle/remove',
+          callback: function (event) {
+            event.id && this.removeHandle(event.id);
+          }
+        }
+      ];
+      this._atlasManagers.event.addEventHandlers(handlers);
     },
 
     // Allows overriding of the default atlas GeoEntity types with implementation specific ones.
@@ -63,6 +90,10 @@ define([
         }
       }
     },
+
+    // -------------------------------------------
+    // CREATE ENTITIES
+    // -------------------------------------------
 
     /**
      * Creates and adds a new Feature object to atlas-cesium.
@@ -109,7 +140,7 @@ define([
     bulkCreate: function (c3mls) {
       c3mls.forEach(function (c3ml) {
         var id = c3ml.id;
-        var args = EntityManager._parseC3ML(c3ml);
+        var args = this._parseC3ML(c3ml);
         this._entities[id] = this.createFeature(id, args);
         args.show && this._entities[id].show();
       }, this);
@@ -126,9 +157,9 @@ define([
       var geometry = {},
       // Map of C3ML type to parse of that type.
           parsers = {
-            line: EntityManager._parseC3MLline,
-            mesh: EntityManager._parseC3MLmesh,
-            polygon: EntityManager._parseC3MLpolygon
+            line: this._parseC3MLline,
+            mesh: this._parseC3MLmesh,
+            polygon: this._parseC3MLpolygon
           };
       // Generate the Geometry for the C3ML type if it is supported.
       parsers[c3ml.type] && (geometry = parsers[c3ml.type](c3ml));
@@ -215,6 +246,16 @@ define([
     },
 
     /**
+     * Adds a new handle to the EntityManager
+     * @param {atlas.model.Handle} handle - The handle to add.
+     */
+    addHandle: function (handle) {
+      var id = handle.getId();
+      if (this._handles[id]) { return; }
+      this._handles[id] = handle;
+    },
+
+    /**
      * Removes the given GeoEntity from the EntityManager.
      * @param {String} id - The ID of the GeoEntity to remove.
      */
@@ -225,6 +266,21 @@ define([
         delete this._entities[id];
       }
     },
+
+    /**
+     * Removes a handle from the EntityManager.
+     * @param {atlas.model.Handle} handle - The Handle object to remove.
+     */
+    removeHandle: function (handle) {
+      var id = handle.id;
+      if (this._handles[id]) {
+        this._handles[id] = null;
+      }
+    },
+
+    // -------------------------------------------
+    // ENTITY RETRIEVAL
+    // -------------------------------------------
 
     /**
      * Returns the GeoEntity instances that are rendered and visible.
@@ -304,5 +360,6 @@ define([
       throw 'EntityManager.getInRect not yet implemented.'
     }
   });
+
   return EntityManager;
 });
