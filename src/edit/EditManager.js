@@ -94,9 +94,6 @@ define([
         {
           source: 'intern',
           name: 'input/leftdown',
-          callback: function (e) {
-            this.onLeftDown(e);
-          }.bind(this)
         },
         {
           source: 'intern',
@@ -121,6 +118,27 @@ define([
         }
       ];
       this._atlasManagers.event.addEventHandlers(handlers);
+    },
+
+    bindEvent: function (scope, name) {
+      var eventName = scope + '/' + name,
+          onEvent = 'on' + eventName;
+
+      this._inputEventHandlers[event] = this._atlasManagers.event.addEventHandler(
+        'intern',
+        event,
+        df dfasdfasdf broken
+      );
+    },
+
+    bindMouseMove: function () {
+      this._inputEventHandlers['input/mousemove'] = this._atlasManagers.event.addEventHandler(
+        'intern',
+        'input/mousemove',
+        function (e) {
+          this.onMouseMove(e);
+        }.bind(this)
+      );
     },
 
     // -------------------------------------------
