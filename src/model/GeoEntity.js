@@ -476,9 +476,9 @@ define([
           }.bind(this)
       );
       this._editingHandles = this.getEditingHandles();
-      this._editingHandles.forEach(function (handle) {
-        handle.render();
-      })
+//      this._editingHandles.forEach(function (handle) {
+//        handle.render();
+//      })
     },
 
     /**
