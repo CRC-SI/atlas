@@ -27,10 +27,22 @@ define([
     _atlasManagers: null,
 
     /**
-     * Whether editing is enabled.
+     * Whether editing is enabled is currently enabled for <code>_entities</code>.
      * @type {boolean}
      */
     _editing: null,
+
+    /**
+     * The GeoEntities that will be edited when editing is enabled.
+     * @type {Object.<String, atlas.model.GeoEntity>}
+     */
+    _entities: null,
+
+    /**
+     * The Handle that is the current focus of dragging.
+     * @type {atlas.model.Handle?}
+     */
+    _dragTarget: null,
 
     /**
      * Contains a mapping of module name to Module object.
@@ -52,11 +64,18 @@ define([
     _enabledModules: null,
 
     /**
+     * An array of event listeners that are continuously active.
+     * @type {Object.<String, Object>}
+     */
+    _eventHandlers: null,
+
+    /**      if (this._dragTarget === undefined) { return; }
      * An array of event listeners for user input. <code>_inputEventHandlers</code> is non-null
      * when editing is enabled. When editing is disabled, the only event being listened for
      * is the event to enable and disable editing.
+     * @type {Object.<String, Object>}
      */
-    _inputEventHandlers: null,
+    _mouseEventHandlers: null,
 
     _init: function (atlasManagers) {
       this._atlasManagers = atlasManagers;
@@ -93,27 +112,6 @@ define([
         },
         {
           source: 'intern',
-          name: 'input/leftdown',
-          callback: function (e) {
-            this.onLeftDown(e);
-          }.bind(this)
-        },
-        {
-          source: 'intern',
-          name: 'input/mousemove',
-          callback: function (e) {
-            this.onMouseMove(e);
-          }.bind(this)
-        },
-        {
-          source: 'intern',
-          name: 'input/leftup',
-          callback: function (e) {
-            this.onLeftUp(e);
-          }.bind(this)
-        },
-        {
-          source: 'intern',
           name: 'entity/select',
           callback: function (event) {
             // TODO(bpstudds): Implement this functionality (in future feature branch).
@@ -121,43 +119,77 @@ define([
           }.bind(this)
         }
       ];
-      this._atlasManagers.event.addEventHandlers(handlers);
+      this._eventHandlers = this._atlasManagers.event.addEventHandlers(handlers);
     },
 
-    bindEvent: function (scope, name, cb) {
-      var eventName = scope + '/' + name;
-
-      this._inputEventHandlers[event] = this._atlasManagers.event.addEventHandler(
-        'intern',
-        eventName,
-        cb
-      );
+    bindMouseInput: function () {
+      if (this._mouseEventHandlers !== undefined) { return; }
+      var handlers = [
+        {
+          source: 'intern',
+          name: 'input/leftdown',
+          callback: function(e) {
+            this.onLeftDown(e);
+          }.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'input/mousemove',
+          callback: function(e) {
+            this.onMouseMove(e);
+          }.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'input/leftup',
+          callback: function(e) {
+            this.onLeftUp(e);
+          }.bind(this)
+        }
+      ];
+      this._mouseEventHandlers = this._atlasManagers.event.addEventHandlers(handlers);
     },
 
-    bindMouseMove: function () {
-      this._inputEventHandlers['input/mousemove'] = this._atlasManagers.event.addEventHandler(
-        'intern',
-        'input/mousemove',
-        function (e) {
-          this.onMouseMove(e);
-        }.bind(this)
-      );
+    unbindMouseInput: function () {
+      if (this._mouseEventHandlers === undefined) { return; }
+
+      Object.keys(this._mouseEventHandlers).forEach(function (key) {
+        this._mouseEventHandlers[key].cancel();
+      }, this);
+      this._mouseEventHandlers = null;
     },
 
     // -------------------------------------------
     // EDITING STATE
     // -------------------------------------------
 
+    /**
+     * Enable the editing state. This starts editing on the currently selected entities
+     * and locks the selection.
+     */
     enable: function () {
       this._editing = true;
+      this.bindMouseInput();
     },
 
+    /**
+     * Disables the editing state. This stops editing and unlocks selection.
+     * NOTE: This does not do anything regarding specifically 'canceling' or 'saving'
+     * an edit.
+     */
     disable: function () {
       this._editing = false;
+      this.unbindMouseInput();
     },
 
+    /**
+     * Toggles the editing state.
+     * @see {@link atlas.edit.EditManager#enable}
+     * @see {@link atlas.edit.EditManager#disable}
+     */
     toggleEditing: function () {
       this._editing = !this._editing;
+      this._editing ? this.bindMouseInput() : this.unbindMouseInput;
     },
 
     // -------------------------------------------
@@ -182,7 +214,7 @@ define([
       if (!this._editing) { return; }
       Object.keys(this._enabledModules).forEach(function (modName) {
         var module = this._enabledModules[modName];
-        module[method].apply(module, args);
+        module[method] && module[method].apply(module, args);
       }, this);
     },
 
@@ -259,17 +291,21 @@ define([
      * @param e
      */
     onLeftDown: function (e) {
-      // TODO(bpstudds): Check whether a Handle was clicked.
+      // Check whether a Handle was clicked.
+     this._dragTarget = this._atlasManagers.entity.getAt(e.position).handle;
+      if (this._dragTarget === undefined) { return; }
+
+      e.target =  this._dragTarget;
       this._delegateToModules('start', e);
     },
 
     onMouseMove: function (e) {
-      // TODO(bpstudds): This should only be active if a drag has started.
+      if (this._dragTarget === undefined) { return; }
       this._delegateToModules('update', e);
     },
 
     onLeftUp: function (e) {
-      // TODO(bpstudds): This should only be active if a drag has started.
+      if (this._dragTarget === undefined) { return; }
       this._delegateToModules('end', e);
     }
 

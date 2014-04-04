@@ -20,7 +20,7 @@ define([
       mockEntityManager = {
         getAt: function (e) {
           if (e === 'handle') {
-            return {handler: []};
+            return {handler: {}};
           } else if (e === 'entity') {
             return {entity: []};
           } else {
