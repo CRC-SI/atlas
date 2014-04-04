@@ -66,7 +66,7 @@ define([
      */
     dispatchEvent: function (event) {
       // Propagate the event up the target hierarchy.
-      while (event.target !== undefined) {
+      while (event.target) {
         var nextEvent,
             parent;
         if (event.cancelled) {

@@ -1,7 +1,8 @@
 define([
   'atlas/edit/TranslationModule',
+  'atlas/lib/utility/Log',
   'atlas/util/Class'
-], function(TranslationModule, Class) {
+], function(TranslationModule, Log, Class) {
 
   // TODO(aramk) refactor this into abstract atlas.core.ModularManager and use elsewhere (e.g. RenderManager).
   /**
@@ -34,9 +35,15 @@ define([
 
     /**
      * The GeoEntities that will be edited when editing is enabled.
-     * @type {Object.<String, atlas.model.GeoEntity>}
+     * @type {Array.<atlas.model.GeoEntity>}
      */
     _entities: null,
+
+    /**
+     * The IDs of the GeoEntities that will be edited when editing is enabled.
+     * @type {Array.<String>}
+     */
+    _entityIds: null,
 
     /**
      * The Handle that is the current focus of dragging.
@@ -85,6 +92,7 @@ define([
       this._enabledModules = {};
       this._listeners = {};
       this._modules = {};
+      this._entities = [];
     },
 
     /**
@@ -106,7 +114,7 @@ define([
             // TODO(bpstudds): Make an enum for the keyboard event key values.
             if (event.modifiers.ctrl && event.key === 69) {
               // TODO(bpstudds) Flesh out this.
-              console.log('toggling editing');
+              this.toggleEditing();
             }
           }.bind(this)
         },
@@ -115,7 +123,7 @@ define([
           name: 'entity/select',
           callback: function (event) {
             // TODO(bpstudds): Implement this functionality (in future feature branch).
-            //this.edit(event.entities);
+            this._entityIds = event.ids
           }.bind(this)
         }
       ];
@@ -168,8 +176,20 @@ define([
      * and locks the selection.
      */
     enable: function () {
+      Log.debug('EditManager enabled');
       this._editing = true;
       this.bindMouseInput();
+      this._entityIds.forEach(function (id) {
+        this._entities.push(this._atlasManagers.entity.getById(id));
+      }, this);
+
+      // Render the editing handles.
+      this._entities.forEach(function (entity) {
+        // TODO(bpstudds): Feature is a GeoEntity but it delegates is breaking this.
+        entity.getEditingHandles().forEach(function (handle) {
+          handle.render();
+        })
+      });
     },
 
     /**
@@ -178,8 +198,16 @@ define([
      * an edit.
      */
     disable: function () {
+      Log.debug('EditManager disabled');
       this._editing = false;
       this.unbindMouseInput();
+      // Remove editing handles.
+      this._entities.forEach(function (entity) {
+        entity.getEditingHandles().forEach(function (handle) {
+          handle.unrender();
+        })
+      });
+      this._entities = {};
     },
 
     /**
@@ -188,8 +216,7 @@ define([
      * @see {@link atlas.edit.EditManager#disable}
      */
     toggleEditing: function () {
-      this._editing = !this._editing;
-      this._editing ? this.bindMouseInput() : this.unbindMouseInput;
+      this._editing ? this.disable() : this.enable();
     },
 
     // -------------------------------------------
