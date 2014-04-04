@@ -11,6 +11,7 @@ define([
   'atlas/util/Class'
 ], function (Log, Ellipse, Feature, GeoEntity, Mesh, Polygon, DeveloperError, mixin, Class) {
 
+  //noinspection JSUnusedGlobalSymbols
   var EntityManager = Class.extend({
 
     _atlasManagers: null,
@@ -47,15 +48,6 @@ define([
       this._handles = {};
     },
 
-
-    bindEvents: function () {
-      Log.debug('atlas/entity/EntityManager', 'Binding events');
-      this._atlasManagers.event.addEventHandler('extern', 'entity/bulk/show', function (args) {
-        Log.debug('A entity/bulk/show is being handled.');
-        this.bulkCreate(args.features);
-      }.bind(this));
-    },
-
     /**
      * Performs any manager setup that requires the presence of other managers.
      * @param args
@@ -76,21 +68,22 @@ define([
             Log.debug('A entity/bulk/show is being handled.');
             this.bulkCreate(event.features);
           }.bind(this)
-        },
-        {
-          source: 'intern',
-          name: 'entity/remove',
-          callback: function (event) {
-            event.id && this.remove(event.id);
-          }
-        },
-        {
-          source: 'intern',
-          name: 'handle/remove',
-          callback: function (event) {
-            event.id && this.removeHandle(event.id);
-          }
         }
+        // TODO(bpstudds): Is this stupid?
+//        {
+//          source: 'intern',
+//          name: 'entity/remove',
+//          callback: function (event) {
+//            event.id && this.remove(event.id);
+//          }.bind(this)
+//        },
+//        {
+//          source: 'intern',
+//          name: 'handle/remove',
+//          callback: function (event) {
+//            event.id && this.removeHandle(event.id);
+//          }.bind(this)
+//        }
       ];
       this._atlasManagers.event.addEventHandlers(handlers);
     },
@@ -98,11 +91,12 @@ define([
     /**
      * Allows overriding of the default Atlas GeoEntity types with implementation specific
      * GeoEntity types.
-     * @param {Object.<String, GeoEntity>} constructors - A map of entity type names to entity constructors.
+     * @param {Object.<String, Function>} constructors - A map of entity type names to entity constructors.
      */
     setGeoEntityTypes: function (constructors) {
       for (var key in constructors) {
         if (key in this._entityTypes) {
+          //noinspection JSUnfilteredForInLoop
           this._entityTypes[key] = constructors[key];
         }
       }
@@ -171,7 +165,7 @@ define([
      * @protected
      */
     _parseC3ML: function (c3ml) {
-      var geometry = {},
+      var geometry,
       // Map of C3ML type to parse of that type.
           parsers = {
             line: this._parseC3MLline,
@@ -289,7 +283,7 @@ define([
      * @param {atlas.model.Handle} handle - The Handle object to remove.
      */
     removeHandle: function (handle) {
-      var id = handle.id;
+      var id = handle.getId();
       if (this._handles[id]) {
         this._handles[id] = null;
       }
@@ -346,6 +340,7 @@ define([
      * @param {atlas.model.Vertex} point - The point of interest.
      * @returns {atlas.model.GeoEntity|undefined} The GeoEntity located at the given point, or
      * <code>undefined</code> if there is no such GeoEntity.
+     * @abstract
      */
     getAt: function (point) {
       // TODO
@@ -362,6 +357,7 @@ define([
      * returned as well. Otherwise, only wholly contains GeoEntities are returned.
      * @returns {atlas.model.GeoEntity|undefined} The GeoEntities located in the bounding box,
      * or <code>undefined</code> if there are no such GeoEntities.
+     * @abstract
      */
     getInPoly: function (boundingPoly, intersects) {
       // TODO
@@ -370,7 +366,15 @@ define([
       throw 'EntityManager.getInPoly not yet implemented.'
     },
 
-    getInRect: function (start, end) {
+    /**
+     * Returns the GeoEntities located within a given rectangle defined by two opposing
+     * corner points. The points are specified using latitude and longitude.
+     * @param {atlas.model.GeoPoint} point1
+     * @param {atlas.model.GeoPoint} point2
+     * @returns {Array.<atlas.model.GeoEntity>} The array of GeoEntities within the rectangle.
+     * @abstract
+     */
+    getInRect: function (point1, point2) {
       // TODO
       // See mutopia-gui cesium extensions. Aram converted the target point and visible polygons
       // to WKT and then used OpenLayers to find the intersecting entities.

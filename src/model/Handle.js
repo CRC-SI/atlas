@@ -112,6 +112,13 @@ define([
     // -------------------------------------------
 
     /**
+     * @returns {string} The ID of the Handle.
+     */
+    getId: function () {
+      return this._id;
+    },
+
+    /**
      * @returns {atlas.model.GeoEntity|atlas.model.Vertex} The Handle's linked entity.
      */
     getLinked: function () {

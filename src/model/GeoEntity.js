@@ -182,7 +182,7 @@ define([
     },
 
     /**
-     * @returns {Number} The centroid of the GeoEntity.
+     * @returns {atlas.model.Vertex} The centroid of the GeoEntity.
      * @abstract
      */
     getCentroid: function() {
