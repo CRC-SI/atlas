@@ -65,9 +65,10 @@ define([
      * @param {atlas.events.Event} event - The Event to be propagated.
      */
     dispatchEvent: function (event) {
-      var nextEvent;
-      var parent;
-      while (event.target !== null) {
+      // Propagate the event up the target hierarchy.
+      while (event.target !== undefined) {
+        var nextEvent,
+            parent;
         if (event.cancelled) {
           break;
         }
@@ -79,6 +80,7 @@ define([
         event = nextEvent;
         event.target = parent;
       }
+
       if (!event.cancelHost) {
         // Propagate the event to the host application.
         for (var h in this._hosts) {
