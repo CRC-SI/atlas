@@ -81,7 +81,8 @@ define([
           source: 'intern',
           name: 'entity/select',
           callback: function (event) {
-            this.edit(event.entities);
+            // TODO(bpstudds): Implement this functionality (in future feature branch).
+            //this.edit(event.entities);
           }.bind(this)
         }
       ];
