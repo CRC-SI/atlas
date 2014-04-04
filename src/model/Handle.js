@@ -19,6 +19,7 @@ define([
    * to the linked GeoEntities.
    * @param {atlas.model.GeoEntity} args.target - The owner of the linked <code>Vertex</code>.
    * @param {atlas.model.Vertex | atlas.model.GeoEntity} args.linked - The Vertex or GeoEntity that is linked to the Handle.
+   * @param {number} [args.dotRadius=1] - The diameter of the Handle's dot in metres.
    * @class atlas.model.Handle
    */
   Handle = Class.extend( /** @lends atlas.model.Handle# */ {
@@ -98,12 +99,12 @@ define([
      * Removes the Handle from its linked object.
      */
     remove: function () {
+      this.unrender();
       this._linked = null;
       this._target = null;
       this._delegateToLinked = function () {
         throw new Error('Tried to use a removed Handle');
       };
-      this.unrender();
     },
 
     // -------------------------------------------
@@ -192,7 +193,7 @@ define([
 
   /**
    * @returns {String} The next available Handle ID
-   * @private
+   * @protected
    */
   Handle._getNextId = function () {
     return 'handle' + Handle._nextId++;

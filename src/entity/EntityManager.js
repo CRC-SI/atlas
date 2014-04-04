@@ -19,7 +19,7 @@ define([
      * Contains a mapping of ID to GeoEntity of all GeoEntities in atlas.
      * @type {Object.<String,atlas.model.GeoEntity>}
      */
-    _entities: {},
+    _entities: null,
 
     /**
      * Contains a mapping of GeoEntity subclass names to the constructor object
@@ -37,6 +37,7 @@ define([
     _init: function (atlasManagers) {
       this._atlasManagers = atlasManagers;
       this._atlasManagers.entity = this;
+      this._entities = {};
     },
 
 
@@ -48,6 +49,10 @@ define([
       }.bind(this));
     },
 
+    /**
+     * Performs any manager setup that requires the presence of other managers.
+     * @param args
+     */
     setup: function (args) {
       if (args.constructors) {
         this.setGeoEntityTypes(args.constructors);
@@ -55,7 +60,11 @@ define([
       this.bindEvents();
     },
 
-    // Allows overriding of the default atlas GeoEntity types with implementation specific ones.
+    /**
+     * Allows overriding of the default Atlas GeoEntity types with implementation specific
+     * GeoEntity types.
+     * @param {Object.<String, GeoEntity>} constructors - A map of entity type names to entity constructors.
+     */
     setGeoEntityTypes: function (constructors) {
       for (var key in constructors) {
         if (key in this._entityTypes) {

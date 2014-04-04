@@ -41,7 +41,7 @@ define([
 
     /**
      * Lists the currently enabled modules by name.
-     * @type {Object.<String>}
+     * @type {Object.<String, Object>}
      */
     _enabledModules: null,
 
@@ -151,15 +151,19 @@ define([
     },
 
     /**
+     * @param {string} name - The name of the module.
+     * @returns {boolean} Whether the module is enabled.
+     */
+    isModuleEnabled: function (name) {
+      return (this._enabledModules[name] !== undefined);
+    },
+
+    /**
      * Toggles whether the module with the given name is active.
      * @param {String} name - The name of the module.
      */
     toggleModule: function (name) {
-      if (this._enabledModules[name]) {
-        this.disableModule(name);
-      } else {
-        this.enableModule(name);
-      }
+      return this._enabledModules[name] ? this.disableModule(name) : this.enableModule(name);
     }
 
   });

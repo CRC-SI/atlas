@@ -43,7 +43,7 @@ define([
         this.x = (parseFloat(x[0]) || 0.0);
         this.y = (parseFloat(x[1]) || 0.0);
         this.z = (parseFloat(x[2]) || 0.0);
-      } else if (x.x) {
+      } else if (x.x !== undefined) {
         this.x = (parseFloat(x.x) || 0.0);
         this.y = (parseFloat(x.y) || 0.0);
         this.z = (parseFloat(x.z) || 0.0);

@@ -42,7 +42,7 @@ define([
      * Constructs a new GeoPoint object.
      */
     _init: function (latitude, longitude, elevation) {
-      if (latitude.latitude) {
+      if (latitude.latitude !== undefined) {
         longitude = latitude.longitude;
         elevation = latitude.elevation;
         latitude = latitude.latitude;
