@@ -45,10 +45,6 @@ define([
    * translation, only the target entity is translated.
    */
   TranslationModule.prototype.start = function(args) {
-    /**
-     * The entity which the event occurred on.
-     * @type {@link atlas.model.GeoEntity}
-     */
     var target = this._atlasManagers.entity.getAt(args.position);
     // getAt returns an array at that point. Pick the first (topmost) Entity.
     if (!(target instanceof Array) || target.length <= 0 ) { return; }
@@ -65,7 +61,7 @@ define([
     this._atlasManagers.camera.lockCamera();
     // Initialise the translation.
     this._lastScreenCoords = {x: args.position.x, y: args.position.y};
-    this._originalLocation = this._lastLocation = this._cartographicLocation(args.position);;
+    this._originalLocation = this._lastLocation = this._cartographicLocation(args.position);
   };
 
   /**
