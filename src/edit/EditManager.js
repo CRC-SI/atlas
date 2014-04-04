@@ -47,7 +47,7 @@ define([
 
     /**
      * Lists the currently enabled modules by name.
-     * @type {Object.<String>}
+     * @type {Object.<String, Object>}
      */
     _enabledModules: null,
 
@@ -94,6 +94,9 @@ define([
         {
           source: 'intern',
           name: 'input/leftdown',
+          callback: function (e) {
+            this.onLeftDown(e);
+          }.bind(this)
         },
         {
           source: 'intern',
@@ -107,27 +110,27 @@ define([
           name: 'input/leftup',
           callback: function (e) {
             this.onLeftUp(e);
-          }
+          }.bind(this)
         },
         {
           source: 'intern',
           name: 'entity/select',
           callback: function (event) {
-            // TODO(bpstudds) Flesh out this.
+            // TODO(bpstudds): Implement this functionality (in future feature branch).
+            //this.edit(event.entities);
           }.bind(this)
         }
       ];
       this._atlasManagers.event.addEventHandlers(handlers);
     },
 
-    bindEvent: function (scope, name) {
-      var eventName = scope + '/' + name,
-          onEvent = 'on' + eventName;
+    bindEvent: function (scope, name, cb) {
+      var eventName = scope + '/' + name;
 
       this._inputEventHandlers[event] = this._atlasManagers.event.addEventHandler(
         'intern',
-        event,
-        df dfasdfasdf broken
+        eventName,
+        cb
       );
     },
 
@@ -231,15 +234,19 @@ define([
     },
 
     /**
+     * @param {string} name - The name of the module.
+     * @returns {boolean} Whether the module is enabled.
+     */
+    isModuleEnabled: function (name) {
+      return (this._enabledModules[name] !== undefined);
+    },
+
+    /**
      * Toggles whether the module with the given name is active.
      * @param {String} name - The name of the module.
      */
     toggleModule: function (name) {
-      if (this._enabledModules[name]) {
-        this.disableModule(name);
-      } else {
-        this.enableModule(name);
-      }
+      return this._enabledModules[name] ? this.disableModule(name) : this.enableModule(name);
     },
 
     // -------------------------------------------

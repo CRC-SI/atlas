@@ -47,6 +47,19 @@ define([
       this._handles = {};
     },
 
+
+    bindEvents: function () {
+      Log.debug('atlas/entity/EntityManager', 'Binding events');
+      this._atlasManagers.event.addEventHandler('extern', 'entity/bulk/show', function (args) {
+        Log.debug('A entity/bulk/show is being handled.');
+        this.bulkCreate(args.features);
+      }.bind(this));
+    },
+
+    /**
+     * Performs any manager setup that requires the presence of other managers.
+     * @param args
+     */
     setup: function (args) {
       if (args.constructors) {
         this.setGeoEntityTypes(args.constructors);
@@ -82,7 +95,11 @@ define([
       this._atlasManagers.event.addEventHandlers(handlers);
     },
 
-    // Allows overriding of the default atlas GeoEntity types with implementation specific ones.
+    /**
+     * Allows overriding of the default Atlas GeoEntity types with implementation specific
+     * GeoEntity types.
+     * @param {Object.<String, GeoEntity>} constructors - A map of entity type names to entity constructors.
+     */
     setGeoEntityTypes: function (constructors) {
       for (var key in constructors) {
         if (key in this._entityTypes) {
