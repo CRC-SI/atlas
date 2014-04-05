@@ -189,7 +189,7 @@ define([
    * The radius of the dot in metres.
    * @type {number}
    */
-  Handle.DOT_RADIUS = 0.5;
+  Handle.DOT_RADIUS = 3;
 
   /**
    * ID to assign to the next created Handle.

@@ -92,6 +92,7 @@ define([
       this._enabledModules = {};
       this._listeners = {};
       this._modules = {};
+      this._entityIds = [];
       this._entities = [];
     },
 
@@ -112,7 +113,7 @@ define([
           name: 'input/keyup',
           callback: function (event) {
             // TODO(bpstudds): Make an enum for the keyboard event key values.
-            if (event.modifiers.ctrl && event.key === 69) {
+            if (event.key === 69) {
               // TODO(bpstudds) Flesh out this.
               this.toggleEditing();
             }
@@ -131,7 +132,7 @@ define([
     },
 
     bindMouseInput: function () {
-      if (this._mouseEventHandlers !== undefined) { return; }
+      if (this._mouseEventHandlers) { return; }
       var handlers = [
         {
           source: 'intern',
@@ -159,7 +160,7 @@ define([
     },
 
     unbindMouseInput: function () {
-      if (this._mouseEventHandlers === undefined) { return; }
+      if (!this._mouseEventHandlers) { return; }
 
       Object.keys(this._mouseEventHandlers).forEach(function (key) {
         this._mouseEventHandlers[key].cancel();
@@ -207,7 +208,7 @@ define([
           handle.unrender();
         })
       });
-      this._entities = {};
+      this._entities = [];
     },
 
     /**
