@@ -5,8 +5,6 @@ define([
   'atlas/util/mixin'
 ], function (Vertex, AtlasMath, Class, mixin) {
 
-  var GeoPoint;
-
   /**
    * @classdesc The Point class represents a geospatial location on a globe. The location
    * is specified with latitude, longitude, and elevation.
@@ -15,7 +13,7 @@ define([
    * @param {Number} [elevation=0] - The GeoPoint's elevation in decimal degrees.
    * @class atlas.model.GeoPoint
    */
-  return mixin(GeoPoint = Class.extend( /** @lends atlas.model.GeoPoint# */ {
+  var GeoPoint = mixin(Class.extend( /** @lends atlas.model.GeoPoint# */ {
     /**
      * The GeoPoint's latitude in decimal degrees.
      * @type {Number}
@@ -72,7 +70,7 @@ define([
        * @param {Number} vertex.x - The longitude (horizontal position) in decimal degrees.
        * @param {Number} vertex.y - The latitude (vertical position) in decimal degrees.
        * @param {Number} vertex.z - The elevation in metres.
-       * @returns {GeoPoint}
+       * @returns {atlas.model.GeoPoint}
        */
       fromVertex: function (vertex) {
         if (!vertex) { return new GeoPoint(); }
@@ -80,14 +78,24 @@ define([
       },
 
       /**
-       * Constructs a new GeoPoint from an object containing properties for latitude,
-       * longitude, and height.
-       * @param other - The object containing the geospatial data.
+       * Constructs a new {@link GeoPoint} from an object containing properties for latitude,
+       * longitude (both in degrees), and height.
        * @returns {atlas.model.GeoPoint}
        */
-      fromLatLngHeight: function (other) {
-        return new GeoPoint(other.lat, other.lng, other.height);
+      fromCartographicDegrees: function (pos) {
+        return new GeoPoint(pos.latitude, pos.longitude, pos.height);
+      },
+
+      /**
+       * Constructs a new {@link GeoPoint} from an object containing properties for latitude,
+       * longitude (both in radians), and height.
+       * @returns {atlas.model.GeoPoint}
+       */
+      fromCartographicRadians: function (pos) {
+        return new GeoPoint(AtlasMath.toDegrees(pos.latitude),
+            AtlasMath.toDegrees(pos.longitude), pos.height);
       }
     }
   );
+  return GeoPoint;
 });
