@@ -4,8 +4,8 @@ define([
   'atlas/util/DeveloperError',
   'atlas/util/default',
   'atlas/util/mixin',
-  'atlas/model/Vertex'
-], function(Class, DeveloperError, defaultValue, mixin, Vertex) {
+  'atlas/model/GeoPoint'
+], function(Class, DeveloperError, defaultValue, mixin, GeoPoint) {
 
   /**
    * @classdesc The Camera object controls the position and orientation of the camera.
@@ -23,13 +23,7 @@ define([
 
     /**
      * The current position of the Camera.
-     * @type {Object}
-     * @property {Number} lat - The initial latitude in decimal degrees in the
-     * range [-90, 90].
-     * @property {Number} lng - The initial longitude in decimal degrees in the
-     * range [-180, 180].
-     * @property {Number} elevation - The initial elevation above the Earth's
-     * surface in metres.
+     * @type {atlas.model.GeoPoint}
      */
     _position: null,
 
@@ -53,8 +47,8 @@ define([
 
     _init: function(args) {
       args = mixin({
-        position: Camera.DEFAULT_POSITION,
-        orientation: {tilt: 0, bearing: 0, rotation: 0}
+        position: Camera.DEFAULT_POSITION(),
+        orientation: Camera.DEFAULT_ORIENTATION()
       }, args);
       this._position = args.position;
       this._orientation = args.orientation;
@@ -69,10 +63,6 @@ define([
     // GETTERS AND SETTERS
     // -------------------------------------------
 
-    getPosition: function() {
-      return this._position;
-    },
-
     setPosition: function(position) {
       var newCamera = {
         position: position,
@@ -80,6 +70,11 @@ define([
         duration: 0
       };
       this._animateCamera(newCamera);
+      this._position = newCamera.position;
+    },
+
+    getPosition: function() {
+      return this._position;
     },
 
     getOrientation: function() {
@@ -93,6 +88,7 @@ define([
         duration: 0
       };
       this._animateCamera(newCamera);
+      this._orientation = newCamera.orientation;
     },
 
     /**
@@ -154,17 +150,13 @@ define([
 
     /**
      * Moves the camera to the given location and sets the Camera's direction.
-     * @param {Object} position - The new position of the Camera.
+     * @param {atlas.model.GeoPoint} position - The new position of the Camera.
      * @param {Object} [orientation] - The new orientation of the Camera.
      * @param {Number} [duration=0] - The duration of the zoom animation in milliseconds.
      */
     zoomTo: function(position, orientation, duration) {
       if (position === undefined) {
         throw new DeveloperError('Can not move camera without specifying position');
-      } else if (position.position) {
-        orientation = position.orientation;
-        duration = position.duration;
-        position = position.position;
       }
       var nextCamera = {
         position: position,
@@ -175,13 +167,10 @@ define([
     },
 
     /**
-     * Turns the camera so it's orientation vector points at the given GeoEntities centroid.
-     * @param {GeoEntity} geoEntity - The GeoEntity to face.
+     * Turns the camera so it's orientation vector points at the given position.
+     * @param {GeoPoint} point
      */
-    pointAt: function(geoEntity) {
-      var newCamera = {
-        position: this._position
-      };
+    pointAt: function(point) {
       throw new DeveloperError('Camera.pointAt not yet implemented.');
     },
 
@@ -210,8 +199,12 @@ define([
     // STATICS
     // -------------------------------------------
 
-    DEFAULT_POSITION: {lat: -37, lng: 144, elevation: 20000},
-    DEFAULT_ORIENTATION: {tilt: 90, bearing: 0, rotation: 0}
+    DEFAULT_POSITION: function () {
+      return new GeoPoint(-37, 144, 20000);
+    },
+    DEFAULT_ORIENTATION: function () {
+      return mixin({}, {tilt: 90, bearing: 0, rotation: 0});
+    }
 
   });
   return Camera;

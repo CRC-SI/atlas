@@ -4,8 +4,9 @@ define([
   'atlas/util/default',
   'atlas/util/mixin',
   'atlas/camera/Camera',
+  'atlas/model/GeoPoint',
   'atlas/lib/utility/Log'
-], function (Class, DeveloperError, defaultValue, mixin, Camera, Log) {
+], function (Class, DeveloperError, defaultValue, mixin, Camera, GeoPoint, Log) {
 
   /**
    * Constructs a new CameraManager object.
@@ -61,7 +62,7 @@ define([
             if (this._camera === null) {
               this._camera = new Camera();
             }
-            this._camera.zoomTo(args.position, args.orientation, args.duration);
+            this._camera.zoomTo(new GeoPoint(args.position), args.orientation, args.duration);
           }.bind(this)
         }
       ];

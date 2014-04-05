@@ -2,7 +2,7 @@ define([
 ], function () {
 
   /**
-   * Constructor for a new Vertex object.
+   * Constructor for a new Vertex object, which is a 3D cartesian coordinate.
    * @param {Number|Array.<Number>} [x=0] - the 'x' coordinate, or an 3 element array containing the x, y, and z coordinates in the 1st, 2nd, and 3rd index.
    * @param {Number} [y=0] - the 'y' coordinate.
    * @param {Number} [z=0] - the 'z' coordinate.
