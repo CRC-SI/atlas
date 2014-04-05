@@ -9,8 +9,8 @@ define([
   /**
    * @classdesc The Point class represents a geospatial location on a globe. The location
    * is specified with latitude, longitude, and elevation.
-   * @param {Number} [lat=0] - The GeoPoint's latitude in decimal degrees.
-   * @param {Number} [lng=0] - The GeoPoint's longitude in decimal degrees.
+   * @param {Number} [latitude=0] - The GeoPoint's latitude in decimal degrees.
+   * @param {Number} [longitude=0] - The GeoPoint's longitude in decimal degrees.
    * @param {Number} [elevation=0] - The GeoPoint's elevation in decimal degrees.
    * @class atlas.model.GeoPoint
    */

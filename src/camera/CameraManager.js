@@ -62,7 +62,12 @@ define([
             if (this._camera === null) {
               this._camera = new Camera();
             }
-            this._camera.zoomTo(new GeoPoint(args.position), args.orientation, args.duration);
+
+            this._camera.zoomTo({
+              position: new GeoPoint(args.position),
+              orientation: args.orientation,
+              duration: args.duration
+            });
           }.bind(this)
         }
       ];

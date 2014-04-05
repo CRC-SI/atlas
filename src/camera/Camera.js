@@ -46,12 +46,9 @@ define([
     _orientation: null,
 
     _init: function(args) {
-      args = mixin({
-        position: Camera.DEFAULT_POSITION(),
-        orientation: Camera.DEFAULT_ORIENTATION()
-      }, args);
-      this._position = args.position;
-      this._orientation = args.orientation;
+      args = mixin({}, args);
+      this._setPosition(args.position);
+      this._setOrientation(args.orientation);
       this.inputHandlers = {
         left: this.pan.bind(this),
         right: this.zoom.bind(this),
@@ -64,13 +61,12 @@ define([
     // -------------------------------------------
 
     setPosition: function(position) {
-      var newCamera = {
-        position: position,
-        orientation: this.getOrientation(),
-        duration: 0
-      };
-      this._animateCamera(newCamera);
-      this._position = newCamera.position;
+      this._setPosition(position);
+      this._animate({duration: 0});
+    },
+
+    _setPosition: function (position) {
+      this._position = mixin(this._position || Camera.DEFAULT_POSITION(), position);
     },
 
     getPosition: function() {
@@ -82,26 +78,24 @@ define([
     },
 
     setOrientation: function(orientation) {
-      var newCamera = {
-        position: this.getPosition(),
-        orientation: orientation,
-        duration: 0
-      };
-      this._animateCamera(newCamera);
-      this._orientation = newCamera.orientation;
+      this._setOrientation(orientation);
+      this._animate({duration: 0});
+    },
+
+    _setOrientation: function (orientation) {
+      this._orientation = mixin(this._orientation || Camera.DEFAULT_ORIENTATION(), orientation);
     },
 
     /**
      * Internal function to handle the renderer specifics to change the Camera's
-     * orientation and position. It updates <code>_position</code> and <code>_orientation</code>
-     * based on the input parameters.
-     * This function should be called by the public API functions that have varying input depending
-     * on purpose.
-     * @param {Object} newCamera - The new camera data compatible with the constructor.
+     * orientation and position. This function should be called by the public API functions that
+     * have varying input depending on purpose.
+     * @param {Object} args
+     * @param {Object} [args.duration=0] The amount of time to take for the animation.
      * @abstract
      */
-    _animateCamera: function(newCamera) {
-      throw new DeveloperError('Can not call abstract method Camera._animateCamera');
+    _animate: function(args) {
+      throw new DeveloperError('Can not call abstract method Camera._animate');
     },
 
     // -------------------------------------------
@@ -115,7 +109,7 @@ define([
         orientation: this._orientation,
         duration: 0
       };
-      this._animateCamera(newCamera);
+      this._animate(newCamera);
     },
 
     zoom: function(input) {
@@ -129,7 +123,7 @@ define([
         orientation: this._orientation,
         duration: 0
       };
-      this._animateCamera(newCamera);
+      this._animate(newCamera);
     },
 
     roll: function(movement) {
@@ -150,20 +144,19 @@ define([
 
     /**
      * Moves the camera to the given location and sets the Camera's direction.
-     * @param {atlas.model.GeoPoint} position - The new position of the Camera.
-     * @param {Object} [orientation] - The new orientation of the Camera.
-     * @param {Number} [duration=0] - The duration of the zoom animation in milliseconds.
+     * @param {Object} args
+     * @param {atlas.model.GeoPoint} args.position - The new position of the Camera.
+     * @param {Object} [args.orientation] - The new orientation of the Camera.
+     * @param {Number} [args.duration=0] - The duration of the zoom animation in milliseconds.
      */
-    zoomTo: function(position, orientation, duration) {
-      if (position === undefined) {
+    zoomTo: function(args) {
+      args = mixin({}, args);
+      if (args.position === undefined) {
         throw new DeveloperError('Can not move camera without specifying position');
       }
-      var nextCamera = {
-        position: position,
-        orientation: mixin({tilt: 0, bearing: 0, rotation: 0}, orientation),
-        duration: defaultValue(duration, 0)
-      };
-      this._animateCamera(nextCamera);
+      this._setPosition(args.position);
+      this._setOrientation(args.orientation || this._orientation);
+      this._animate({duration: args.duration});
     },
 
     /**
@@ -191,7 +184,7 @@ define([
         y: this._orientation.y,
         z: this._orientation.z
       };
-      this.zoomTo(this._position, newOrientation, 0);
+      this.setOrientation(newOrientation);
     }
   }), {
 
