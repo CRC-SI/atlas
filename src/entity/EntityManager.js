@@ -257,16 +257,6 @@ define([
     },
 
     /**
-     * Adds a new handle to the EntityManager
-     * @param {atlas.model.Handle} handle - The handle to add.
-     */
-    addHandle: function (handle) {
-      var id = handle.getId();
-      if (this._handles[id]) { return; }
-      this._handles[id] = handle;
-    },
-
-    /**
      * Removes the given GeoEntity from the EntityManager.
      * @param {String} id - The ID of the GeoEntity to remove.
      */
@@ -275,17 +265,6 @@ define([
         Log.debug('entityManager: deleted entity', id);
         this._entities[id].cleanUp();
         delete this._entities[id];
-      }
-    },
-
-    /**
-     * Removes a handle from the EntityManager.
-     * @param {atlas.model.Handle} handle - The Handle object to remove.
-     */
-    removeHandle: function (handle) {
-      var id = handle.getId();
-      if (this._handles[id]) {
-        this._handles[id] = null;
       }
     },
 

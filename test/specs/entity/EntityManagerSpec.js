@@ -25,11 +25,5 @@ define([
       em = null;
     });
 
-    it ('can have handles added and removed', function () {
-      em.addHandle(h1);
-      expect(em._handles['1']).toEqual(h1);
-      em.removeHandle(h1);
-      expect(em._handles['1']).toBeNull();
-    });
   }); // End 'An EntityManager'
 });
