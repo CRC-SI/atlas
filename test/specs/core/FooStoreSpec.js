@@ -71,6 +71,19 @@ define([
         expect(moreNothing).toBeFalsy();
         expect(!moreNothing).toBe(true);
       })
+
+      it('like apply a function to all foos', function () {
+        fooStore.add(foos[0]);
+        fooStore.add(foos[1]);
+        fooStore.add(foos[2]);
+        fooStore.add(foos[3]);
+        fooStore.map(function () {
+          this.val++;
+        });
+        [0,1,2,3].forEach(function (id) {
+          expect(fooStore.get(id.toString()).val).toEqual(id++);
+        });
+      });
     })
 
   })

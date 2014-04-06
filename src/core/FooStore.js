@@ -37,6 +37,10 @@ define([
       this._getter = getter || 'getId';
     },
 
+    // -------------------------------------------------
+    // STORE MANAGEMENT
+    // -------------------------------------------------
+
     /**
      * Add an object to the store.
      * @param {Object} obj - The object to add.
@@ -70,6 +74,21 @@ define([
      */
     purge: function () {
       this._foos = {};
+    },
+
+    // -------------------------------------------------
+    // FOO MODIFICATION
+    // -------------------------------------------------
+
+    /**
+     * Maps a given function to every foo in the store.
+     * @param {Function} f - Function to apply to the foo.
+     * @param {Array} args - An array of arguments for the function.
+     */
+    map: function (f, args) {
+      Object.keys(this._foos).forEach(function (foo) {
+        foo[f] && foo[f].apply(foo, args);
+      });
     }
   });
 
