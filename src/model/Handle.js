@@ -102,6 +102,7 @@ define([
       this.unrender();
       this._linked = null;
       this._target = null;
+      this._dot && this._dot.remove();
       this._delegateToLinked = function () {
         throw new Error('Tried to use a removed Handle');
       };
