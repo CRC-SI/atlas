@@ -28,14 +28,16 @@ define([
     _position: null,
 
     // TODO(aramk) I updated these, but noticed there is no distinction in tilt from looking north
-    // or south.
+    // or south, since we rarely want to be tilted towards south. This means orientation isn't unique.
     /**
      * The current orientation of the Camera.
      * @type {Object}
+     * // TODO(aramk) Normalise this around [-180, 180].
      * @property {Number} [tilt=90] - The tilt (or pitch) about the Camera's
      * transverse axis (across the latitude) in decimal degrees in the range [-90, 90].
      * At 90 degrees the Camera is facing the earth, at -90 degrees it is facing the opposite way
      * and at 0 degrees it is either facing north or south.
+     * // TODO(aramk) Is there a reason we're using bearing not heading?
      * @property {Number} [bearing=0] - The bearing (or yaw) about the normal axis (across the
      * longitude) from the surface to the camera in decimal degrees in the range [-180, 180].
      * At 0 degrees the Camera is facing the earth, at -90 degrees it is facing West, at 90
@@ -126,11 +128,11 @@ define([
       this._animate(newCamera);
     },
 
-    roll: function(movement) {
+    roll: function(angle) {
       throw new DeveloperError('Camera.roll not yet implemented.');
     },
 
-    tilt: function(movement) {
+    tilt: function(angle) {
       throw new DeveloperError('Camera.tilt not yet implemented.');
     },
 
@@ -156,7 +158,7 @@ define([
       }
       this._setPosition(args.position);
       this._setOrientation(args.orientation || this._orientation);
-      this._animate({duration: args.duration});
+      this._animate(args);
     },
 
     /**
