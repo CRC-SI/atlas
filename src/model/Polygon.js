@@ -375,6 +375,9 @@ define([
       for (var i = 0; i < this._vertices.length; i++) {
         this._vertices[i] = this._vertices[i].add(translation);
       }
+      for (var i = 1; i < this._editingHandles.length; i++) {
+        this._editingHandles[i]._dot.translate(translation);
+      }
       this.setDirty('model');
       this.isVisible() && this.show();
     },

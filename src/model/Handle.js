@@ -179,6 +179,7 @@ define([
      */
     translate: function () {
       this._delegateToLinked('translate', arguments);
+      this._dot['translate'].apply(this._dot, arguments);
     }
   });
 

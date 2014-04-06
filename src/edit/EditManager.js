@@ -213,7 +213,7 @@ define([
       // Unbind events that are only handled during an editing session.
       this.unbindMouseInput();
       // Remove editing handles.
-      this._handles.map('unrender');
+      this._handles.map('remove');
       this._entities = [];
     },
 

@@ -298,6 +298,9 @@ define([
      * a given amount in latitude and longitude.
      */
     translate: function(translation) {
+      if (translation.x !== undefined) {
+        translation = GeoPoint.fromVertex(translation);
+      }
       this._centroid = this._centroid.translate(translation);
       this.setDirty('model');
       this.isVisible() && this.show();
