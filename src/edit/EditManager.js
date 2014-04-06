@@ -1,8 +1,10 @@
 define([
+  'atlas/core/FooStore',
   'atlas/edit/TranslationModule',
   'atlas/lib/utility/Log',
+  'atlas/model/Handle',
   'atlas/util/Class'
-], function(TranslationModule, Log, Class) {
+], function(FooStore, TranslationModule, Log, Handle, Class) {
 
   // TODO(aramk) refactor this into abstract atlas.core.ModularManager and use elsewhere (e.g. RenderManager).
   /**
@@ -21,6 +23,7 @@ define([
    * @class atlas.edit.EditManager
    */
   EditManager = Class.extend( /** @lends atlas.edit.EditManager# */ {
+
     /**
      * Contains a mapping of Atlas manager names to the manager instance.
      * @type {Object.<String, Object.<String, Object>>}
@@ -44,6 +47,12 @@ define([
      * @type {Array.<String>}
      */
     _entityIds: null,
+
+    /**
+     * The store of Handles that are part of the current edit session.
+     * @type {atlas.core.FooStore}
+     */
+    _handles: null,
 
     /**
      * The Handle that is the current focus of dragging.
@@ -88,6 +97,7 @@ define([
       this._atlasManagers = atlasManagers;
       this._atlasManagers.edit = this;
 
+      this._handles = new FooStore();
       this._editing = false;
       this._enabledModules = {};
       this._listeners = {};
@@ -102,7 +112,7 @@ define([
     setup: function() {
       this.addModule('translation', new TranslationModule(this._atlasManagers));
       // TODO(aramk) Disabled translation by default.
-      //    this.enableModule('translation');
+      this.enableModule('translation');
       this.bindEvents();
     },
 
@@ -173,8 +183,8 @@ define([
     // -------------------------------------------
 
     /**
-     * Enable the editing state. This starts editing on the currently selected entities
-     * and locks the selection.
+     * Starts an editing session on the currently selected entities.
+     * Handles are displayed for the selected Polygons and selection is locked.
      */
     enable: function () {
       Log.debug('EditManager enabled');
@@ -186,28 +196,24 @@ define([
 
       // Render the editing handles.
       this._entities.forEach(function (entity) {
-        // TODO(bpstudds): Feature is a GeoEntity but it delegates is breaking this.
-        entity.getEditingHandles().forEach(function (handle) {
-          handle.render();
-        })
-      });
+        // Put the Handles into the EntityManager and render them.
+        this._handles.addArray(entity.getEditingHandles());
+        this._handles.map('render');
+      }, this);
     },
 
     /**
-     * Disables the editing state. This stops editing and unlocks selection.
+     * Ends an editing session.
      * NOTE: This does not do anything regarding specifically 'canceling' or 'saving'
-     * an edit.
+     * any changes made, but the final state when ending is maintained.
      */
     disable: function () {
       Log.debug('EditManager disabled');
       this._editing = false;
+      // Unbind events that are only handled during an editing session.
       this.unbindMouseInput();
       // Remove editing handles.
-      this._entities.forEach(function (entity) {
-        entity.getEditingHandles().forEach(function (handle) {
-          handle.unrender();
-        })
-      });
+      this._handles.map('unrender');
       this._entities = [];
     },
 
@@ -320,21 +326,26 @@ define([
      */
     onLeftDown: function (e) {
       // Check whether a Handle was clicked.
-     this._dragTarget = this._atlasManagers.entity.getAt(e.position).handle;
-      if (this._dragTarget === undefined) { return; }
+      // getAt always returns an array, but we only care about the top most Entity.
+      var targetId = this._atlasManagers.render.getAt(e.position)[0],
+          target = this._handles.get(targetId);
+      if (!target) { return; }
 
+      this._dragTarget = target;
       e.target =  this._dragTarget;
-      this._delegateToModules('start', e);
+      this._delegateToModules('start', arguments);
     },
 
     onMouseMove: function (e) {
       if (this._dragTarget === undefined) { return; }
-      this._delegateToModules('update', e);
+      e.target = this._dragTarget;
+      this._delegateToModules('update', arguments);
     },
 
     onLeftUp: function (e) {
       if (this._dragTarget === undefined) { return; }
-      this._delegateToModules('end', e);
+      e.target = this._dragTarget;
+      this._delegateToModules('end', arguments);
     }
 
   });

@@ -33,6 +33,7 @@ define([
       };
       em = new EditManager(managers);
       em.addModule('mock', mockModule);
+      em.enableModule('mock');
     });
 
     afterEach(function () {
@@ -40,18 +41,22 @@ define([
       em = null;
     });
 
-    describe('can be enabled and disabled', function () {
-      it('does nothing if not enabled', function () {
-        em.onLeftDown(e);
-        em.onMouseMove(e);
-        em.onLeftUp(e);
-        expect(mockModule.start).not.toHaveBeenCalled();
-        expect(mockModule.update).not.toHaveBeenCalled();
-        expect(mockModule.end).not.toHaveBeenCalled();
-      });
+    it('is disabled be default', function () {
+      expect(mockModule._editing).toBe(false);
+      expect(mockModule._enabledModules).toEqual({});
+      em.onLeftDown(e);
+      em.onMouseMove(e);
+      em.onLeftUp(e);
+      expect(mockModule.start).not.toHaveBeenCalled();
+      expect(mockModule.update).not.toHaveBeenCalled();
+      expect(mockModule.end).not.toHaveBeenCalled();
+    });
 
-      it('disabled', function () {
-        em.enableModule('mock');
+    it('can be enabled', function () {
+    });
+
+
+    it('can be disabled', function () {
         em.enable();
         em.onLeftDown(e);
         em.onMouseMove(e);
@@ -66,7 +71,6 @@ define([
         expect(mockModule.start.calls.length).toEqual(1);
         expect(mockModule.update.calls.length).toEqual(1);
         expect(mockModule.end.calls.length).toEqual(1);
-      })
     });
 
     describe('can handle input', function () {
