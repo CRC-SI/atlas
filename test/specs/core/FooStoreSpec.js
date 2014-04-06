@@ -14,7 +14,8 @@ define([
         foos.push({
           id: id.toString(),
           val: id,
-          getId: function () { return this.id; }
+          getId: function () { return this.id; },
+          incrVal: function () { this.val++; }
         });
       })
     });
@@ -77,14 +78,11 @@ define([
         fooStore.add(foos[1]);
         fooStore.add(foos[2]);
         fooStore.add(foos[3]);
-        fooStore.map(function () {
-          this.val++;
-        });
+        fooStore.map('incrVal');
         [0,1,2,3].forEach(function (id) {
-          expect(fooStore.get(id.toString()).val).toEqual(id++);
+          expect(fooStore.get(id.toString()).val).toEqual(id + 1);
         });
       });
-    })
-
-  })
+    });
+  });
 });

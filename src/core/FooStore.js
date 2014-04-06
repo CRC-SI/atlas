@@ -82,14 +82,16 @@ define([
 
     /**
      * Maps a given function to every foo in the store.
-     * @param {Function} f - Function to apply to the foo.
+     * @param {String} f - Name of the function to apply.
      * @param {Array} args - An array of arguments for the function.
      */
     map: function (f, args) {
-      Object.keys(this._foos).forEach(function (foo) {
+      Object.keys(this._foos).forEach(function (id) {
+        var foo = this.get(id);
         foo[f] && foo[f].apply(foo, args);
-      });
+      }, this);
     }
+
   });
 
   return FooStore;
