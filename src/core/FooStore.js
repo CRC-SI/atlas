@@ -1,6 +1,7 @@
 define([
-  'atlas/util/Class'
-], function (Class) {
+  'atlas/util/Class',
+  'atlas/util/DeveloperError'
+], function (Class, DeveloperError) {
 
   /**
    * Define the FooStore constructor as type atlas.core.FooStore
@@ -26,6 +27,12 @@ define([
     _getter: null,
 
     /**
+     * Count of items in the store.
+     * @type {number}
+     */
+    _count: 0,
+
+    /**
      * The objects stored in the FooStore.
      * @type {Object.<String, Object>}
      * @private
@@ -38,7 +45,18 @@ define([
     },
 
     // -------------------------------------------------
-    // STORE MANAGEMENT
+    // GETTERS AND SETTERS
+    // -------------------------------------------------
+
+    /**
+     * @returns {number} The number of items in the store.
+     */
+    getCount: function () {
+      return this._count;
+    },
+
+    // -------------------------------------------------
+    // ADDING AND REMOVING
     // -------------------------------------------------
 
     /**
@@ -46,8 +64,22 @@ define([
      * @param {Object} obj - The object to add.
      */
     add: function (obj) {
+      if (!obj[this._getter]) {
+        throw new DeveloperError('Tried to add object without an ID getter to the store.');
+      }
       var id = obj[this._getter].apply(obj);
       this._foos[id] = obj;
+      this._count++;
+    },
+
+    /**
+     * Adds an array of objects to the store.
+     * @param {Array.<Object>} objs - The array of objects to add.
+     */
+    addArray: function (objs) {
+      objs.forEach(function (obj) {
+        this.add(obj);
+      }, this);
     },
 
     /**
@@ -58,12 +90,13 @@ define([
     remove: function (id) {
       var obj = this._foos[id];
       delete this._foos[id];
+      this._count--;
       return obj;
     },
 
     /**
      * @param {String} id - The ID of the object to retrieve.
-     * @returns {Object|Null} The object with the given ID.
+     * @returns {Object?} The object with the given ID.
      */
     get: function (id) {
       return this._foos[id];
@@ -83,7 +116,7 @@ define([
     /**
      * Maps a given function to every foo in the store.
      * @param {String} f - Name of the function to apply.
-     * @param {Array} args - An array of arguments for the function.
+     * @param {Array} [args] - An array of arguments for the function.
      */
     map: function (f, args) {
       Object.keys(this._foos).forEach(function (id) {

@@ -40,11 +40,26 @@ define([
         fooStore = new FooStore();
       });
 
+      it('fails awesomely if a null id is added', function () {
+        var f = function () { fooStore.add({x: 0}); };
+        expect(f).toThrow();
+        expect(fooStore.getCount()).toBe(0);
+      });
+
       it('can have foos added', function () {
         fooStore.add(foos[0]);
         fooStore.add(foos[1]);
         expect(fooStore._foos['0']).toEqual(foos[0]);
         expect(fooStore._foos['1']).toEqual(foos[1]);
+        expect(fooStore.getCount()).toBe(2);
+      });
+
+      it('can have multiple objects added', function () {
+        fooStore.addArray(foos);
+        [0,1,2,3].forEach(function (id) {
+          expect(fooStore._foos[id.toString()]).toEqual(foos[id]);
+        });
+        expect(fooStore.getCount()).toBe(4);
       });
 
       it('can retrieve foos', function () {
@@ -57,12 +72,14 @@ define([
       it('can have foos removed', function () {
         fooStore.add(foos[0]);
         fooStore.add(foos[1]);
+        expect(fooStore.getCount()).toBe(2);
         fooStore.remove('0');
+        expect(fooStore.getCount()).toBe(1);
         expect(fooStore._foos['0']).toBeUndefined();
         expect(fooStore._foos['1']).toEqual(foos[1]);
       });
 
-      it('safely fails to get a non-existant foo', function () {
+      it('safely fails to get a non-existent foo', function () {
         fooStore.add(foos[1]);
         fooStore.remove('1');
         var nothing = fooStore.get('nothing'),
