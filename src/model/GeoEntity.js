@@ -452,6 +452,7 @@ define([
      * Enables 'editing' of the GeoEntity using keyboard input.
      */
     onEnableEditing: function () {
+      return;
       // TODO(bpstudds): Move this functionality to an EditManager module.
       this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keydown',
           function (args) {
@@ -485,6 +486,7 @@ define([
      * Disables editing of the GeoEntity.
      */
     onDisableEditing: function () {
+      return;
       this._editEventHandler && this._editEventHandler.cancel();
       this._editingHandles.forEach(function(handle) {
         handle.remove();
