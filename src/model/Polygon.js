@@ -143,6 +143,10 @@ define([
       } else {
         this._vertices = defaultValue(polygonData.vertices, []);
       }
+      // Don't have closed polygons.
+      if (this._vertices.first === this._vertices.last) {
+        this._vertices.pop();
+      }
       this._height = parseFloat(polygonData.height) || this._height;
       this._elevation = parseFloat(polygonData.elevation) || this._elevation;
       this._zIndex = parseFloat(polygonData.zIndex) || this._zIndex;
@@ -295,9 +299,7 @@ define([
      * @returns {Number} The index at which the vertex was added.
      */
     addVertex: function(vertex) {
-      var v = this._vertices.pop();
       this._vertices.push(vertex);
-      this._vertices.push(v);
       // Invalidate any pre-calculated area and centroid.
       this.setDirty('vertices');
       this._area = null;
@@ -345,8 +347,6 @@ define([
       }
       if (0 <= index && index <= this._vertices.length - 1) {
         var removed = this._vertices.splice(index, 1)[0];
-        // Maintain closed-ness
-        this._vertices[this._vertices.length - 1] = this._vertices[0];
         // Clear derived values
         this.setDirty('vertices');
         this._area = null;
