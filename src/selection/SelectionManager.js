@@ -119,13 +119,13 @@ define([
 
     /**
      * Returns the map of currently selected GeoEntities.
-     * @returns {Object.<String,atlas.model.GeoEntity>}
+     * @returns {Array.<atlas.model.GeoEntity>}
      */
     getSelection: function() {
-      var selection = {};
+      var selection = [];
       for (var id in this._selection) {
         if (this._selection.hasOwnProperty(id)) {
-          selection[id] = this._selection[id];
+          selection.push(this._selection[id]);
         }
       }
       return selection;

@@ -38,7 +38,7 @@ define([
 
     /**
      * The GeoEntities that will be edited when editing is enabled.
-     * @type {Array.<atlas.model.GeoEntity>}
+     * @type {atlas.core.FooStore}
      */
     _entities: null,
 
@@ -97,13 +97,13 @@ define([
       this._atlasManagers = atlasManagers;
       this._atlasManagers.edit = this;
 
+
+      this._entities = new FooStore();
       this._handles = new FooStore();
       this._editing = false;
       this._enabledModules = {};
       this._listeners = {};
       this._modules = {};
-      this._entityIds = [];
-      this._entities = [];
     },
 
     /**
@@ -197,12 +197,10 @@ define([
       Log.debug('EditManager enabled');
       this._editing = true;
       this.bindMouseInput();
-      this._entityIds.forEach(function (id) {
-        this._entities.push(this._atlasManagers.entity.getById(id));
-      }, this);
+      this._entities.addArray(this._atlasManagers.selection.getSelection());
 
       // Render the editing handles.
-      this._entities.forEach(function (entity) {
+      this._entities.mapFunction(function (entity) {
         entity.showAsFootprint();
         // Put the Handles into the EntityManager and render them.
         this._handles.addArray(entity.getEditingHandles());
@@ -218,12 +216,13 @@ define([
     disable: function () {
       Log.debug('EditManager disabled');
       this._editing = false;
-      // Unbind events that are only handled during an editing session.
+      // End the editing session
       this.unbindMouseInput();
-      // Remove editing handles.
       this._handles.map('remove');
+      this._entities.map('showAsExtrusion');
+      // Remove stored elements
       this._handles.purge();
-      this._entities = [];
+      this._entities.purge();
     },
 
     /**
