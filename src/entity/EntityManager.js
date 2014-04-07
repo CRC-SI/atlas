@@ -317,9 +317,7 @@ define([
     /**
      * Returns the GeoEntity that intersects the given Vertex or undefined.
      * @param {atlas.model.Vertex} point - The point of interest.
-     * @returns {atlas.model.GeoEntity|undefined} The GeoEntity located at the given point, or
-     * <code>undefined</code> if there is no such GeoEntity.
-     * @abstract
+     * @returns {Array.<atlas.model.GeoEntity>} The GeoEntities located at the given screen coordinates.
      */
     getAt: function (point) {
       // TODO
