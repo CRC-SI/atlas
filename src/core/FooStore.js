@@ -123,6 +123,20 @@ define([
         var foo = this.get(id);
         foo[f] && foo[f].apply(foo, args);
       }, this);
+    },
+
+    /**
+     * Maps a given function to every foo in the store. The given function is called once for
+     * every object in the store, with the object being the only argument.
+     * @param {Function.<Object>} f - The function to call.
+     * @param {Object} [scope] - The object that <code>this</code> will refer to.
+     */
+    mapFunction: function (f, scope) {
+      scope = scope || this;
+      Object.keys(this._foos).forEach(function (id) {
+        var foo = this.get(id);
+        f.bind(scope)(foo)
+      }, this);
     }
 
   });
