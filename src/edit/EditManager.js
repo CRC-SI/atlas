@@ -136,7 +136,14 @@ define([
             // TODO(bpstudds): Implement this functionality (in future feature branch).
             this._entityIds = event.ids
           }.bind(this)
-        }
+        }/*,
+        {
+          source: 'intern',
+          name: 'entity/deselect',
+          callback: function (event) {
+            this._entities.purge();
+          }.bind(this)
+        }*/
       ];
       this._eventHandlers = this._atlasManagers.event.addEventHandlers(handlers);
     },
@@ -196,6 +203,7 @@ define([
 
       // Render the editing handles.
       this._entities.forEach(function (entity) {
+        entity.showAsFootprint();
         // Put the Handles into the EntityManager and render them.
         this._handles.addArray(entity.getEditingHandles());
         this._handles.map('render');
@@ -214,6 +222,7 @@ define([
       this.unbindMouseInput();
       // Remove editing handles.
       this._handles.map('remove');
+      this._handles.purge();
       this._entities = [];
     },
 
@@ -337,14 +346,16 @@ define([
     },
 
     onMouseMove: function (e) {
-      if (this._dragTarget === undefined) { return; }
+      if (!this._dragTarget) { return; }
       e.target = this._dragTarget;
       this._delegateToModules('update', arguments);
     },
 
     onLeftUp: function (e) {
-      if (this._dragTarget === undefined) { return; }
+      if (!this._dragTarget) { return; }
+
       e.target = this._dragTarget;
+      this._dragTarget = null;
       this._delegateToModules('end', arguments);
     }
 

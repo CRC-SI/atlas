@@ -241,6 +241,7 @@ define([
      */
     enableExtrusion: function() {
       this._showAsExtrusion = true;
+      this.setDirty('model');
     },
 
     /**
@@ -248,6 +249,7 @@ define([
      */
     disableExtrusion: function() {
       this._showAsExtrusion = false;
+      this.setDirty('model');
     },
 
     /**
