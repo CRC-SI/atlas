@@ -88,13 +88,15 @@ define([
           source: 'intern',
           name: 'input/left/dblclick',
           callback: function(args) {
-            var selectedEntities = this._atlasManagers.entity.getAt(args.position);
-            selectedEntities.forEach(function(entity) {
+            var entities = this._atlasManagers.entity.getAt(args.position);
+            if (entities.length > 0) {
+              // Only capture the double click on the first entity.
+              var entity = entities[0];
               this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(),
                   'entity/dblclick', {
                     id: entity.getId()
                   }));
-            }, this);
+            }
           }.bind(this)
         },
         {
