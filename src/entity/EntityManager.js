@@ -5,11 +5,12 @@ define([
   'atlas/model/GeoEntity',
   'atlas/model/Mesh',
   'atlas/model/Polygon',
+  'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/mixin',
   // Base class.
   'atlas/util/Class'
-], function (Log, Ellipse, Feature, GeoEntity, Mesh, Polygon, DeveloperError, mixin, Class) {
+], function (Log, Ellipse, Feature, GeoEntity, Mesh, Polygon, Vertex, DeveloperError, mixin, Class) {
 
   //noinspection JSUnusedGlobalSymbols
   var EntityManager = Class.extend({
@@ -173,7 +174,7 @@ define([
             polygon: this._parseC3MLpolygon
           };
       // Generate the Geometry for the C3ML type if it is supported.
-      parsers[c3ml.type] && (geometry = parsers[c3ml.type](c3ml));
+      parsers[c3ml.type] && (geometry = parsers[c3ml.type](c3ml, this));
       return mixin({
         id: c3ml.id,
         type: c3ml.type,
@@ -188,15 +189,16 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLline: function (c3ml) {
+    _parseC3MLline: function (c3ml, _this) {
       return {
         line: {
-          vertices: c3ml.coordinates,
+          vertices: _this._parseCoordinates(c3ml.coordinates),
           color: c3ml.color,
           height: c3ml.height,
           elevation: c3ml.altitude
-        }
-      }
+        },
+        show: true
+      };
     },
 
     /**
@@ -205,15 +207,16 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLpolygon: function (c3ml) {
+    _parseC3MLpolygon: function (c3ml, _this) {
       return {
         polygon: {
-          vertices: c3ml.coordinates,
+          vertices: _this._parseCoordinates(c3ml.coordinates),
           color: c3ml.color,
           height: c3ml.height,
           elevation: c3ml.altitude
-        }
-      }
+        },
+        show: true
+      };
     },
 
     /**
@@ -222,7 +225,7 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLmesh: function (c3ml) {
+    _parseC3MLmesh: function (c3ml, _this) {
       return {
         mesh: {
           positions: c3ml.positions,
@@ -232,8 +235,37 @@ define([
           geoLocation: c3ml.geoLocation,
           scale: c3ml.scale,
           rotation: c3ml.rotation
-        }
+        },
+        show: true
+      };
+    },
+
+    /**
+     * Takes an array of {x, y, z} coordinates and converts it to an array of
+     * {@see atlas.model.Vertex|Vertices}.
+     * @param {Object} coordinates - The {x, y, z} coordinates to convert.
+     * @returns {Array.<atlas.model.Vertex>} The convert coordinates.
+     * @protected
+     */
+    _parseCoordinates: function (coordinates) {
+      var vertices = [];
+      for (var i = 0; i < coordinates.length; i++) {
+        vertices.push(this._coordinateAsVertex(coordinates[i]));
       }
+      return vertices;
+    },
+
+    /**
+     * Converts a coordinate object to a {@link atlas.model.Vertex|Vertex}.
+     * @param  {Object} coordinate - The coordinate to be converted.
+     * @param {Number} coordinate.x - The latitude, given in decimal degrees.
+     * @param {Number} coordinate.y - The longitude, given in decimal degrees.
+     * @param {Number} coordinate.z - The altitude, given in metres.
+     * @returns {atlas.model.Vertex}
+     * @protected
+     */
+    _coordinateAsVertex: function (coordinate) {
+      return new Vertex(coordinate.x, coordinate.y, coordinate.z);
     },
 
     /**
