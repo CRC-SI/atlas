@@ -1,10 +1,10 @@
 define([
-  'atlas/core/FooStore',
+  'atlas/core/ItemStore',
   'atlas/edit/TranslationModule',
   'atlas/lib/utility/Log',
   'atlas/model/Handle',
   'atlas/util/Class'
-], function(FooStore, TranslationModule, Log, Handle, Class) {
+], function(ItemStore, TranslationModule, Log, Handle, Class) {
 
   // TODO(aramk) refactor this into abstract atlas.core.ModularManager and use elsewhere (e.g. RenderManager).
   /**
@@ -38,7 +38,7 @@ define([
 
     /**
      * The GeoEntities that will be edited when editing is enabled.
-     * @type {atlas.core.FooStore}
+     * @type {atlas.core.ItemStore}
      */
     _entities: null,
 
@@ -50,7 +50,7 @@ define([
 
     /**
      * The store of Handles that are part of the current edit session.
-     * @type {atlas.core.FooStore}
+     * @type {atlas.core.ItemStore}
      */
     _handles: null,
 
@@ -85,7 +85,7 @@ define([
      */
     _eventHandlers: null,
 
-    /**      if (this._dragTarget === undefined) { return; }
+    /**
      * An array of event listeners for user input. <code>_inputEventHandlers</code> is non-null
      * when editing is enabled. When editing is disabled, the only event being listened for
      * is the event to enable and disable editing.
@@ -97,9 +97,8 @@ define([
       this._atlasManagers = atlasManagers;
       this._atlasManagers.edit = this;
 
-
-      this._entities = new FooStore();
-      this._handles = new FooStore();
+      this._entities = new ItemStore();
+      this._handles = new ItemStore();
       this._editing = false;
       this._enabledModules = {};
       this._listeners = {};
@@ -123,8 +122,7 @@ define([
           name: 'input/keyup',
           callback: function (event) {
             // TODO(bpstudds): Make an enum for the keyboard event key values.
-            if (event.key === 69) {
-              // TODO(bpstudds) Flesh out this.
+            if (event.key === 69 /* lowercase 'e' */) {
               this.toggleEditing();
             }
           }.bind(this)
@@ -200,7 +198,7 @@ define([
       this._entities.addArray(this._atlasManagers.selection.getSelection());
 
       // Render the editing handles.
-      this._entities.mapFunction(function (entity) {
+      this._entities.forEach(function (entity) {
         entity.showAsFootprint();
         // Put the Handles into the EntityManager and render them.
         this._handles.addArray(entity.getEditingHandles());

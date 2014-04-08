@@ -189,8 +189,8 @@ define([
             this._selection[id] = entity;
           }.bind(this));
           this._atlasManagers.event.dispatchEvent(
-            new Event(null, 'entity/select', {ids: toSelectIds}
-          ));
+            new Event(null, 'entity/select', {ids: toSelectIds})
+          );
         }
       }
       Log.debug('selected entities', toSelectIds);

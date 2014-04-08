@@ -27,11 +27,11 @@ define([
 
     it('can be constructed', function () {
       fooStore = new FooStore();
-      expect(fooStore._getter).toEqual('getId');
-      expect(fooStore._foos).toEqual({});
+      expect(fooStore._getterName).toEqual('getId');
+      expect(fooStore._items).toEqual({});
       fooStore = new FooStore('fooIdGetterFunction');
-      expect(fooStore._getter).toEqual('fooIdGetterFunction');
-      expect(fooStore._foos).toEqual({});
+      expect(fooStore._getterName).toEqual('fooIdGetterFunction');
+      expect(fooStore._items).toEqual({});
     })
 
     describe('can do stuff', function () {
@@ -49,15 +49,15 @@ define([
       it('can have foos added', function () {
         fooStore.add(foos[0]);
         fooStore.add(foos[1]);
-        expect(fooStore._foos['0']).toEqual(foos[0]);
-        expect(fooStore._foos['1']).toEqual(foos[1]);
+        expect(fooStore._items['0']).toEqual(foos[0]);
+        expect(fooStore._items['1']).toEqual(foos[1]);
         expect(fooStore.getCount()).toBe(2);
       });
 
       it('can have multiple objects added', function () {
         fooStore.addArray(foos);
         [0,1,2,3].forEach(function (id) {
-          expect(fooStore._foos[id.toString()]).toEqual(foos[id]);
+          expect(fooStore._items[id.toString()]).toEqual(foos[id]);
         });
         expect(fooStore.getCount()).toBe(4);
       });
@@ -75,8 +75,8 @@ define([
         expect(fooStore.getCount()).toBe(2);
         fooStore.remove('0');
         expect(fooStore.getCount()).toBe(1);
-        expect(fooStore._foos['0']).toBeUndefined();
-        expect(fooStore._foos['1']).toEqual(foos[1]);
+        expect(fooStore._items['0']).toBeUndefined();
+        expect(fooStore._items['1']).toEqual(foos[1]);
       });
 
       it('safely fails to get a non-existent foo', function () {
