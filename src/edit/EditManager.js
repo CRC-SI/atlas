@@ -341,13 +341,13 @@ define([
 
       this._dragTarget = target;
       e.target =  this._dragTarget;
-      this._delegateToModules('start', arguments);
+      this._delegateToModules('startDrag', arguments);
     },
 
     onMouseMove: function (e) {
       if (!this._dragTarget) { return; }
       e.target = this._dragTarget;
-      this._delegateToModules('update', arguments);
+      this._delegateToModules('updateDrag', arguments);
     },
 
     onLeftUp: function (e) {
@@ -355,7 +355,7 @@ define([
 
       e.target = this._dragTarget;
       this._dragTarget = null;
-      this._delegateToModules('end', arguments);
+      this._delegateToModules('endDrag', arguments);
     }
 
   });

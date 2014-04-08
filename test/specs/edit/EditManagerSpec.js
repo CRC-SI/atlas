@@ -16,7 +16,7 @@ define([
   describe('An EditManager', function () {
 
     beforeEach(function () {
-      mockModule = jasmine.createSpyObj('mockModule', ['start', 'update', 'end']);
+      mockModule = jasmine.createSpyObj('mockModule', ['startDrag', 'updateDrag', 'endDrag']);
       mockEntityManager = {
         getAt: function (e) {
           if (e === 'handle') {
@@ -47,9 +47,9 @@ define([
       em.onLeftDown(e);
       em.onMouseMove(e);
       em.onLeftUp(e);
-      expect(mockModule.start).not.toHaveBeenCalled();
-      expect(mockModule.update).not.toHaveBeenCalled();
-      expect(mockModule.end).not.toHaveBeenCalled();
+      expect(mockModule.startDrag).not.toHaveBeenCalled();
+      expect(mockModule.updateDrag).not.toHaveBeenCalled();
+      expect(mockModule.endDrag).not.toHaveBeenCalled();
     });
 
     it('can be enabled', function () {
@@ -61,16 +61,16 @@ define([
         em.onLeftDown(e);
         em.onMouseMove(e);
         em.onLeftUp(e);
-        expect(mockModule.start).toHaveBeenCalled();
-        expect(mockModule.update).toHaveBeenCalled();
-        expect(mockModule.end).toHaveBeenCalled();
+        expect(mockModule.startDrag).toHaveBeenCalled();
+        expect(mockModule.updateDrag).toHaveBeenCalled();
+        expect(mockModule.endDrag).toHaveBeenCalled();
         em.disable();
         em.onLeftDown(e);
         em.onMouseMove(e);
         em.onLeftUp(e);
-        expect(mockModule.start.calls.length).toEqual(1);
-        expect(mockModule.update.calls.length).toEqual(1);
-        expect(mockModule.end.calls.length).toEqual(1);
+        expect(mockModule.startDrag.calls.length).toEqual(1);
+        expect(mockModule.updateDrag.calls.length).toEqual(1);
+        expect(mockModule.endDrag.calls.length).toEqual(1);
     });
 
     describe('can handle input', function () {
@@ -82,17 +82,17 @@ define([
 
       it ('on left down', function () {
         em.onLeftDown(e);
-        expect(mockModule.start).toHaveBeenCalled();
+        expect(mockModule.startDrag).toHaveBeenCalled();
       });
 
       it ('on mouse move', function () {
         em.onMouseMove(e);
-        expect(mockModule.update).toHaveBeenCalled();
+        expect(mockModule.updateDrag).toHaveBeenCalled();
       });
 
       it ('on left up', function () {
         em.onLeftUp(e);
-        expect(mockModule.end).toHaveBeenCalled();
+        expect(mockModule.endDrag).toHaveBeenCalled();
       });
     })
   });

@@ -44,7 +44,7 @@ define([
    * then all selected entities are included in the translation. If no object is selected before
    * translation, only the target entity is translated.
    */
-  TranslationModule.prototype.start = function(args) {
+  TranslationModule.prototype.startDrag = function(args) {
     this._target = args.target;
     // Lock up camera
     this._atlasManagers.camera.lockCamera();
@@ -56,7 +56,7 @@ define([
   /**
    * Translates from the last location to the current location of the event for all entities.
    */
-  TranslationModule.prototype.update = function(args) {
+  TranslationModule.prototype.updateDrag = function(args) {
     if (!this._target) { return; }
 
     var screenDiff = new Vertex(args.position.x, args.position.y).subtract(this._lastScreenCoords).absolute();
@@ -73,7 +73,7 @@ define([
    * Translates from the last location to the current location of the event for all entities and then
    * stops translating.
    */
-  TranslationModule.prototype.end = function(args) {
+  TranslationModule.prototype.endDrag = function(args) {
     if (!this._target) { return; }
     this._lastScreenCoords = {x: args.x, y: args.y};
     //var cartLocation = this._cartographicLocation(args);
