@@ -163,7 +163,7 @@ define([
       this._zIndexOffset = parseFloat(polygonData.zIndexOffset) || this._zIndexOffset;
       this._material = (polygonData.material || Material.DEFAULT);
       if (polygonData.color) {
-        if (typeof polygonData.color === Colour) {
+        if (polygonData.color instanceof Colour) {
           this._style = new Style({fillColour: polygonData.color});
         } else {
           this._style = new Style({fillColour: Colour.fromRGBA(polygonData.color)});
