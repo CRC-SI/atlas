@@ -53,6 +53,13 @@ define([
     _vertices: null,
 
     /**
+     * List of counter-clockwise ordered array of vertices constructing holes of this polygon.
+     * @type {Array.<Array.<atlas.model.Vertex>>}
+     * @private
+     */
+    _holes: null,
+
+    /**
      * The extruded height of the polygon (if rendered as extruded polygon).
      * @type {Number}
      * @private
@@ -143,13 +150,20 @@ define([
       } else {
         this._vertices = defaultValue(polygonData.vertices, []);
       }
+      if (polygonData.holes) {
+        this._holes = polygonData.holes;
+      }
       this._height = parseFloat(polygonData.height) || this._height;
       this._elevation = parseFloat(polygonData.elevation) || this._elevation;
       this._zIndex = parseFloat(polygonData.zIndex) || this._zIndex;
       this._zIndexOffset = parseFloat(polygonData.zIndexOffset) || this._zIndexOffset;
       this._material = (polygonData.material || Material.DEFAULT);
       if (polygonData.color) {
-        this._style = new Style({fillColour: polygonData.color});
+        if (typeof polygonData.color === Colour) {
+          this._style = new Style({fillColour: polygonData.color});
+        } else {
+          this._style = new Style({fillColour: Colour.fromRGBA(polygonData.color)});
+        }
       } else if (polygonData.style) {
         this._style = polygonData.style;
       } else {
