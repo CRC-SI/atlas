@@ -5,11 +5,12 @@ define([
   'atlas/model/GeoEntity',
   'atlas/model/Mesh',
   'atlas/model/Polygon',
+  'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/mixin',
   // Base class.
   'atlas/util/Class'
-], function (Log, Ellipse, Feature, GeoEntity, Mesh, Polygon, DeveloperError, mixin, Class) {
+], function (Log, Ellipse, Feature, GeoEntity, Mesh, Polygon, Vertex, DeveloperError, mixin, Class) {
 
   var EntityManager = Class.extend({
 
@@ -39,7 +40,6 @@ define([
       this._atlasManagers.entity = this;
       this._entities = {};
     },
-
 
     bindEvents: function () {
       Log.debug('atlas/entity/EntityManager', 'Binding events');
@@ -140,13 +140,70 @@ define([
             polygon: this._parseC3MLpolygon
           };
       // Generate the Geometry for the C3ML type if it is supported.
-      parsers[c3ml.type] && (geometry = parsers[c3ml.type](c3ml));
+      parsers[c3ml.type] && (geometry = parsers[c3ml.type](c3ml, this));
       return mixin({
         id: c3ml.id,
         type: c3ml.type,
         parent: c3ml.parent,
         children: c3ml.children
       }, geometry);
+    },
+
+    /**
+     * Parses a C3ML line object to an format supported by Atlas.
+     * @param {Object} c3ml - The C3ML object to be parsed
+     * @returns {Object} The parsed C3ML.
+     * @private
+     */
+    _parseC3MLline: function (c3ml, _this) {
+      return {
+        line: {
+          vertices: _this._parseCoordinates(c3ml.coordinates),
+          color: c3ml.color,
+          height: c3ml.height,
+          elevation: c3ml.altitude
+        },
+        show: true
+      };
+    },
+
+    /**
+     * Parses a C3ML polygon object to an format supported by Atlas.
+     * @param {Object} c3ml - The C3ML object to be parsed
+     * @returns {Object} The parsed C3ML.
+     * @private
+     */
+    _parseC3MLpolygon: function (c3ml, _this) {
+      return {
+        polygon: {
+          vertices: _this._parseCoordinates(c3ml.coordinates),
+          color: c3ml.color,
+          height: c3ml.height,
+          elevation: c3ml.altitude
+        },
+        show: true
+      };
+    },
+
+    /**
+     * Parses a C3ML mesh object to an format supported by Atlas.
+     * @param {Object} c3ml - The C3ML object to be parsed
+     * @returns {Object} The parsed C3ML.
+     * @private
+     */
+    _parseC3MLmesh: function (c3ml, _this) {
+      return {
+        mesh: {
+          positions: c3ml.positions,
+          normals: c3ml.normals,
+          triangles: c3ml.triangles,
+          color: c3ml.color,
+          geoLocation: c3ml.geoLocation,
+          scale: c3ml.scale,
+          rotation: c3ml.rotation
+        },
+        show: true
+      };
     },
 
     /**
@@ -175,63 +232,6 @@ define([
      */
     _coordinateAsVertex: function (coordinate) {
       return new Vertex(coordinate.x, coordinate.y, coordinate.z);
-    },
-
-    /**
-     * Parses a C3ML line object to an format supported by Atlas.
-     * @param {Object} c3ml - The C3ML object to be parsed
-     * @returns {Object} The parsed C3ML.
-     * @private
-     */
-    _parseC3MLline: function (c3ml) {
-      return {
-        line: {
-          vertices: this._parseCoordinates(c3ml.coordinates),
-          color: c3ml.color,
-          height: c3ml.height,
-          elevation: c3ml.altitude
-        },
-        show: true
-      };
-    },
-
-    /**
-     * Parses a C3ML polygon object to an format supported by Atlas.
-     * @param {Object} c3ml - The C3ML object to be parsed
-     * @returns {Object} The parsed C3ML.
-     * @private
-     */
-    _parseC3MLpolygon: function (c3ml) {
-      return {
-        polygon: {
-          vertices: this._parseCoordinates(c3ml.coordinates),
-          color: c3ml.color,
-          height: c3ml.height,
-          elevation: c3ml.altitude
-        },
-        show: true
-      };
-    },
-
-    /**
-     * Parses a C3ML mesh object to an format supported by Atlas.
-     * @param {Object} c3ml - The C3ML object to be parsed
-     * @returns {Object} The parsed C3ML.
-     * @private
-     */
-    _parseC3MLmesh: function (c3ml) {
-      return {
-        mesh: {
-          positions: c3ml.positions,
-          normals: c3ml.normals,
-          triangles: c3ml.triangles,
-          color: c3ml.color,
-          geoLocation: c3ml.geoLocation,
-          scale: c3ml.scale,
-          rotation: c3ml.rotation
-        },
-        show: true
-      };
     },
 
     /**
