@@ -1,21 +1,25 @@
 define([
   'atlas/model/Vertex',
   'atlas/util/AtlasMath',
-  'atlas/util/Class',
-  'atlas/util/mixin'
-], function (Vertex, AtlasMath, Class, mixin) {
+  'atlas/util/Class'
+], function (Vertex, AtlasMath, Class) {
 
+  /**
+   * @typedef atlas.model.GeoPoint
+   * @ignore
+   */
   var GeoPoint;
 
   /**
-   * @classdesc The Point class represents a geospatial location on a globe. The location
+   * @classdesc The GeoPoint class represents a geospatial location on a globe. The location
    * is specified with latitude, longitude, and elevation.
    * @param {Number} [lat=0] - The GeoPoint's latitude in decimal degrees.
    * @param {Number} [lng=0] - The GeoPoint's longitude in decimal degrees.
    * @param {Number} [elevation=0] - The GeoPoint's elevation in decimal degrees.
    * @class atlas.model.GeoPoint
    */
-  return mixin(GeoPoint = Class.extend( /** @lends atlas.model.GeoPoint# */ {
+  GeoPoint = Class.extend( /** @lends atlas.model.GeoPoint# */ {
+
     /**
      * The GeoPoint's latitude in decimal degrees.
      * @type {Number}
@@ -36,13 +40,25 @@ define([
 
     /*
      * Constructs a new GeoPoint object.
-     * @ignore
      */
-    _init: function (lat, lng, elevation) {
-      this.latitude = parseFloat(lat) || 0.0;
-      this.longitude = parseFloat(lng) || 0.0;
+    _init: function (latitude, longitude, elevation) {
+      if (latitude.latitude !== undefined) {
+        longitude = latitude.longitude;
+        elevation = latitude.elevation;
+        latitude = latitude.latitude;
+      } else if (latitude.x) {
+        longitude = latitude.y;
+        elevation = latitude.z;
+        latitude = latitude.x;
+      }
+      this.latitude = parseFloat(latitude) || 0.0;
+      this.longitude = parseFloat(longitude) || 0.0;
       this.elevation = parseFloat(elevation) || 0.0;
     },
+
+    // -------------------------------------------
+    // GENERATORS AND CONVERTERS
+    // -------------------------------------------
 
     /**
      * @returns {atlas.model.Vertex} The GeoPoint as a new Vertex object.
@@ -51,43 +67,63 @@ define([
       return new Vertex(this.longitude, this.latitude, this.elevation);
     },
 
+    /**
+     * @returns {{degrees: Number, minutes: Number, seconds: Number}}
+     * The GeoPoint as a map to degrees, minutes, and seconds values.
+     */
     toDmsString: function () {
       throw 'GeoPoint.toDmsString not yet implemented.';
+    },
 
-      var latDms = AtlasMath.toDMS(this.latitude),
-          lngDms = AtlasMath.toDMS(this.longitude),
-          latMarker = this.latitude < 0 ? 'S' : 'N',
-          lngMarker = this.longitude < 0 ? 'W' : 'E',
-          dms = '';
+    /**
+     * @returns {atlas.model.GeoPoint} The GeoPoint with latitude and longitude converted to Radians.
+     */
+    toRadians: function () {
+      return new GeoPoint(AtlasMath.toRadians(this.latitude),
+          AtlasMath.toRadians(this.longitude), this.elevation);
+    },
+
+    // -------------------------------------------
+    // MODIFIERS
+    // -------------------------------------------
+
+    /**
+     * Translates this GeoPoint by a given difference in latitude and longitude.
+     * @param {atlas.model.GeoPoint | {latitude, longitude}} other
+     * @returns {atlas.model.GeoPoint}
+     */
+    translate: function (other) {
+      return new GeoPoint(this.latitude + other.latitude,
+          this.longitude + other.longitude, this.elevation);
     }
+  });
 
-  }),
-    {
-      // -------------------------------------------
-      // STATICS
-      // -------------------------------------------
-      /**
-       * Constructs a new GeoPoint from a Vertex object.
-       * @param {atlas.model.Vertex} vertex - The vertex.
-       * @param {Number} vertex.x - The longitude (horizontal position) in decimal degrees.
-       * @param {Number} vertex.y - The latitude (vertical position) in decimal degrees.
-       * @param {Number} vertex.z - The elevation in metres.
-       * @returns {GeoPoint}
-       */
-      fromVertex: function (vertex) {
-        if (!vertex) { return new GeoPoint(); }
-        return new GeoPoint(vertex.y, vertex.x, vertex.y);
-      },
+  // -------------------------------------------
+  // STATICS
+  // -------------------------------------------
 
-      /**
-       * Constructs a new GeoPoint from an object containing properties for latitude,
-       * longitude, and height.
-       * @param other - The object containing the geospatial data.
-       * @returns {atlas.model.GeoPoint}
-       */
-      fromLatLngHeight: function (other) {
-        return new GeoPoint(other.lat, other.lng, other.height);
-      }
-    }
-  );
+  /**
+   * Constructs a new GeoPoint from a Vertex object.
+   * @param {atlas.model.Vertex} vertex - The vertex.
+   * @param {Number} vertex.x - The longitude (horizontal position) in decimal degrees.
+   * @param {Number} vertex.y - The latitude (vertical position) in decimal degrees.
+   * @param {Number} vertex.z - The elevation in metres.
+   * @returns {atlas.model.GeoPoint}
+   */
+  GeoPoint.fromVertex = function (vertex) {
+    if (!vertex) { return new GeoPoint(); }
+    return new GeoPoint(vertex.x, vertex.y, vertex.z);
+  };
+
+  /**
+   * Constructs a new GeoPoint from an object containing properties for latitude,
+   * longitude, and height.
+   * @param other - The object containing the geospatial data.
+   * @returns {atlas.model.GeoPoint}
+   */
+  GeoPoint.fromLatLngHeight = function (other) {
+    return new GeoPoint(other.lat, other.lng, other.height);
+  };
+
+  return GeoPoint;
 });

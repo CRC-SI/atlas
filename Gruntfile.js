@@ -28,7 +28,7 @@ module.exports = function(grunt) {
             .join('&&')
       },
       jsDoc: {
-        command: 'jsdoc -c jsdoc.conf.json -l'
+        command: 'rm -rf docs/ & jsdoc -c jsdoc.conf.json -l'
       }
     },
 

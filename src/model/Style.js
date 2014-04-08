@@ -5,7 +5,12 @@ define([
   'atlas/util/mixin',
   './Colour'
 ], function (Class, DeveloperError, mixin, Colour) {
-  "use strict";
+
+  /**
+   * @typedef atlas.model.Style
+   * @ignore
+   */
+  var Style;
 
   /**
    * Constructs a new Style object.
@@ -19,7 +24,7 @@ define([
    *
    * @class atlas.model.Style
    */
-  var Style = Class.extend( /** @lends atlas.model.Style# */ {
+  Style = Class.extend( /** @lends atlas.model.Style# */ {
 
     /**
      * Fill colour of this Style.
