@@ -88,6 +88,7 @@ define([
           source: 'intern',
           name: 'input/left/dblclick',
           callback: function(args) {
+            // TODO(bpstudds): Move this handler to EntityManager.
             var entities = this._atlasManagers.entity.getAt(args.position);
             if (entities.length > 0) {
               // Only capture the double click on the first entity.
@@ -118,13 +119,13 @@ define([
 
     /**
      * Returns the map of currently selected GeoEntities.
-     * @returns {Object.<String,atlas.model.GeoEntity>}
+     * @returns {Array.<atlas.model.GeoEntity>}
      */
     getSelection: function() {
-      var selection = {};
+      var selection = [];
       for (var id in this._selection) {
         if (this._selection.hasOwnProperty(id)) {
-          selection[id] = this._selection[id];
+          selection.push(this._selection[id]);
         }
       }
       return selection;
@@ -187,12 +188,9 @@ define([
             entity.onSelect();
             this._selection[id] = entity;
           }.bind(this));
-        }
-        if (toSelectIds.length > 0) {
-          this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(),
-              'entity/select', {
-                ids: toSelectIds
-              }));
+          this._atlasManagers.event.dispatchEvent(
+            new Event(null, 'entity/select', {ids: toSelectIds})
+          );
         }
       }
       Log.debug('selected entities', toSelectIds);

@@ -150,6 +150,10 @@ define([
       } else {
         this._vertices = defaultValue(polygonData.vertices, []);
       }
+      // Don't have closed polygons.
+      if (this._vertices.first === this._vertices.last) {
+        this._vertices.pop();
+      }
       if (polygonData.holes) {
         this._holes = polygonData.holes;
       }
@@ -159,7 +163,7 @@ define([
       this._zIndexOffset = parseFloat(polygonData.zIndexOffset) || this._zIndexOffset;
       this._material = (polygonData.material || Material.DEFAULT);
       if (polygonData.color) {
-        if (typeof polygonData.color === Colour) {
+        if (polygonData.color instanceof Colour) {
           this._style = new Style({fillColour: polygonData.color});
         } else {
           this._style = new Style({fillColour: Colour.fromRGBA(polygonData.color)});
@@ -224,7 +228,7 @@ define([
       // Remove vertex added to end
       this._vertices.pop();
       f = 3 * twiceArea;
-      this._centroid = new Vertex(x / f, y / f, p1.z);
+      this._centroid = new Vertex(x / f, y / f, p1.z + this.getElevation());
       return this._centroid;
     },
 
@@ -251,6 +255,7 @@ define([
      */
     enableExtrusion: function() {
       this._showAsExtrusion = true;
+      this.setDirty('model');
     },
 
     /**
@@ -258,6 +263,7 @@ define([
      */
     disableExtrusion: function() {
       this._showAsExtrusion = false;
+      this.setDirty('model');
     },
 
     /**
@@ -309,9 +315,7 @@ define([
      * @returns {Number} The index at which the vertex was added.
      */
     addVertex: function(vertex) {
-      var v = this._vertices.pop();
       this._vertices.push(vertex);
-      this._vertices.push(v);
       // Invalidate any pre-calculated area and centroid.
       this.setDirty('vertices');
       this._area = null;
@@ -359,8 +363,6 @@ define([
       }
       if (0 <= index && index <= this._vertices.length - 1) {
         var removed = this._vertices.splice(index, 1)[0];
-        // Maintain closed-ness
-        this._vertices[this._vertices.length - 1] = this._vertices[0];
         // Clear derived values
         this.setDirty('vertices');
         this._area = null;
@@ -388,6 +390,9 @@ define([
     translate: function(translation) {
       for (var i = 0; i < this._vertices.length; i++) {
         this._vertices[i] = this._vertices[i].add(translation);
+      }
+      for (var i = 1; i < this._editingHandles.length; i++) {
+        this._editingHandles[i]._dot.translate(translation);
       }
       this.setDirty('model');
       this.isVisible() && this.show();

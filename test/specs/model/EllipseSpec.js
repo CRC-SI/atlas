@@ -70,15 +70,9 @@ define([
               delete data.semiMajor;
               delete data.semiMinor;
               new Ellipse('id', data);
-            },
-            noSemiMinor = function () {
-              data.semiMajor = 10;
-              delete data.semiMinor;
-              new Ellipse('id', data);
             };
         expect(noSemiMajor).toThrow();
         expect(noAxes).toThrow();
-        expect(noSemiMinor).toThrow();
       })
     }); // End 'cannot be constructed when'
 

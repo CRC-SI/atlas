@@ -83,6 +83,21 @@ define([
           AtlasMath.toRadians(this.longitude), this.elevation);
     },
 
+    // -------------------------------------------------
+    // OPERATIONS
+    // -------------------------------------------------
+
+    /**
+     * Subtracts a GeoPoint from this GeoPoint
+     * @param {atlas.model.GeoPoint} other
+     * @returns {atlas.model.GeoPoint}
+     */
+    subtract: function (other) {
+      return new GeoPoint(this.latitude - other.latitude,
+                          this.longitude - other.longitude,
+                          this.elevation - other.elevation);
+    },
+
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------
