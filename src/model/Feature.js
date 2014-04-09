@@ -160,6 +160,10 @@ define([
       this._delegateToForm('clean', arguments);
     },
 
+    getEditingHandles: function () {
+      return this._delegateToForm('getEditingHandles', arguments);
+    },
+
     /**
      * Sets the elevation of the base of the feature.
      * @param {Number} elevation - The elevation of the feature.

@@ -102,6 +102,7 @@ define([
       this.unrender();
       this._linked = null;
       this._target = null;
+      this._dot && this._dot.remove();
       this._delegateToLinked = function () {
         throw new Error('Tried to use a removed Handle');
       };
@@ -110,6 +111,13 @@ define([
     // -------------------------------------------
     // GETTERS AND SETTERS
     // -------------------------------------------
+
+    /**
+     * @returns {string} The ID of the Handle.
+     */
+    getId: function () {
+      return this._id;
+    },
 
     /**
      * @returns {atlas.model.GeoEntity|atlas.model.Vertex} The Handle's linked entity.
@@ -171,6 +179,7 @@ define([
      */
     translate: function () {
       this._delegateToLinked('translate', arguments);
+      this._dot['translate'].apply(this._dot, arguments);
     }
   });
 
@@ -182,7 +191,7 @@ define([
    * The radius of the dot in metres.
    * @type {number}
    */
-  Handle.DOT_RADIUS = 0.5;
+  Handle.DOT_RADIUS = 3;
 
   /**
    * ID to assign to the next created Handle.

@@ -182,7 +182,7 @@ define([
     },
 
     /**
-     * @returns {Number} The centroid of the GeoEntity.
+     * @returns {atlas.model.Vertex} The centroid of the GeoEntity.
      * @abstract
      */
     getCentroid: function() {
@@ -395,6 +395,8 @@ define([
      * may be required.
      */
     remove: function () {
+      if (!this._eventManager) { return; }
+
       this._eventManager.dispatchEvent(new Event(new EventTarget(),
         'entity/remove', {
           id: this.getId()
@@ -450,6 +452,7 @@ define([
      * Enables 'editing' of the GeoEntity using keyboard input.
      */
     onEnableEditing: function () {
+      return;
       // TODO(bpstudds): Move this functionality to an EditManager module.
       this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keydown',
           function (args) {
@@ -474,15 +477,16 @@ define([
           }.bind(this)
       );
       this._editingHandles = this.getEditingHandles();
-      this._editingHandles.forEach(function (handle) {
-        handle.render();
-      })
+//      this._editingHandles.forEach(function (handle) {
+//        handle.render();
+//      })
     },
 
     /**
      * Disables editing of the GeoEntity.
      */
     onDisableEditing: function () {
+      return;
       this._editEventHandler && this._editEventHandler.cancel();
       this._editingHandles.forEach(function(handle) {
         handle.remove();
