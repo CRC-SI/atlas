@@ -123,7 +123,7 @@ define([
     // -------------------------------------------
 
     /**
-     * Returns the map of currently selected GeoEntities.
+     * Returns an array of the currently selected GeoEntities.
      * @returns {Array.<atlas.model.GeoEntity>}
      */
     getSelection: function() {
@@ -134,6 +134,14 @@ define([
         }
       }
       return selection;
+    },
+
+    /**
+     * Returns an array of the IDs of currently selected GeoEntities.
+     * @returns {Array.<String>}
+     */
+    getSelectionIds: function() {
+      return Object.keys(this._selection);
     },
 
     // -------------------------------------------
