@@ -5,13 +5,18 @@ define([
 ], function(Class, mixin, Keycode) {
 
   /**
+   * @typedef atlas.input.InputManager
+   * @ignore
+   */
+  var InputManager;
+
+  /**
    * @classdesc The InputManager is used to link user input events to the
-   * Atlas  event system.
-   * @author Brendan Studds
+   * Atlas event system.
    * @param {Object} atlasManagers - The map of all atlas manager objects.
    * @class atlas.input.InputManager
    */
-  var InputManager = mixin(Class.extend(/** @lends atlas.input.InputManager# */ {
+  InputManager = Class.extend( /** @lends atlas.input.InputManager# */ {
 
     /**
      * The current DOM element the InputManager is bound to.
@@ -65,16 +70,28 @@ define([
       }.bind(this);
 
       // Construct HTML DOM mouse event listeners.
-      this._mouseHandlers = [];
-      ['down', 'up'].forEach(function(press) {
-        this._mouseHandlers.push({
-          name: 'mouse' + press,
-          cback: function(e) {
-            var args = makeArgs(buttonIds[e.button] + press, e);
-            this.handleInternalEvent(args.name, args);
-          }.bind(this._atlasManagers.event)
-        });
-      }, this);
+      // Mouse button down
+      this._mouseHandlers.push({
+        name: 'mousedown',
+        cback: function(e) {
+          var args = makeArgs(buttonIds[e.button] + 'down', e);
+          this.handleInternalEvent(args.name, args);
+        }.bind(this._atlasManagers.event)
+      });
+
+      // Mouse button up
+      this._mouseHandlers.push({
+        name: 'mouseup',
+        cback: function(e) {
+          var press = 'up',  // default to buttonUp
+              args;
+          if (e.movementX + e.movementY < InputManager.CLICK_SENSITIVITY) {
+            press = 'click';
+          }
+          args = makeArgs(buttonIds[e.button] + 'up', e);
+          this.handleInternalEvent(args.name, args);
+        }.bind(this._atlasManagers.event)
+      });
 
       // TODO(bpstudds): DRY this code up.
       this._mouseHandlers.push({
@@ -123,17 +140,15 @@ define([
         }.bind(this._atlasManagers.event), false);
       }, this);
     }
-  }), // End class instances definition.
+  }):
 
-      // -------------------------------------------
-      // STATICS
-      // -------------------------------------------
-
-      {
-        // Nope
-      }
-
-  ); // End class static definition.
+  /**
+   * Maximum distance the mouse can move between buttonDown and buttonUp and
+   * still be registered as a 'click'.
+   * @type {number}
+   * @static
+   */
+  InputManager.CLICK_SENSITIVITY = 3;
 
   return InputManager;
 });
