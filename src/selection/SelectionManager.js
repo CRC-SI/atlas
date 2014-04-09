@@ -7,6 +7,12 @@ define([
 ], function(Class, DeveloperError, Event, EventTarget, Log) {
 
   /**
+   * @typedef atlas.selection.SelectionManager
+   * @ignore
+   */
+  var SelectionManager;
+
+  /**
    * @classdesc The SelectionManager maintains a list of the currently
    * selected GeoEntities. It exposes an API to select and deselect
    * individual GeoEntities or a set of entities either specified
@@ -17,7 +23,7 @@ define([
    *
    * @class atlas.selection.SelectionManager
    */
-  var SelectionManager = Class.extend(/** @lends atlas.selection.SelectionManager# */ {
+  SelectionManager = Class.extend(/** @lends atlas.selection.SelectionManager# */ {
     /**
      * Contains a map of entity ID to entity of all selected entities.
      * @type {Object}

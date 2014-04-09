@@ -32,9 +32,17 @@ define([
      */
     _atlasManagers: null,
 
+    /**
+     * An array of event handlers attached to Atlas' dom element.
+     * @type {Array.<Object>}
+     */
+    _mouseHandlers: null,
+
     _init: function(atlasManagers) {
       this._atlasManagers = atlasManagers;
       this._atlasManagers.input = this;
+
+      this._mouseHandlers = [];
     },
 
     /**
@@ -140,7 +148,7 @@ define([
         }.bind(this._atlasManagers.event), false);
       }, this);
     }
-  }):
+  });
 
   /**
    * Maximum distance the mouse can move between buttonDown and buttonUp and
