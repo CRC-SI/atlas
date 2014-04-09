@@ -70,7 +70,7 @@ define([
         },
         {
           source: 'intern',
-          name: 'input/leftdown',
+          name: 'input/leftclick',
           callback: function(args) {
             if (!args.modifiers) args.modifiers = {};
             // var worldPosition = this._atlasManagers.render.convertScreenCoordsToLatLng(args);
