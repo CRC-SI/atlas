@@ -69,6 +69,19 @@ define([
               duration: args.duration
             });
           }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'camera/current',
+          callback: function (args) {
+            var camera = this._camera;
+            var stats = {
+              position: camera.getPosition(),
+              orientation: camera.getOrientation(),
+              direction: camera.getDirection()
+            };
+            args.callback(stats);
+          }.bind(this)
         }
       ];
       this._atlasManagers.event.addEventHandlers(handlers);
