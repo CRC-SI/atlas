@@ -29,7 +29,7 @@ define([
      * Converts a WKT polygon string to an array of
      * {@see atlas.model.Vertex|Vertices}.
      * @param {String} wktStr - The WKT string to convert
-     * @returns {Array.<atlas.model.Vertex>} The convert polygon.
+     * @returns {Array.<Array.<atlas.model.Vertex>> | Array.<atlas.model.Vertex>} The convert polygon.
      */
     verticesFromWKT: function(wktStr) {
       var geometry = this.openLayersGeometryFromWKT(wktStr).geometry;

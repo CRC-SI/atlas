@@ -9,6 +9,7 @@ Thumbs.db
 .idea
 
 # Generated files
-node_modules
+coverage/*
 docs
 lib
+node_modules

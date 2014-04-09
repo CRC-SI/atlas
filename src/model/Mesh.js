@@ -165,7 +165,7 @@ define([
       // Update the 'translation', ie change _geoLocation.
       this._geoLocation = this._geoLocation.add(translation);
       // And redraw the Mesh.
-      this.setDirty('position');
+      this.setDirty('model');
       this.isVisible() && this.show();
     },
 
@@ -178,7 +178,7 @@ define([
      */
     scale: function (scale) {
       this._scale = this._scale.componentwiseMultiply(scale);
-      this.setDirty('scale');
+      this.setDirty('model');
       this.isVisible() && this.show();
     },
 
@@ -194,7 +194,7 @@ define([
      */
     rotate: function (rotation) {
       this._rotation = this._rotation.add(rotation);
-      this.setDirty('rotation');
+      this.setDirty('model');
       this.isVisible() && this.show();
     }
 

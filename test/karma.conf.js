@@ -26,9 +26,19 @@ module.exports = function(config) {
       '../docs/**/*'
     ],
 
+    // Pre-process for code coverage
+    preprocessors: {
+      'atlas/src/**/*.js': 'coverage'
+    },
+
+    coverageReporter: {
+      type: 'lcov',
+      dir: 'atlas/coverage/'
+    },
+
     // test results reporter to use
     // possible values: 'dots', 'progress', 'junit', 'gowl', 'coverage'
-    reporters: ['progress'],
+    reporters: ['progress', 'coverage'],
 
     // web server port
     port: 9876,
