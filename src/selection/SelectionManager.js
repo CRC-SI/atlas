@@ -76,11 +76,16 @@ define([
             // var worldPosition = this._atlasManagers.render.convertScreenCoordsToLatLng(args);
             // var picked = this._atlasManagers.entity.getAt(worldPosition);
             var selectedEntities = this._atlasManagers.entity.getAt(args.position),
-                keepSelection = 'shift' in args.modifiers;
+                keepSelection = 'shift' in args.modifiers,
+                changed;
             if (selectedEntities.length > 0) {
-              this.selectEntity(selectedEntities[0].getId(), keepSelection);
-            } else {
-              !keepSelection && this.clearSelection();
+              changed = this.selectEntity(selectedEntities[0].getId(), keepSelection);
+            } else if (!keepSelection) {
+              changed = this.clearSelection();
+            }
+            if (changed && changed.length > 0) {
+              this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(),
+                  'entity/selection/change', {ids: changed}));
             }
           }.bind(this)
         },
@@ -189,10 +194,8 @@ define([
           }.bind(this));
         }
         if (toSelectIds.length > 0) {
-          this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(),
-              'entity/select', {
-                ids: toSelectIds
-              }));
+          this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(), 'entity/select',
+              {ids: toSelectIds}));
         }
       }
       Log.debug('selected entities', toSelectIds);
@@ -216,10 +219,8 @@ define([
             delete this._selection[id];
           }
         }.bind(this));
-        this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(),
-            'entity/deselect', {
-              ids: deselected
-            }));
+        this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(), 'entity/deselect',
+            {ids: deselected}));
         Log.debug('deselected entities', ids);
       }
       return deselected;
@@ -238,7 +239,7 @@ define([
 
     /**
      * @param {String} id.
-     * @return Whether the GeoEntity with the given ID is selected.
+     * @return {Boolean} Whether the GeoEntity with the given ID is selected.
      */
     isSelected: function(id) {
       return id in this._selection;
