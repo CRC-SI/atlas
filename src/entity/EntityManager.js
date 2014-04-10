@@ -173,8 +173,10 @@ define([
      * Allows for creation of multiple Features. Skips features which already exist.
      * @param {Array} c3mls - An array of objects, with each object containing
      *    an entity description conforming to the C3ML standard.
+     * @returns {Array} The IDs of the created entities.
      */
     bulkCreate: function (c3mls) {
+      var ids = [];
       c3mls.forEach(function (c3ml) {
         var id = c3ml.id;
         var entity = this.getById(id);
@@ -182,8 +184,10 @@ define([
           var args = this._parseC3ML(c3ml);
           this.createFeature(id, args);
           args.show && this._entities[id].show();
+          ids.push(id);
         }
       }, this);
+      return ids;
     },
 
     /**
