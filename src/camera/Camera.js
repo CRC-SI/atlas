@@ -75,6 +75,20 @@ define([
       return this._position;
     },
 
+    /**
+     * @returns {atlas.model.Vertex}
+     */
+    getDirection: function() {
+      throw new DeveloperError('Not yet implemented.');
+    },
+
+    /**
+     * @returns {atlas.model.Vertex}
+     */
+    getUp: function() {
+      throw new DeveloperError('Not yet implemented.');
+    },
+
     getOrientation: function() {
       return this._orientation;
     },

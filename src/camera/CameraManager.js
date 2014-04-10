@@ -74,7 +74,8 @@ define([
             var stats = {
               position: camera.getPosition(),
               orientation: camera.getOrientation(),
-              direction: camera.getDirection()
+              direction: camera.getDirection(),
+              up: camera.getUp()
             };
             args.callback(stats);
           }.bind(this)
