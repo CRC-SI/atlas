@@ -71,6 +71,9 @@ define([
             if (args.callback) {
               args.callback(ids);
             }
+            this.getByIds(ids).forEach(function (entity) {
+              entity.show();
+            }, this);
             Log.timeEnd('entity/show/bulk');
           }.bind(this)
         },
@@ -79,8 +82,7 @@ define([
           name: 'entity/hide/bulk',
           callback: function (args) {
             Log.time('entity/hide/bulk');
-            args.ids.forEach(function (id) {
-              var entity = this.getById(id);
+            this.getByIds(args.ids).forEach(function (entity) {
               entity.hide();
             }, this);
             Log.timeEnd('entity/hide/bulk');
@@ -161,16 +163,19 @@ define([
     },
 
     /**
-     * Allows for creation of multiple Features.
+     * Allows for creation of multiple Features. Skips features which already exist.
      * @param {Array} c3mls - An array of objects, with each object containing
      *    an entity description conforming to the C3ML standard.
      */
     bulkCreate: function (c3mls) {
       c3mls.forEach(function (c3ml) {
         var id = c3ml.id;
-        var args = this._parseC3ML(c3ml);
-        this._entities[id] = this.createFeature(id, args);
-        args.show && this._entities[id].show();
+        var entity = this.getById(id);
+        if (!entity) {
+          var args = this._parseC3ML(c3ml);
+          this.createFeature(id, args);
+          args.show && this._entities[id].show();
+        }
       }, this);
     },
 
