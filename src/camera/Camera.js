@@ -172,6 +172,12 @@ define([
       }
       this._setPosition(args.position);
       this._setOrientation(args.orientation || this._orientation);
+      if (args.orientation) {
+        args.orientation = this._orientation;
+      }
+      if (args.position) {
+        args.position = this._position;
+      }
       this._animate(args);
     },
 
