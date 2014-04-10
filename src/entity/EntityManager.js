@@ -67,7 +67,14 @@ define([
           name: 'entity/show/bulk',
           callback: function (args) {
             Log.time('entity/show/bulk');
-            var ids = this.bulkCreate(args.features);
+            var ids;
+            if (args.features){
+              ids = this.bulkCreate(args.features);
+            } else if (args.ids) {
+              ids = args.ids;
+            } else {
+              throw new Error('Either features or ids must be provided for bulk show.');
+            }
             if (args.callback) {
               args.callback(ids);
             }
