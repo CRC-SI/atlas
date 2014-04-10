@@ -64,10 +64,26 @@ define([
       var handlers = [
         {
           source: 'extern',
-          name: 'entity/bulk/show',
-          callback: function (event) {
-            Log.debug('A entity/bulk/show is being handled.');
-            this.bulkCreate(event.features);
+          name: 'entity/show/bulk',
+          callback: function (args) {
+            Log.time('entity/show/bulk');
+            var ids = this.bulkCreate(args.features);
+            if (args.callback) {
+              args.callback(ids);
+            }
+            Log.timeEnd('entity/show/bulk');
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'entity/hide/bulk',
+          callback: function (args) {
+            Log.time('entity/hide/bulk');
+            args.ids.forEach(function (id) {
+              var entity = this.getById(id);
+              entity.hide();
+            }, this);
+            Log.timeEnd('entity/hide/bulk');
           }.bind(this)
         }
         // TODO(bpstudds): Is this stupid?
