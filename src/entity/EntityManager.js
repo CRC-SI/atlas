@@ -5,12 +5,13 @@ define([
   'atlas/model/GeoEntity',
   'atlas/model/Mesh',
   'atlas/model/Polygon',
+  'atlas/model/Line',
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/mixin',
   // Base class.
   'atlas/util/Class'
-], function (Log, Ellipse, Feature, GeoEntity, Mesh, Polygon, Vertex, DeveloperError, mixin, Class) {
+], function (Log, Ellipse, Feature, GeoEntity, Mesh, Polygon, Line, Vertex, DeveloperError, mixin, Class) {
 
   //noinspection JSUnusedGlobalSymbols
   var EntityManager = Class.extend({
@@ -38,6 +39,7 @@ define([
     _entityTypes: {
       'Feature': Feature,
       'Polygon': Polygon,
+      'Line': Line,
       'Ellipse': Ellipse,
       'Mesh': Mesh
     },

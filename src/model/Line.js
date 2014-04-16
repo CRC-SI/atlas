@@ -53,7 +53,11 @@ define([
       }
       this._width = lineData.width || this._width;
       if (lineData.color) {
-        this._style = new Style({fillColour: lineData.color});
+        if (lineData.color instanceof Colour) {
+          this._style = new Style({fillColour: lineData.color});
+        } else {
+          this._style = new Style({fillColour: Colour.fromRGBA(lineData.color)});
+        }
       } else if (lineData.style) {
         this._style = lineData.style;
       } else {
