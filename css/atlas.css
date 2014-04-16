@@ -2,6 +2,7 @@
   position: relative;
 }
 
+/* Formatting for Dom overlays. */
 .atlas .overlay {
   position: absolute;
   background-color: rgba(255, 255, 255, 0.8);
@@ -15,6 +16,13 @@
   display: none;
 }
 
+/* Formatting for Projection legend titles. */
+.atlas .overlay.legend .title {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+/* The 'table' selector is inefficient :( */
 .atlas .overlay.legend table {
   margin: 5px;
   line-height: 150%;

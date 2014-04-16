@@ -211,10 +211,11 @@ define([
     showLegends: function () {
       if (!this._projections['colour']) { return; }
 
+      // TODO(bpstudds): This needs to be refactored so we can have multiple legends.
       var legendData = this._projections['colour'].getLegend(),
           legendHtml = Overlay.generateTable(legendData),
           title = this._projections['colour'].getTitle(),
-          html = title + legendHtml;
+          html = '<div class="title">' + title + '</div>' + legendHtml;
       this._legends = new Overlay({
         parent: this._atlasManagers.dom.getDom(),
         'class': 'legend',
@@ -250,6 +251,7 @@ define([
           old = this._projections[projection.ARTIFACT],
           ret;
       if (old) {
+        // TODO(bpstudds): This needs to be changed so we can have multiple projections per artifact.
         Log.debug('Overriding projection on', target, 'with new projection.');
         old.unrender();
         ret = old;
