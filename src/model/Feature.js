@@ -55,6 +55,13 @@ define([
     _mesh: null,
 
     /**
+     * 2D image of this Feature.
+     * @type {atlas.model.Image}
+     * @protected
+     */
+    _image: null,
+
+    /**
      * The extrusion height of the Feature.
      * @type {Number}
      * @protected
@@ -102,6 +109,8 @@ define([
         this._displayMode = defaultValue(args.displayMode, 'extrusion');
       } else if (args.line) {
         this._displayMode = defaultValue(args.displayMode, 'line');
+      } else if (args.image) {
+        this._displayMode = defaultValue(args.displayMode, 'image');
       }
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
@@ -118,6 +127,8 @@ define([
         area = this._footprint.getArea();
       } else if (this._displayMode === 'mesh') {
         area = this._mesh.getArea();
+      } else if (this._displayMode === 'image') {
+        area = this._image.getArea();
       }
       return area;
     },
@@ -133,6 +144,8 @@ define([
         form = this._footprint;
       } else if (this._displayMode === 'mesh') {
         form = this._mesh;
+      } else if (this._displayMode === 'image') {
+        form = this._image;
       }
       return form;
     },
@@ -268,6 +281,15 @@ define([
     },
 
     /**
+     * Renders the Feature using its mesh.
+     * @see {@link atlas.model.Mesh}
+     */
+    showAsImage: function() {
+      this._displayMode = 'image';
+      this.show();
+    },
+
+    /**
      * Translates the Feature.
      * @see {@link atlas.model.GeoEntity#translate}
      * @param {atlas.model.Vertex} translation - The vector to translate the Feature by.
@@ -309,6 +331,10 @@ define([
         this._footprint.remove();
         this._footprint = null;
       }
+      if (this._image !== null) {
+        this._image.remove();
+        this._image = null;
+      }
     },
 
     // -------------------------------------------
@@ -337,12 +363,14 @@ define([
       if (this._displayMode === 'line') {
         this._mesh && this._mesh.hide();
         this._footprint && this._footprint.hide();
+        this._image && this._image.hide();
         if (this._line) {
           this._visible = this._line.show();
         }
       } else if (this._displayMode === 'footprint') {
         this._mesh && this._mesh.hide();
         this._line && this._line.hide();
+        this._image && this._image.hide();
         if (this._footprint) {
           this._footprint.disableExtrusion();
           this._visible = this._footprint.show();
@@ -350,6 +378,7 @@ define([
       } else if (this._displayMode === 'extrusion') {
         this._mesh && this._mesh.hide();
         this._line && this._line.hide();
+        this._image && this._image.hide();
         if (this._footprint) {
           this._footprint.enableExtrusion();
           this._visible = this._footprint.show();
@@ -357,8 +386,16 @@ define([
       } else if (this._displayMode === 'mesh') {
         this._footprint && this._footprint.hide();
         this._line && this._line.hide();
+        this._image && this._image.hide();
         if (this._mesh) {
           this._visible = this._mesh.show();
+        }
+      } else if (this._displayMode === 'image') {
+        this._footprint && this._footprint.hide();
+        this._line && this._line.hide();
+        this._image && this._image.hide();
+        if (this._image) {
+          this._visible = this._image.show();
         }
       }
       return this._visible;
