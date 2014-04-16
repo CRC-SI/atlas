@@ -12,7 +12,9 @@ define([
    * @abstract
    * @class atlas.visualisation.AbstractProjection
    * @param {Object} args - Arguments to construct the AbstractProjection
-   * @param {String} args.type - The type of projection, currently only 'continuous' supported.
+   * @param {String} args.type - The type of projection, either 'discrete' or 'continuous'.
+   * @param {String} args.title - The title of the Projection, used to generate the legend.
+   * @param {String} args.caption - The caption of the projection, used to generate the legend.
    * @param {Object.<String, atlas.model.GeoEntity>} args.entities - A map of GeoEntity ID to GeoEntity instances that are affected by the projection.
    * @param {Object.<String, Number>} args.values - A map of GeoEntity ID to parameter value to be projected.
    * @param {Object} [args.configuration] - Optional configuration of the projection.
@@ -34,11 +36,18 @@ define([
     SUPPORTED_PROJECTIONS: {'continuous': true, 'discrete': true},
 
     /**
-     * The title of the Projection. Has no effect on behaviour.
+     * The title of the Projection. This is displayed on the Projection's legend.
      * @type {String}
      * @protected
      */
     _title: null,
+
+    /**
+     * The caption of the Projection. This is displayed on the Projection's legend.
+     * @type {String}
+     * @protected
+     */
+    _caption: null,
 
     /**
      * The type of the projection, currently only 'continuous' is supported.
@@ -132,6 +141,7 @@ define([
     _init: function (args) {
       args = mixin({
         title: '',
+        caption: '',
         type: 'continuous',
         values: {},
         bins: 1,
@@ -144,6 +154,7 @@ define([
         throw new DeveloperError('Tried to instantiate Projection with unsupported type', args.type);
       }
       this._title = args.title;
+      this._caption = args.caption;
       this._type = args.type;
       this._effects = {};
       this._entities = args.entities;
@@ -164,6 +175,13 @@ define([
     // -------------------------------------------
 
     /**
+     * @returns {String} The caption of the Projection.
+     */
+    getCaption: function () {
+      return this._caption;
+    },
+
+    /**
      * @returns {Object} The configuration of the Projection.
      */
     getConfiguration: function () {
@@ -178,11 +196,11 @@ define([
     },
 
     /**
-     * @returns {Array.<Array.<Object>>} A 2D array of data representing the legend
-     * which can be converted by {@link atlas.dom.Overlay} to a table.
+     * @returns {{title: String, caption: String}}
+     * An object literal with properties for the title and caption of the Projection.
      */
     getLegend: function () {
-      return [];
+      return {title: this.getTitle(), caption: this.getCaption()};
     },
 
     /**

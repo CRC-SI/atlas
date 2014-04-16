@@ -42,16 +42,20 @@ define([
     },
 
     /**
-     * @returns {Object} A mapping of the data representing the
-     * legend which can be converted by {@link atlas.dom.Overlay} to a table.
+     * @returns {{title: String, caption: String, legend: Object}}
+     * An object literal containing the title, caption and data for the Projections legend.
+     * The data property can be converted by {@link atlas.dom.Overlay} to a table.
      * @see {@link atlas.dom.Overlay#generateTable}
      */
     getLegend: function () {
+      // TODO(bpstudds): Properly invalidate this so it's not recreated every time.
+      this._legend = this._super();
       if (this._type === 'discrete') {
-        return this._legend = (this._legend || this._buildDiscreteLegend());
+        this._legend.legend = (this._buildDiscreteLegend());
       } else {
-        return this._legend = (this._legend || this._buildContinuousLegend());
+        this._legend.legend = (this._buildContinuousLegend());
       }
+      return this._legend;
     },
 
     /**

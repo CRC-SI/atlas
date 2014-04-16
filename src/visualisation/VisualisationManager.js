@@ -1,14 +1,13 @@
 define([
   'atlas/util/Class',
   'atlas/util/DeveloperError',
-  'atlas/model/Colour',
   'atlas/dom/Overlay',
   'atlas/visualisation/AbstractProjection',
   'atlas/visualisation/ColourProjection',
   'atlas/visualisation/DynamicProjection',
   'atlas/visualisation/HeightProjection',
   'atlas/lib/utility/Log'
-], function (Class, DeveloperError, Colour, Overlay, AbstractProjection, ColourProjection,
+], function (Class, DeveloperError, Overlay, AbstractProjection, ColourProjection,
              DynamicProjection, HeightProjection, Log) {
 
   /**
@@ -213,15 +212,19 @@ define([
 
       // TODO(bpstudds): This needs to be refactored so we can have multiple legends.
       var legendData = this._projections['colour'].getLegend(),
-          legendHtml = Overlay.generateTable(legendData),
-          title = this._projections['colour'].getTitle(),
-          html = '<div class="title">' + title + '</div>' + legendHtml;
+          legendHtml = Overlay.generateTable(legendData.legend),
+          html;
+      html = '<div class="title">' + legendData.title + '</div>';
+      html += '<div class="caption">' + legendData.caption + '</div>';
+      html += legendHtml;
+
       this._legends = new Overlay({
         parent: this._atlasManagers.dom.getDom(),
         'class': 'legend',
         dimensions: {top: 50, left: 0},
         content: html
       });
+
       this._legends.show();
     },
 
