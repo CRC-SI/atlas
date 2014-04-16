@@ -9,6 +9,12 @@ define([
 ], function (DeveloperError, mixin, Event, Colour, Style, EventTarget) {
 
   /**
+   * @typedef atlas.model.GeoEntity
+   * @ignore
+   */
+  var GeoEntity;
+
+  /**
    * @classdesc A GeoEntity is an abstract class that represents an entity that
    * has a defined place in 3D space. A GeoEntity is a purely
    * abstract module that is extended by other atlas entities that specify
@@ -32,7 +38,7 @@ define([
    * @extends atlas.events.EventTarget
    * @class atlas.model.GeoEntity
    */
-   var GeoEntity = EventTarget.extend(/** @lends atlas.model.GeoEntity# */ {
+   GeoEntity = EventTarget.extend(/** @lends atlas.model.GeoEntity# */ {
     /**
      * The ID of the GeoEntity
      * @type {String}
@@ -56,7 +62,7 @@ define([
 
     /**
      * Array of references to the child GeoEntities.
-     * @type {Array.<atlas.model.GeoEntity}
+     * @type {Array.<atlas.model.GeoEntity>}
      * @protected
      */
     _children: null,
@@ -143,12 +149,13 @@ define([
         args = id;
         id = args.id;
       }
+      id = id.toString();
       // Call the superclass' (EventTarget) constructor.
       this._super(args.eventManager, args.parent);
       this.clean();
       this.setDirty('entity');
 
-      if (id === undefined || typeof id === 'object') {
+      if (!id || typeof id === 'object') {
         throw new DeveloperError('Can not create instance of GeoEntity without an ID');
       }
       if (!args.style) {
@@ -175,11 +182,11 @@ define([
     },
 
     /**
-     * @returns {Number} The centroid of the GeoEntity.
+     * @returns {atlas.model.Vertex} The centroid of the GeoEntity.
      * @abstract
      */
     getCentroid: function() {
-      throw new DeveloperError('Can not call abstract method of GeoEntity');
+      throw new DeveloperError('Can not call abstract method "getCentroid" of GeoEntity');
     },
 
     getChildren: function() {
@@ -194,7 +201,14 @@ define([
      * @abstract
      */
     getArea: function() {
-      throw new DeveloperError('Can not call abstract method of GeoEntity');
+      throw new DeveloperError('Can not call abstract method "getArea" of GeoEntity');
+    },
+
+    /**
+     * @returns {[atlas.model.Handle]} An array of Handles used to edit the GeoEntity.
+     */
+    getEditingHandles: function () {
+      return [];
     },
 
     /**
@@ -313,7 +327,7 @@ define([
       newStyle.borderColour && (oldStyle.borderColour = this._style.getBorderColour());
       newStyle.borderWidth && (oldStyle.borderWidth = this._style.getBorderWidth());
       // Generate new style based on what's changed.
-      var newStyle = mixin({
+      newStyle = mixin({
         fillColour: this._style.getFillColour(),
         borderColour: this._style.getBorderColour(),
         borderWidth: this._style.getBorderWidth()
@@ -331,7 +345,9 @@ define([
      *
      * @abstract
      */
-    translate: function(translation) {},
+    translate: function(translation) {
+      throw new DeveloperError('Can not call abstract method "translate" of GeoEntity');
+    },
 
     /**
      * Scales the GeoEntity by the given vector. This scaling can be uniform in all axis or non-uniform.
@@ -345,7 +361,9 @@ define([
      *
      * @abstract
      */
-    scale: function(scale) {},
+    scale: function(scale) {
+      throw new DeveloperError('Can not call abstract method "scale" of GeoEntity');
+    },
 
     /**
      * Rotates the GeoEntity by the given vector.
@@ -359,7 +377,9 @@ define([
      *
      * @abstract
      */
-    rotate: function (rotation) {},
+    rotate: function (rotation) {
+      throw new DeveloperError('Can not call abstract method "rotate" of GeoEntity');
+    },
 
     /**
      * Function to build the GeoEntity so it can be rendered.
@@ -375,6 +395,8 @@ define([
      * may be required.
      */
     remove: function () {
+      if (!this._eventManager) { return; }
+
       this._eventManager.dispatchEvent(new Event(new EventTarget(),
         'entity/remove', {
           id: this.getId()
@@ -387,7 +409,7 @@ define([
      * @abstract
      */
     show: function () {
-      throw new DeveloperError('Can not call abstract method of GeoEntity');
+      throw new DeveloperError('Can not call abstract method "show" of GeoEntity');
     },
 
     /**
@@ -396,7 +418,7 @@ define([
      * @abstract
      */
     hide: function () {
-      throw new DeveloperError('Can not call abstract method of GeoEntity');
+      throw new DeveloperError('Can not call abstract method "hide" of GeoEntity');
     },
 
     /**
@@ -430,6 +452,7 @@ define([
      * Enables 'editing' of the GeoEntity using keyboard input.
      */
     onEnableEditing: function () {
+      return;
       // TODO(bpstudds): Move this functionality to an EditManager module.
       this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keydown',
           function (args) {
@@ -453,15 +476,24 @@ define([
             }
           }.bind(this)
       );
+      this._editingHandles = this.getEditingHandles();
+//      this._editingHandles.forEach(function (handle) {
+//        handle.render();
+//      })
     },
 
     /**
      * Disables editing of the GeoEntity.
      */
     onDisableEditing: function () {
+      return;
       this._editEventHandler && this._editEventHandler.cancel();
+      this._editingHandles.forEach(function(handle) {
+        handle.remove();
+      })
     }
-  })
+
+  });
 
   // -------------------------------------------------
   // Statics

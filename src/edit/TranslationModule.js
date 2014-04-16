@@ -44,35 +44,20 @@ define([
    * then all selected entities are included in the translation. If no object is selected before
    * translation, only the target entity is translated.
    */
-  TranslationModule.prototype.start = function(args) {
-    /**
-     * The entity which the event occurred on.
-     * @type {@link atlas.model.GeoEntity}
-     */
-    var target = this._atlasManagers.entity.getAt(args.position);
-    // getAt returns an array at that point. Pick the first (topmost) Entity.
-    if (!(target instanceof Array) || target.length <= 0 ) { return; }
-    target = target[0];
-
-    var selected = this._atlasManagers.selection.getSelection();
-    // Set the target entities
-    this._entities = {};
-    this._entities[target.id] = target;
-    Object.keys(selected).forEach(function (id) {
-      this._entities[id] = selected[id];
-    }, this);
+  TranslationModule.prototype.startDrag = function(args) {
+    this._target = args.target;
     // Lock up camera
     this._atlasManagers.camera.lockCamera();
     // Initialise the translation.
     this._lastScreenCoords = {x: args.position.x, y: args.position.y};
-    this._originalLocation = this._lastLocation = this._cartographicLocation(args.position);;
+    this._originalLocation = this._lastLocation = this._cartographicLocation(args.position);
   };
 
   /**
    * Translates from the last location to the current location of the event for all entities.
    */
-  TranslationModule.prototype.update = function(args) {
-    if (!this._entities) { return; }
+  TranslationModule.prototype.updateDrag = function(args) {
+    if (!this._target) { return; }
 
     var screenDiff = new Vertex(args.position.x, args.position.y).subtract(this._lastScreenCoords).absolute();
     if (screenDiff.x < this._MOVE_SENSITIVITY && screenDiff.y < this._MOVE_SENSITIVITY) {
@@ -88,8 +73,8 @@ define([
    * Translates from the last location to the current location of the event for all entities and then
    * stops translating.
    */
-  TranslationModule.prototype.end = function(args) {
-    if (!this._entities) { return; }
+  TranslationModule.prototype.endDrag = function(args) {
+    if (!this._target) { return; }
     this._lastScreenCoords = {x: args.x, y: args.y};
     //var cartLocation = this._cartographicLocation(args);
     //this._translate(this._lastLocation, cartLocation);
@@ -119,16 +104,13 @@ define([
   TranslationModule.prototype._translate = function(oldVertex, newVertex) {
     var diff = newVertex.subtract(oldVertex);
 
-    // TODO(aramk) this._entities is null.
-    for (var id in this._entities) {
-      Log.debug('translating', this._entities[id]);
-      this._entities[id].translate(diff);
-    }
+    this._target.translate(diff);
   };
 
   /**
    * Converts a screen position into a cartographic Vertex.
    * @param {Object} screenPos - The screen position.
+   * @returns {atlas.model.GeoPoint}
    * @private
    */
   TranslationModule.prototype._cartographicLocation = function(screenPos) {

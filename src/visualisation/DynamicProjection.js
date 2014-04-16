@@ -92,7 +92,7 @@ define([
     // -------------------------------------------
 
     /**
-     * @returns {'String'} The status of the renderer.
+     * @returns {String} The status of the renderer.
      */
     getStatus: function () {
       return this._state;

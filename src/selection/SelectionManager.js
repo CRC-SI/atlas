@@ -76,11 +76,16 @@ define([
             // var worldPosition = this._atlasManagers.render.convertScreenCoordsToLatLng(args);
             // var picked = this._atlasManagers.entity.getAt(worldPosition);
             var selectedEntities = this._atlasManagers.entity.getAt(args.position),
-                keepSelection = 'shift' in args.modifiers;
+                keepSelection = 'shift' in args.modifiers,
+                changed;
             if (selectedEntities.length > 0) {
-              this.selectEntity(selectedEntities[0].getId(), keepSelection);
-            } else {
-              !keepSelection && this.clearSelection();
+              changed = this.selectEntity(selectedEntities[0].getId(), keepSelection);
+            } else if (!keepSelection) {
+              changed = this.clearSelection();
+            }
+            if (changed && changed.length > 0) {
+              this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(),
+                  'entity/selection/change', {ids: changed}));
             }
           }.bind(this)
         },
@@ -88,6 +93,7 @@ define([
           source: 'intern',
           name: 'input/left/dblclick',
           callback: function(args) {
+            // TODO(bpstudds): Move this handler to EntityManager.
             var entities = this._atlasManagers.entity.getAt(args.position);
             if (entities.length > 0) {
               // Only capture the double click on the first entity.
@@ -117,17 +123,25 @@ define([
     // -------------------------------------------
 
     /**
-     * Returns the map of currently selected GeoEntities.
-     * @returns {Object.<String,atlas.model.GeoEntity>}
+     * Returns an array of the currently selected GeoEntities.
+     * @returns {Array.<atlas.model.GeoEntity>}
      */
     getSelection: function() {
-      var selection = {};
+      var selection = [];
       for (var id in this._selection) {
         if (this._selection.hasOwnProperty(id)) {
-          selection[id] = this._selection[id];
+          selection.push(this._selection[id]);
         }
       }
       return selection;
+    },
+
+    /**
+     * Returns an array of the IDs of currently selected GeoEntities.
+     * @returns {Array.<String>}
+     */
+    getSelectionIds: function() {
+      return Object.keys(this._selection);
     },
 
     // -------------------------------------------
@@ -187,12 +201,10 @@ define([
             entity.onSelect();
             this._selection[id] = entity;
           }.bind(this));
-        }
-        if (toSelectIds.length > 0) {
-          this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(),
-              'entity/select', {
-                ids: toSelectIds
-              }));
+
+          this._atlasManagers.event.dispatchEvent(
+            new Event(null, 'entity/select', {ids: toSelectIds})
+          );
         }
       }
       Log.debug('selected entities', toSelectIds);
@@ -216,10 +228,8 @@ define([
             delete this._selection[id];
           }
         }.bind(this));
-        this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(),
-            'entity/deselect', {
-              ids: deselected
-            }));
+        this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(), 'entity/deselect',
+            {ids: deselected}));
         Log.debug('deselected entities', ids);
       }
       return deselected;
@@ -238,7 +248,7 @@ define([
 
     /**
      * @param {String} id.
-     * @return Whether the GeoEntity with the given ID is selected.
+     * @return {Boolean} Whether the GeoEntity with the given ID is selected.
      */
     isSelected: function(id) {
       return id in this._selection;

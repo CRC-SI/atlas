@@ -1,17 +1,42 @@
 define([
   'atlas/util/Class'
-], function(Class) {
+], function (Class) {
+
   /**
-   * @classdesc A 3D cartesian coordinate.
-   * @param {Number|Array.<Number>} [x=0] - the 'x' coordinate, or an 3 element array containing
-   * the x, y, and z coordinates in the 1st, 2nd, and 3rd index.
+   * @typedef atlas.model.Vertex
+   * @ignore
+   */
+  var Vertex;
+
+  /**
+   * @classdesc A Vertex represents a 3D point in an arbitrary coordinate system.
+   * @param {Number|Array.<Number>|Object} [x=0] - the 'x' coordinate, or an 3 element array
+   *    containing the x, y, and z coordinates in the 1st, 2nd, and 3rd index, or a object
+   *    with <code>x</code>, <code>y</code>, and <code>z</code> properties.
    * @param {Number} [y=0] - the 'y' coordinate.
    * @param {Number} [z=0] - the 'z' coordinate.
-   *
-   * @class atlas.model.Vertex
-   * @constructor
+   * @typedef atlas.model.Vertex
+   * @class
    */
-  var Vertex = Class.extend(/** @lends atlas.model.Vertex# */ {
+  Vertex = Class.extend( /** @lends atlas.model.Vertex# */ {
+
+    /**
+     * The <code>x</code> coordinate.
+     * @type {Number}
+     */
+    x: null,
+
+    /**
+     * The <code>y</code> coordinate.
+     * @type {Number}
+     */
+    y: null,
+
+    /**
+     * The <code>z</code> coordinate.
+     * @type {Number}
+     */
+    z: null,
 
     _init: function() {
       var firstArg = arguments[0],
@@ -35,27 +60,60 @@ define([
       this.z = z || 0.0;
     },
 
-    add: function(other) {
+    /**
+     * Adds a given Vertex to this Vertex.
+     * @param {atlas.model.Vertex} other - The other vertex.
+     * @returns {atlas.model.Vertex}
+     */
+    add: function (other) {
       return new Vertex(this.x + other.x, this.y + other.y, this.z + other.z);
     },
 
-    subtract: function(other) {
+    /**
+     * Subtracts a given Vertex from this Vertex.
+     * @param {atlas.model.Vertex} other - The other vertex.
+     * @returns {atlas.model.Vertex}
+     */
+    subtract: function (other) {
       return new Vertex(this.x - other.x, this.y - other.y, this.z - other.z);
     },
 
-    absolute: function() {
+    /**
+     * @returns {atlas.model.Vertex} This vertex with each component converted to its absolute value.
+     */
+    absolute: function () {
       return new Vertex(Math.abs(this.x), Math.abs(this.y), Math.abs(this.z))
     },
 
-    componentwiseMultiply: function(other) {
+    /**
+     * Componentwise multiplies this Vertex with another Vertex.
+     * @param {atlas.model.Vertex} other - The other vertex.
+     * @returns {atlas.model.Vertex}
+     */
+    componentwiseMultiply: function (other) {
       return new Vertex(this.x * other.x, this.y * other.y, this.z * other.z);
     },
 
-    distanceSquared: function(other) {
+    /**
+     * Returns the Euclidean distance squared between this Vertex and another Vertex.
+     * @param {atlas.model.Vertex} other - The other vertex.
+     * @returns {Number}
+     */
+    distanceSquared: function (other) {
       var diff = this.subtract(other);
       return Math.pow(diff.x, 2) + Math.pow(diff.y, 2) + Math.pow(diff.z, 2);
-    }
+    },
 
+    /**
+     * Translates this Vertex by another vertex.
+     * @param {atlas.model.Vertex} other - The other vertex.
+     */
+    translate: function (other) {
+      this.x += other.x;
+      this.y += other.y;
+      this.z += other.z;
+    }
   });
+
   return Vertex;
 });

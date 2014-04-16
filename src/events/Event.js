@@ -18,13 +18,13 @@ define([
    * @constructor
    */
   var Event = function(target, type, args) {
-    if (target === undefined || type === undefined) {
-      throw new DeveloperError('Can not create Event: Event must have both target and type.');
+    if (type === undefined) {
+      throw new DeveloperError('Can not create Event: Event must type.');
     }
 
     /**
      * Current target of this event.
-     * @type {Entity}
+     * @type {atlas.model.EventTarget}
      */
     this.target = target;
 

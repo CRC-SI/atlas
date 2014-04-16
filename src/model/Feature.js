@@ -94,14 +94,14 @@ define([
     _init: function(id, args) {
       this._super(id, args);
       this._visible = defaultValue(args.show, false);
-      if (args.line) {
-        this._displayMode = defaultValue(args.displayMode, 'line');
-      }
-      if (args.polygon){
-        this._displayMode = defaultValue(args.displayMode, 'extrusion');
-      }
       if (args.mesh) {
         this._displayMode = defaultValue(args.displayMode, 'mesh');
+      } else if (args.ellipse) {
+        this._displayMode = defaultValue(args.displayMode, 'extrusion');
+      } else if (args.polygon){
+        this._displayMode = defaultValue(args.displayMode, 'extrusion');
+      } else if (args.line) {
+        this._displayMode = defaultValue(args.displayMode, 'line');
       }
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
@@ -158,6 +158,10 @@ define([
 
     clean: function() {
       this._delegateToForm('clean', arguments);
+    },
+
+    getEditingHandles: function () {
+      return this._delegateToForm('getEditingHandles', arguments);
     },
 
     /**
