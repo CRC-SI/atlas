@@ -217,8 +217,18 @@ define([
     DEFAULT_POSITION: function () {
       return new GeoPoint(-37, 144, 20000);
     },
+
     DEFAULT_ORIENTATION: function () {
       return mixin({}, {tilt: 90, bearing: 0, rotation: 0});
+    },
+
+    /**
+     * The type of path to animate when moving the camera.
+     * {@type Object}
+     */
+    PATH_TYPES: {
+      LINEAR: 'linear',
+      SINUSOIDAL: 'sinusoidal'
     }
 
   });
