@@ -218,7 +218,7 @@ define([
       this._legends = new Overlay({
         parent: this._atlasManagers.dom.getDom(),
         'class': 'legend',
-        dimensions: {top: 0, left: 0},
+        dimensions: {top: 50, left: 0},
         content: html
       });
       this._legends.show();
@@ -383,4 +383,4 @@ define([
     }
   });
   return VisualisationManager;
-})
+});
