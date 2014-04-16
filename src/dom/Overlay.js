@@ -106,10 +106,12 @@ define([
       this._class !== '' && element.classList.add(this._class);
 
       // Add title and remove button to content if necessary.
-      this._content = ('<div class="title">' + this._title + '</div>').concat(this._content);
+      var title = '<div class="title">' + this._title;
       if (this._onRemove) {
-        this._content = ('<button id="' + this._title + '-close" class="remove">X</button>').concat(this._content);
+        title += '<button class="remove">X</button>';
       }
+      title +=  '</div>'
+      this._content = title.concat(this._content);
 
       // Create the overlay html.
       element.innerHTML = this._content;

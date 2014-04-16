@@ -265,19 +265,19 @@ define([
       }
       this._projections[target] = projection;
 
-      // TODO(bpstudds): This test button is to be removed.
-      this._overlays[target] && this._overlays[target].remove();
-      this._overlays[target] = new Overlay({
-        parent: this._atlasManagers.dom.getDom(),
-        dimensions: {top: 0, left: 400},
-        content: '<button id="visual-btn-' + target + '">' + target + '</button>'
-      });
-      document.getElementById('visual-btn-'+target).addEventListener('click', function (target) {
-        return function (event) {
-          // 0 -> Left click.
-          event.button === 0 && this.toggleRender(target)
-        }
-      }(target).bind(this));
+//      // TODO(bpstudds): This test button is to be removed.
+//      this._overlays[target] && this._overlays[target].remove();
+//      this._overlays[target] = new Overlay({
+//        parent: this._atlasManagers.dom.getDom(),
+//        dimensions: {top: 0, left: 400},
+//        content: '<button id="visual-btn-' + target + '">' + target + '</button>'
+//      });
+//      document.getElementById('visual-btn-'+target).addEventListener('click', function (target) {
+//        return function (event) {
+//          // 0 -> Left click.
+//          event.button === 0 && this.toggleRender(target)
+//        }
+//      }(target).bind(this));
       return ret;
     },
 
