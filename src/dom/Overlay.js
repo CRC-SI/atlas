@@ -33,8 +33,16 @@ define([
     /**
      * The class(es) to apply to the Overlay HTML.
      * @type {String}
+     * @protected
      */
     _class: null,
+
+    /**
+     * The title to place on the overlay.
+     * @type {String}
+     * @protected
+     */
+    _title: null,
 
     /**
      * The position of the Overlay
@@ -54,6 +62,14 @@ define([
      */
     _content: null,
 
+    /**
+     * Function handler for when the Overlay is removed. The context of this
+     * function is assumed to be correctly set.
+     * @function
+     * @protected
+     */
+    _onRemove: null,
+
     /*
      * Constructor for the overlay
      * @ignore
@@ -63,6 +79,7 @@ define([
       args = mixin({
         parent: document,
         'class': '',
+        title: '',
         dimensions: {top: 0, left: 0},
         content: ''
       }, args);
@@ -70,6 +87,8 @@ define([
 
       this._parent = args.parent;
       this._class = args.class;
+      this._title = args.title;
+      this._onRemove = args.onRemove;
       this._dimensions = args.dimensions;
       this._content = args.content;
       // Construct element and append it to the parent.
@@ -85,6 +104,14 @@ define([
       var element = document.createElement('div');
       element.classList.add('overlay');
       this._class !== '' && element.classList.add(this._class);
+
+      // Add title and remove button to content if necessary.
+      this._content = ('<div class="title">' + this._title + '</div>').concat(this._content);
+      if (this._onRemove) {
+        this._content = ('<button id="' + this._title + '-close" class="remove">X</button>').concat(this._content);
+      }
+
+      // Create the overlay html.
       element.innerHTML = this._content;
 
       // Set the Overlay's position.
@@ -94,8 +121,20 @@ define([
       this._dimensions.height && (element.style.height = this._dimensions.height + 'px');
       this._dimensions.width && (element.style.width = this._dimensions.width + 'px');
 
+      // Attach to parent
       this._parent.appendChild(element);
-      //this._element = element;
+
+      // Add event handler to close button
+      if (this._onRemove) {
+        var buttons = element.getElementsByClassName('remove');
+        buttons[0].addEventListener('click', function (e) {
+          // 0 -> left click.
+          if (e.button === 0) {
+            this._onRemove(e);
+          }
+        }.bind(this))
+      }
+
       return element;
     },
 

@@ -214,13 +214,17 @@ define([
       var legendData = this._projections['colour'].getLegend(),
           legendHtml = Overlay.generateTable(legendData.legend),
           html;
-      html = '<div class="title">' + legendData.title + '</div>';
-      html += '<div class="caption">' + legendData.caption + '</div>';
+      //html = '<div class="title">' + legendData.title + '</div>';
+      //html += '<button class="remove">X</button>';
+      html = '<div class="caption">' + legendData.caption + '</div>';
       html += legendHtml;
 
       this._legends = new Overlay({
         parent: this._atlasManagers.dom.getDom(),
+        title: legendData.title,
         'class': 'legend',
+        // TODO(bpstudds): Add IDs to projections, use the ID rather than artifact to store.
+        onRemove: function (e) { this.remove('colour'); }.bind(this),
         dimensions: {top: 50, left: 0},
         content: html
       });

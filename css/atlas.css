@@ -16,6 +16,12 @@
   display: none;
 }
 
+.atlas .overlay .remove {
+  /* this is a bit of a hack */
+  position: absolute;
+  right: 0;
+}
+
 /* Formatting for Projection legend titles. */
 .atlas .overlay.legend .title {
   font-size: 1.2em;
