@@ -319,7 +319,7 @@ define([
     remove: function (artifact) {
       var removedProjection = this._projections[artifact];
       if (removedProjection) {
-        removedProjection.unrender();
+        this.unrender(artifact);
         this._projections[artifact] = null;
       }
       return removedProjection;
@@ -357,7 +357,7 @@ define([
 
     /**
      * Unrenders the effects of the Projection currently affecting the given artifact.
-     * @param {Object} artifact - The artifact to unrender.
+     * @param {String} artifact - The artifact to unrender.
      */
     unrender: function (artifact) {
       // TODO(bpstudds): Add function to unrender all currently managed Projections.
