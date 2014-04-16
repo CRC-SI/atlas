@@ -56,7 +56,7 @@ define([
      * @param args
      */
     setup: function (args) {
-      if (args.constructors) {
+      if (args && args.constructors) {
         this.setGeoEntityTypes(args.constructors);
       }
       this.bindEvents();
