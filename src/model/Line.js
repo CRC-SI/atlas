@@ -3,14 +3,16 @@ define([
   'atlas/util/default',
   'atlas/util/WKT',
   './GeoEntity',
+  './Style',
+  './Colour',
   './Vertex'
-], function(DeveloperError, defaultValue, WKT, GeoEntity, Vertex) {
+], function(DeveloperError, defaultValue, WKT, GeoEntity, Style, Colour, Vertex) {
   /**
    * @classdesc Represents a 2D line segment.
    * @class atlas.model.Line
    * @extends atlas.model.GeoEntity
    */
-  return GeoEntity.extend(/** @lends atlas.model.Line# */{
+  var Line = GeoEntity.extend(/** @lends atlas.model.Line# */{
 
     /**
      * Counter-clockwise ordered array of vertices constructing polygon.
@@ -50,6 +52,13 @@ define([
         this._vertices = defaultValue(lineData.vertices, []);
       }
       this._width = lineData.width || this._width;
+      if (lineData.color) {
+        this._style = new Style({fillColour: lineData.color});
+      } else if (lineData.style) {
+        this._style = lineData.style;
+      } else {
+        this._style = Line.getDefaultStyle();
+      }
     },
 
     /**
@@ -61,4 +70,9 @@ define([
     }
 
   });
+
+  // TODO(aramk) This is shared across Feature, Polygon, Line etc. Put in GeoEntity?
+  Line.getDefaultStyle = function () {return new Style({fillColour: Colour.GREEN}); };
+
+  return Line;
 });
