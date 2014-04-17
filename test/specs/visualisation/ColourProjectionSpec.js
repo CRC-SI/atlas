@@ -105,7 +105,7 @@ define([
               var id = ids[i];
               expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: newColour});
               expect(someEntities[id].modifyStyle.calls.length).toEqual(1);
-              expect(someEntities[id]._style._fillColour).toEqual(newColour);
+              expect(someEntities[id].getStyle()._fillColour).toEqual(newColour);
             }
           });
 
@@ -116,7 +116,7 @@ define([
               var id = ids[i];
               expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: newColour});
               expect(someEntities[id].modifyStyle.calls.length).toEqual(1);
-              expect(someEntities[id]._style._fillColour).toEqual(newColour);
+              expect(someEntities[id].getStyle()._fillColour).toEqual(newColour);
             }
           });
 
@@ -125,7 +125,7 @@ define([
             colourProj.render(id);
             expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: newColour});
             expect(someEntities[id].modifyStyle.calls.length).toEqual(1);
-            expect(someEntities[id]._style._fillColour).toEqual(newColour);
+            expect(someEntities[id].getStyle()._fillColour).toEqual(newColour);
           });
         }); // End 'and render effects'.
       }); // End 'by default'.
@@ -145,7 +145,7 @@ define([
           var id = ids[i];
           expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: initialColour});
           expect(someEntities[id].modifyStyle.calls.length).toEqual(2);
-          expect(someEntities[id]._style._fillColour).toEqual(initialColour);
+          expect(someEntities[id].getStyle()._fillColour).toEqual(initialColour);
         }
       });
 
@@ -157,7 +157,7 @@ define([
           var id = ids[i];
           expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: initialColour});
           expect(someEntities[id].modifyStyle.calls.length).toEqual(2);
-          expect(someEntities[id]._style._fillColour).toEqual(initialColour);
+          expect(someEntities[id].getStyle()._fillColour).toEqual(initialColour);
         }
         // Expect to be unchanged
         expect(someEntities[1].modifyStyle.calls.length).toEqual(1);
@@ -168,7 +168,7 @@ define([
         colourProj.unrender(id);
         expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: initialColour});
         expect(someEntities[id].modifyStyle.calls.length).toEqual(2);
-        expect(someEntities[id]._style._fillColour).toEqual(initialColour);
+        expect(someEntities[id].getStyle()._fillColour).toEqual(initialColour);
         // Expect to be unchanged
         [0, 2].forEach(function (id) {
           expect(someEntities[id].modifyStyle.calls.length).toEqual(1);

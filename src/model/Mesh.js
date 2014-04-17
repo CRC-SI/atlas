@@ -100,7 +100,7 @@ define([
 
       // Set the Mesh's style based on the hierarchy: a Mesh specific style,
       // inherit the parent Feature's style, or use the Mesh default style.
-      this._style = meshData.style || args.style || Mesh.getDefaultStyle;
+      this.setStyle(meshData.style || args.style || Mesh.getDefaultStyle);
 
       // Parse all the things!
       if (meshData.positions && meshData.positions.length) {
@@ -142,7 +142,7 @@ define([
 
       if (meshData.color) {
         // TODO(bpstudds): Work out the textures.
-        this._style = new Style({fillColour: Colour.fromRGBA(meshData.color)});
+        this.setStyle(new Style({fillColour: Colour.fromRGBA(meshData.color)}));
       }
     },
 

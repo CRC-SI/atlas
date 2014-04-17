@@ -52,13 +52,16 @@ define([
         this._vertices = defaultValue(lineData.vertices, []);
       }
       this._width = lineData.width || this._width;
+      // TODO(aramk) Refactor with Ellipse, Polygon, etc.
+      var style = null;
       if (lineData.color) {
-        this._style = new Style({fillColour: lineData.color});
+        style = new Style({fillColour: lineData.color});
       } else if (lineData.style) {
-        this._style = lineData.style;
+        style = lineData.style;
       } else {
-        this._style = Line.getDefaultStyle();
+        style = Line.getDefaultStyle();
       }
+      this.setStyle(style);
     },
 
     /**

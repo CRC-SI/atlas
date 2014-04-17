@@ -156,13 +156,15 @@ define([
       this._zIndex = parseFloat(ellipseData.zIndex) || this._zIndex;
       this._zIndexOffset = parseFloat(ellipseData.zIndexOffset) || this._zIndexOffset;
       this._material = (ellipseData.material || Material.DEFAULT);
+      var style;
       if (ellipseData.color) {
-        this._style = new Style({fillColour: ellipseData.color});
+        style = new Style({fillColour: ellipseData.color});
       } else if (ellipseData.style) {
-        this._style = ellipseData.style;
+        style = ellipseData.style;
       } else {
-        this._style = Ellipse.getDefaultStyle();
+        style = Ellipse.getDefaultStyle();
       }
+      this.setStyle(style);
     },
 
     // -------------------------------------------
