@@ -105,7 +105,7 @@ define([
       }
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
-      this.setStyle(args.style || Feature.getDefaultStyle());
+      this._style = args.style || Feature.getDefaultStyle();
     },
 
     // -------------------------------------------
@@ -214,12 +214,13 @@ define([
     },
 
     setStyle: function (style) {
-      var oldStyle = this._super(style);
+      var oldStyle = this._style;
+      this._style = style;
       return this._delegateToForm('setStyle', arguments) || oldStyle;
     },
 
     getStyle: function () {
-      return this._delegateToForm('getStyle') || this.getStyle();
+      return this._delegateToForm('getStyle') || this._style;
     },
 
     // -------------------------------------------

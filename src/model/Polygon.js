@@ -162,19 +162,17 @@ define([
       this._zIndex = parseFloat(polygonData.zIndex) || this._zIndex;
       this._zIndexOffset = parseFloat(polygonData.zIndexOffset) || this._zIndexOffset;
       this._material = (polygonData.material || Material.DEFAULT);
-      var style;
       if (polygonData.color) {
         if (polygonData.color instanceof Colour) {
-          style = new Style({fillColour: polygonData.color});
+          this._style = new Style({fillColour: polygonData.color});
         } else {
-          style = new Style({fillColour: Colour.fromRGBA(polygonData.color)});
+          this._style = new Style({fillColour: Colour.fromRGBA(polygonData.color)});
         }
       } else if (polygonData.style) {
-        style = polygonData.style;
+        this._style = polygonData.style;
       } else {
-        style = Polygon.getDefaultStyle();
+        this._style = Polygon.getDefaultStyle();
       }
-      this.setStyle(style);
     },
 
     // -------------------------------------------

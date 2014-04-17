@@ -48,7 +48,7 @@ define([
       doh.assertEqual(false, polygon._renderable);
       doh.assertEqual(null, polygon._centroid);
       doh.assertEqual(null, polygon._area);
-      doh.assertEqual(Style.DEFAULT, polygon.getStyle());
+      doh.assertEqual(Style.DEFAULT, polygon._style);
       doh.assertEqual(Material.DEFAULT, polygon._material);
     },
 
