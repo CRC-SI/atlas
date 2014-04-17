@@ -19,6 +19,7 @@
 .atlas .overlay .remove {
   /* this is a bit of a hack */
   position: absolute;
+  top: 5px;
   right: 0;
   display: none;
 }
