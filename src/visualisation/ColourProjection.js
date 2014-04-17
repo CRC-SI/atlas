@@ -166,9 +166,12 @@ define([
       // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
       var id = entity.getId(),
           oldColour = this._effects[id].oldValue;
-      entity.modifyStyle(oldColour);
-      entity.isVisible() && entity.show();
-      delete this._effects[id];
+      if (oldColour) {
+        entity.modifyStyle(oldColour);
+        entity.isVisible() && entity.show();
+      }
+      // TODO(aramk) We should abstract all this behind protected methods in AbstractProjection.
+//      delete this._effects[id];
     },
 
     /**
