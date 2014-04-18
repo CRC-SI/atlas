@@ -65,7 +65,7 @@ define([
      * @private
      */
     _setPosition: function (position) {
-      this._position = mixin(this._position || Camera.DEFAULT_POSITION(), position);
+      this._position = mixin(this._position || Camera.getDefaultPosition(), position);
     },
 
     /**
@@ -116,7 +116,7 @@ define([
      * @private
      */
     _setOrientation: function (orientation) {
-      this._orientation = mixin(this._orientation || Camera.DEFAULT_ORIENTATION(), orientation);
+      this._orientation = mixin(this._orientation || Camera.getDefaultOrientation(), orientation);
     },
 
     /**
@@ -254,11 +254,11 @@ define([
     // STATICS
     // -------------------------------------------
 
-    DEFAULT_POSITION: function () {
+    getDefaultPosition: function () {
       return new GeoPoint(-37, 144, 20000);
     },
 
-    DEFAULT_ORIENTATION: function () {
+    getDefaultOrientation: function () {
       // Return a new object each time.
       return mixin({}, {tilt: 90, bearing: 0, rotation: 0});
     },
