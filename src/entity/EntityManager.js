@@ -5,12 +5,13 @@ define([
   'atlas/model/GeoEntity',
   'atlas/model/Mesh',
   'atlas/model/Polygon',
+  'atlas/model/Line',
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/mixin',
   // Base class.
   'atlas/util/Class'
-], function (Log, Ellipse, Feature, GeoEntity, Mesh, Polygon, Vertex, DeveloperError, mixin, Class) {
+], function (Log, Ellipse, Feature, GeoEntity, Mesh, Polygon, Line, Vertex, DeveloperError, mixin, Class) {
 
   //noinspection JSUnusedGlobalSymbols
   var EntityManager = Class.extend({
@@ -38,6 +39,7 @@ define([
     _entityTypes: {
       'Feature': Feature,
       'Polygon': Polygon,
+      'Line': Line,
       'Ellipse': Ellipse,
       'Mesh': Mesh
     },
@@ -54,7 +56,7 @@ define([
      * @param args
      */
     setup: function (args) {
-      if (args.constructors) {
+      if (args && args.constructors) {
         this.setGeoEntityTypes(args.constructors);
       }
       this.bindEvents();
@@ -64,10 +66,35 @@ define([
       var handlers = [
         {
           source: 'extern',
-          name: 'entity/bulk/show',
-          callback: function (event) {
-            Log.debug('A entity/bulk/show is being handled.');
-            this.bulkCreate(event.features);
+          name: 'entity/show/bulk',
+          callback: function (args) {
+            Log.time('entity/show/bulk');
+            var ids;
+            if (args.features){
+              ids = this.bulkCreate(args.features);
+            } else if (args.ids) {
+              ids = args.ids;
+            } else {
+              throw new Error('Either features or ids must be provided for bulk show.');
+            }
+            if (args.callback) {
+              args.callback(ids);
+            }
+            this.getByIds(ids).forEach(function (entity) {
+              entity.show();
+            }, this);
+            Log.timeEnd('entity/show/bulk');
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'entity/hide/bulk',
+          callback: function (args) {
+            Log.time('entity/hide/bulk');
+            this.getByIds(args.ids).forEach(function (entity) {
+              entity.hide();
+            }, this);
+            Log.timeEnd('entity/hide/bulk');
           }.bind(this)
         }
         // TODO(bpstudds): Is this stupid?
@@ -145,17 +172,24 @@ define([
     },
 
     /**
-     * Allows for creation of multiple Features.
+     * Allows for creation of multiple Features. Skips features which already exist.
      * @param {Array} c3mls - An array of objects, with each object containing
      *    an entity description conforming to the C3ML standard.
+     * @returns {Array} The IDs of the created entities.
      */
     bulkCreate: function (c3mls) {
+      var ids = [];
       c3mls.forEach(function (c3ml) {
         var id = c3ml.id;
-        var args = this._parseC3ML(c3ml);
-        this._entities[id] = this.createFeature(id, args);
-        args.show && this._entities[id].show();
+        var entity = this.getById(id);
+        if (!entity) {
+          var args = this._parseC3ML(c3ml);
+          this.createFeature(id, args);
+          args.show && this._entities[id].show();
+          ids.push(id);
+        }
       }, this);
+      return ids;
     },
 
     /**
