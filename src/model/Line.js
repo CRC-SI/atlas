@@ -6,12 +6,19 @@ define([
   './Style',
   './Colour'
 ], function(DeveloperError, defaultValue, WKT, GeoEntity, Style, Colour) {
+
+  /**
+   * @typedef atlas.model.Line
+   * @ignore
+   */
+  var Line;
+
   /**
    * @classdesc Represents a 2D line segment.
    * @class atlas.model.Line
    * @extends atlas.model.GeoEntity
    */
-  var Line = GeoEntity.extend(/** @lends atlas.model.Line# */{
+  Line = GeoEntity.extend(/** @lends atlas.model.Line# */{
 
     /**
      * Counter-clockwise ordered array of vertices constructing polygon.
