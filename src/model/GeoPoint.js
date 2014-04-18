@@ -1,10 +1,9 @@
 define([
-  'atlas/model/Vertex',
   'atlas/util/AtlasMath',
   'atlas/util/Class',
   'atlas/util/mixin',
   'atlas/util/DeveloperError'
-], function(Vertex, AtlasMath, Class, mixin, DeveloperError) {
+], function(AtlasMath, Class, mixin, DeveloperError) {
 
   /**
    * @typedef atlas.model.GeoPoint
@@ -134,6 +133,8 @@ define([
      * Constructs a new {@link GeoPoint} from an object containing properties for latitude,
      * longitude (both in radians), and height.
      * @returns {atlas.model.GeoPoint}
+     * @memberOf atlas.model.GeoPoint
+     * @static
      */
     fromRadians: function(pos) {
       var point = new GeoPoint(pos);
@@ -149,12 +150,14 @@ define([
      * @param {Number} vertex.y - The latitude (vertical position) in decimal degrees.
      * @param {Number} vertex.z - The elevation in metres.
      * @returns {atlas.model.GeoPoint}
+     * @memberOf atlas.model.GeoPoint
+     * @static
      */
     fromVertex: function(vertex) {
       if (!vertex) {
         return new GeoPoint();
       }
-      return new GeoPoint(vertex.x, vertex.y, vertex.z);
+      return new GeoPoint(vertex.y, vertex.x, vertex.z);
     },
 
     /**
@@ -162,6 +165,8 @@ define([
      * longitude, and height.
      * @param other - The object containing the geospatial data.
      * @returns {atlas.model.GeoPoint}
+     * @memberOf atlas.model.GeoPoint
+     * @static
      */
     fromLatLngHeight: function(other) {
       return new GeoPoint(other.lat, other.lng, other.height);

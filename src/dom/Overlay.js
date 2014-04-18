@@ -7,7 +7,6 @@ define([
    * @classdesc An Overlay can be used to place panels overlaying the Atlas
    * render (or in fact, any section of the host website) which can display
    * information.
-   * @author Brendan Studds
    *
    * @param {Object} args - Arguments to the constructor.
    * @param {String|HTMLElement} [args.parent=document] - The DOM ID or element instance to place the Overlay on.

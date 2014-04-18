@@ -1,9 +1,9 @@
 define([
+  'atlas/lib/tinycolor',
   'atlas/util/AtlasMath',
   'atlas/util/Class',
-  'atlas/util/FreezeObject',
-  'atlas/lib/tinycolor'
-], function(AtlasMath, Class, freeze, Tinycolor) {
+  'atlas/util/FreezeObject'
+], function(Tinycolor, AtlasMath, Class, freeze) {
   var __DEBUG__ = true;
 
   if (__DEBUG__) {
@@ -11,6 +11,12 @@ define([
       return o;
     }
   }
+
+  /**
+   * @typedef atlas.model.Colour
+   * @ignore
+   */
+  var Colour;
 
   /**
    * @classdesc Constructs a colour specified by red, green, blue and alpha
@@ -24,7 +30,7 @@ define([
    *
    * @class atlas.model.Colour
    */
-  var Colour = Class.extend(/** @lends atlas.model.Colour# */ {
+  Colour = Class.extend(/** @lends atlas.model.Colour# */ {
     red: null,
     green: null,
     blue: null,

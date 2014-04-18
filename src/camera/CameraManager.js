@@ -1,12 +1,11 @@
 define([
-  'atlas/util/Class',
-  'atlas/util/DeveloperError',
-  'atlas/util/default',
-  'atlas/util/mixin',
   'atlas/camera/Camera',
   'atlas/model/GeoPoint',
-  'atlas/lib/utility/Log'
-], function (Class, DeveloperError, defaultValue, mixin, Camera, GeoPoint, Log) {
+  'atlas/lib/utility/Log',
+  'atlas/util/Class',
+  'atlas/util/DeveloperError',
+  'atlas/util/mixin'
+], function (Camera, GeoPoint, Log, Class, DeveloperError, mixin) {
 
   /**
    * Constructs a new CameraManager object.
@@ -70,14 +69,7 @@ define([
           source: 'extern',
           name: 'camera/current',
           callback: function (args) {
-            var camera = this._camera;
-            var stats = {
-              position: camera.getPosition(),
-              orientation: camera.getOrientation(),
-              direction: camera.getDirection(),
-              up: camera.getUp()
-            };
-            args.callback(stats);
+            args.callback(this._camera.getStats());
           }.bind(this)
         }
       ];

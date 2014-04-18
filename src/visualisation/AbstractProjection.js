@@ -1,16 +1,15 @@
 define([
+  'atlas/model/Style',
+  'atlas/model/Colour',
   'atlas/util/Class',
   'atlas/util/DeveloperError',
-  'atlas/util/mixin',
-  'atlas/model/Style',
-  'atlas/model/Colour'
-], function(Class, DeveloperError, mixin, Style, Colour) {
+  'atlas/util/mixin'
+], function(Style, Colour, Class, DeveloperError, mixin) {
 
   /**
    * Constructs a new AbstractProjection object.
    * @classDesc Describes the interface and generic methods for a Projection. A Projection
    * is used project the value of an Entity's parameter onto some renderable artifact.
-   * @author Brendan Studds
    * @abstract
    * @class atlas.visualisation.AbstractProjection
    * @param {Object} args - Arguments to construct the AbstractProjection

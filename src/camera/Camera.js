@@ -1,25 +1,29 @@
 // Camera.js
 define([
+  'atlas/model/GeoPoint',
   'atlas/util/Class',
   'atlas/util/DeveloperError',
-  'atlas/util/default',
-  'atlas/util/mixin',
-  'atlas/model/GeoPoint'
-], function(Class, DeveloperError, defaultValue, mixin, GeoPoint) {
+  'atlas/util/mixin'
+], function(GeoPoint, Class, DeveloperError, mixin) {
+
+  /**
+   * @typedef atlas.camera.Camera
+   * @ignore
+   */
+  var Camera;
 
   /**
    * @classdesc The Camera object controls the position and orientation of the camera.
    * It exposes an API to set position and orientation, zoom to a given GeoEntity
    * or a bookmarked location, and to manual move the Camera.
-   * @author Brendan Studds
    *
    * @param {Object} args - The arguments for the constructor.
    * @param {Object} [args.position] - The initial position of the Camera.
-   * @param {Object} [args.orientation] - The initial orientation of the Camera.
+   * @param {atlas.camera.Camera.Orientation} [args.orientation] - The initial orientation of the Camera.
    * @class atlas.camera.Camera
    * @abstract
    */
-  var Camera = mixin(Class.extend(/** @lends atlas.camera.Camera# */ {
+  Camera = mixin(Class.extend(/** @lends atlas.camera.Camera# */ {
 
     /**
      * The current position of the Camera.
@@ -27,23 +31,9 @@ define([
      */
     _position: null,
 
-    // TODO(aramk) I updated these, but noticed there is no distinction in tilt from looking north
-    // or south, since we rarely want to be tilted towards south. This means orientation isn't unique.
     /**
      * The current orientation of the Camera.
-     * @type {Object}
-     * // TODO(aramk) Normalise this around [-180, 180].
-     * @property {Number} [tilt=90] - The tilt (or pitch) about the Camera's
-     * transverse axis (across the latitude) in decimal degrees in the range [-90, 90].
-     * At 90 degrees the Camera is facing the earth, at -90 degrees it is facing the opposite way
-     * and at 0 degrees it is either facing north or south.
-     * // TODO(aramk) Is there a reason we're using bearing not heading?
-     * @property {Number} [bearing=0] - The bearing (or yaw) about the normal axis (across the
-     * longitude) from the surface to the camera in decimal degrees in the range [-180, 180].
-     * At 0 degrees the Camera is facing the earth, at -90 degrees it is facing West, at 90
-     * degrees it is facing East, and at 180/-180 it is facing away from the earth.
-     * @property {Number} [rotation=0] - The rotation (or roll) about the orientation
-     * vector of the Camera in decimal degrees in the range [-180, 180].
+     * @type {atlas.camera.Camera.Orientation}
      */
     _orientation: null,
 
@@ -62,15 +52,25 @@ define([
     // GETTERS AND SETTERS
     // -------------------------------------------
 
+    /**
+     * @param {atlas.model.GeoPoint} position
+     */
     setPosition: function(position) {
       this._setPosition(position);
       this._animate({duration: 0});
     },
 
+    /**
+     * @param {atlas.model.GeoPoint} position
+     * @private
+     */
     _setPosition: function (position) {
       this._position = mixin(this._position || Camera.DEFAULT_POSITION(), position);
     },
 
+    /**
+     * @returns {atlas.model.GeoPoint}
+     */
     getPosition: function() {
       return this._position;
     },
@@ -83,23 +83,56 @@ define([
     },
 
     /**
+     * @param {atlas.model.Vertex} direction
+     */
+    setDirection: function(direction) {
+      throw new DeveloperError('Not yet implemented.');
+    },
+
+    /**
      * @returns {atlas.model.Vertex}
      */
     getUp: function() {
       throw new DeveloperError('Not yet implemented.');
     },
 
+    /**
+     * @returns {atlas.camera.Camera.Orientation}
+     */
     getOrientation: function() {
       return this._orientation;
     },
 
+    /**
+     * @param {atlas.camera.Camera.Orientation} orientation
+     */
     setOrientation: function(orientation) {
       this._setOrientation(orientation);
       this._animate({duration: 0});
     },
 
+    /**
+     * @param {atlas.camera.Camera.Orientation} orientation
+     * @private
+     */
     _setOrientation: function (orientation) {
       this._orientation = mixin(this._orientation || Camera.DEFAULT_ORIENTATION(), orientation);
+    },
+
+    /**
+     * @returns {Object} stats
+     * @returns {atlas.model.GeoPoint} stats.position
+     * @returns {atlas.camera.Camera.Orientation} stats.orientation
+     * @returns {atlas.model.Vertex} stats.direction
+     * @returns {atlas.model.Vertex} stats.up
+     */
+    getStats: function () {
+      return {
+        position: this.getPosition(),
+        orientation: this.getOrientation(),
+        direction: this.getDirection(),
+        up: this.getUp()
+      };
     },
 
     /**
@@ -107,7 +140,14 @@ define([
      * orientation and position. This function should be called by the public API functions that
      * have varying input depending on purpose.
      * @param {Object} args
-     * @param {Object} [args.duration=0] The amount of time to take for the animation.
+     * @param {atlas.model.GeoPoint} args.position
+     * @param {atlas.camera.Camera.Orientation} [args.orientation]
+     * @param {atlas.model.Vertex} [args.direction] - Either orientation or both direction and up
+     * vertices must be provided.
+     * @param {atlas.model.Vertex} [args.up]
+     * @param {Object} [args.duration=0] - The amount of time to take for the animation.
+     * @param {atlas.camera.PATH_TYPES} [args.path] - The type of path to follow if
+     * animating.
      * @abstract
      */
     _animate: function(args) {
@@ -162,7 +202,7 @@ define([
      * Moves the camera to the given location and sets the Camera's direction.
      * @param {Object} args
      * @param {atlas.model.GeoPoint} args.position - The new position of the Camera.
-     * @param {Object} [args.orientation] - The new orientation of the Camera.
+     * @param {atlas.camera.Camera.Orientation} [args.orientation] - The new orientation of the Camera.
      * @param {Number} [args.duration=0] - The duration of the zoom animation in milliseconds.
      */
     zoomTo: function(args) {
@@ -173,10 +213,10 @@ define([
       this._setPosition(args.position);
       this._setOrientation(args.orientation || this._orientation);
       if (args.orientation) {
-        args.orientation = this._orientation;
+        args.orientation = this.getOrientation();
       }
       if (args.position) {
-        args.position = this._position;
+        args.position = this.getPosition();
       }
       this._animate(args);
     },
@@ -219,12 +259,13 @@ define([
     },
 
     DEFAULT_ORIENTATION: function () {
+      // Return a new object each time.
       return mixin({}, {tilt: 90, bearing: 0, rotation: 0});
     },
 
     /**
      * The type of path to animate when moving the camera.
-     * {@type Object}
+     * @typedef {Object} atlas.camera.PATH_TYPES
      */
     PATH_TYPES: {
       LINEAR: 'linear',
@@ -232,5 +273,20 @@ define([
     }
 
   });
+
+  /**
+   * @typedef {Object} atlas.camera.Camera.Orientation
+   * @property {Number} [tilt=90] - The tilt (or pitch) about the Camera's
+   * transverse axis (across the latitude) in decimal degrees in the range [-90, 90].
+   * At 90 degrees the Camera is facing the earth, at -90 degrees it is facing the opposite way
+   * and at 0 degrees it is either facing north or south.
+   * @property {Number} [bearing=0] - The bearing (or yaw) about the normal axis (across the
+   * longitude) from the surface to the camera in decimal degrees in the range [-180, 180].
+   * At 0 degrees the Camera is facing the earth, at -90 degrees it is facing west, at 90
+   * degrees it is facing east, and at 180/-180 it is facing away from the earth.
+   * @property {Number} [rotation=0] - The rotation (or roll) about the orientation
+   * vector of the Camera in decimal degrees in the range [-180, 180].
+   */
+
   return Camera;
 });

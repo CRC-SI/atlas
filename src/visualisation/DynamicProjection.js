@@ -10,7 +10,6 @@ define([
    * part of Dynamic Rendering. The dynamic nature will be facilitated by the <code>DynamicRenderer</code>
    * that takes data in a specific format, basically consisting of a set of inputs for
    * a <code>*Projection</code> object indexed by some independent variable (typically time).
-   * @author Brendan Studds
    *
    * @param {atlas.visualisation.AbstractProjection} static - The configured projection object to use.
    * @param {Object} data - The indexed, dynamic data to be rendered.

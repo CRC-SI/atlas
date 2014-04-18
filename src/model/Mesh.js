@@ -16,7 +16,6 @@ define([
 
   /**
    * @classdesc A Mesh represents a 3D renderable object in Atlas.
-   * @author Brendan Studds
    *
    * @param {String} id - The ID of the Mesh object.
    * @param {Object} meshData - The data required to define what is actually rendered (Implementation defined).

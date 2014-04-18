@@ -1,12 +1,12 @@
 define([
-  'atlas/util/DeveloperError',
-  'atlas/util/mixin',
   'atlas/events/Event',
+  // Base class
+  'atlas/events/EventTarget',
   'atlas/model/Colour',
   'atlas/model/Style',
-  // Base class
-  'atlas/events/EventTarget'
-], function (DeveloperError, mixin, Event, Colour, Style, EventTarget) {
+  'atlas/util/DeveloperError',
+  'atlas/util/mixin'
+], function (Event, EventTarget, Colour, Style, DeveloperError, mixin) {
 
   /**
    * @typedef atlas.model.GeoEntity

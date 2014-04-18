@@ -4,9 +4,8 @@ define([
   'atlas/util/WKT',
   './GeoEntity',
   './Style',
-  './Colour',
-  './Vertex'
-], function(DeveloperError, defaultValue, WKT, GeoEntity, Style, Colour, Vertex) {
+  './Colour'
+], function(DeveloperError, defaultValue, WKT, GeoEntity, Style, Colour) {
   /**
    * @classdesc Represents a 2D line segment.
    * @class atlas.model.Line

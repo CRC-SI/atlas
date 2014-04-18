@@ -1,13 +1,12 @@
 define([
-  'atlas/util/DeveloperError',
   // Base class
-  'atlas/visualisation/AbstractProjection'
-], function (DeveloperError, AbstractProjection) {
+  'atlas/visualisation/AbstractProjection',
+  'atlas/util/DeveloperError'
+], function (AbstractProjection, DeveloperError) {
 
   /**
    * @classdesc The HeightProjection represents a projection of Entity parameter values onto
    * the Entity's height.
-   * @author Brendan Studds
    * @class atlas.visualisation.HeightProjection
    * @extends atlas.visualisation.AbstractProjection
    */
