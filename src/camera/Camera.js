@@ -210,13 +210,16 @@ define([
       if (args.position === undefined) {
         throw new DeveloperError('Can not move camera without specifying position');
       }
+      // Use the setters which don't apply the animation to also sanitize inputs.
       this._setPosition(args.position);
       this._setOrientation(args.orientation || this._orientation);
+      // Use the target position and orientation rather than the public methods which return the
+      // actual current positions.
       if (args.orientation) {
-        args.orientation = this.getOrientation();
+        args.orientation = this._orientation;
       }
       if (args.position) {
-        args.position = this.getPosition();
+        args.position = this._position;
       }
       this._animate(args);
     },
