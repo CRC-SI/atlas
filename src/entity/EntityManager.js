@@ -11,7 +11,8 @@ define([
   'atlas/util/mixin',
   // Base class.
   'atlas/util/Class'
-], function (Log, Ellipse, Feature, GeoEntity, Mesh, Polygon, Line, Vertex, DeveloperError, mixin, Class) {
+], function(Log, Ellipse, Feature, GeoEntity, Mesh, Polygon, Line, Vertex, DeveloperError, mixin,
+            Class) {
 
   //noinspection JSUnusedGlobalSymbols
   var EntityManager = Class.extend({
@@ -44,7 +45,7 @@ define([
       'Mesh': Mesh
     },
 
-    _init: function (atlasManagers) {
+    _init: function(atlasManagers) {
       this._atlasManagers = atlasManagers;
       this._atlasManagers.entity = this;
       this._entities = {};
@@ -55,23 +56,55 @@ define([
      * Performs any manager setup that requires the presence of other managers.
      * @param args
      */
-    setup: function (args) {
+    setup: function(args) {
       if (args && args.constructors) {
         this.setGeoEntityTypes(args.constructors);
       }
       this.bindEvents();
     },
 
-    bindEvents: function () {
+    bindEvents: function() {
       var handlers = [
         {
           source: 'extern',
+          name: 'entity/show',
+          callback: function(args) {
+            Log.time('entity/show');
+            var entity = this.getById(args.id);
+            (!entity) && (entity = this.createFeature(args.id, args));
+            entity.show();
+            Log.timeEnd('entity/show');
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'entity/hide',
+          callback: function(args) {
+            Log.time('entity/hide');
+            var entity = this.getById(args.id);
+            entity.hide();
+            Log.timeEnd('entity/hide');
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'entity/remove',
+          callback: function(args) {
+            Log.time('entity/remove');
+            var entity = this.getById(args.id);
+            entity.remove();
+            Log.timeEnd('entity/remove');
+          }.bind(this)
+        },
+        {
+          source: 'extern',
           name: 'entity/show/bulk',
-          callback: function (args) {
+          callback: function(args) {
             Log.time('entity/show/bulk');
             var ids;
-            if (args.features){
-              ids = this.bulkCreate(args.features);
+            if (args.features) {
+              this.bulkCreate(args.features);
+              ids = args.features.map(function (item) {return item.id});
             } else if (args.ids) {
               ids = args.ids;
             } else {
@@ -80,7 +113,7 @@ define([
             if (args.callback) {
               args.callback(ids);
             }
-            this.getByIds(ids).forEach(function (entity) {
+            this.getByIds(ids).forEach(function(entity) {
               entity.show();
             }, this);
             Log.timeEnd('entity/show/bulk');
@@ -89,12 +122,23 @@ define([
         {
           source: 'extern',
           name: 'entity/hide/bulk',
-          callback: function (args) {
+          callback: function(args) {
             Log.time('entity/hide/bulk');
-            this.getByIds(args.ids).forEach(function (entity) {
+            this.getByIds(args.ids).forEach(function(entity) {
               entity.hide();
             }, this);
             Log.timeEnd('entity/hide/bulk');
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'entity/remove/bulk',
+          callback: function(args) {
+            Log.time('entity/remove/bulk');
+            args.ids.forEach(function (id) {
+              this.remove(id);
+            }, this);
+            Log.timeEnd('entity/remove/bulk');
           }.bind(this)
         }
         // TODO(bpstudds): Is this stupid?
@@ -121,7 +165,7 @@ define([
      * GeoEntity types.
      * @param {Object.<String, Function>} constructors - A map of entity type names to entity constructors.
      */
-    setGeoEntityTypes: function (constructors) {
+    setGeoEntityTypes: function(constructors) {
       for (var key in constructors) {
         if (key in this._entityTypes) {
           //noinspection JSUnfilteredForInLoop
@@ -150,7 +194,7 @@ define([
      * created.
      * @param {String} [args.displayMode='footprint'] - Initial display mode of feature.
      */
-    createFeature: function (id, args) {
+    createFeature: function(id, args) {
       if (typeof id === 'object') {
         args = id;
         id = args.id;
@@ -177,9 +221,9 @@ define([
      *    an entity description conforming to the C3ML standard.
      * @returns {Array} The IDs of the created entities.
      */
-    bulkCreate: function (c3mls) {
+    bulkCreate: function(c3mls) {
       var ids = [];
-      c3mls.forEach(function (c3ml) {
+      c3mls.forEach(function(c3ml) {
         var id = c3ml.id;
         var entity = this.getById(id);
         if (!entity) {
@@ -199,7 +243,7 @@ define([
      * @returns {Object} An Atlas readable object representing the C3ML object.
      * @protected
      */
-    _parseC3ML: function (c3ml) {
+    _parseC3ML: function(c3ml) {
       var geometry,
       // Map of C3ML type to parse of that type.
           parsers = {
@@ -209,12 +253,7 @@ define([
           };
       // Generate the Geometry for the C3ML type if it is supported.
       parsers[c3ml.type] && (geometry = parsers[c3ml.type](c3ml, this));
-      return mixin({
-        id: c3ml.id,
-        type: c3ml.type,
-        parent: c3ml.parent,
-        children: c3ml.children
-      }, geometry);
+      return mixin(c3ml, geometry);
     },
 
     /**
@@ -223,7 +262,7 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLline: function (c3ml, _this) {
+    _parseC3MLline: function(c3ml, _this) {
       return {
         line: {
           vertices: _this._parseCoordinates(c3ml.coordinates),
@@ -241,7 +280,7 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLpolygon: function (c3ml, _this) {
+    _parseC3MLpolygon: function(c3ml, _this) {
       return {
         polygon: {
           vertices: _this._parseCoordinates(c3ml.coordinates),
@@ -259,7 +298,7 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLmesh: function (c3ml, _this) {
+    _parseC3MLmesh: function(c3ml, _this) {
       return {
         mesh: {
           positions: c3ml.positions,
@@ -281,7 +320,7 @@ define([
      * @returns {Array.<atlas.model.Vertex>} The convert coordinates.
      * @protected
      */
-    _parseCoordinates: function (coordinates) {
+    _parseCoordinates: function(coordinates) {
       var vertices = [];
       for (var i = 0; i < coordinates.length; i++) {
         vertices.push(this._coordinateAsVertex(coordinates[i]));
@@ -298,7 +337,7 @@ define([
      * @returns {atlas.model.Vertex}
      * @protected
      */
-    _coordinateAsVertex: function (coordinate) {
+    _coordinateAsVertex: function(coordinate) {
       return new Vertex(coordinate.x, coordinate.y, coordinate.z);
     },
 
@@ -309,7 +348,7 @@ define([
      * @param {atlas.model.GeoEntity} entity - The new GeoEntity;
      * @returns {Boolean} True if the GeoEntity was added, false otherwise.
      */
-    add: function (id, entity) {
+    add: function(id, entity) {
       if (id in this._entities) {
         Log.log('tried to add entity', id, 'which already exists.');
         return false;
@@ -326,11 +365,15 @@ define([
      * Removes the given GeoEntity from the EntityManager.
      * @param {String} id - The ID of the GeoEntity to remove.
      */
-    remove: function (id) {
+    remove: function(id) {
       if (id in this._entities) {
         Log.debug('entityManager: deleted entity', id);
-        this._entities[id].cleanUp();
+        // TODO(aramk) I couldn't find cleanUp method - not sure if it's called?
+//        this._entities[id].cleanUp();
+        var entity = this._entities[id];
         delete this._entities[id];
+        // Call this last to prevent infinite loops if this method is called from within.
+        entity.remove();
       }
     },
 
@@ -342,7 +385,7 @@ define([
      * Returns the GeoEntity instances that are rendered and visible.
      * @returns {Object.<String, atlas.model.GeoEntity>} A map of visible GeoEntity ID to GeoEntity.
      */
-    getVisibleEntities: function () {
+    getVisibleEntities: function() {
       var visible = {};
       Object.keys(this._entities).forEach(function(id) {
         var entity = this._entities[id];
@@ -359,7 +402,7 @@ define([
      * @returns {atlas.model.GeoEntity|undefined} The corresponding GeoEntity or
      * <code>undefined</code> if there is no such GeoEntity.
      */
-    getById: function (id) {
+    getById: function(id) {
       // TODO(bpstudds): Accept either a single id or an array of IDs and return an either a
       //      single entity or an array or Entities
       return this._entities[id];
@@ -371,9 +414,9 @@ define([
      * @returns {Array.<atlas.model.GeoEntity>} The corresponding GeoEntity instances mapped by their
      * IDs.
      */
-    getByIds: function (ids) {
+    getByIds: function(ids) {
       var entities = [];
-      ids.forEach(function (id) {
+      ids.forEach(function(id) {
         var entity = this.getById(id);
         entity && entities.push(entity);
       }.bind(this));
@@ -385,7 +428,7 @@ define([
      * @param {atlas.model.Vertex} point - The point of interest.
      * @returns {Array.<atlas.model.GeoEntity>} The GeoEntities located at the given screen coordinates.
      */
-    getAt: function (point) {
+    getAt: function(point) {
       // TODO
       // See mutopia-gui cesium extensions. Aram converted the target point and visible polygons
       // to WKT and then used OpenLayers to find the intersecting entities.
@@ -402,7 +445,7 @@ define([
      * or <code>undefined</code> if there are no such GeoEntities.
      * @abstract
      */
-    getInPoly: function (boundingPoly, intersects) {
+    getInPoly: function(boundingPoly, intersects) {
       // TODO
       // See mutopia-gui cesium extensions. Aram converted the target point and visible polygons
       // to WKT and then used OpenLayers to find the intersecting entities.
@@ -417,7 +460,7 @@ define([
      * @returns {Array.<atlas.model.GeoEntity>} The array of GeoEntities within the rectangle.
      * @abstract
      */
-    getInRect: function (point1, point2) {
+    getInRect: function(point1, point2) {
       // TODO
       // See mutopia-gui cesium extensions. Aram converted the target point and visible polygons
       // to WKT and then used OpenLayers to find the intersecting entities.

@@ -403,7 +403,7 @@ define([
      */
     remove: function () {
       if (!this._eventManager) { return; }
-
+      this._entityManager.remove(this._id);
       this._eventManager.dispatchEvent(new Event(new EventTarget(),
         'entity/remove', {
           id: this.getId()
