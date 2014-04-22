@@ -69,7 +69,7 @@ define([
           source: 'extern',
           name: 'camera/current',
           callback: function (args) {
-            args.callback(this._camera.getStats());
+            args.callback(this._camera);
           }.bind(this)
         }
       ];
