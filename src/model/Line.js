@@ -71,6 +71,10 @@ define([
       }
     },
 
+    getVertices: function () {
+      return this._vertices;
+    },
+
     /**
      * Function to enable interactive editing of the polygon.
      * @abstract

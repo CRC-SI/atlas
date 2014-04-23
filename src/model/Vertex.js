@@ -1,6 +1,9 @@
 define([
-  'atlas/util/Class'
-], function (Class) {
+  'atlas/util/Class',
+  'atlas/util/mixin',
+  'atlas/util/DeveloperError',
+  'utility/Type'
+], function(Class, mixin, DeveloperError, Type) {
 
   /**
    * @typedef atlas.model.Vertex
@@ -18,7 +21,7 @@ define([
    * @typedef atlas.model.Vertex
    * @class
    */
-  Vertex = Class.extend( /** @lends atlas.model.Vertex# */ {
+  Vertex = mixin(Class.extend(/** @lends atlas.model.Vertex# */ {
 
     /**
      * The <code>x</code> coordinate.
@@ -65,7 +68,7 @@ define([
      * @param {atlas.model.Vertex} other - The other vertex.
      * @returns {atlas.model.Vertex}
      */
-    add: function (other) {
+    add: function(other) {
       return new Vertex(this.x + other.x, this.y + other.y, this.z + other.z);
     },
 
@@ -74,14 +77,14 @@ define([
      * @param {atlas.model.Vertex} other - The other vertex.
      * @returns {atlas.model.Vertex}
      */
-    subtract: function (other) {
+    subtract: function(other) {
       return new Vertex(this.x - other.x, this.y - other.y, this.z - other.z);
     },
 
     /**
      * @returns {atlas.model.Vertex} This vertex with each component converted to its absolute value.
      */
-    absolute: function () {
+    absolute: function() {
       return new Vertex(Math.abs(this.x), Math.abs(this.y), Math.abs(this.z))
     },
 
@@ -90,7 +93,7 @@ define([
      * @param {atlas.model.Vertex} other - The other vertex.
      * @returns {atlas.model.Vertex}
      */
-    componentwiseMultiply: function (other) {
+    componentwiseMultiply: function(other) {
       return new Vertex(this.x * other.x, this.y * other.y, this.z * other.z);
     },
 
@@ -99,7 +102,7 @@ define([
      * @param {atlas.model.Vertex} other - The other vertex.
      * @returns {Number}
      */
-    distanceSquared: function (other) {
+    distanceSquared: function(other) {
       var diff = this.subtract(other);
       return Math.pow(diff.x, 2) + Math.pow(diff.y, 2) + Math.pow(diff.z, 2);
     },
@@ -108,12 +111,57 @@ define([
      * Translates this Vertex by another vertex.
      * @param {atlas.model.Vertex} other - The other vertex.
      */
-    translate: function (other) {
+    translate: function(other) {
       this.x += other.x;
       this.y += other.y;
       this.z += other.z;
-    }
-  });
+    },
 
+    /**
+     * @param {Object} [args]
+     * @param {Number} [args.dimension] The dimension of the resulting vertex arrays in the range
+     * [2,3].
+     * @param {Number} [args.round] The number of significant decimal places for rounding.
+     * @returns {Array.<Number>} An array with each coordinate as an index in the order x, y, z. The
+     * z index is omitted if it is undefined.
+     */
+    toArray: function(args) {
+      args = mixin({
+        dimension: 3
+      }, args);
+      var dimension = args.dimension,
+          round = args.round;
+      if (dimension !== undefined && (dimension < 2 || dimension > 3)) {
+        throw new DeveloperError('Invalid dimensions');
+      }
+      var points = Type.isNullOrUndefined(this.z) || dimension === 2 ? [this.x, this.y] :
+          [this.x, this.y, this.z];
+      if (round !== undefined) {
+        for (var i = 0; i < points.length; i++) {
+          points[i] = parseFloat(points[i].toFixed(round));
+        }
+      }
+      return points;
+    }
+
+  }), {
+
+    // -------------------------------------------
+    // STATICS
+    // -------------------------------------------
+
+    /**
+     * @param {Array.<atlas.model.Vertex>} vertices
+     * @param {Object} [args]
+     * @see #toArray
+     * @returns {Array.<Array<Number>>} An array of the given vertices converted to arrays.
+     */
+    toArrays: function(vertices, args) {
+      return vertices.map(function(vertex) {
+        return vertex.toArray(args);
+      });
+    }
+
+  });
   return Vertex;
 });

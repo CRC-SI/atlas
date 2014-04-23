@@ -169,6 +169,10 @@ define([
     // GETTERS AND SETTERS
     // -------------------------------------------
 
+    getVertices: function() {
+      return [];
+    },
+
     /**
      * Gets the area of the Ellipse, in <tt>unit**2</tt> where <tt>unit</tt> is the
      * unit corresponding to the Vertices describing this Ellipse.

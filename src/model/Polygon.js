@@ -179,6 +179,10 @@ define([
     // GETTERS AND SETTERS
     // -------------------------------------------
 
+    getVertices: function () {
+      return this._vertices;
+    },
+
     /**
      * Gets the area of the Polygon, in <tt>unit**2</tt> where <tt>unit</tt> is the
      * unit corresponding to the Vertices describing this Polygon.

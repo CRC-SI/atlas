@@ -112,6 +112,7 @@ define([
       this._atlasManagers.event.addEventHandlers(handlers);
     },
 
+    // TODO(aramk) This might be superseded by getStats() on Camera.
     getCameraMetrics: function () {
       return {
         position: this._current._position,

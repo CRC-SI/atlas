@@ -127,6 +127,11 @@ define([
       return form && form.getCentroid();
     },
 
+    getVertices: function () {
+      var form = this.getForm();
+      return form && form.getVertices();
+    },
+
     getForm: function() {
       var form = undefined;
       if (this._displayMode === 'footprint' || this._displayMode === 'extrusion') {
