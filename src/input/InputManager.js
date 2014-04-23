@@ -91,9 +91,14 @@ define([
       this._mouseHandlers.push({
         name: 'mouseup',
         cback: function(e) {
+            console.log('mouseup');
           var press = 'up',  // default to buttonUp
               args;
+          console.log('mouse event', e);
+          console.log('mouse move', e.movementX + e.movementY); 
+          console.log('limit', InputManager.CLICK_SENSITIVITY);
           if (e.movementX + e.movementY < InputManager.CLICK_SENSITIVITY) {
+            console.log('mouseclick');
             press = 'click';
           }
           args = makeArgs(buttonIds[e.button] + 'up', e);
