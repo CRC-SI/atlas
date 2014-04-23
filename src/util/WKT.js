@@ -74,7 +74,8 @@ define([
      * @returns {atlas.model.Vertex}
      */
     vertexFromOpenLayersPoint: function(point) {
-      return new Vertex(point.x, point.y, 0);
+      // NOTE: OpenLayers treats latitude as x, longitude as y.
+      return new Vertex(point.y, point.x, 0);
     },
 
     /**
@@ -86,7 +87,8 @@ define([
       var points = [];
       for (var i = 0; i < vertices.length; i++) {
         var vertex = vertices[i];
-        var point = new OpenLayers.Geometry.Point(vertex.x, vertex.y);
+        // NOTE: OpenLayers treats latitude as x, longitude as y.
+        var point = new OpenLayers.Geometry.Point(vertex.y, vertex.x);
         points.push(point);
       }
       return points;

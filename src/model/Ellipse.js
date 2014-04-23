@@ -72,33 +72,12 @@ define([
     _zIndexOffset: 0.1,
 
     /**
-     * The visual style of the Ellipse.
-     * @type {atlas.model.Style}
-     * @private
-     */
-    _style: null,
-
-    /**
      * The material used to render the Ellipse.
      * @type {atlas.model.Material}
      * @private
      */
     // TODO(bpstudds): Create a Ellipse specific default Material to use.
     _material: null,
-
-    /**
-     * Whether the Ellipse is visible in the scene.
-     * @type {Boolean}
-     * @private
-     */
-    _visible: false,
-
-    /**
-     * The centroid of the Ellipse in latitude, longitude and elevation.
-     * @type {atlas.model.GeoPoint}
-     * @private
-     */
-    _centroid: null,
 
     /**
      * The semi major axis of the ellipse in metres.
@@ -111,14 +90,6 @@ define([
      * @type {Number}
      */
     _semiMinor: null,
-
-
-    /**
-     * The area covered by the Ellipse in metres**2.
-     * @type {Number}
-     * @private
-     */
-    _area: null,
 
     /**
      * Whether the Ellipse should be rendered as an extruded Ellipse or a 2D Ellipse.
@@ -147,6 +118,7 @@ define([
       }
       this._super(id, args);
 
+      this._visible = false;
       this._centroid = new GeoPoint(ellipseData.centroid);
       this._semiMajor = parseFloat(ellipseData.semiMajor);
       this._semiMinor = parseFloat(ellipseData.semiMinor) || this._semiMajor;

@@ -1,9 +1,10 @@
 define([
+  'atlas/model/Vertex',
   'atlas/util/AtlasMath',
   'atlas/util/Class',
   'atlas/util/mixin',
   'atlas/util/DeveloperError'
-], function(AtlasMath, Class, mixin, DeveloperError) {
+], function(Vertex, AtlasMath, Class, mixin, DeveloperError) {
 
   /**
    * @typedef atlas.model.GeoPoint
@@ -22,16 +23,16 @@ define([
   GeoPoint = Class.extend(/** @lends atlas.model.GeoPoint# */ {
 
     /**
-     * The GeoPoint's latitude in decimal degrees.
-     * @type {Number}
-     */
-    latitude: null,
-
-    /**
      * The GeoPoint's longitude in decimal degrees.
      * @type {Number}
      */
     longitude: null,
+
+    /**
+     * The GeoPoint's latitude in decimal degrees.
+     * @type {Number}
+     */
+    latitude: null,
 
     /**
      * The GeoPoint's elevation in metres.
@@ -54,14 +55,14 @@ define([
       if (args.x !== undefined) {
         this._setFromArgs(args.x, args.y, args.z);
       } else {
-        this._setFromArgs(args.latitude || args.lat, args.longitude || args.lng,
+        this._setFromArgs(args.longitude || args.lng, args.latitude || args.lat,
                 args.elevation || args.height);
       }
     },
 
-    _setFromArgs: function(latitude, longitude, elevation) {
-      this.latitude = parseFloat(latitude) || 0.0;
+    _setFromArgs: function(longitude, latitude, elevation) {
       this.longitude = parseFloat(longitude) || 0.0;
+      this.latitude = parseFloat(latitude) || 0.0;
       this.elevation = parseFloat(elevation) || 0.0;
     },
 
@@ -75,14 +76,10 @@ define([
      * @returns {atlas.model.GeoPoint}
      */
     subtract: function(other) {
-      return new GeoPoint(this.latitude - other.latitude,
-              this.longitude - other.longitude,
+      return new GeoPoint(this.longitude - other.longitude,
+              this.latitude - other.latitude,
               this.elevation - other.elevation);
     },
-
-    // -------------------------------------------
-    // MODIFIERS
-    // -------------------------------------------
 
     /**
      * Translates this GeoPoint by a given difference in latitude and longitude.
@@ -90,8 +87,18 @@ define([
      * @returns {atlas.model.GeoPoint}
      */
     translate: function(other) {
-      return new GeoPoint(this.latitude + other.latitude,
-              this.longitude + other.longitude, this.elevation);
+      return new GeoPoint(this.longitude + other.longitude,
+              this.latitude + other.latitude, this.elevation);
+    },
+
+    /**
+     * Sets the values from the given GeoPoint.
+     * @param {atlas.model.GeoPoint} other
+     * @returns {atlas.model.GeoPoint} This GeoPoint.
+     */
+    set: function (other) {
+      this._setFromObject(other);
+      return this;
     },
 
     // -------------------------------------------
@@ -103,15 +110,15 @@ define([
      */
     toVertex: function() {
       // TODO(aramk) This uses cartographic coordinates for Vertex, which should be in cartesian.
-      throw new DeveloperError('GeoPoint.toVertex not implemented.');
+      return new Vertex(this.longitude, this.latitude, this.elevation);
     },
 
     /**
      * @returns {atlas.model.GeoPoint} The GeoPoint with latitude and longitude converted to Radians.
      */
     toRadians: function() {
-      return new GeoPoint(AtlasMath.toRadians(this.latitude),
-          AtlasMath.toRadians(this.longitude), this.elevation);
+      return new GeoPoint(AtlasMath.toRadians(this.longitude), AtlasMath.toRadians(this.latitude),
+          this.elevation);
     },
 
     /**
@@ -157,7 +164,7 @@ define([
       if (!vertex) {
         return new GeoPoint();
       }
-      return new GeoPoint(vertex.y, vertex.x, vertex.z);
+      return new GeoPoint(vertex.x, vertex.y, vertex.z);
     },
 
     /**
@@ -169,7 +176,7 @@ define([
      * @static
      */
     fromLatLngHeight: function(other) {
-      return new GeoPoint(other.lat, other.lng, other.height);
+      return new GeoPoint(other.lng, other.lat, other.height);
     }
 
   });

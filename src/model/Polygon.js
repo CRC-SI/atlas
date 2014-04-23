@@ -4,14 +4,15 @@ define([
   'atlas/model/Material',
   'atlas/model/Style',
   'atlas/model/Vertex',
+  'atlas/model/GeoPoint',
   'atlas/util/DeveloperError',
   'atlas/util/default',
   'atlas/util/mixin',
   'atlas/util/WKT',
   // Base class
   'atlas/model/GeoEntity'
-], function(Colour, Handle, Material, Style, Vertex, DeveloperError, defaultValue, mixin, WKT,
-            GeoEntity) {
+], function(Colour, Handle, Material, Style, Vertex, GeoPoint, DeveloperError, defaultValue, mixin,
+            WKT, GeoEntity) {
 
   /**
    * @typedef atlas.model.Polygon
@@ -89,40 +90,12 @@ define([
     _zIndexOffset: 0.1,
 
     /**
-     * The visual style of the polygon.
-     * @type {atlas.model.Style}
-     * @private
-     */
-    _style: null,
-
-    /**
      * The material used to render the polygon.
      * @type {atlas.model.Material}
      * @private
      */
     // TODO(bpstudds): Create a Polygon specific default Material to use.
     _material: null,
-
-    /**
-     * Whether the polygon is visible in the scene.
-     * @type {Boolean}
-     * @private
-     */
-    _visible: false,
-
-    /**
-     * The centroid of the polygon.
-     * @type {atlas.model.Vertex}
-     * @private
-     */
-    _centroid: null,
-
-    /**
-     * The area covered by the polygon.
-     * @type {Number}
-     * @private
-     */
-    _area: null,
 
     /**
      * Whether the Polygon should be rendered as an extruded polygon or a 2D polygon.
@@ -179,7 +152,7 @@ define([
     // GETTERS AND SETTERS
     // -------------------------------------------
 
-    getVertices: function () {
+    getVertices: function() {
       return this._vertices;
     },
 
@@ -198,7 +171,7 @@ define([
       for (var i = 0; i < this._vertices.length; i++) {
         this._area = this._area +
             (this._vertices[j].x + this._vertices[i].x) *
-                (this._vertices[j].y - this._vertices[i].y);
+            (this._vertices[j].y - this._vertices[i].y);
         j = i;  //j is previous vertex to i
       }
       this._area /= 2;
@@ -208,7 +181,7 @@ define([
     /**
      * Gets the centroid of the Polygon. Assumes that the polygon is 2D surface, ie. Vertex.z is
      * constant across the polygon.
-     * @returns {atlas.model.Vertex} The Polygon's centroid.
+     * @returns {atlas.model.GeoPoint} The Polygon's centroid.
      * @see {@link http://stackoverflow.com/questions/9692448/how-can-you-find-the-centroid-of-a-concave-irregular-polygon-in-javascript/9939071#9939071}
      * @see  {@link http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon}
      */
@@ -232,7 +205,7 @@ define([
       // Remove vertex added to end
       this._vertices.pop();
       f = 3 * twiceArea;
-      this._centroid = new Vertex(x / f, y / f, p1.z + this.getElevation());
+      this._centroid = GeoPoint.fromVertex(new Vertex(x / f, y / f, p1.z + this.getElevation()));
       return this._centroid;
     },
 
@@ -454,13 +427,17 @@ define([
    * Defines the default style to use when rendering a polygon.
    * @type {atlas.model.Style}
    */
-  Polygon.getDefaultStyle = function () {return new Style({fillColour: Colour.GREEN}); };
+  Polygon.getDefaultStyle = function() {
+    return new Style({fillColour: Colour.GREEN});
+  };
 
   /**
    * Defines the default style to use when rendering a selected polygon.
    * @type {atlas.model.Style}
    */
-  Polygon.getSelectedStyle = function () { return new Style({fillColour: Colour.RED}); };
+  Polygon.getSelectedStyle = function() {
+    return new Style({fillColour: Colour.RED});
+  };
 
   return Polygon;
 });

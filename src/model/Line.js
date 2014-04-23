@@ -28,12 +28,6 @@ define([
     _vertices: null,
 
     /**
-     * @type {atlas.model.Style}
-     * @private
-     */
-    _style: null,
-
-    /**
      * The width of the line segment.
      * @type {Number}
      * @private

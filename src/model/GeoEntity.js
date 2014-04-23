@@ -82,14 +82,14 @@ define([
     _entityManager: null,
 
     /**
-     * The geometric centroid of the GeoEntity.
-     * @type {atlas.model.Vertex}
+     * The centroid of the entity.
+     * @type {atlas.model.GeoPoint}
      * @protected
      */
     _centroid: null,
 
     /**
-     * The area of the GeoEntity.
+     * The area of the GeoEntity in metres squared.
      * @type {Number}
      * @protected
      */
@@ -189,7 +189,7 @@ define([
     },
 
     /**
-     * @returns {atlas.model.Vertex} The centroid of the GeoEntity.
+     * @returns {atlas.model.GeoPoint} The centroid of the GeoEntity.
      * @abstract
      */
     getCentroid: function() {

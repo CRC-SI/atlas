@@ -69,13 +69,6 @@ define([
     _elevation: null,
 
     /**
-     * The Style to apply to the Feature.
-     * @type {atlas.model.Style}
-     * @protected
-     */
-    _style: null,
-
-    /**
      * The display mode of the Feature. One of 'line', 'footprint', 'extrusion' or 'mesh'.
      * Mesh trumps Footprint, which trumps Line if they are both defined in terms of which is
      * displayed by default.
@@ -83,13 +76,6 @@ define([
      * @protected
      */
     _displayMode: null,
-
-    /**
-     * Whether the Feature is initially visible.
-     * @type {Boolean}
-     * @protected
-     */
-    _visible: false,
 
     _init: function(id, args) {
       this._super(id, args);

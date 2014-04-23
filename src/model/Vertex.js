@@ -65,20 +65,39 @@ define([
 
     /**
      * Adds a given Vertex to this Vertex.
-     * @param {atlas.model.Vertex} other - The other vertex.
+     * @param {atlas.model.Vertex} other
      * @returns {atlas.model.Vertex}
      */
     add: function(other) {
-      return new Vertex(this.x + other.x, this.y + other.y, this.z + other.z);
+      // TODO(aramk) This is an alias for translate - keep one for both GeoPoint and Vertex.
+      return this.translate.apply(this, arguments);
+    },
+
+    /**
+     * Sets the values from the given Vertex.
+     * @param {atlas.model.Vertex} other
+     * @returns {atlas.model.Vertex} This Vertex.
+     */
+    set: function (other) {
+      this._setFromObject(other);
+      return this;
     },
 
     /**
      * Subtracts a given Vertex from this Vertex.
-     * @param {atlas.model.Vertex} other - The other vertex.
+     * @param {atlas.model.Vertex} other
      * @returns {atlas.model.Vertex}
      */
     subtract: function(other) {
       return new Vertex(this.x - other.x, this.y - other.y, this.z - other.z);
+    },
+
+    /**
+     * Translates this Vertex by another vertex.
+     * @param {atlas.model.Vertex} other
+     */
+    translate: function(other) {
+      return new Vertex(this.x + other.x, this.y + other.y, this.z + other.z);
     },
 
     /**
@@ -90,7 +109,7 @@ define([
 
     /**
      * Componentwise multiplies this Vertex with another Vertex.
-     * @param {atlas.model.Vertex} other - The other vertex.
+     * @param {atlas.model.Vertex} other
      * @returns {atlas.model.Vertex}
      */
     componentwiseMultiply: function(other) {
@@ -99,22 +118,12 @@ define([
 
     /**
      * Returns the Euclidean distance squared between this Vertex and another Vertex.
-     * @param {atlas.model.Vertex} other - The other vertex.
+     * @param {atlas.model.Vertex} other
      * @returns {Number}
      */
     distanceSquared: function(other) {
       var diff = this.subtract(other);
       return Math.pow(diff.x, 2) + Math.pow(diff.y, 2) + Math.pow(diff.z, 2);
-    },
-
-    /**
-     * Translates this Vertex by another vertex.
-     * @param {atlas.model.Vertex} other - The other vertex.
-     */
-    translate: function(other) {
-      this.x += other.x;
-      this.y += other.y;
-      this.z += other.z;
     },
 
     /**
