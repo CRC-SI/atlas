@@ -139,6 +139,20 @@ define([
       return this.verticesFromOpenLayersGeometry(polygon);
     },
 
+    /**
+     * @param {Array.<Array<Number>>} coords - An array of coordinates.
+     * @returns A new array with the first 2 indices switched.
+     */
+    switchLatLng: function (coords) {
+      return coords.map(function (coord) {
+        var switched = Array.prototype.slice.apply(coord);
+        var tmp = switched[0];
+        switched[0] = switched[1];
+        switched[1] = tmp;
+        return switched;
+      });
+    },
+
     _isType: function(wktStr, type) {
       return typeof wktStr === 'string' && wktStr.indexOf(type) !== -1;
     },
