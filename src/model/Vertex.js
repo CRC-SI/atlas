@@ -78,7 +78,7 @@ define([
      * @param {atlas.model.Vertex} other
      * @returns {atlas.model.Vertex} This Vertex.
      */
-    set: function (other) {
+    set: function(other) {
       this._setFromObject(other);
       return this;
     },

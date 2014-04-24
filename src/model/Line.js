@@ -53,19 +53,19 @@ define([
       }
       this._width = lineData.width || this._width;
       if (lineData.color) {
+        var style;
         if (lineData.color instanceof Colour) {
-          this._style = new Style({fillColour: lineData.color});
+          style = new Style({fillColour: lineData.color});
         } else {
-          this._style = new Style({fillColour: Colour.fromRGBA(lineData.color)});
+          style = new Style({fillColour: Colour.fromRGBA(lineData.color)});
         }
+        this.setStyle(style);
       } else if (lineData.style) {
-        this._style = lineData.style;
-      } else {
-        this._style = Line.getDefaultStyle();
+        this.setStyle(lineData.style);
       }
     },
 
-    getVertices: function () {
+    getVertices: function() {
       return this._vertices;
     },
 
@@ -78,9 +78,5 @@ define([
     }
 
   });
-
-  // TODO(aramk) This is shared across Feature, Polygon, Line etc. Put in GeoEntity?
-  Line.getDefaultStyle = function () {return new Style({fillColour: Colour.GREEN}); };
-
   return Line;
 });
