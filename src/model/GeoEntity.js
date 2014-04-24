@@ -220,17 +220,9 @@ define([
     /**
      * @returns {[atlas.model.Handle]} An array of Handles used to edit the GeoEntity.
      */
-//    getEditingHandles: function() {
-//      return this._editingHandles;
-//    },
-
     createHandles: function () {
       throw new DeveloperError('Can not call abstract method "getArea" of GeoEntity');
     },
-
-//    removeEditingHandles: function () {
-//      this._editingHandles = [];
-//    },
 
     /**
      * @returns {Boolean} Whether the GeoEntity is currently visible.
@@ -259,7 +251,6 @@ define([
     },
 
     /**
-     *
      * @param {String} [component] A specific component to check.
      * @returns {Boolean} Whether the given <code>component</code> is dirty, or if
      * <code>component</code> is not given, the GeoEntity as a whole.
