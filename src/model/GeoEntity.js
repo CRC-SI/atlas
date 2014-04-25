@@ -165,16 +165,12 @@ define([
       if (!id || typeof id === 'object') {
         throw new DeveloperError('Can not create instance of GeoEntity without an ID');
       }
-      if (!args.style) {
-        this._style = GeoEntity.DEFAULT_STYLE;
-      } else {
-        this._style = args.style;
-      }
       this._id = id.toString();
       this._childrenIds = args.childrenIds || [];
       this._renderManager = args.renderManager;
       this._eventManager = args.eventManager;
       this._entityManager = args.entityManager;
+      this.setStyle(args.style || GeoEntity.getDefaultStyle());
     },
 
     // -------------------------------------------
@@ -224,8 +220,8 @@ define([
     /**
      * @returns {[atlas.model.Handle]} An array of Handles used to edit the GeoEntity.
      */
-    getEditingHandles: function() {
-      return [];
+    createHandles: function () {
+      throw new DeveloperError('Can not call abstract method "getArea" of GeoEntity');
     },
 
     /**
@@ -255,7 +251,6 @@ define([
     },
 
     /**
-     *
      * @param {String} [component] A specific component to check.
      * @returns {Boolean} Whether the given <code>component</code> is dirty, or if
      * <code>component</code> is not given, the GeoEntity as a whole.
@@ -463,61 +458,60 @@ define([
 
     /**
      * Handles the GeoEntities behaviour when it is selected.
-     * @abstract
      */
     onSelect: function() {
+      this._selected = true;
+//      this.onEnableEditing();
     },
 
     /**
      * Handles the GeoEntities behaviour when it is deselected.
-     * @abstract
      */
     onDeselect: function() {
+      this._selected = false;
+//      this.onDisableEditing();
     },
 
     /**
      * Enables 'editing' of the GeoEntity using keyboard input.
      */
     onEnableEditing: function() {
-      return;
       // TODO(bpstudds): Move this functionality to an EditManager module.
-      this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keydown',
-          function(args) {
-            // TODO(bpstudds): Replace 'magic numbers' with constants. Probably should update keycode.js library for this.
-            if (!args.modifiers.shiftKey && !args.modifiers.metaKey && !args.modifiers.altKey &&
-                !args.modifiers.ctrlKey) {
-              switch (args.key) {
-                case 95: // underscore/minus beside backspace key
-                  this.scale({x: 0.95, y: 0.95, z: 0.95});
-                  break;
-                case 61: // equals/plus beside backspace key
-                  this.scale({x: 1.05, y: 1.05, z: 1.05});
-                  break;
-                case 37: // left
-                  this.rotate({x: 0, y: 0, z: 5});
-                  break;
-                case 39: // right
-                  this.rotate({x: 0, y: 0, z: -5});
-                  break;
-              }
-            }
-          }.bind(this)
-      );
-      this._editingHandles = this.getEditingHandles();
-//      this._editingHandles.forEach(function (handle) {
-//        handle.render();
-//      })
+//      this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keydown',
+//          function(args) {
+//            // TODO(bpstudds): Replace 'magic numbers' with constants. Probably should update keycode.js library for this.
+//            if (!args.modifiers.shiftKey && !args.modifiers.metaKey && !args.modifiers.altKey &&
+//                !args.modifiers.ctrlKey) {
+//              switch (args.key) {
+//                case 95: // underscore/minus beside backspace key
+//                  this.scale({x: 0.95, y: 0.95, z: 0.95});
+//                  break;
+//                case 61: // equals/plus beside backspace key
+//                  this.scale({x: 1.05, y: 1.05, z: 1.05});
+//                  break;
+//                case 37: // left
+//                  this.rotate({x: 0, y: 0, z: 5});
+//                  break;
+//                case 39: // right
+//                  this.rotate({x: 0, y: 0, z: -5});
+//                  break;
+//              }
+//            }
+//          }.bind(this)
+//      );
+//      this._editingHandles = this.getEditingHandles();
     },
 
     /**
      * Disables editing of the GeoEntity.
      */
     onDisableEditing: function() {
-      return;
-      this._editEventHandler && this._editEventHandler.cancel();
-      this._editingHandles.forEach(function(handle) {
-        handle.remove();
-      })
+      // TODO(bpstudds): Move this functionality to an EditManager module.
+//      this._editEventHandler && this._editEventHandler.cancel();
+//      this._editingHandles.forEach(function(handle) {
+//        handle.remove();
+//      })
+//      this._editingHandles = [];
     }
 
   });
@@ -525,7 +519,9 @@ define([
   // -------------------------------------------------
   // Statics
   // -------------------------------------------------
-  GeoEntity.DEFAULT_STYLE = new Style(Colour.GREEN, Colour.GREEN, 5)
+  GeoEntity.getDefaultStyle = function () {
+    return new Style({fillColour: Colour.GREEN});
+  };
 
   return GeoEntity;
 });

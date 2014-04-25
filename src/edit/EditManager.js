@@ -234,7 +234,7 @@ define([
       this._entities.forEach(function(entity) {
         entity.showAsFootprint();
         // Put the Handles into the EntityManager and render them.
-        this._handles.addArray(entity.getEditingHandles());
+        this._handles.addArray(entity.createHandles());
         this._handles.map('render');
       }, this);
     },

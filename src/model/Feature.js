@@ -84,14 +84,13 @@ define([
         this._displayMode = defaultValue(args.displayMode, 'mesh');
       } else if (args.ellipse) {
         this._displayMode = defaultValue(args.displayMode, 'extrusion');
-      } else if (args.polygon){
+      } else if (args.polygon) {
         this._displayMode = defaultValue(args.displayMode, 'extrusion');
       } else if (args.line) {
         this._displayMode = defaultValue(args.displayMode, 'line');
       }
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
-      this._style = args.style || Feature.getDefaultStyle();
     },
 
     // -------------------------------------------
@@ -113,7 +112,7 @@ define([
       return form && form.getCentroid();
     },
 
-    getVertices: function () {
+    getVertices: function() {
       var form = this.getForm();
       return form && form.getVertices();
     },
@@ -151,8 +150,8 @@ define([
       this._delegateToForm('clean', arguments);
     },
 
-    getEditingHandles: function () {
-      return this._delegateToForm('getEditingHandles', arguments);
+    createHandles: function() {
+      return this._delegateToForm('createHandles', arguments);
     },
 
     /**
@@ -204,13 +203,13 @@ define([
       this._mesh = mesh;
     },
 
-    setStyle: function (style) {
+    setStyle: function(style) {
       var oldStyle = this._style;
       this._style = style;
       return this._delegateToForm('setStyle', arguments) || oldStyle;
     },
 
-    getStyle: function () {
+    getStyle: function() {
       return this._delegateToForm('getStyle') || this._style;
     },
 
@@ -237,7 +236,7 @@ define([
      */
     showAsFootprint: function() {
       this._displayMode = 'footprint';
-      this.show();
+      this.isVisible() && this.show();
     },
 
     /**
@@ -246,7 +245,7 @@ define([
      */
     showAsExtrusion: function() {
       this._displayMode = 'extrusion';
-      this.show();
+      this.isVisible() && this.show();
     },
 
     /**
@@ -255,7 +254,11 @@ define([
      */
     showAsMesh: function() {
       this._displayMode = 'mesh';
-      this.show();
+      this.isVisible() && this.show();
+    },
+
+    isVisible: function() {
+      return this._delegateToForm('isVisible');
     },
 
     /**
@@ -362,16 +365,12 @@ define([
       this._visible = false;
       return this._delegateToForm('hide') || this._visible;
     }
-  }), // End class instance definition.
+  }), {
 
-      // -------------------------------------------
-      // STATICS
-      // -------------------------------------------
+    // -------------------------------------------
+    // STATICS
+    // -------------------------------------------
 
-      {
-        getDefaultStyle: function () { return new Style({fillColour: Colour.GREEN}); }
-      }
-  ); // End class mixin;
-
+  });
   return Feature;
 });

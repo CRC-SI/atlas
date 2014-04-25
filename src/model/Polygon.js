@@ -42,7 +42,7 @@ define([
    * @class atlas.model.Polygon
    * @extends atlas.model.GeoEntity
    */
-  Polygon = GeoEntity.extend(/** @lends atlas.model.Polygon# */ {
+  Polygon = mixin(GeoEntity.extend(/** @lends atlas.model.Polygon# */ {
     // TODO(aramk) Either put docs on params and document the getters and setters which don't have
     // obvious usage/logic.
     // TODO(aramk) Units for height etc. are open to interpretation - define them as metres in docs.
@@ -135,17 +135,19 @@ define([
       this._zIndex = parseFloat(polygonData.zIndex) || this._zIndex;
       this._zIndexOffset = parseFloat(polygonData.zIndexOffset) || this._zIndexOffset;
       this._material = (polygonData.material || Material.DEFAULT);
+      var style;
       if (polygonData.color) {
         if (polygonData.color instanceof Colour) {
-          this._style = new Style({fillColour: polygonData.color});
+          style = new Style({fillColour: polygonData.color});
         } else {
-          this._style = new Style({fillColour: Colour.fromRGBA(polygonData.color)});
+          style = new Style({fillColour: Colour.fromRGBA(polygonData.color)});
         }
       } else if (polygonData.style) {
-        this._style = polygonData.style;
+        style = polygonData.style;
       } else {
-        this._style = Polygon.getDefaultStyle();
+        style = Polygon.getDefaultStyle();
       }
+      this.setStyle(style);
     },
 
     // -------------------------------------------
@@ -404,6 +406,7 @@ define([
      * Causes the Polygon to be rendered with the selection style.
      */
     onSelect: function() {
+      this._super();
       this.setStyle(Polygon.getSelectedStyle());
       this.setDirty('style');
     },
@@ -414,30 +417,32 @@ define([
      * the <code>getDefaultStyle</code>.
      */
     onDeselect: function() {
-      this.setStyle(this._previousStyle || Polygon.getDefaultStyle());
+      this._super();
+      this.setStyle(this._previousStyle);
       this.setDirty('style');
     }
+  }), {
+
+    // -------------------------------------------
+    // STATICS
+    // -------------------------------------------
+
+    /**
+     * Defines the default style to use when rendering a polygon.
+     * @type {atlas.model.Style}
+     */
+    getDefaultStyle: function() {
+      return new Style({fillColour: Colour.GREEN});
+    },
+
+    /**
+     * Defines the default style to use when rendering a selected polygon.
+     * @type {atlas.model.Style}
+     */
+    getSelectedStyle: function() {
+      return new Style({fillColour: Colour.RED});
+    },
+
   });
-
-  // -------------------------------------------
-  // STATICS
-  // -------------------------------------------
-
-  /**
-   * Defines the default style to use when rendering a polygon.
-   * @type {atlas.model.Style}
-   */
-  Polygon.getDefaultStyle = function() {
-    return new Style({fillColour: Colour.GREEN});
-  };
-
-  /**
-   * Defines the default style to use when rendering a selected polygon.
-   * @type {atlas.model.Style}
-   */
-  Polygon.getSelectedStyle = function() {
-    return new Style({fillColour: Colour.RED});
-  };
-
   return Polygon;
 });
