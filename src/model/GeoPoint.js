@@ -3,8 +3,8 @@ define([
   'atlas/util/AtlasMath',
   'atlas/util/Class',
   'atlas/util/mixin',
-  'atlas/util/DeveloperError'
-], function(Vertex, AtlasMath, Class, mixin, DeveloperError) {
+  'utility/Type'
+], function(Vertex, AtlasMath, Class, mixin, Type) {
 
   /**
    * @typedef atlas.model.GeoPoint
@@ -44,7 +44,7 @@ define([
      * Constructs a new GeoPoint object.
      */
     _init: function() {
-      if (typeof arguments[0] === 'object') {
+      if (Type.isObjectLiteral(arguments[0])) {
         this._setFromObject.apply(this, arguments);
       } else {
         this._setFromArgs.apply(this, arguments);

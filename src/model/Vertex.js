@@ -42,12 +42,11 @@ define([
     z: null,
 
     _init: function() {
-      var firstArg = arguments[0],
-          type = typeof firstArg;
-      if (type === 'object') {
-        this._setFromObject(firstArg);
-      } else if (type === 'array') {
+      var firstArg = arguments[0];
+      if (Type.isArrayLiteral(firstArg)) {
         this._setFromArgs.apply(this, firstArg);
+      } else if (Type.isObjectLiteral(firstArg)) {
+        this._setFromObject(firstArg);
       } else {
         this._setFromArgs.apply(this, arguments);
       }
@@ -58,9 +57,9 @@ define([
     },
 
     _setFromArgs: function(x, y, z) {
-      this.x = x || 0.0;
-      this.y = y || 0.0;
-      this.z = z || 0.0;
+      this.x = parseFloat(x) || 0.0;
+      this.y = parseFloat(y) || 0.0;
+      this.z = parseFloat(z) || 0.0;
     },
 
     /**
