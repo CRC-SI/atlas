@@ -11,7 +11,6 @@ define([
 
   /**
    * @classdesc Object to manage the DOM node that Atlas is rendered into.
-   * @author Brendan Studds
    *
    * @param {Object} atlasManagers - A mapping of every manager type in Atlas to the manager instance.
    * @param {String} [domId] - The ID of the DOM element to attach Atlas to.

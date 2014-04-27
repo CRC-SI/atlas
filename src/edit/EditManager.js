@@ -3,8 +3,9 @@ define([
   'atlas/edit/TranslationModule',
   'atlas/lib/utility/Log',
   'atlas/model/Handle',
-  'atlas/util/Class'
-], function(ItemStore, TranslationModule, Log, Handle, Class) {
+  'atlas/util/Class',
+  'atlas/util/mixin'
+], function(ItemStore, TranslationModule, Log, Handle, Class, mixin) {
 
   // TODO(aramk) refactor this into abstract atlas.core.ModularManager and use elsewhere (e.g. RenderManager).
   /**
@@ -22,7 +23,7 @@ define([
    *
    * @class atlas.edit.EditManager
    */
-  EditManager = Class.extend( /** @lends atlas.edit.EditManager# */ {
+  EditManager = Class.extend(/** @lends atlas.edit.EditManager# */ {
 
     /**
      * Contains a mapping of Atlas manager names to the manager instance.
@@ -93,7 +94,7 @@ define([
      */
     _mouseEventHandlers: null,
 
-    _init: function (atlasManagers) {
+    _init: function(atlasManagers) {
       this._atlasManagers = atlasManagers;
       this._atlasManagers.edit = this;
 
@@ -115,12 +116,12 @@ define([
       this.bindEvents();
     },
 
-    bindEvents: function () {
+    bindEvents: function() {
       var handlers = [
         {
           source: 'intern',
           name: 'input/keyup',
-          callback: function (event) {
+          callback: function(event) {
             // TODO(bpstudds): Make an enum for the keyboard event key values.
             if (event.key === 69 /* lowercase 'e' */) {
               this.toggleEditing();
@@ -130,24 +131,41 @@ define([
         {
           source: 'intern',
           name: 'entity/select',
-          callback: function (event) {
+          callback: function(event) {
             // TODO(bpstudds): Implement this functionality (in future feature branch).
             this._entityIds = event.ids
           }.bind(this)
-        }/*,
+        },
         {
-          source: 'intern',
-          name: 'entity/deselect',
-          callback: function (event) {
-            this._entities.purge();
+          source: 'extern',
+          name: 'edit/enable',
+          callback: function(args) {
+            this.enable(args);
           }.bind(this)
-        }*/
+        },
+        {
+          source: 'extern',
+          name: 'edit/disable',
+          callback: function(event) {
+            this.disable();
+          }.bind(this)
+        }
+        /*,
+         {
+         source: 'intern',
+         name: 'entity/deselect',
+         callback: function (event) {
+         this._entities.purge();
+         }.bind(this)
+         }*/
       ];
       this._eventHandlers = this._atlasManagers.event.addEventHandlers(handlers);
     },
 
-    bindMouseInput: function () {
-      if (this._mouseEventHandlers) { return; }
+    bindMouseInput: function() {
+      if (this._mouseEventHandlers) {
+        return;
+      }
       var handlers = [
         {
           source: 'intern',
@@ -174,10 +192,12 @@ define([
       this._mouseEventHandlers = this._atlasManagers.event.addEventHandlers(handlers);
     },
 
-    unbindMouseInput: function () {
-      if (!this._mouseEventHandlers) { return; }
+    unbindMouseInput: function() {
+      if (!this._mouseEventHandlers) {
+        return;
+      }
 
-      Object.keys(this._mouseEventHandlers).forEach(function (key) {
+      Object.keys(this._mouseEventHandlers).forEach(function(key) {
         this._mouseEventHandlers[key].cancel();
       }, this);
       this._mouseEventHandlers = null;
@@ -188,20 +208,33 @@ define([
     // -------------------------------------------
 
     /**
-     * Starts an editing session on the currently selected entities.
+     * Starts an editing session on the given entities.
      * Handles are displayed for the selected Polygons and selection is locked.
+     * @param {Object} args
+     * @param {Array.<String>} [args.ids] A set of entity IDs to enable for editing.
+     * @param {Object.<atlas.model.GeoEntity>} [args.entities] A set of entities to enable for
+     * editing. If not provided, args.ids are used first, otherwise the currently selected entities
+     * are used.
      */
-    enable: function () {
+    enable: function(args) {
+      args = mixin({}, args);
+      if (!args.entities) {
+        if (args.ids) {
+          args.entities = this._atlasManagers.entity.getByIds(args.ids);
+        } else {
+          args.entities = this._atlasManagers.selection.getSelection();
+        }
+      }
       Log.debug('EditManager enabled');
       this._editing = true;
       this.bindMouseInput();
-      this._entities.addArray(this._atlasManagers.selection.getSelection());
+      this._entities.addArray(args.entities);
 
       // Render the editing handles.
-      this._entities.forEach(function (entity) {
+      this._entities.forEach(function(entity) {
         entity.showAsFootprint();
         // Put the Handles into the EntityManager and render them.
-        this._handles.addArray(entity.getEditingHandles());
+        this._handles.addArray(entity.createHandles());
         this._handles.map('render');
       }, this);
     },
@@ -211,7 +244,7 @@ define([
      * NOTE: This does not do anything regarding specifically 'canceling' or 'saving'
      * any changes made, but the final state when ending is maintained.
      */
-    disable: function () {
+    disable: function() {
       Log.debug('EditManager disabled');
       this._editing = false;
       // End the editing session
@@ -228,7 +261,7 @@ define([
      * @see {@link atlas.edit.EditManager#enable}
      * @see {@link atlas.edit.EditManager#disable}
      */
-    toggleEditing: function () {
+    toggleEditing: function() {
       this._editing ? this.disable() : this.enable();
     },
 
@@ -250,9 +283,11 @@ define([
       return this._modules[name];
     },
 
-    _delegateToModules: function (method, args) {
-      if (!this._editing) { return; }
-      Object.keys(this._enabledModules).forEach(function (modName) {
+    _delegateToModules: function(method, args) {
+      if (!this._editing) {
+        return;
+      }
+      Object.keys(this._enabledModules).forEach(function(modName) {
         var module = this._enabledModules[modName];
         module[method] && module[method].apply(module, args);
       }, this);
@@ -267,13 +302,13 @@ define([
       if (!module) return;
 
       /*var bindings = module.getEventBindings();
-      if (!this._listeners[name]) this._listeners[name] = {};
-      for (var event in bindings) {
-        if (bindings.hasOwnProperty(event)) {
-          this._listeners[name][event] = this._atlasManagers.event.addEventHandler('intern', event,
-              bindings[event].bind(module));
-        }
-      }*/
+       if (!this._listeners[name]) this._listeners[name] = {};
+       for (var event in bindings) {
+       if (bindings.hasOwnProperty(event)) {
+       this._listeners[name][event] = this._atlasManagers.event.addEventHandler('intern', event,
+       bindings[event].bind(module));
+       }
+       }*/
       this._enabledModules[name] = module;
     },
 
@@ -309,7 +344,7 @@ define([
      * @param {string} name - The name of the module.
      * @returns {boolean} Whether the module is enabled.
      */
-    isModuleEnabled: function (name) {
+    isModuleEnabled: function(name) {
       return (this._enabledModules[name] !== undefined);
     },
 
@@ -317,7 +352,7 @@ define([
      * Toggles whether the module with the given name is active.
      * @param {String} name - The name of the module.
      */
-    toggleModule: function (name) {
+    toggleModule: function(name) {
       return this._enabledModules[name] ? this.disableModule(name) : this.enableModule(name);
     },
 
@@ -330,26 +365,32 @@ define([
      * nothing occurs.
      * @param e
      */
-    onLeftDown: function (e) {
+    onLeftDown: function(e) {
       // Check whether a Handle was clicked.
       // getAt always returns an array, but we only care about the top most Entity.
       var targetId = this._atlasManagers.render.getAt(e.position)[0],
           target = this._handles.get(targetId);
-      if (!target) { return; }
+      if (!target) {
+        return;
+      }
 
       this._dragTarget = target;
-      e.target =  this._dragTarget;
+      e.target = this._dragTarget;
       this._delegateToModules('startDrag', arguments);
     },
 
-    onMouseMove: function (e) {
-      if (!this._dragTarget) { return; }
+    onMouseMove: function(e) {
+      if (!this._dragTarget) {
+        return;
+      }
       e.target = this._dragTarget;
       this._delegateToModules('updateDrag', arguments);
     },
 
-    onLeftUp: function (e) {
-      if (!this._dragTarget) { return; }
+    onLeftUp: function(e) {
+      if (!this._dragTarget) {
+        return;
+      }
 
       e.target = this._dragTarget;
       this._dragTarget = null;

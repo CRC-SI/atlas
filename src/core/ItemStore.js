@@ -40,7 +40,7 @@ define([
     _items: null,
 
     _init: function (getter) {
-      this._items = {};
+      this.purge();
       this._getterName = getter || 'getId';
     },
 

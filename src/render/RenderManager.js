@@ -10,7 +10,6 @@ define([
    *     - the map imagery displayed on the globe
    *     - the terrain models displayed on the globe
    *     - the set of entities being displayed in the scene
-   * @author Brendan Studds
    *
    * @param {Object} atlasManagers - A mapping of every manager type in Atlas to the manager instance.
    *

@@ -8,7 +8,6 @@ define([
   /**
    * A utility class containing static functions for managing the child
    * elements on a DOM node.
-   * @author Brendan Studds
    * @exports atlas.util.dom.DomChild
    */
   var DomChild = {

@@ -127,7 +127,7 @@ define([
   // STATICS
   // -------------------------------------------
 
-  Style.DEFAULT = function () {
+  Style.getDefault = function () {
     return new Style({fillColour: Colour.GREEN, borderColour: Colour.GREEN, borderWidth: 1});
   };
 

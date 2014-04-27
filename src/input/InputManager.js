@@ -7,7 +7,6 @@ define([
   /**
    * @classdesc The InputManager is used to link user input events to the
    * Atlas  event system.
-   * @author Brendan Studds
    * @param {Object} atlasManagers - The map of all atlas manager objects.
    * @class atlas.input.InputManager
    */

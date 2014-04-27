@@ -4,14 +4,15 @@ define([
   'atlas/model/Material',
   'atlas/model/Style',
   'atlas/model/Vertex',
+  'atlas/model/GeoPoint',
   'atlas/util/DeveloperError',
   'atlas/util/default',
   'atlas/util/mixin',
   'atlas/util/WKT',
   // Base class
   'atlas/model/GeoEntity'
-], function(Colour, Handle, Material, Style, Vertex, DeveloperError, defaultValue, mixin, WKT,
-            GeoEntity) {
+], function(Colour, Handle, Material, Style, Vertex, GeoPoint, DeveloperError, defaultValue, mixin,
+            WKT, GeoEntity) {
 
   /**
    * @typedef atlas.model.Polygon
@@ -41,7 +42,7 @@ define([
    * @class atlas.model.Polygon
    * @extends atlas.model.GeoEntity
    */
-  Polygon = GeoEntity.extend(/** @lends atlas.model.Polygon# */ {
+  Polygon = mixin(GeoEntity.extend(/** @lends atlas.model.Polygon# */ {
     // TODO(aramk) Either put docs on params and document the getters and setters which don't have
     // obvious usage/logic.
     // TODO(aramk) Units for height etc. are open to interpretation - define them as metres in docs.
@@ -89,40 +90,12 @@ define([
     _zIndexOffset: 0.1,
 
     /**
-     * The visual style of the polygon.
-     * @type {atlas.model.Style}
-     * @private
-     */
-    _style: null,
-
-    /**
      * The material used to render the polygon.
      * @type {atlas.model.Material}
      * @private
      */
     // TODO(bpstudds): Create a Polygon specific default Material to use.
     _material: null,
-
-    /**
-     * Whether the polygon is visible in the scene.
-     * @type {Boolean}
-     * @private
-     */
-    _visible: false,
-
-    /**
-     * The centroid of the polygon.
-     * @type {atlas.model.Vertex}
-     * @private
-     */
-    _centroid: null,
-
-    /**
-     * The area covered by the polygon.
-     * @type {Number}
-     * @private
-     */
-    _area: null,
 
     /**
      * Whether the Polygon should be rendered as an extruded polygon or a 2D polygon.
@@ -162,22 +135,28 @@ define([
       this._zIndex = parseFloat(polygonData.zIndex) || this._zIndex;
       this._zIndexOffset = parseFloat(polygonData.zIndexOffset) || this._zIndexOffset;
       this._material = (polygonData.material || Material.DEFAULT);
+      var style;
       if (polygonData.color) {
         if (polygonData.color instanceof Colour) {
-          this._style = new Style({fillColour: polygonData.color});
+          style = new Style({fillColour: polygonData.color});
         } else {
-          this._style = new Style({fillColour: Colour.fromRGBA(polygonData.color)});
+          style = new Style({fillColour: Colour.fromRGBA(polygonData.color)});
         }
       } else if (polygonData.style) {
-        this._style = polygonData.style;
+        style = polygonData.style;
       } else {
-        this._style = Polygon.getDefaultStyle();
+        style = Polygon.getDefaultStyle();
       }
+      this.setStyle(style);
     },
 
     // -------------------------------------------
     // GETTERS AND SETTERS
     // -------------------------------------------
+
+    getVertices: function() {
+      return this._vertices;
+    },
 
     /**
      * Gets the area of the Polygon, in <tt>unit**2</tt> where <tt>unit</tt> is the
@@ -194,7 +173,7 @@ define([
       for (var i = 0; i < this._vertices.length; i++) {
         this._area = this._area +
             (this._vertices[j].x + this._vertices[i].x) *
-                (this._vertices[j].y - this._vertices[i].y);
+            (this._vertices[j].y - this._vertices[i].y);
         j = i;  //j is previous vertex to i
       }
       this._area /= 2;
@@ -204,7 +183,7 @@ define([
     /**
      * Gets the centroid of the Polygon. Assumes that the polygon is 2D surface, ie. Vertex.z is
      * constant across the polygon.
-     * @returns {atlas.model.Vertex} The Polygon's centroid.
+     * @returns {atlas.model.GeoPoint} The Polygon's centroid.
      * @see {@link http://stackoverflow.com/questions/9692448/how-can-you-find-the-centroid-of-a-concave-irregular-polygon-in-javascript/9939071#9939071}
      * @see  {@link http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon}
      */
@@ -228,7 +207,7 @@ define([
       // Remove vertex added to end
       this._vertices.pop();
       f = 3 * twiceArea;
-      this._centroid = new Vertex(x / f, y / f, p1.z + this.getElevation());
+      this._centroid = GeoPoint.fromVertex(new Vertex(x / f, y / f, p1.z + this.getElevation()));
       return this._centroid;
     },
 
@@ -427,6 +406,7 @@ define([
      * Causes the Polygon to be rendered with the selection style.
      */
     onSelect: function() {
+      this._super();
       this.setStyle(Polygon.getSelectedStyle());
       this.setDirty('style');
     },
@@ -437,26 +417,32 @@ define([
      * the <code>getDefaultStyle</code>.
      */
     onDeselect: function() {
-      this.setStyle(this._previousStyle || Polygon.getDefaultStyle());
+      this._super();
+      this.setStyle(this._previousStyle);
       this.setDirty('style');
     }
+  }), {
+
+    // -------------------------------------------
+    // STATICS
+    // -------------------------------------------
+
+    /**
+     * Defines the default style to use when rendering a polygon.
+     * @type {atlas.model.Style}
+     */
+    getDefaultStyle: function() {
+      return new Style({fillColour: Colour.GREEN});
+    },
+
+    /**
+     * Defines the default style to use when rendering a selected polygon.
+     * @type {atlas.model.Style}
+     */
+    getSelectedStyle: function() {
+      return new Style({fillColour: Colour.RED});
+    },
+
   });
-
-  // -------------------------------------------
-  // STATICS
-  // -------------------------------------------
-
-  /**
-   * Defines the default style to use when rendering a polygon.
-   * @type {atlas.model.Style}
-   */
-  Polygon.getDefaultStyle = function () {return new Style({fillColour: Colour.GREEN}); };
-
-  /**
-   * Defines the default style to use when rendering a selected polygon.
-   * @type {atlas.model.Style}
-   */
-  Polygon.getSelectedStyle = function () { return new Style({fillColour: Colour.RED}); };
-
   return Polygon;
 });
