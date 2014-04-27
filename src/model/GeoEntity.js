@@ -189,7 +189,7 @@ define([
      * @abstract
      */
     getCentroid: function() {
-      throw new DeveloperError('Can not call abstract method "getCentroid" of GeoEntity');
+      return this._centroid && this._centroid.clone();
     },
 
     /**

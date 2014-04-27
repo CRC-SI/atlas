@@ -127,6 +127,13 @@ define([
      */
     toDmsString: function() {
       throw 'GeoPoint.toDmsString not yet implemented.';
+    },
+
+    /**
+     * @returns {atlas.model.GeoPoint} A deep copy of this object.
+     */
+    clone: function () {
+      return new GeoPoint(this);
     }
 
   });

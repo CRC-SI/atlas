@@ -18,8 +18,7 @@ define([
    *    with <code>x</code>, <code>y</code>, and <code>z</code> properties.
    * @param {Number} [y=0] - the 'y' coordinate.
    * @param {Number} [z=0] - the 'z' coordinate.
-   * @typedef atlas.model.Vertex
-   * @class
+   * @class atlas.model.Vertex
    */
   Vertex = mixin(Class.extend(/** @lends atlas.model.Vertex# */ {
 
@@ -150,6 +149,13 @@ define([
         }
       }
       return points;
+    },
+
+    /**
+     * @returns {atlas.model.Vertex} A deep copy of this object.
+     */
+    clone: function () {
+      return new Vertex(this);
     }
 
   }), {

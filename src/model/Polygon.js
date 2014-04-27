@@ -189,7 +189,7 @@ define([
      */
     getCentroid: function() {
       if (this._centroid) {
-        return this._centroid;
+        return this._centroid.clone();
       }
       // Need a closed set of vertices for the algorithm to work. Temporarily add the first vertex
       // to the end of the list of vertices.
@@ -208,7 +208,7 @@ define([
       this._vertices.pop();
       f = 3 * twiceArea;
       this._centroid = GeoPoint.fromVertex(new Vertex(x / f, y / f, p1.z + this.getElevation()));
-      return this._centroid;
+      return this._centroid.clone();
     },
 
     /**
