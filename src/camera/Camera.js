@@ -146,7 +146,7 @@ define([
      * vertices must be provided.
      * @param {atlas.model.Vertex} [args.up]
      * @param {Object} [args.duration=0] - The amount of time to take for the animation.
-     * @param {atlas.camera.PATH_TYPES} [args.path] - The type of path to follow if
+     * @param {atlas.camera.PathType} [args.path] - The type of path to follow if
      * animating.
      * @abstract
      */
@@ -268,9 +268,9 @@ define([
 
     /**
      * The type of path to animate when moving the camera.
-     * @typedef {Object} atlas.camera.PATH_TYPES
+     * @typedef {Object} atlas.camera.PathType
      */
-    PATH_TYPES: {
+    PathType: {
       LINEAR: 'linear',
       SINUSOIDAL: 'sinusoidal'
     }

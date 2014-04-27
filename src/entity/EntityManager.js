@@ -47,9 +47,16 @@ define([
       'Image': Image
     },
 
+    /**
+     * A map of feature ID to the original display mode upon construction. Only used when necessary.
+     * @type {Object.<String, atlas.model.Feature.DisplayMode>}
+     */
+    _origDisplayModes: null,
+
     _init: function(atlasManagers) {
       this._atlasManagers = atlasManagers;
       this._atlasManagers.entity = this;
+      this._origDisplayModes = {};
       this._entities = {};
       this._handles = {};
     },
@@ -142,6 +149,40 @@ define([
             }, this);
             Log.timeEnd('entity/remove/bulk');
           }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'entity/display-mode',
+          callback: function(args) {
+            // Set all features to 'footprint' display mode.
+            Log.time('entity/display-mode');
+            this._getFeaturesByIds(args.ids).forEach(function (feature) {
+              var id = feature.getId();
+              // Save a reference to the previous display mode to allow resetting.
+              if (!this._origDisplayModes[id]) {
+                this._origDisplayModes[id] = feature.getDisplayMode();
+              }
+              feature.setDisplayMode(args.displayMode);
+            }, this);
+            Log.timeEnd('entity/display-mode');
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'entity/display-mode/reset',
+          callback: function(args) {
+            // Resets all features to their original display mode (at the time of using entity/mode
+            Log.time('entity/display-mode/reset');
+            this._getFeaturesByIds(args.ids).forEach(function (feature) {
+              var id = feature.getId(),
+                  origDisplayMode = this._origDisplayModes[id];
+              if (origDisplayMode) {
+                feature.setDisplayMode(origDisplayMode);
+                delete this._origDisplayModes[id];
+              }
+            }, this);
+            Log.timeEnd('entity/display-mode/reset');
+          }.bind(this)
         }
         // TODO(bpstudds): Is this stupid?
 //        {
@@ -213,7 +254,7 @@ define([
         // Add the EntityManager to the args for the feature.
         args.entityManager = this;
         Log.debug('Creating entity', id);
-        return (this._entities[id] = new this._entityTypes.Feature(id, args));
+        return this._entities[id] = new this._entityTypes.Feature(id, args);
       }
     },
 
@@ -428,7 +469,6 @@ define([
     },
 
     /**
-     * Returns the GeoEntity instances corresponding to the given IDs.
      * @param {Array.<String>} ids - The ID of the GeoEntity to return.
      * @returns {Array.<atlas.model.GeoEntity>} The corresponding GeoEntity instances mapped by their
      * IDs.
@@ -440,6 +480,32 @@ define([
         entity && entities.push(entity);
       }.bind(this));
       return entities;
+    },
+
+    /**
+     * @param {Array} items
+     * @param {Function} type - The constructor to filter by.
+     * @returns {Array} A new array containing only the items which are of the given type.
+     * @private
+     */
+    _filterByType: function (items, type) {
+      return items.filter(function (item) {
+        return item instanceof type;
+      });
+    },
+
+    /**
+     * @param {Array} items
+     * @returns {Array.<atlas.model.Feature>} A new array containing only the items which are of
+     * type {@link atlas.model.Feature}.
+     * @private
+     */
+    _filterFeatures: function (items) {
+      return this._filterByType(items, Feature);
+    },
+
+    _getFeaturesByIds: function (ids) {
+      return this._filterFeatures(this.getByIds(ids));
     },
 
     /**

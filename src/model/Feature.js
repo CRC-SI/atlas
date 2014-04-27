@@ -11,6 +11,12 @@ define([
 ], function(defaultValue, DeveloperError, mixin, Colour, Mesh, Polygon, Style, GeoEntity) {
 
   /**
+   * @typedef atlas.model.Feature
+   * @ignore
+   */
+  var Feature;
+
+  /**
    * @classdesc A Feature represents an entity that can be visualised either
    * as a 2D line, 2D footprint, an 3D extrusion of said footprint, or a 3D mesh.
    *
@@ -23,7 +29,7 @@ define([
    * @param {Number} [args.height=0] - The extruded height when displaying as a extruded polygon.
    * @param {Number} [args.elevation=0] - The elevation (from the terrain surface) to the base of the Mesh or Polygon.
    * @param {Boolean} [args.show=false] - Whether the feature should be initially shown when created.
-   * @param {String} [args.displayMode='footprint'] - Initial display mode of feature, one of 'footprint', 'extrusion' or 'mesh'.
+   * @param {String} [args.displayMode=Feature.DisplayMode.FOOTPRINT] - Initial display mode of feature, one of Feature.DisplayMode.FOOTPRINT, Feature.DisplayMode.EXTRUSION or Feature.DisplayMode.MESH.
    *
    * @see {@link atlas.model.Polygon}
    * @see {@link atlas.model.Mesh}
@@ -31,7 +37,7 @@ define([
    * @class atlas.model.Feature
    * @extends atlas.model.GeoEntity
    */
-  var Feature = mixin(GeoEntity.extend(/** @lends atlas.model.Feature# */ {
+  Feature = mixin(GeoEntity.extend(/** @lends atlas.model.Feature# */ {
 
     /**
      * The 2D line of this Feature.
@@ -76,10 +82,10 @@ define([
     _elevation: null,
 
     /**
-     * The display mode of the Feature. One of 'line', 'footprint', 'extrusion' or 'mesh'.
+     * The display mode of the Feature.
      * Mesh trumps Footprint, which trumps Line if they are both defined in terms of which is
      * displayed by default.
-     * @type {String}
+     * @type {atlas.model.Feature.DisplayMode}
      * @protected
      */
     _displayMode: null,
@@ -87,17 +93,19 @@ define([
     _init: function(id, args) {
       this._super(id, args);
       this._visible = defaultValue(args.show, false);
+      var displayMode;
       if (args.mesh) {
-        this._displayMode = defaultValue(args.displayMode, 'mesh');
+        displayMode = defaultValue(args.displayMode, Feature.DisplayMode.MESH);
       } else if (args.ellipse) {
-        this._displayMode = defaultValue(args.displayMode, 'extrusion');
+        displayMode = defaultValue(args.displayMode, Feature.DisplayMode.EXTRUSION);
       } else if (args.polygon) {
-        this._displayMode = defaultValue(args.displayMode, 'extrusion');
+        displayMode = defaultValue(args.displayMode, Feature.DisplayMode.EXTRUSION);
       } else if (args.line) {
-        this._displayMode = defaultValue(args.displayMode, 'line');
+        displayMode = defaultValue(args.displayMode, Feature.DisplayMode.LINE);
       } else if (args.image) {
-        this._displayMode = defaultValue(args.displayMode, 'image');
+        displayMode = defaultValue(args.displayMode, Feature.DisplayMode.IMAGE);
       }
+      this.setDisplayMode(displayMode);
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
     },
@@ -108,11 +116,12 @@ define([
 
     getArea: function() {
       var area = undefined;
-      if (this._displayMode === 'footprint' || this._displayMode === 'extrusion') {
+      if (this._displayMode === Feature.DisplayMode.FOOTPRINT || this._displayMode ===
+          Feature.DisplayMode.EXTRUSION) {
         area = this._footprint.getArea();
-      } else if (this._displayMode === 'mesh') {
+      } else if (this._displayMode === Feature.DisplayMode.MESH) {
         area = this._mesh.getArea();
-      } else if (this._displayMode === 'image') {
+      } else if (this._displayMode === Feature.DisplayMode.IMAGE) {
         area = this._image.getArea();
       }
       return area;
@@ -130,11 +139,12 @@ define([
 
     getForm: function() {
       var form = undefined;
-      if (this._displayMode === 'footprint' || this._displayMode === 'extrusion') {
+      if (this._displayMode === Feature.DisplayMode.FOOTPRINT ||
+          this._displayMode === Feature.DisplayMode.EXTRUSION) {
         form = this._footprint;
-      } else if (this._displayMode === 'mesh') {
+      } else if (this._displayMode === Feature.DisplayMode.MESH) {
         form = this._mesh;
-      } else if (this._displayMode === 'image') {
+      } else if (this._displayMode === Feature.DisplayMode.IMAGE) {
         form = this._image;
       }
       return form;
@@ -248,8 +258,7 @@ define([
      * @see {@link atlas.model.Polygon}
      */
     showAsFootprint: function() {
-      this._displayMode = 'footprint';
-      this.isVisible() && this.show();
+      this.setDisplayMode(Feature.DisplayMode.FOOTPRINT);
     },
 
     /**
@@ -257,8 +266,7 @@ define([
      * @see {@link atlas.model.Polygon}
      */
     showAsExtrusion: function() {
-      this._displayMode = 'extrusion';
-      this.isVisible() && this.show();
+      this.setDisplayMode(Feature.DisplayMode.EXTRUSION);
     },
 
     /**
@@ -266,21 +274,19 @@ define([
      * @see {@link atlas.model.Mesh}
      */
     showAsMesh: function() {
-      this._displayMode = 'mesh';
-      this.isVisible() && this.show();
-    },
-
-    isVisible: function() {
-      return this._delegateToForm('isVisible');
+      this.setDisplayMode(Feature.DisplayMode.MESH);
     },
 
     /**
      * Renders the Feature using its mesh.
-     * @see {@link atlas.model.Mesh}
+     * @see {@link atlas.model.Image}
      */
     showAsImage: function() {
-      this._displayMode = 'image';
-      this.show();
+      this.setDisplayMode(Feature.DisplayMode.IMAGE);
+    },
+
+    isVisible: function() {
+      return this._delegateToForm('isVisible');
     },
 
     /**
@@ -354,14 +360,14 @@ define([
      */
     show: function() {
       // TODO(aramk) delegate this to the setHeight setElevation.
-      if (this._displayMode === 'line') {
+      if (this._displayMode === Feature.DisplayMode.LINE) {
         this._mesh && this._mesh.hide();
         this._footprint && this._footprint.hide();
         this._image && this._image.hide();
         if (this._line) {
           this._visible = this._line.show();
         }
-      } else if (this._displayMode === 'footprint') {
+      } else if (this._displayMode === Feature.DisplayMode.FOOTPRINT) {
         this._mesh && this._mesh.hide();
         this._line && this._line.hide();
         this._image && this._image.hide();
@@ -369,7 +375,7 @@ define([
           this._footprint.disableExtrusion();
           this._visible = this._footprint.show();
         }
-      } else if (this._displayMode === 'extrusion') {
+      } else if (this._displayMode === Feature.DisplayMode.EXTRUSION) {
         this._mesh && this._mesh.hide();
         this._line && this._line.hide();
         this._image && this._image.hide();
@@ -377,14 +383,14 @@ define([
           this._footprint.enableExtrusion();
           this._visible = this._footprint.show();
         }
-      } else if (this._displayMode === 'mesh') {
+      } else if (this._displayMode === Feature.DisplayMode.MESH) {
         this._footprint && this._footprint.hide();
         this._line && this._line.hide();
         this._image && this._image.hide();
         if (this._mesh) {
           this._visible = this._mesh.show();
         }
-      } else if (this._displayMode === 'image') {
+      } else if (this._displayMode === Feature.DisplayMode.IMAGE) {
         this._footprint && this._footprint.hide();
         this._line && this._line.hide();
         this._image && this._image.hide();
@@ -401,12 +407,40 @@ define([
     hide: function() {
       this._visible = false;
       return this._delegateToForm('hide') || this._visible;
+    },
+
+    /**
+     * @param {atlas.model.Feature.DisplayMode} displayMode
+     */
+    setDisplayMode: function(displayMode) {
+      this._displayMode = displayMode;
+      this.isVisible() && this.show();
+    },
+
+    /**
+     * @returns {atlas.model.Feature.DisplayMode}
+     */
+    getDisplayMode: function() {
+      return this._displayMode;
     }
+
   }), {
 
     // -------------------------------------------
     // STATICS
     // -------------------------------------------
+
+    /**
+     * The display mode of the Feature which determines the underlying geometry shown.
+     * @typedef {Object} atlas.camera.PathType
+     */
+    DisplayMode: {
+      LINE: 'line',
+      FOOTPRINT: 'footprint',
+      EXTRUSION: 'extrusion',
+      MESH: 'mesh',
+      IMAGE: 'image'
+    }
 
   });
   return Feature;
