@@ -6,13 +6,14 @@ define([
   'atlas/model/Mesh',
   'atlas/model/Polygon',
   'atlas/model/Line',
+  'atlas/model/Image',
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/mixin',
   // Base class.
   'atlas/util/Class'
-], function(Log, Ellipse, Feature, GeoEntity, Mesh, Polygon, Line, Vertex, DeveloperError, mixin,
-            Class) {
+], function (Log, Ellipse, Feature, GeoEntity, Mesh, Polygon, Line, Image, Vertex, DeveloperError,
+             mixin, Class) {
 
   //noinspection JSUnusedGlobalSymbols
   var EntityManager = Class.extend({
@@ -42,7 +43,8 @@ define([
       'Polygon': Polygon,
       'Line': Line,
       'Ellipse': Ellipse,
-      'Mesh': Mesh
+      'Mesh': Mesh,
+      'Image': Image
     },
 
     _init: function(atlasManagers) {
@@ -249,11 +251,28 @@ define([
           parsers = {
             line: this._parseC3MLline,
             mesh: this._parseC3MLmesh,
-            polygon: this._parseC3MLpolygon
+            polygon: this._parseC3MLpolygon,
+            image: this._parseC3MLimage
           };
       // Generate the Geometry for the C3ML type if it is supported.
       parsers[c3ml.type] && (geometry = parsers[c3ml.type](c3ml, this));
       return mixin(c3ml, geometry);
+    },
+
+    /**
+     * Parses a C3ML image object to an format supported by Atlas.
+     * @param {Object} c3ml - The C3ML object to be parsed
+     * @returns {Object} The parsed C3ML.
+     * @private
+     */
+    _parseC3MLimage: function (c3ml, _this) {
+      return {
+        image: {
+          vertices: _this._parseCoordinates(c3ml.coordinates),
+          image: c3ml.image
+        },
+        show: true
+      };
     },
 
     /**
