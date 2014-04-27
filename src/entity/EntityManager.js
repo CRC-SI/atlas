@@ -11,9 +11,10 @@ define([
   'atlas/util/DeveloperError',
   'atlas/util/mixin',
   // Base class.
-  'atlas/util/Class'
+  'atlas/util/Class',
+  'utility/Objects'
 ], function (Log, Ellipse, Feature, GeoEntity, Mesh, Polygon, Line, Image, Vertex, DeveloperError,
-             mixin, Class) {
+             mixin, Class, Objects) {
 
   //noinspection JSUnusedGlobalSymbols
   var EntityManager = Class.extend({
@@ -156,7 +157,8 @@ define([
           callback: function(args) {
             // Set all features to 'footprint' display mode.
             Log.time('entity/display-mode');
-            this._getFeaturesByIds(args.ids).forEach(function (feature) {
+            var features = args.ids ? this._getFeaturesByIds(args.ids) : this._getFeatures();
+            features.forEach(function (feature) {
               var id = feature.getId();
               // Save a reference to the previous display mode to allow resetting.
               if (!this._origDisplayModes[id]) {
@@ -172,8 +174,10 @@ define([
           name: 'entity/display-mode/reset',
           callback: function(args) {
             // Resets all features to their original display mode (at the time of using entity/mode
+            args = args || {};
             Log.time('entity/display-mode/reset');
-            this._getFeaturesByIds(args.ids).forEach(function (feature) {
+            var features = args.ids ? this._getFeaturesByIds(args.ids) : this._getFeatures();
+            features.forEach(function (feature) {
               var id = feature.getId(),
                   origDisplayMode = this._origDisplayModes[id];
               if (origDisplayMode) {
@@ -483,6 +487,13 @@ define([
     },
 
     /**
+     * @returns {Array.<atlas.model.GeoEntity>}
+     */
+    getEntities: function () {
+      return Objects.values(this._entities);
+    },
+
+    /**
      * @param {Array} items
      * @param {Function} type - The constructor to filter by.
      * @returns {Array} A new array containing only the items which are of the given type.
@@ -506,6 +517,10 @@ define([
 
     _getFeaturesByIds: function (ids) {
       return this._filterFeatures(this.getByIds(ids));
+    },
+
+    _getFeatures: function () {
+      return this._filterFeatures(this.getEntities());
     },
 
     /**
