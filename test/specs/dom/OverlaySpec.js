@@ -4,23 +4,35 @@ define([
   'atlas/dom/Overlay'
 ], function (Colour, Overlay) {
 
+  var parent,
+      dimensions = {
+        top: 100,
+        left: 200,
+        height: 300,
+        width: 400
+      },
+      content = '<p>Wootage!</p>',
+      args,
+      overlay,
+      element;
+
+  var getOverlayDom = function () {
+    var overlay = parent.getElementsByClassName('overlay')[0],
+        title = overlay.getElementsByClassName('overlay-title')[0],
+        content = overlay.getElementsByClassName('overlay-body')[0];
+    return {
+      overlay: overlay,
+      title: title,
+      content: content
+    }
+  };
+
   describe('An Overlay', function () {
-    var parent,
-        dimensions = {
-          top: 100,
-          left: 200,
-          height: 300,
-          width: 400
-        },
-        content = '<p>Wootage!</p>',
-        args,
-        overlay,
-        element;
+
 
     beforeEach(function () {
       parent = document.createElement('div');
       args = {parent: parent, dimensions: dimensions, content: content};
-      overlay = new Overlay(args);
     });
 
     afterEach(function () {
@@ -29,45 +41,90 @@ define([
       element = null;
     });
 
-    it('can be constructed', function () {
-      expect(overlay._parent).toBe(parent);
-      expect(overlay._dimensions).toBe(dimensions);
-      expect(overlay._content).toBe(content);
+    describe('Non-default', function () {
+
+      it('can have a title', function () {
+        args.title = 'title';
+        overlay = new Overlay(args);
+
+        var actual = getOverlayDom();
+        expect(actual.title.innerHTML).toEqual('title');
+      });
+
+      it('should have an enable checkbox if an onEnabledChange callback is given', function () {
+        args.onEnabledChange = function () {};
+        overlay = new Overlay(args);
+
+        var actual = getOverlayDom(),
+            enableCb = actual.title.getElementsByClassName('enable-overlay')[0];
+        expect(enableCb).not.toBeNull();
+        expect(enableCb.type).toEqual('checkbox');
+      });
+
+      it('should not have an enable checkbox if onEnabledChange is not a valid function', function () {
+        // onEnabledChange is undefined
+        overlay = new Overlay(args);
+        var actual = getOverlayDom(),
+          enableCb = actual.title.getElementsByClassName('enable-overlay')[0];
+        expect(enableCb).toBeNull();
+
+        // onEnabledChange is not a function
+        args.onEnabledChange = {};
+        var actual = getOverlayDom(),
+          enableCb = actual.title.getElementsByClassName('enable-overlay')[0];
+        expect(enableCb).toBeNull();
+
+      });
     });
 
-    it('can create an element containing plain text from content', function () {
-      expect(overlay._element.innerHTML).toEqual(content);
-      expect(overlay._element.classList.contains('hidden')).toBe(false);
-    });
+    describe('Defaults', function () {
 
-    it('is attached to the parent node', function () {
-      expect(parent.children.length).toBe(1);
-      expect(parent.children[0].innerHTML).toEqual(content);
-    });
+      beforeEach(function () {
+        overlay = new Overlay(args);
+      });
 
-    it('is dimensionsed', function () {
-      expect(parent.children[0].style.top).toEqual('100px');
-      expect(parent.children[0].style.left).toEqual('200px');
-      expect(parent.children[0].style.height).toEqual('300px');
-      expect(parent.children[0].style.width).toEqual('400px');
-    });
+      it('can be constructed', function () {
+        expect(overlay._parent).toBe(parent);
+        expect(overlay._dimensions).toBe(dimensions);
+        expect(overlay._content).toBe(content);
+      });
 
-    it('can be hidden', function () {
-      overlay.hide();
-      expect(parent.children[0].classList.contains('hidden')).toBe(true);
-    });
+      it('can create an element containing plain text from content', function () {
+        var actual = getOverlayDom();
+        expect(actual.overlay.classList.contains('hidden')).toBe(false);
+        expect(actual.content.innerHTML).toEqual(content);
+      });
 
-    it('can be unhidden', function () {
-      overlay.hide();
-      overlay.show();
-      expect(parent.children[0].classList.contains('hidden')).toBe(false);
-    });
+      it('is attached to the parent node', function () {
+         // Check that the overlay was added correctly to the parent
+        var actualOverlay = parent.getElementsByClassName('overlay')[0];
+        expect(actualOverlay).not.toBeNull();
+      });
 
-    it('can be removed', function() {
-      console.debug(parent.children);
-      overlay.remove();
-      console.debug(parent.children);
-      expect(parent.children.length).toBe(0);
+      it('is dimensionsed', function () {
+        expect(parent.children[0].style.top).toEqual('100px');
+        expect(parent.children[0].style.left).toEqual('200px');
+        expect(parent.children[0].style.height).toEqual('300px');
+        expect(parent.children[0].style.width).toEqual('400px');
+      });
+
+      it('can be hidden', function () {
+        overlay.hide();
+        expect(parent.children[0].classList.contains('hidden')).toBe(true);
+      });
+
+      it('can be unhidden', function () {
+        overlay.hide();
+        overlay.show();
+        expect(parent.children[0].classList.contains('hidden')).toBe(false);
+      });
+
+      it('can be removed', function() {
+        console.debug(parent.children);
+        overlay.remove();
+        console.debug(parent.children);
+        expect(parent.children.length).toBe(0);
+      });
     });
 
     describe ('can generate HTML', function () {
