@@ -18,7 +18,7 @@ define([
    * to <code>getId</code>.
    * @class atlas.core.ItemStore
    */
-  ItemStore = Class.extend( /** @lends atlas.core.FooStore# */ {
+  ItemStore = Class.extend( /** @lends atlas.core.ItemStore# */ {
 
     /**
      * The getter function for the ID of the stored objects.

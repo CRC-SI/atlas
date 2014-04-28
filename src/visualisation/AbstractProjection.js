@@ -7,18 +7,25 @@ define([
 ], function(Style, Colour, Class, DeveloperError, mixin) {
 
   /**
+   * @typedef atlas.visualisation.AbstractProjection
+   * @ignore
+   */
+  var AbstractProjection;
+
+  /**
    * Constructs a new AbstractProjection object.
    * @classDesc Describes the interface and generic methods for a Projection. A Projection
    * is used project the value of an Entity's parameter onto some renderable artifact.
-   * @abstract
    * @class atlas.visualisation.AbstractProjection
    * @param {Object} args - Arguments to construct the AbstractProjection
-   * @param {String} args.type - The type of projection, currently only 'continuous' supported.
+   * @param {String} args.type - The type of projection, either 'discrete' or 'continuous'.
+   * @param {String} args.title - The title of the Projection, used to generate the legend.
+   * @param {String} args.caption - The caption of the projection, used to generate the legend.
    * @param {Object.<String, atlas.model.GeoEntity>} args.entities - A map of GeoEntity ID to GeoEntity instances that are affected by the projection.
    * @param {Object.<String, Number>} args.values - A map of GeoEntity ID to parameter value to be projected.
    * @param {Object} [args.configuration] - Optional configuration of the projection.
    */
-  return Class.extend(/** @lends atlas.visualisation.AbstractProjection# */ {
+  AbstractProjection = Class.extend(/** @lends atlas.visualisation.AbstractProjection# */ {
 
     /**
      * The type of artifact being projected onto.
@@ -35,11 +42,18 @@ define([
     SUPPORTED_PROJECTIONS: {'continuous': true, 'discrete': true},
 
     /**
-     * The title of the Projection. Has no effect on behaviour.
+     * The title of the Projection. This is displayed on the Projection's legend.
      * @type {String}
      * @protected
      */
     _title: null,
+
+    /**
+     * The caption of the Projection. This is displayed on the Projection's legend.
+     * @type {String}
+     * @protected
+     */
+    _caption: null,
 
     /**
      * The type of the projection, currently only 'continuous' is supported.
@@ -134,6 +148,7 @@ define([
     _init: function(args) {
       args = mixin({
         title: '',
+        caption: '',
         type: 'continuous',
         values: {},
         bins: 1,
@@ -147,6 +162,7 @@ define([
             args.type);
       }
       this._title = args.title;
+      this._caption = args.caption;
       this._type = args.type;
       this._entities = args.entities;
       this._initEffects();
@@ -155,24 +171,22 @@ define([
         bins: args.bins,
         codomain: args.codomain
       };
-      // Calculate statistical properties for the binned values.
-//      if (Object.keys(this._values).length === 0) {
-//        this._stats = {};
-//        this._attributes = {};
-//      } else {
 
-      // TODO(aramk) Commented out above since data structures created here are expected, and won't
-      // be if we're projecting a single entity which doesn't have attributes (and will be disabled)
-      // since values are empty.
-        this._stats = this._calculateBinnedStatistics();
-        // TODO(bpstudds): Do we need to calculate this for a discrete projection?
-        this._attributes = this._calculateValueAttributes();
-//      }
+      this._stats = this._calculateBinnedStatistics();
+      // TODO(bpstudds): Do we need to calculate this for a discrete projection?
+      this._attributes = this._calculateValueAttributes();
     },
 
     // -------------------------------------------
     // GETTERS AND SETTERS
     // -------------------------------------------
+
+    /**
+     * @returns {String} The caption of the Projection.
+     */
+    getCaption: function () {
+      return this._caption;
+    },
 
     /**
      * @returns {Object} The configuration of the Projection.
@@ -189,11 +203,11 @@ define([
     },
 
     /**
-     * @returns {Array.<Array.<Object>>} A 2D array of data representing the legend
-     * which can be converted by {@link atlas.dom.Overlay} to a table.
+     * @returns {{title: String, caption: String}}
+     * An object literal with properties for the title and caption of the Projection.
      */
-    getLegend: function() {
-      return [];
+    getLegend: function () {
+      return {title: this.getTitle(), caption: this.getCaption()};
     },
 
     /**
@@ -316,23 +330,22 @@ define([
 
     /**
      * Disables the given entity by distinguishing it from projected entities.
-     * @param {atlas.model.GeoEntity} entity
+     * @param {atlas.model.GeoEntity} id
      * @private
      */
     _disableEntity: function(id) {
       this._setEffect(id, 'disabled', true);
-      var entity = this._entities[id];
-      var disabledStyle = new Style({fillColour: Colour.GREY, borderColour: Colour.GREY,
-        borderWidth: 1});
-//      var disabledStyle = Style.DEFAULT();
-      var prevStyle = entity.setStyle(disabledStyle);
+      var entity = this._entities[id],
+          disabledStyle = new Style({fillColour: Colour.GREY, borderColour: Colour.GREY,
+                                     borderWidth: 1}),
+          prevStyle = entity.setStyle(disabledStyle);
       entity.show();
       this._setEffect(id, 'prevStyle', prevStyle);
     },
 
     /**
      * Enables the given entity by reversing the effects caused by {@link #_disableEntity}.
-     * @param {atlas.model.GeoEntity} entity
+     * @param {atlas.model.GeoEntity} id
      * @private
      */
     _enableEntity: function(id) {
@@ -683,4 +696,6 @@ define([
       return ids;
     }
   });
+
+  return AbstractProjection;
 });

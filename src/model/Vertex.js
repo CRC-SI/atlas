@@ -4,7 +4,7 @@ define([
   'atlas/util/mixin',
   'atlas/util/DeveloperError'
 ], function(Type, Class, mixin, DeveloperError) {
-
+  
   /**
    * @typedef atlas.model.Vertex
    * @ignore
