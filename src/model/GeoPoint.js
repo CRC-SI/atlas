@@ -3,7 +3,7 @@ define([
   'atlas/util/AtlasMath',
   'atlas/util/Class',
   'atlas/util/mixin',
-  'utility/Type'
+  'atlas/lib/utility/Type'
 ], function(Vertex, AtlasMath, Class, mixin, Type) {
 
   /**
