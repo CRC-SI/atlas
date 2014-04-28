@@ -1,5 +1,6 @@
 define([
   'atlas/lib/utility/Log',
+  'atlas/lib/utility/Objects',
   'atlas/model/Ellipse',
   'atlas/model/Feature',
   'atlas/model/GeoEntity',
@@ -11,10 +12,9 @@ define([
   'atlas/util/DeveloperError',
   'atlas/util/mixin',
   // Base class.
-  'atlas/util/Class',
-  'utility/Objects'
-], function (Log, Ellipse, Feature, GeoEntity, Mesh, Polygon, Line, Image, Vertex, DeveloperError,
-             mixin, Class, Objects) {
+  'atlas/util/Class'
+], function (Log, Objects, Ellipse, Feature, GeoEntity, Mesh, Polygon, Line, Image, Vertex,
+             DeveloperError, mixin, Class) {
 
   //noinspection JSUnusedGlobalSymbols
   var EntityManager = Class.extend({

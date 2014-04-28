@@ -1,10 +1,10 @@
 define([
+  'atlas/lib/utility/Type',
   'atlas/model/Vertex',
   'atlas/util/AtlasMath',
   'atlas/util/Class',
-  'atlas/util/mixin',
-  'utility/Type'
-], function(Vertex, AtlasMath, Class, mixin, Type) {
+  'atlas/util/mixin'
+], function(Type, Vertex, AtlasMath, Class, mixin) {
 
   /**
    * @typedef atlas.model.GeoPoint

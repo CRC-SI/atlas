@@ -1,9 +1,9 @@
 define([
+  'atlas/lib/utility/Type',
   'atlas/util/Class',
   'atlas/util/mixin',
-  'atlas/util/DeveloperError',
-  'utility/Type'
-], function(Class, mixin, DeveloperError, Type) {
+  'atlas/util/DeveloperError'
+], function(Type, Class, mixin, DeveloperError) {
 
   /**
    * @typedef atlas.model.Vertex
