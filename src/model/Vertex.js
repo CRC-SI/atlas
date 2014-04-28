@@ -2,7 +2,7 @@ define([
   'atlas/util/Class',
   'atlas/util/mixin',
   'atlas/util/DeveloperError',
-  'utility/Type'
+  'atlas/lib/utility/Type'
 ], function(Class, mixin, DeveloperError, Type) {
 
   /**

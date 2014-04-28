@@ -2,6 +2,7 @@
   position: relative;
 }
 
+/* Formatting for Dom overlays. */
 .atlas .overlay {
   position: absolute;
   background-color: rgba(255, 255, 255, 0.8);
@@ -15,9 +16,32 @@
   display: none;
 }
 
+.atlas .overlay .remove {
+  /* this is a bit of a hack */
+  position: absolute;
+  top: 5px;
+  right: 0;
+  display: none;
+}
+
+.atlas .overlay .title:hover > button {
+  display: block;
+}
+
+/* Formatting for Projection legend titles. */
+.atlas .overlay.legend .title {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.atlas .overlay.legend .caption {
+}
+
+/* The 'table' selector is inefficient :( */
 .atlas .overlay.legend table {
   margin: 5px;
   line-height: 150%;
   border-collapse: collapse;
   text-align: right;
+  font-size: 0.9em;
 }
