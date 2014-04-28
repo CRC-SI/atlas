@@ -1,12 +1,12 @@
 define([
-  'atlas/util/DeveloperError',
-  'atlas/util/mixin',
   'atlas/events/Event',
+  // Base class
+  'atlas/events/EventTarget',
   'atlas/model/Colour',
   'atlas/model/Style',
-  // Base class
-  'atlas/events/EventTarget'
-], function (DeveloperError, mixin, Event, Colour, Style, EventTarget) {
+  'atlas/util/DeveloperError',
+  'atlas/util/mixin'
+], function(Event, EventTarget, Colour, Style, DeveloperError, mixin) {
 
   /**
    * @typedef atlas.model.GeoEntity
@@ -38,7 +38,7 @@ define([
    * @extends atlas.events.EventTarget
    * @class atlas.model.GeoEntity
    */
-   GeoEntity = EventTarget.extend(/** @lends atlas.model.GeoEntity# */ {
+  GeoEntity = EventTarget.extend(/** @lends atlas.model.GeoEntity# */ {
     /**
      * The ID of the GeoEntity
      * @type {String}
@@ -82,14 +82,14 @@ define([
     _entityManager: null,
 
     /**
-     * The geometric centroid of the GeoEntity.
-     * @type {atlas.model.Vertex}
+     * The centroid of the entity.
+     * @type {atlas.model.GeoPoint}
      * @protected
      */
     _centroid: null,
 
     /**
-     * The area of the GeoEntity.
+     * The area of the GeoEntity in metres squared.
      * @type {Number}
      * @protected
      */
@@ -139,12 +139,19 @@ define([
     _style: null,
 
     /**
+     * The style of the GeoEntity when before a change in style (e.g. during selection).
+     * @type {atlas.model.Style}
+     * @protected
+     */
+    _previousStyle: null,
+
+    /**
      * Whether the GeoEntity is selected.
      * @type {Boolean}
      */
     _selected: false,
 
-    _init: function (id, args) {
+    _init: function(id, args) {
       if (typeof id === 'object') {
         args = id;
         id = args.id;
@@ -158,16 +165,12 @@ define([
       if (!id || typeof id === 'object') {
         throw new DeveloperError('Can not create instance of GeoEntity without an ID');
       }
-      if (!args.style) {
-        this._style = GeoEntity.DEFAULT_STYLE;
-      } else {
-        this._style = args.style;
-      }
       this._id = id.toString();
       this._childrenIds = args.childrenIds || [];
       this._renderManager = args.renderManager;
       this._eventManager = args.eventManager;
       this._entityManager = args.entityManager;
+      this.setStyle(args.style || GeoEntity.getDefaultStyle());
     },
 
     // -------------------------------------------
@@ -182,16 +185,26 @@ define([
     },
 
     /**
-     * @returns {atlas.model.Vertex} The centroid of the GeoEntity.
+     * @returns {atlas.model.GeoPoint} The centroid of the GeoEntity.
      * @abstract
      */
     getCentroid: function() {
       throw new DeveloperError('Can not call abstract method "getCentroid" of GeoEntity');
     },
 
+    /**
+     * @returns {Array.<atlas.model.Vertex>}
+     * @abstract
+     */
+    getVertices: function() {
+      throw new DeveloperError('Can not call abstract method "getVertices" of GeoEntity');
+    },
+
     getChildren: function() {
       // TODO(bpstudds): Adding children and removing children needs support.
-      if (this._children !== null) { return this._children; }
+      if (this._children !== null) {
+        return this._children;
+      }
       this._children = this._entityManager.getByIds(this._childrenIds);
       return this._children;
     },
@@ -207,8 +220,8 @@ define([
     /**
      * @returns {[atlas.model.Handle]} An array of Handles used to edit the GeoEntity.
      */
-    getEditingHandles: function () {
-      return [];
+    createHandles: function () {
+      throw new DeveloperError('Can not call abstract method "getArea" of GeoEntity');
     },
 
     /**
@@ -238,13 +251,14 @@ define([
     },
 
     /**
-     *
      * @param {String} [component] A specific component to check.
      * @returns {Boolean} Whether the given <code>component</code> is dirty, or if
      * <code>component</code> is not given, the GeoEntity as a whole.
      */
     isDirty: function(component) {
-      if (component === undefined) { return Object.keys(this._dirty).length > 0; }
+      if (component === undefined) {
+        return Object.keys(this._dirty).length > 0;
+      }
       return component in this._dirty;
     },
 
@@ -262,7 +276,9 @@ define([
      * @returns {atlas.model.Style} The old style, or null if it was not changed.
      */
     setStyle: function(style) {
-      if (this._style === style) { return null; }
+      if (this._style === style) {
+        return null;
+      }
       this.setDirty('style');
 
       // Only change style if the new style is different so _previousStyle isn't clobbered.
@@ -274,14 +290,14 @@ define([
     /**
      * @returns {atlas.model.Style} The style of the GeoEntity.
      */
-    getStyle: function () {
+    getStyle: function() {
       return this._style;
     },
 
     /**
      * @returns {Boolean} Whether the GeoEntity is currently renderable.
      */
-    isRenderable: function () {
+    isRenderable: function() {
       return Object.keys(this._dirty).length === 0;
     },
 
@@ -292,7 +308,7 @@ define([
      * @returns {Object} The geometry data.
      */
     getGeometry: function() {
-        return this._geometry;
+      return this._geometry;
     },
 
     /**
@@ -302,7 +318,7 @@ define([
      * @returns {Object} The appearance data.
      */
     getAppearance: function() {
-        return this._appearance;
+      return this._appearance;
     },
 
     // -------------------------------------------
@@ -317,8 +333,10 @@ define([
      * @param {Number} [newStyle.borderWidth] - The new border width colour.
      * @returns {Object} A mapping of parameters that have been changed to their old value.
      */
-    modifyStyle: function (newStyle) {
-      if (Object.keys(newStyle).length <= 0) { return {}; }
+    modifyStyle: function(newStyle) {
+      if (Object.keys(newStyle).length <= 0) {
+        return {};
+      }
 
       this.setDirty('style');
       var oldStyle = {};
@@ -377,7 +395,7 @@ define([
      *
      * @abstract
      */
-    rotate: function (rotation) {
+    rotate: function(rotation) {
       throw new DeveloperError('Can not call abstract method "rotate" of GeoEntity');
     },
 
@@ -394,13 +412,15 @@ define([
      * be overridden on subclasses to accomplish any cleanup that
      * may be required.
      */
-    remove: function () {
-      if (!this._eventManager) { return; }
-
-      this._eventManager.dispatchEvent(new Event(new EventTarget(),
-        'entity/remove', {
-          id: this.getId()
-        }));
+    remove: function() {
+      // TODO(aramk) We should try to keep consistent with these - either all entities have
+      // references to managers or none do - otherwise we could have discrepancies in the entity
+      // manger like a removed entity still being referenced.
+      this._entityManager && this._entityManager.remove(this._id);
+      this._eventManager && this._eventManager.dispatchEvent(new Event(new EventTarget(),
+          'entity/remove', {
+            id: this.getId()
+          }));
     },
 
     /**
@@ -408,7 +428,7 @@ define([
      * @returns {Boolean} Whether the GeoEntity is shown.
      * @abstract
      */
-    show: function () {
+    show: function() {
       throw new DeveloperError('Can not call abstract method "show" of GeoEntity');
     },
 
@@ -417,14 +437,14 @@ define([
      * @returns {Boolean} Whether the GeoEntity is hidden.
      * @abstract
      */
-    hide: function () {
+    hide: function() {
       throw new DeveloperError('Can not call abstract method "hide" of GeoEntity');
     },
 
     /**
      * Toggles the visibility of the GeoEntity.
      */
-    toggleVisibility: function () {
+    toggleVisibility: function() {
       if (this.isVisible()) {
         this.hide();
       } else {
@@ -438,59 +458,60 @@ define([
 
     /**
      * Handles the GeoEntities behaviour when it is selected.
-     * @abstract
      */
-    onSelect: function () {},
+    onSelect: function() {
+      this._selected = true;
+//      this.onEnableEditing();
+    },
 
     /**
      * Handles the GeoEntities behaviour when it is deselected.
-     * @abstract
      */
-    onDeselect: function () {},
+    onDeselect: function() {
+      this._selected = false;
+//      this.onDisableEditing();
+    },
 
     /**
      * Enables 'editing' of the GeoEntity using keyboard input.
      */
-    onEnableEditing: function () {
-      return;
+    onEnableEditing: function() {
       // TODO(bpstudds): Move this functionality to an EditManager module.
-      this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keydown',
-          function (args) {
-            // TODO(bpstudds): Replace 'magic numbers' with constants. Probably should update keycode.js library for this.
-            if (!args.modifiers.shiftKey && !args.modifiers.metaKey &&
-                !args.modifiers.altKey && !args.modifiers.ctrlKey) {
-              switch (args.key) {
-                case 95: // underscore/minus beside backspace key
-                  this.scale({x: 0.95, y: 0.95, z: 0.95});
-                  break;
-                case 61: // equals/plus beside backspace key
-                  this.scale({x: 1.05, y: 1.05, z: 1.05});
-                  break;
-                case 37: // left
-                  this.rotate({x: 0, y: 0, z:5});
-                  break;
-                case 39: // right
-                  this.rotate({x: 0, y: 0, z:-5});
-                  break;
-              }
-            }
-          }.bind(this)
-      );
-      this._editingHandles = this.getEditingHandles();
-//      this._editingHandles.forEach(function (handle) {
-//        handle.render();
-//      })
+//      this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keydown',
+//          function(args) {
+//            // TODO(bpstudds): Replace 'magic numbers' with constants. Probably should update keycode.js library for this.
+//            if (!args.modifiers.shiftKey && !args.modifiers.metaKey && !args.modifiers.altKey &&
+//                !args.modifiers.ctrlKey) {
+//              switch (args.key) {
+//                case 95: // underscore/minus beside backspace key
+//                  this.scale({x: 0.95, y: 0.95, z: 0.95});
+//                  break;
+//                case 61: // equals/plus beside backspace key
+//                  this.scale({x: 1.05, y: 1.05, z: 1.05});
+//                  break;
+//                case 37: // left
+//                  this.rotate({x: 0, y: 0, z: 5});
+//                  break;
+//                case 39: // right
+//                  this.rotate({x: 0, y: 0, z: -5});
+//                  break;
+//              }
+//            }
+//          }.bind(this)
+//      );
+//      this._editingHandles = this.getEditingHandles();
     },
 
     /**
      * Disables editing of the GeoEntity.
      */
-    onDisableEditing: function () {
-      return;
-      this._editEventHandler && this._editEventHandler.cancel();
-      this._editingHandles.forEach(function(handle) {
-        handle.remove();
-      })
+    onDisableEditing: function() {
+      // TODO(bpstudds): Move this functionality to an EditManager module.
+//      this._editEventHandler && this._editEventHandler.cancel();
+//      this._editingHandles.forEach(function(handle) {
+//        handle.remove();
+//      })
+//      this._editingHandles = [];
     }
 
   });
@@ -498,8 +519,9 @@ define([
   // -------------------------------------------------
   // Statics
   // -------------------------------------------------
-  GeoEntity.DEFAULT_STYLE = new Style(Colour.GREEN, Colour.GREEN, 5)
-
+  GeoEntity.getDefaultStyle = function () {
+    return new Style({fillColour: Colour.GREEN});
+  };
 
   return GeoEntity;
 });

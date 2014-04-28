@@ -1,11 +1,11 @@
 define([
+  'atlas/camera/Camera',
+  'atlas/model/GeoPoint',
+  'atlas/lib/utility/Log',
   'atlas/util/Class',
   'atlas/util/DeveloperError',
-  'atlas/util/default',
-  'atlas/util/mixin',
-  'atlas/camera/Camera',
-  'atlas/lib/utility/Log'
-], function (Class, DeveloperError, defaultValue, mixin, Camera, Log) {
+  'atlas/util/mixin'
+], function (Camera, GeoPoint, Log, Class, DeveloperError, mixin) {
 
   /**
    * Constructs a new CameraManager object.
@@ -61,7 +61,15 @@ define([
             if (this._camera === null) {
               this._camera = new Camera();
             }
-            this._camera.zoomTo(args.position, args.orientation, args.duration);
+            args.position = new GeoPoint(args.position);
+            this._camera.zoomTo(args);
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'camera/current',
+          callback: function (args) {
+            args.callback(this._camera);
           }.bind(this)
         }
       ];
@@ -104,6 +112,7 @@ define([
       this._atlasManagers.event.addEventHandlers(handlers);
     },
 
+    // TODO(aramk) This might be superseded by getStats() on Camera.
     getCameraMetrics: function () {
       return {
         position: this._current._position,

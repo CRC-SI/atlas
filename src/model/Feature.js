@@ -55,6 +55,13 @@ define([
     _mesh: null,
 
     /**
+     * 2D image of this Feature.
+     * @type {atlas.model.Image}
+     * @protected
+     */
+    _image: null,
+
+    /**
      * The extrusion height of the Feature.
      * @type {Number}
      * @protected
@@ -69,13 +76,6 @@ define([
     _elevation: null,
 
     /**
-     * The Style to apply to the Feature.
-     * @type {atlas.model.Style}
-     * @protected
-     */
-    _style: null,
-
-    /**
      * The display mode of the Feature. One of 'line', 'footprint', 'extrusion' or 'mesh'.
      * Mesh trumps Footprint, which trumps Line if they are both defined in terms of which is
      * displayed by default.
@@ -84,13 +84,6 @@ define([
      */
     _displayMode: null,
 
-    /**
-     * Whether the Feature is initially visible.
-     * @type {Boolean}
-     * @protected
-     */
-    _visible: false,
-
     _init: function(id, args) {
       this._super(id, args);
       this._visible = defaultValue(args.show, false);
@@ -98,14 +91,15 @@ define([
         this._displayMode = defaultValue(args.displayMode, 'mesh');
       } else if (args.ellipse) {
         this._displayMode = defaultValue(args.displayMode, 'extrusion');
-      } else if (args.polygon){
+      } else if (args.polygon) {
         this._displayMode = defaultValue(args.displayMode, 'extrusion');
       } else if (args.line) {
         this._displayMode = defaultValue(args.displayMode, 'line');
+      } else if (args.image) {
+        this._displayMode = defaultValue(args.displayMode, 'image');
       }
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
-      this._style = args.style || Feature.getDefaultStyle();
     },
 
     // -------------------------------------------
@@ -118,6 +112,8 @@ define([
         area = this._footprint.getArea();
       } else if (this._displayMode === 'mesh') {
         area = this._mesh.getArea();
+      } else if (this._displayMode === 'image') {
+        area = this._image.getArea();
       }
       return area;
     },
@@ -127,12 +123,19 @@ define([
       return form && form.getCentroid();
     },
 
+    getVertices: function() {
+      var form = this.getForm();
+      return form && form.getVertices();
+    },
+
     getForm: function() {
       var form = undefined;
       if (this._displayMode === 'footprint' || this._displayMode === 'extrusion') {
         form = this._footprint;
       } else if (this._displayMode === 'mesh') {
         form = this._mesh;
+      } else if (this._displayMode === 'image') {
+        form = this._image;
       }
       return form;
     },
@@ -160,8 +163,8 @@ define([
       this._delegateToForm('clean', arguments);
     },
 
-    getEditingHandles: function () {
-      return this._delegateToForm('getEditingHandles', arguments);
+    createHandles: function() {
+      return this._delegateToForm('createHandles', arguments);
     },
 
     /**
@@ -213,13 +216,13 @@ define([
       this._mesh = mesh;
     },
 
-    setStyle: function (style) {
+    setStyle: function(style) {
       var oldStyle = this._style;
       this._style = style;
       return this._delegateToForm('setStyle', arguments) || oldStyle;
     },
 
-    getStyle: function () {
+    getStyle: function() {
       return this._delegateToForm('getStyle') || this._style;
     },
 
@@ -246,7 +249,7 @@ define([
      */
     showAsFootprint: function() {
       this._displayMode = 'footprint';
-      this.show();
+      this.isVisible() && this.show();
     },
 
     /**
@@ -255,7 +258,7 @@ define([
      */
     showAsExtrusion: function() {
       this._displayMode = 'extrusion';
-      this.show();
+      this.isVisible() && this.show();
     },
 
     /**
@@ -264,6 +267,19 @@ define([
      */
     showAsMesh: function() {
       this._displayMode = 'mesh';
+      this.isVisible() && this.show();
+    },
+
+    isVisible: function() {
+      return this._delegateToForm('isVisible');
+    },
+
+    /**
+     * Renders the Feature using its mesh.
+     * @see {@link atlas.model.Mesh}
+     */
+    showAsImage: function() {
+      this._displayMode = 'image';
       this.show();
     },
 
@@ -309,6 +325,10 @@ define([
         this._footprint.remove();
         this._footprint = null;
       }
+      if (this._image !== null) {
+        this._image.remove();
+        this._image = null;
+      }
     },
 
     // -------------------------------------------
@@ -337,12 +357,14 @@ define([
       if (this._displayMode === 'line') {
         this._mesh && this._mesh.hide();
         this._footprint && this._footprint.hide();
+        this._image && this._image.hide();
         if (this._line) {
           this._visible = this._line.show();
         }
       } else if (this._displayMode === 'footprint') {
         this._mesh && this._mesh.hide();
         this._line && this._line.hide();
+        this._image && this._image.hide();
         if (this._footprint) {
           this._footprint.disableExtrusion();
           this._visible = this._footprint.show();
@@ -350,6 +372,7 @@ define([
       } else if (this._displayMode === 'extrusion') {
         this._mesh && this._mesh.hide();
         this._line && this._line.hide();
+        this._image && this._image.hide();
         if (this._footprint) {
           this._footprint.enableExtrusion();
           this._visible = this._footprint.show();
@@ -357,8 +380,16 @@ define([
       } else if (this._displayMode === 'mesh') {
         this._footprint && this._footprint.hide();
         this._line && this._line.hide();
+        this._image && this._image.hide();
         if (this._mesh) {
           this._visible = this._mesh.show();
+        }
+      } else if (this._displayMode === 'image') {
+        this._footprint && this._footprint.hide();
+        this._line && this._line.hide();
+        this._image && this._image.hide();
+        if (this._image) {
+          this._visible = this._image.show();
         }
       }
       return this._visible;
@@ -371,16 +402,12 @@ define([
       this._visible = false;
       return this._delegateToForm('hide') || this._visible;
     }
-  }), // End class instance definition.
+  }), {
 
-      // -------------------------------------------
-      // STATICS
-      // -------------------------------------------
+    // -------------------------------------------
+    // STATICS
+    // -------------------------------------------
 
-      {
-        getDefaultStyle: function () { return new Style({fillColour: Colour.GREEN}); }
-      }
-  ); // End class mixin;
-
+  });
   return Feature;
 });

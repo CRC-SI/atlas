@@ -1,16 +1,22 @@
 define([
+  'atlas/lib/tinycolor',
   'atlas/util/AtlasMath',
   'atlas/util/Class',
-  'atlas/util/FreezeObject',
-  'atlas/lib/tinycolor'
-], function(AtlasMath, Class, freeze, Tinycolor) {
+  'atlas/util/FreezeObject'
+], function(Tinycolor, AtlasMath, Class, freeze) {
   var __DEBUG__ = true;
 
   if (__DEBUG__) {
-    freeze = function (o) {
+    freeze = function(o) {
       return o;
     }
   }
+
+  /**
+   * @typedef atlas.model.Colour
+   * @ignore
+   */
+  var Colour;
 
   /**
    * @classdesc Constructs a colour specified by red, green, blue and alpha
@@ -24,17 +30,32 @@ define([
    *
    * @class atlas.model.Colour
    */
-  var Colour = Class.extend( /** @lends atlas.model.Colour# */ {
+  Colour = Class.extend(/** @lends atlas.model.Colour# */ {
     red: null,
     green: null,
     blue: null,
     alpha: null,
 
     _init: function(r, g, b, a) {
-      this.red    = AtlasMath.limit(r);
-      this.green  = AtlasMath.limit(g);
-      this.blue   = AtlasMath.limit(b);
-      this.alpha  = AtlasMath.limit(a);
+      if (typeof r === 'object') {
+        this._fromObj.apply(this, arguments);
+      } else {
+        this._fromRgba.apply(this, arguments);
+      }
+    },
+
+    _fromRgba: function(r, g, b, a) {
+      this.red = AtlasMath.limit(r);
+      this.green = AtlasMath.limit(g);
+      this.blue = AtlasMath.limit(b);
+      this.alpha = AtlasMath.limit(a);
+    },
+
+    _fromObj: function (obj) {
+      this.red = obj.red;
+      this.green = obj.green;
+      this.blue = obj.blue;
+      this.alpha = obj.alpha;
     },
 
     // -------------------------------------------
@@ -44,17 +65,20 @@ define([
     /**
      * @returns {string} The colour as a string in the format 'rbga([RED], [GREEN], [BLUE], [ALPHA])'
      */
-    toString: function () {
-      return 'rgba(' + [this.red * 255, this.green * 255, this.blue * 255, this.alpha].join(', ') + ')';
+    toString: function() {
+      return 'rgba(' + [this.red * 255, this.green * 255, this.blue * 255, this.alpha].join(', ') +
+          ')';
     },
 
     /**
      * @returns {string} The colour as a string in the CSS hex format.
      */
-    toHexString: function () {
-      var hex = function (a) {
+    toHexString: function() {
+      var hex = function(a) {
         var str = a.toString(16);
-        if (a < 16) { str = '0' + str; }
+        if (a < 16) {
+          str = '0' + str;
+        }
         return str;
       };
       return '#' + hex(this.red * 255) + hex(this.green * 255) + hex(this.blue * 255);
@@ -63,7 +87,7 @@ define([
     /**
      * @returns {Object} The colour as a tinycolor HSV object.
      */
-    toHsv: function () {
+    toHsv: function() {
       var tiny = Tinycolor(this.toString());
       return tiny.toHsv();
     },
@@ -74,7 +98,7 @@ define([
      * @param {Number} lerpFactor - The linear interpolation factor in the range [0,1].
      * @returns {atlas.model.Colour} The interpolated colour.
      */
-    interpolate: function (other, lerpFactor) {
+    interpolate: function(other, lerpFactor) {
       return this.interpolateByHue(other, lerpFactor);
     },
 
@@ -84,7 +108,7 @@ define([
      * @param {Number} lerpFactor - The linear interpolation factor in the range [0,1].
      * @returns {atlas.model.Colour} The interpolated colour.
      */
-    interpolateByHue: function (other, lerpFactor) {
+    interpolateByHue: function(other, lerpFactor) {
       var hsv1 = this.toHsv(),
           hsv2 = other.toHsv();
       hsv1.h = AtlasMath.lerp(hsv2.h, hsv1.h, lerpFactor);
@@ -117,7 +141,7 @@ define([
    * @param hsv - The HSV colour.
    * @returns {atlas.model.Colour} - The converted colour.
    */
-  Colour.fromHsv = function (hsv) {
+  Colour.fromHsv = function(hsv) {
     var tiny = Tinycolor(hsv).toRgb();
     return new Colour(tiny.r / 255, tiny.g / 255, tiny.b / 255, 1);
   };

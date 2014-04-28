@@ -6,17 +6,16 @@ define([
   'atlas/model/Vertex',
   // Base class
   'atlas/model/GeoEntity'
-], function (
-  DeveloperError,
-  mixin,
-  Colour,
-  Style,
-  Vertex,
-  GeoEntity) {
+], function(DeveloperError, mixin, Colour, Style, Vertex, GeoEntity) {
+
+  /**
+   * @typedef atlas.model.Mesh
+   * @ignore
+   */
+  var Mesh;
 
   /**
    * @classdesc A Mesh represents a 3D renderable object in Atlas.
-   * @author Brendan Studds
    *
    * @param {String} id - The ID of the Mesh object.
    * @param {Object} meshData - The data required to define what is actually rendered (Implementation defined).
@@ -29,8 +28,7 @@ define([
    * @class atlas.model.Mesh
    * @extends atlas.model.GeoEntity
    */
-  //var Mesh = function (id, meshData, args) {
-  var Mesh = mixin(GeoEntity.extend(/** @lends atlas.model.Mesh# */ {
+  Mesh = mixin(GeoEntity.extend(/** @lends atlas.model.Mesh# */ {
     /**
      * The array of vertex positions for this Mesh, in model space coordinates.
      * This is a 1D array to conform with Cesium requirements. Every three elements of this
@@ -62,21 +60,21 @@ define([
      * @type {atlas.model.Vertex}
      * @protected
      */
-    _geoLocation : null,
+    _geoLocation: null,
 
     /**
      * The scale that is applied to the Mesh when transforming it from model space to world space.
      * @type {atlas.model.Vertex}
      * @protected
      */
-    _scale : null,
+    _scale: null,
 
     /**
      * The rotation that is applied to the MEsh when transforming it from model space to world space.
      * @type {atlas.model.Vertex}
      * @protected
      */
-    _rotation : null,
+    _rotation: null,
 
     /**
      * Defines a transformation from model space to world space. This is derived from <code>Mesh._geoLocation</code>,
@@ -84,7 +82,7 @@ define([
      * @type {Object}
      * @protected
      */
-    _modelMatrix : null,
+    _modelMatrix: null,
 
     /**
      * The uniform colour to apply to the Mesh if a texture is not defined.
@@ -95,31 +93,27 @@ define([
      */
     _uniformColour: null,
 
-    _init: function (id, meshData, args) {
+    _init: function(id, meshData, args) {
       this._super(id, args);
-
-      // Set the Mesh's style based on the hierarchy: a Mesh specific style,
-      // inherit the parent Feature's style, or use the Mesh default style.
-      this._style = meshData.style || args.style || Mesh.getDefaultStyle;
 
       // Parse all the things!
       if (meshData.positions && meshData.positions.length) {
         this._positions = new Float64Array(meshData.positions.length);
-        meshData.positions.forEach(function (position, i) {
+        meshData.positions.forEach(function(position, i) {
           this._positions[i] = position;
         }, this);
       }
 
       if (meshData.triangles && meshData.triangles.length) {
         this._indices = new Uint16Array(meshData.triangles.length);
-        meshData.triangles.forEach(function (triangle, i) {
+        meshData.triangles.forEach(function(triangle, i) {
           this._indices[i] = triangle;
         }, this);
       }
 
       if (meshData.normals && meshData.normals.length) {
         this._normals = new Float64Array(meshData.normals.length);
-        meshData.normals.forEach(function (normal, i) {
+        meshData.normals.forEach(function(normal, i) {
           this._normals[i] = normal;
         }, this);
       }
@@ -131,24 +125,33 @@ define([
       if (meshData.scale && meshData.scale.length > 0) {
         this._scale = new Vertex(meshData.scale);
       } else {
-        this._scale = new Vertex(1,1,1);
+        this._scale = new Vertex(1, 1, 1);
       }
 
       if (meshData.rotation && meshData.rotation.length > 0) {
         this._rotation = new Vertex(meshData.rotation);
       } else {
-        this._rotation = new Vertex(0,0,0);
+        this._rotation = new Vertex(0, 0, 0);
       }
 
+      // Set the Mesh's style based on the hierarchy: a Mesh specific style,
+      // inherit the parent Feature's style, or use the Mesh default style.
       if (meshData.color) {
         // TODO(bpstudds): Work out the textures.
-        this._style = new Style({fillColour: Colour.fromRGBA(meshData.color)});
+        this.setStyle(new Style({fillColour: Colour.fromRGBA(meshData.color)}));
+      } else {
+        this.setStyle(args.style || Mesh.getDefaultStyle());
       }
+
     },
 
     // -------------------------------------------
     // GETTERS AND SETTERS
     // -------------------------------------------
+
+    getVertices: function() {
+      return [];
+    },
 
     // -------------------------------------------
     // MODIFIERS
@@ -161,7 +164,7 @@ define([
      * @param {Number} translation.y - The change in longitude, given in decimal degrees.
      * @param {Number} translation.z - The change in altitude, given in metres.
      */
-    translate: function (translation) {
+    translate: function(translation) {
       // Update the 'translation', ie change _geoLocation.
       this._geoLocation = this._geoLocation.add(translation);
       // And redraw the Mesh.
@@ -176,7 +179,7 @@ define([
      * @param {Number} scale.y - The scale along the <code>y</code> axis.
      * @param {Number} scale.z - The scale along the <code>z</code> axis.
      */
-    scale: function (scale) {
+    scale: function(scale) {
       this._scale = this._scale.componentwiseMultiply(scale);
       this.setDirty('model');
       this.isVisible() && this.show();
@@ -192,7 +195,7 @@ define([
      * @param {Number} rotation.z - The rotation about the <code>z</code> axis in degrees, negative
      *    rotates clockwise, positive rotates counterclockwise.
      */
-    rotate: function (rotation) {
+    rotate: function(rotation) {
       this._rotation = this._rotation.add(rotation);
       this.setDirty('model');
       this.isVisible() && this.show();
@@ -202,26 +205,28 @@ define([
     // BEHAVIOUR
     // -------------------------------------------
 
-  }), // End class instance definition
+  }), {
 
     // -------------------------------------------
     // STATICS
     // -------------------------------------------
-    {
 
-      /**
-       * The default style of a Mesh.
-       * @type {atlas.model.Colour}
-       */
-      getDefaultStyle: function () { return new Style({fillColour: Colour.GREY}); },
+    /**
+     * The default style of a Mesh.
+     * @type {atlas.model.Colour}
+     */
+    getDefaultStyle: function() {
+      return new Style({fillColour: Colour.GREY});
+    },
 
-      /**
-       * The default selected style of a Mesh.
-       * @type {atlas.model.Colour}
-       */
-      getSelectedStyle: function() { return new Style({fillColour: Colour.RED}); }
+    /**
+     * The default selected style of a Mesh.
+     * @type {atlas.model.Colour}
+     */
+    getSelectedStyle: function() {
+      return new Style({fillColour: Colour.RED});
     }
-  ); // End class mixin
 
+  });
   return Mesh;
 });

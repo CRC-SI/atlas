@@ -4,15 +4,21 @@ define([
   'atlas/util/WKT',
   './GeoEntity',
   './Style',
-  './Colour',
-  './Vertex'
-], function(DeveloperError, defaultValue, WKT, GeoEntity, Style, Colour, Vertex) {
+  './Colour'
+], function(DeveloperError, defaultValue, WKT, GeoEntity, Style, Colour) {
+
+  /**
+   * @typedef atlas.model.Line
+   * @ignore
+   */
+  var Line;
+
   /**
    * @classdesc Represents a 2D line segment.
    * @class atlas.model.Line
    * @extends atlas.model.GeoEntity
    */
-  var Line = GeoEntity.extend(/** @lends atlas.model.Line# */{
+  Line = GeoEntity.extend(/** @lends atlas.model.Line# */{
 
     /**
      * Counter-clockwise ordered array of vertices constructing polygon.
@@ -20,12 +26,6 @@ define([
      * @private
      */
     _vertices: null,
-
-    /**
-     * @type {atlas.model.Style}
-     * @private
-     */
-    _style: null,
 
     /**
      * The width of the line segment.
@@ -53,16 +53,20 @@ define([
       }
       this._width = lineData.width || this._width;
       if (lineData.color) {
+        var style;
         if (lineData.color instanceof Colour) {
-          this._style = new Style({fillColour: lineData.color});
+          style = new Style({fillColour: lineData.color});
         } else {
-          this._style = new Style({fillColour: Colour.fromRGBA(lineData.color)});
+          style = new Style({fillColour: Colour.fromRGBA(lineData.color)});
         }
+        this.setStyle(style);
       } else if (lineData.style) {
-        this._style = lineData.style;
-      } else {
-        this._style = Line.getDefaultStyle();
+        this.setStyle(lineData.style);
       }
+    },
+
+    getVertices: function() {
+      return this._vertices;
     },
 
     /**
@@ -74,9 +78,5 @@ define([
     }
 
   });
-
-  // TODO(aramk) This is shared across Feature, Polygon, Line etc. Put in GeoEntity?
-  Line.getDefaultStyle = function () {return new Style({fillColour: Colour.GREEN}); };
-
   return Line;
 });

@@ -97,18 +97,18 @@ define([
 
   /**
    * Translates all entities from one location to another.
-   * @param {atlas.model.Vertex} oldVertex - The starting coordinate.
-   * @param {atlas.model.Vertex} newVertex - The ending coordinate.
+   * @param {atlas.model.GeoPoint} oldPos - The starting coordinate.
+   * @param {atlas.model.GeoPoint} newPos - The ending coordinate.
    * @private
    */
-  TranslationModule.prototype._translate = function(oldVertex, newVertex) {
-    var diff = newVertex.subtract(oldVertex);
-
-    this._target.translate(diff);
+  TranslationModule.prototype._translate = function(oldPos, newPos) {
+    var diff = newPos.subtract(oldPos);
+    // GeoEntity.translate expects a Vertex, not a GeoPoint.
+    this._target.translate(diff.toVertex());
   };
 
   /**
-   * Converts a screen position into a cartographic Vertex.
+   * Converts a screen position into a cartographic.
    * @param {Object} screenPos - The screen position.
    * @returns {atlas.model.GeoPoint}
    * @private

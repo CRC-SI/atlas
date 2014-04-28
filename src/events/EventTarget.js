@@ -8,7 +8,6 @@ define([
    * @classdesc EventTarget is a mixin class that provides an object with the
    * ability to dispatch and listen to events. This implementation is close to
    * dojo/on than the DOM Event model.
-   * @author Brendan Studds
    *
    * @param {atlas.events.EventManager} [em=null] - The EventManager object managing the event system.
    * @param {atlas.events.EventTarget} [parent=null] - The parent of the EventTarget.
