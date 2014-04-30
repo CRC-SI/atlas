@@ -36,9 +36,13 @@ define([
     blue: null,
     alpha: null,
 
-    _init: function(r, g, b, a) {
-      if (typeof r === 'object') {
+    _init: function() {
+      var firstArg = arguments[0],
+          type = typeof firstArg;
+      if (type === 'object') {
         this._fromObj.apply(this, arguments);
+      } else if (type === 'string') {
+        this._fromStr.apply(this, arguments);
       } else {
         this._fromRgba.apply(this, arguments);
       }
@@ -51,11 +55,19 @@ define([
       this.alpha = AtlasMath.limit(a);
     },
 
-    _fromObj: function (obj) {
+    _fromObj: function(obj) {
       this.red = obj.red;
       this.green = obj.green;
       this.blue = obj.blue;
       this.alpha = obj.alpha;
+    },
+
+    _fromStr: function(str) {
+      var c = Tinycolor(str).toRgb(),
+          toFloat = function(x) {
+            return x / 255;
+          };
+      this._fromRgba(toFloat(c.r), toFloat(c.g), toFloat(c.b), c.a);
     },
 
     // -------------------------------------------
