@@ -13,8 +13,8 @@ define([
   'atlas/util/mixin',
   // Base class.
   'atlas/util/Class'
-], function (Log, Objects, Ellipse, Feature, GeoEntity, Mesh, Polygon, Line, Image, Vertex,
-             DeveloperError, mixin, Class) {
+], function(Log, Objects, Ellipse, Feature, GeoEntity, Mesh, Polygon, Line, Image, Vertex,
+            DeveloperError, mixin, Class) {
 
   //noinspection JSUnusedGlobalSymbols
   var EntityManager = Class.extend({
@@ -114,7 +114,9 @@ define([
             var ids;
             if (args.features) {
               this.bulkCreate(args.features);
-              ids = args.features.map(function (item) {return item.id});
+              ids = args.features.map(function(item) {
+                return item.id
+              });
             } else if (args.ids) {
               ids = args.ids;
             } else {
@@ -145,7 +147,7 @@ define([
           name: 'entity/remove/bulk',
           callback: function(args) {
             Log.time('entity/remove/bulk');
-            args.ids.forEach(function (id) {
+            args.ids.forEach(function(id) {
               this.remove(id);
             }, this);
             Log.timeEnd('entity/remove/bulk');
@@ -158,7 +160,7 @@ define([
             // Set all features to 'footprint' display mode.
             Log.time('entity/display-mode');
             var features = args.ids ? this._getFeaturesByIds(args.ids) : this._getFeatures();
-            features.forEach(function (feature) {
+            features.forEach(function(feature) {
               var id = feature.getId();
               // Save a reference to the previous display mode to allow resetting.
               if (!this._origDisplayModes[id]) {
@@ -176,8 +178,8 @@ define([
             // Resets all features to their original display mode (at the time of using entity/mode
             args = args || {};
             Log.time('entity/display-mode/reset');
-            var features = args.ids ? this._getFeaturesByIds(args.ids) : this._getFeatures();
-            features.forEach(function (feature) {
+            var features = this._getFeaturesByIds(args.ids || Object.keys(this._origDisplayModes));
+            features.forEach(function(feature) {
               var id = feature.getId(),
                   origDisplayMode = this._origDisplayModes[id];
               if (origDisplayMode) {
@@ -310,7 +312,7 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLimage: function (c3ml, _this) {
+    _parseC3MLimage: function(c3ml, _this) {
       return {
         image: {
           vertices: _this._parseCoordinates(c3ml.coordinates),
@@ -489,7 +491,7 @@ define([
     /**
      * @returns {Array.<atlas.model.GeoEntity>}
      */
-    getEntities: function () {
+    getEntities: function() {
       return Objects.values(this._entities);
     },
 
@@ -499,8 +501,8 @@ define([
      * @returns {Array} A new array containing only the items which are of the given type.
      * @private
      */
-    _filterByType: function (items, type) {
-      return items.filter(function (item) {
+    _filterByType: function(items, type) {
+      return items.filter(function(item) {
         return item instanceof type;
       });
     },
@@ -511,15 +513,15 @@ define([
      * type {@link atlas.model.Feature}.
      * @private
      */
-    _filterFeatures: function (items) {
+    _filterFeatures: function(items) {
       return this._filterByType(items, Feature);
     },
 
-    _getFeaturesByIds: function (ids) {
+    _getFeaturesByIds: function(ids) {
       return this._filterFeatures(this.getByIds(ids));
     },
 
-    _getFeatures: function () {
+    _getFeatures: function() {
       return this._filterFeatures(this.getEntities());
     },
 
