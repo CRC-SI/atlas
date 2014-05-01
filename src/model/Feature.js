@@ -22,14 +22,21 @@ define([
    *
    * @param {Number} id - The ID of this Feature.
    * @param {Object} args - Parameters describing the feature.
-   * @param {atlas.render.RenderManager} args.renderManager - The RenderManager object responsible for rendering the Feature.
-   * @param {atlas.events.EventManager} args.eventManager - The EventManager object responsible for the event system.
-   * @param {String|Array.<atlas.model.Vertex>} [args.footprint=null] - Either a WKT string or array of Vertices describing the footprint polygon.
+   * @param {atlas.render.RenderManager} args.renderManager - The RenderManager object responsible
+   * for rendering the Feature.
+   * @param {atlas.events.EventManager} args.eventManager - The EventManager object responsible for
+   * the event system.
+   * @param {String|Array.<atlas.model.Vertex>} [args.footprint=null] - Either a WKT string or array
+   * of Vertices describing the footprint polygon.
    * @param {atlas.model.Mesh} [args.mesh=null] - The Mesh object for the Feature.
    * @param {Number} [args.height=0] - The extruded height when displaying as a extruded polygon.
-   * @param {Number} [args.elevation=0] - The elevation (from the terrain surface) to the base of the Mesh or Polygon.
-   * @param {Boolean} [args.show=false] - Whether the feature should be initially shown when created.
-   * @param {String} [args.displayMode=Feature.DisplayMode.FOOTPRINT] - Initial display mode of feature, one of Feature.DisplayMode.FOOTPRINT, Feature.DisplayMode.EXTRUSION or Feature.DisplayMode.MESH.
+   * @param {Number} [args.elevation=0] - The elevation (from the terrain surface) to the base of
+   * the Mesh or Polygon.
+   * @param {Boolean} [args.show=false] - Whether the feature should be initially shown when
+   * created.
+   * @param {String} [args.displayMode=Feature.DisplayMode.FOOTPRINT] - Initial display mode of
+   * feature. Mesh trumps Footprint, which trumps Line if they are both defined in terms of which is
+   * displayed by default.
    *
    * @see {@link atlas.model.Polygon}
    * @see {@link atlas.model.Mesh}
@@ -115,16 +122,8 @@ define([
     // -------------------------------------------
 
     getArea: function() {
-      var area = undefined;
-      if (this._displayMode === Feature.DisplayMode.FOOTPRINT || this._displayMode ===
-          Feature.DisplayMode.EXTRUSION) {
-        area = this._footprint.getArea();
-      } else if (this._displayMode === Feature.DisplayMode.MESH) {
-        area = this._mesh.getArea();
-      } else if (this._displayMode === Feature.DisplayMode.IMAGE) {
-        area = this._image.getArea();
-      }
-      return area;
+      var form = this.getForm();
+      return form && form.getArea();
     },
 
     getCentroid: function() {
@@ -432,7 +431,7 @@ define([
 
     /**
      * The display mode of the Feature which determines the underlying geometry shown.
-     * @typedef {Object} atlas.camera.PathType
+     * @typedef {Object} atlas.model.Feature.DisplayMode
      */
     DisplayMode: {
       LINE: 'line',

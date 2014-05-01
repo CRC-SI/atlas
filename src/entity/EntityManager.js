@@ -49,7 +49,8 @@ define([
     },
 
     /**
-     * A map of feature ID to the original display mode upon construction. Only used when necessary.
+     * A map of feature ID to their display mode at the time of calling 'entity/display-mode'.
+     * Records are removed when calling 'entity/display-mode/reset'.
      * @type {Object.<String, atlas.model.Feature.DisplayMode>}
      */
     _origDisplayModes: null,
