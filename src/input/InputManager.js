@@ -37,9 +37,24 @@ define([
      */
     _mouseHandlers: null,
 
+    /**
+     * The last client X coord of the mouse.
+     * @type {number}
+     * @private
+     */
+    __lastX: 0,
+
+    /**
+     * The last client Y coord of the mouse.
+     * @type {number}
+     * @private
+     */
+    __lastY: 0,
+
     _init: function(atlasManagers) {
       this._atlasManagers = atlasManagers;
       this._atlasManagers.input = this;
+      this.__lastX = this.__lastY = 0;
 
       this._mouseHandlers = [];
     },
@@ -60,66 +75,70 @@ define([
       // Buttons to add event handlers for.
       var buttonIds = ['left', 'middle', 'right'];
 
-      // DRY constructing the event handler arguments.
-      var makeArgs = function(name, e) {
+      // Helper function to construct the arguments for Atlas mouse events
+      var makeMouseEventArgs = function(name, e) {
         var args = {
           name: 'input/' + name,
           button: buttonIds[e.button],
           modifiers: {},
           position: { x: e.clientX, y: e.clientY },
-          movement: { cx: e.movementX, cy: e.movementY }
+          movement: { cx: e.clientX - this.__lastX, cy: e.clientY - this.__lastY }
         };
         e.shiftKey && (args.modifiers.shift = true);
         e.metaKey && (args.modifiers.meta = true);
         e.altKey && (args.modifiers.alt = true);
         e.ctrlKey && (args.modifiers.ctrl = true);
+        console.log('last position is ', this.__lastX, this.__lastY);
         return args;
       }.bind(this);
 
-      // Construct HTML DOM mouse event listeners.
+      // -------------------------------------------
+      // Construct mouse event handlers
+      // -------------------------------------------
+      var args, press;
+
       // Mouse button down
       this._mouseHandlers.push({
         name: 'mousedown',
         cback: function(e) {
-          var args = makeArgs(buttonIds[e.button] + 'down', e);
-          this.handleInternalEvent(args.name, args);
-        }.bind(this._atlasManagers.event)
+          this.__lastX = args.position.x;
+          this.__lastY = args.position.y;
+          args = makeMouseEventArgs(buttonIds[e.button] + 'down', e);
+          this._atlasManagers.event.handleInternalEvent(args.name, args);
+        }.bind(this._atlasManagers.input)
       });
 
       // Mouse button up
       this._mouseHandlers.push({
         name: 'mouseup',
         cback: function(e) {
-            console.log('mouseup');
-          var press = 'up',  // default to buttonUp
-              args;
-          console.log('mouse event', e);
-          console.log('mouse move', e.movementX + e.movementY);
-          console.log('limit', InputManager.CLICK_SENSITIVITY);
-          if (e.movementX + e.movementY < InputManager.CLICK_SENSITIVITY) {
-            console.log('mouseclick');
-            press = 'click';
+          args = makeMouseEventArgs(buttonIds[e.button] + 'up', e);
+          console.log('position is ', args.position.x, args.position.y);
+          console.log('movement is ', args.movement.cx, args.movement.cy);
+          if (args.movement.cx + args.movement.cy < InputManager.CLICK_SENSITIVITY) {
+            args.name = 'input/' + buttonIds[e.button] + 'click'
           }
-          args = makeArgs(buttonIds[e.button] + 'up', e);
-          this.handleInternalEvent(args.name, args);
-        }.bind(this._atlasManagers.event)
+          this._atlasManagers.event.handleInternalEvent(args.name, args);
+        }.bind(this._atlasManagers.input)
       });
 
-      // TODO(bpstudds): DRY this code up.
+      // Mouse move handler
       this._mouseHandlers.push({
         name: 'mousemove',
         cback: function (e) {
-          var args = makeArgs('mousemove', e);
-          this.handleInternalEvent(args.name, args);
-        }.bind(this._atlasManagers.event)
+          args = makeMouseEventArgs('mousemove', e);
+          this._atlasManagers.event.handleInternalEvent(args.name, args);
+        }.bind(this._atlasManagers.input)
       });
 
+      // Double click handler
       this._mouseHandlers.push({
         name: 'dblclick',
         cback: function (e) {
-          var args = makeArgs('left/dblclick', e);
-          this.handleInternalEvent(args.name, args);
-        }.bind(this._atlasManagers.event)
+          // TODO(bpstudds): This will convert all double click events to left dbl click.
+          args = makeMouseEventArgs('left/dblclick', e);
+          this._atlasManagers.event.handleInternalEvent(args.name, args);
+        }.bind(this._atlasManagers.input)
       });
 
       // Add the event listeners to the current DOM element.
