@@ -1,13 +1,12 @@
 define([
-  'atlas/util/DeveloperError',
   // Base class
-  'atlas/visualisation/AbstractProjection'
-], function (DeveloperError, AbstractProjection) {
+  'atlas/visualisation/AbstractProjection',
+  'atlas/util/DeveloperError'
+], function (AbstractProjection, DeveloperError) {
 
   /**
    * @classdesc The HeightProjection represents a projection of Entity parameter values onto
    * the Entity's height.
-   * @author Brendan Studds
    * @class atlas.visualisation.HeightProjection
    * @extends atlas.visualisation.AbstractProjection
    */
@@ -49,8 +48,10 @@ define([
           }.bind(this));
 
       sortedIds.forEach(function (id) {
-        var entity = this._entities[id];
-        this._render(entity, this._attributes[id]);
+        // TODO(aramk) Used the API which checks for null attributes.
+        this._mapToEntitiesById(this._render, id);
+//        var entity = this._entities[id];
+//        this._render(entity, this._attributes[id]);
       }, this);
       this._rendered = true;
     },
@@ -158,7 +159,8 @@ define([
       entity.setElevation(oldElevation);
       entity.setHeight(oldHeight);
       entity.isVisible() && entity.show();
-      delete this._effects[id];
+      // TODO(aramk) We should abstract all this behind protected methods in AbstractProjection.
+//      delete this._effects[id];
     },
 
     _regressProjectionValueFromCodomain: function (attributes, codomain) {

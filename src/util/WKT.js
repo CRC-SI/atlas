@@ -74,7 +74,8 @@ define([
      * @returns {atlas.model.Vertex}
      */
     vertexFromOpenLayersPoint: function(point) {
-      return new Vertex(point.x, point.y, 0);
+      // NOTE: OpenLayers treats latitude as x, longitude as y.
+      return new Vertex(point.y, point.x, 0);
     },
 
     /**
@@ -83,12 +84,11 @@ define([
      * @returns {Array.<OpenLayers.Geometry.Points>}
      */
     openLayersPointsFromVertices: function(vertices) {
-      throw 'WKT.openLayersPointsFromVertices does not work.';
-
       var points = [];
       for (var i = 0; i < vertices.length; i++) {
         var vertex = vertices[i];
-        var point = new OpenLayers.Geometry.Point(vertex.x, vertex.y);
+        // NOTE: OpenLayers treats latitude as x, longitude as y.
+        var point = new OpenLayers.Geometry.Point(vertex.y, vertex.x);
         points.push(point);
       }
       return points;
@@ -100,7 +100,6 @@ define([
      * @returns {OpenLayers.Geometry.Polygon}
      */
     openLayersPolygonFromVertices: function(vertices) {
-      throw 'WKT.openLayersPolygonFromVertices does not work.';
       var points = this.openLayersPointsFromVertices(vertices);
       var ring = new OpenLayers.Geometry.LinearRing(points);
       if (ring.components.length > 1) {
@@ -117,9 +116,10 @@ define([
      * @param {Array.<Number>} vertices - The vertices to convert.
      * @returns {String}
      */
-    wktStringFromVertices: function(vertices) {
+    wktFromVertices: function(vertices) {
+      // TODO(aramk) Also support LINESTRING and POINT.
       var polygon = this.openLayersPolygonFromVertices(vertices);
-      return this.parse.extractGeometry(polygon);
+      return this.parser.extractGeometry(polygon);
     },
 
     /**
@@ -132,11 +132,25 @@ define([
      */
     scaleVertices: function(vertices, scaleBy) {
       // TODO(aramk) WKT.scaleVertices does not work.
-      throw 'WKT.scaleVertices does not work.'
+      throw 'WKT.scaleVertices does not work.';
       var polygon = this.openLayersPolygonFromVertices(vertices);
       var scaleAspectRatio = scaleBy.x / scaleBy.y;
       polygon.resize(scaleBy.x, polygon.getCentroid, scaleAspectRatio);
       return this.verticesFromOpenLayersGeometry(polygon);
+    },
+
+    /**
+     * @param {Array.<Array<Number>>} coords - An array of coordinates.
+     * @returns A new array with the first 2 indices switched.
+     */
+    switchLatLng: function (coords) {
+      return coords.map(function (coord) {
+        var switched = Array.prototype.slice.apply(coord);
+        var tmp = switched[0];
+        switched[0] = switched[1];
+        switched[1] = tmp;
+        return switched;
+      });
     },
 
     _isType: function(wktStr, type) {

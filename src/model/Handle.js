@@ -147,7 +147,11 @@ define([
       var linked = this.getLinked(),
           target = this.getTarget();
       // Apply method to the linked entity.
-      linked[method].apply(linked, args);
+      var result = linked[method].apply(linked, args);
+      // Since GeoEntity and Vertex methods produce new instances, set the result of the previous
+      // call as the new value of the linked instance (otherwise changes are not observable by the
+      // target.
+      linked.set(result);
       // If the linked entity is not the target, inform the target that it needs to update.
       if (linked !== target) {
         // linked and target are only different if linked is a Vertex and target a GeoEntity.

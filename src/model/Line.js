@@ -3,14 +3,22 @@ define([
   'atlas/util/default',
   'atlas/util/WKT',
   './GeoEntity',
-  './Vertex'
-], function(DeveloperError, defaultValue, WKT, GeoEntity, Vertex) {
+  './Style',
+  './Colour'
+], function(DeveloperError, defaultValue, WKT, GeoEntity, Style, Colour) {
+
+  /**
+   * @typedef atlas.model.Line
+   * @ignore
+   */
+  var Line;
+
   /**
    * @classdesc Represents a 2D line segment.
    * @class atlas.model.Line
    * @extends atlas.model.GeoEntity
    */
-  return GeoEntity.extend(/** @lends atlas.model.Line# */{
+  Line = GeoEntity.extend(/** @lends atlas.model.Line# */{
 
     /**
      * Counter-clockwise ordered array of vertices constructing polygon.
@@ -18,12 +26,6 @@ define([
      * @private
      */
     _vertices: null,
-
-    /**
-     * @type {atlas.model.Style}
-     * @private
-     */
-    _style: null,
 
     /**
      * The width of the line segment.
@@ -50,6 +52,21 @@ define([
         this._vertices = defaultValue(lineData.vertices, []);
       }
       this._width = lineData.width || this._width;
+      if (lineData.color) {
+        var style;
+        if (lineData.color instanceof Colour) {
+          style = new Style({fillColour: lineData.color});
+        } else {
+          style = new Style({fillColour: Colour.fromRGBA(lineData.color)});
+        }
+        this.setStyle(style);
+      } else if (lineData.style) {
+        this.setStyle(lineData.style);
+      }
+    },
+
+    getVertices: function() {
+      return this._vertices;
     },
 
     /**
@@ -61,4 +78,5 @@ define([
     }
 
   });
+  return Line;
 });

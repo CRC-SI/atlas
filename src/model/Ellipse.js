@@ -72,33 +72,12 @@ define([
     _zIndexOffset: 0.1,
 
     /**
-     * The visual style of the Ellipse.
-     * @type {atlas.model.Style}
-     * @private
-     */
-    _style: null,
-
-    /**
      * The material used to render the Ellipse.
      * @type {atlas.model.Material}
      * @private
      */
     // TODO(bpstudds): Create a Ellipse specific default Material to use.
     _material: null,
-
-    /**
-     * Whether the Ellipse is visible in the scene.
-     * @type {Boolean}
-     * @private
-     */
-    _visible: false,
-
-    /**
-     * The centroid of the Ellipse in latitude, longitude and elevation.
-     * @type {atlas.model.GeoPoint}
-     * @private
-     */
-    _centroid: null,
 
     /**
      * The semi major axis of the ellipse in metres.
@@ -111,14 +90,6 @@ define([
      * @type {Number}
      */
     _semiMinor: null,
-
-
-    /**
-     * The area covered by the Ellipse in metres**2.
-     * @type {Number}
-     * @private
-     */
-    _area: null,
 
     /**
      * Whether the Ellipse should be rendered as an extruded Ellipse or a 2D Ellipse.
@@ -147,6 +118,7 @@ define([
       }
       this._super(id, args);
 
+      this._visible = false;
       this._centroid = new GeoPoint(ellipseData.centroid);
       this._semiMajor = parseFloat(ellipseData.semiMajor);
       this._semiMinor = parseFloat(ellipseData.semiMinor) || this._semiMajor;
@@ -156,18 +128,24 @@ define([
       this._zIndex = parseFloat(ellipseData.zIndex) || this._zIndex;
       this._zIndexOffset = parseFloat(ellipseData.zIndexOffset) || this._zIndexOffset;
       this._material = (ellipseData.material || Material.DEFAULT);
+      var style;
       if (ellipseData.color) {
-        this._style = new Style({fillColour: ellipseData.color});
+        style = new Style({fillColour: ellipseData.color});
       } else if (ellipseData.style) {
-        this._style = ellipseData.style;
+        style = ellipseData.style;
       } else {
-        this._style = Ellipse.getDefaultStyle();
+        style = Ellipse.getDefaultStyle();
       }
+      this.setStyle(style);
     },
 
     // -------------------------------------------
     // GETTERS AND SETTERS
     // -------------------------------------------
+
+    getVertices: function() {
+      return [];
+    },
 
     /**
      * Gets the area of the Ellipse, in <tt>unit**2</tt> where <tt>unit</tt> is the
@@ -177,17 +155,6 @@ define([
      */
     getArea: function() {
       throw new Error('This function not yet implemented.');
-    },
-
-    /**
-     * Gets the centroid of the Ellipse. Assumes that the polygon is 2D surface, ie. Vertex.z is
-     * constant across the polygon.
-     * @returns {atlas.model.Vertex} The Ellipse's centroid.
-     * @see {@link http://stackoverflow.com/questions/9692448/how-can-you-find-the-centroid-of-a-concave-irregular-polygon-in-javascript/9939071#9939071}
-     * @see  {@link http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon}
-     */
-    getCentroid: function() {
-      return this._centroid;
     },
 
     /**
@@ -244,21 +211,21 @@ define([
     /**
      * @returns {Number} The rotation of the Ellipse.
      */
-    getRotation: function () {
+    getRotation: function() {
       return this._rotation;
     },
 
     /**
      * @returns {Number} The semi major axis of the Ellipse.
      */
-    getSemiMajorAxis: function () {
+    getSemiMajorAxis: function() {
       return this._semiMajor;
     },
 
     /**
      * @returns {Number} The semi minor axis of the Ellipse.
      */
-    getSemiMinorAxis: function () {
+    getSemiMinorAxis: function() {
       return this._semiMinor;
     },
 
@@ -352,6 +319,7 @@ define([
      * Causes the Ellipse to be rendered with the selection style.
      */
     onSelect: function() {
+      this._super();
       this.setStyle(Ellipse.getSelectedStyle());
       this.setDirty('style');
     },
@@ -362,6 +330,7 @@ define([
      * the <code>getDefaultStyle</code>.
      */
     onDeselect: function() {
+      this._super();
       this.setStyle(this._previousStyle || Ellipse.getDefaultStyle());
       this.setDirty('style');
     }
@@ -375,13 +344,17 @@ define([
    * Defines the default style to use when rendering a polygon.
    * @type {atlas.model.Style}
    */
-  Ellipse.getDefaultStyle = function () {return new Style({fillColour: Colour.GREEN}); };
+  Ellipse.getDefaultStyle = function() {
+    return new Style({fillColour: Colour.GREEN});
+  };
 
   /**
    * Defines the default style to use when rendering a selected polygon.
    * @type {atlas.model.Style}
    */
-  Ellipse.getSelectedStyle = function () { return new Style({fillColour: Colour.RED}); };
+  Ellipse.getSelectedStyle = function() {
+    return new Style({fillColour: Colour.RED});
+  };
 
   return Ellipse;
 });

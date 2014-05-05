@@ -1,14 +1,13 @@
 define([
   'atlas/util/Class',
   'atlas/util/DeveloperError',
-  'atlas/model/Colour',
   'atlas/dom/Overlay',
   'atlas/visualisation/AbstractProjection',
   'atlas/visualisation/ColourProjection',
   'atlas/visualisation/DynamicProjection',
   'atlas/visualisation/HeightProjection',
   'atlas/lib/utility/Log'
-], function (Class, DeveloperError, Colour, Overlay, AbstractProjection, ColourProjection,
+], function (Class, DeveloperError, Overlay, AbstractProjection, ColourProjection,
              DynamicProjection, HeightProjection, Log) {
 
   /**
@@ -211,16 +210,23 @@ define([
     showLegends: function () {
       if (!this._projections['colour']) { return; }
 
+      // TODO(bpstudds): This needs to be refactored so we can have multiple legends.
       var legendData = this._projections['colour'].getLegend(),
-          legendHtml = Overlay.generateTable(legendData),
-          title = this._projections['colour'].getTitle(),
-          html = title + legendHtml;
+          legendHtml = Overlay.generateTable(legendData.legend),
+          html;
+      html = '<div class="caption">' + legendData.caption + '</div>';
+      html += legendHtml;
+
       this._legends = new Overlay({
         parent: this._atlasManagers.dom.getDom(),
+        title: legendData.title,
         'class': 'legend',
-        dimensions: {top: 0, left: 0},
+        // TODO(bpstudds): Add IDs to projections, use the ID rather than artifact to store.
+        onRemove: function (e) { this.remove('colour'); }.bind(this),
+        dimensions: {top: 50, left: 0},
         content: html
       });
+
       this._legends.show();
     },
 
@@ -250,25 +256,13 @@ define([
           old = this._projections[projection.ARTIFACT],
           ret;
       if (old) {
+        // TODO(bpstudds): This needs to be changed so we can have multiple projections per artifact.
         Log.debug('Overriding projection on', target, 'with new projection.');
         old.unrender();
         ret = old;
       }
       this._projections[target] = projection;
 
-      // TODO(bpstudds): This test button is to be removed.
-      this._overlays[target] && this._overlays[target].remove();
-      this._overlays[target] = new Overlay({
-        parent: this._atlasManagers.dom.getDom(),
-        dimensions: {top: 0, left: 400},
-        content: '<button id="visual-btn-' + target + '">' + target + '</button>'
-      });
-      document.getElementById('visual-btn-'+target).addEventListener('click', function (target) {
-        return function (event) {
-          // 0 -> Left click.
-          event.button === 0 && this.toggleRender(target)
-        }
-      }(target).bind(this));
       return ret;
     },
 
@@ -314,7 +308,7 @@ define([
     remove: function (artifact) {
       var removedProjection = this._projections[artifact];
       if (removedProjection) {
-        removedProjection.unrender();
+        this.unrender(artifact);
         this._projections[artifact] = null;
       }
       return removedProjection;
@@ -352,7 +346,7 @@ define([
 
     /**
      * Unrenders the effects of the Projection currently affecting the given artifact.
-     * @param {Object} artifact - The artifact to unrender.
+     * @param {String} artifact - The artifact to unrender.
      */
     unrender: function (artifact) {
       // TODO(bpstudds): Add function to unrender all currently managed Projections.
@@ -383,4 +377,4 @@ define([
     }
   });
   return VisualisationManager;
-})
+});

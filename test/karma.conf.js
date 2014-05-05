@@ -12,12 +12,10 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      './test-main.js',
+      'atlas/test/test-main.js',
       {pattern: 'atlas/src/**/*.js', included: false},
       {pattern: 'atlas/lib/**/*.js', included: false},
       {pattern: 'atlas/test/specs/**/*Spec.js', included: false}
-      //{pattern: 'atlas-cesium/**/*.js', included: false},
-      //{pattern: 'atlas-cesium/test/specs/**/*Spec.js', included: false}
     ],
 
     // list of files to exclude

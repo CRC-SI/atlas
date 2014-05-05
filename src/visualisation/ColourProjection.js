@@ -1,18 +1,15 @@
 define([
-  'atlas/util/AtlasMath',
-  'atlas/util/DeveloperError',
-  'atlas/lib/tinycolor',
   'atlas/model/Colour',
+  'atlas/lib/utility/Log',
   // Base class.
   'atlas/visualisation/AbstractProjection',
-  'atlas/lib/utility/Log'
-], function (AtlasMath, DeveloperError, tinycolour, Colour, AbstractProjection, Log) {
+  'atlas/util/DeveloperError'
+], function (Colour, Log, AbstractProjection, DeveloperError) {
 
   /**
    * @classdesc A ColourProjection is used to project GeoEntity parameter values
    * onto the GeoEntity's colour.
    * @class atlas.visualisation.ColourProjection
-   * @author Brendan Studds
    * @extends atlas.visualisation.AbstractProjection
    */
   return AbstractProjection.extend(/** @lends atlas.visualisation.ColourProjection# */{
@@ -42,16 +39,20 @@ define([
     },
 
     /**
-     * @returns {Object} A mapping of the data representing the
-     * legend which can be converted by {@link atlas.dom.Overlay} to a table.
+     * @returns {{title: String, caption: String, legend: Object}}
+     * An object literal containing the title, caption and data for the Projections legend.
+     * The data property can be converted by {@link atlas.dom.Overlay} to a table.
      * @see {@link atlas.dom.Overlay#generateTable}
      */
     getLegend: function () {
+      // TODO(bpstudds): Properly invalidate this so it's not recreated every time.
+      this._legend = this._super();
       if (this._type === 'discrete') {
-        return this._legend = (this._legend || this._buildDiscreteLegend());
+        this._legend.legend = (this._buildDiscreteLegend());
       } else {
-        return this._legend = (this._legend || this._buildContinuousLegend());
+        this._legend.legend = (this._buildContinuousLegend());
       }
+      return this._legend;
     },
 
     /**
@@ -166,9 +167,12 @@ define([
       // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
       var id = entity.getId(),
           oldColour = this._effects[id].oldValue;
-      entity.modifyStyle(oldColour);
-      entity.isVisible() && entity.show();
-      delete this._effects[id];
+      if (oldColour) {
+        entity.modifyStyle(oldColour);
+        entity.isVisible() && entity.show();
+      }
+      // TODO(aramk) We should abstract all this behind protected methods in AbstractProjection.
+//      delete this._effects[id];
     },
 
     /**

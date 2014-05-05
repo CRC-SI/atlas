@@ -30,7 +30,7 @@ define([
     describe ('can be moved', function () {
       beforeEach(function () {
         camera = new Camera();
-        spyOn(camera, '_animateCamera');
+        spyOn(camera, '_animate');
       });
 
       afterEach(function () {
@@ -39,7 +39,7 @@ define([
 
       it ('to a specific location and orientation instantly', function () {
         camera.zoomTo(aPosition, anOrientation);
-        expect(camera._animateCamera).toHaveBeenCalledWith({
+        expect(camera._animate).toHaveBeenCalledWith({
           position: aPosition,
           orientation: anOrientation,
           duration: 0
@@ -49,7 +49,7 @@ define([
       it ('to a specific location and orientation with flight animation', function () {
         var flightTime = 100;
         camera.zoomTo(aPosition, anOrientation, flightTime);
-        expect(camera._animateCamera).toHaveBeenCalledWith({
+        expect(camera._animate).toHaveBeenCalledWith({
           position: aPosition,
           orientation: anOrientation,
           duration: flightTime
@@ -59,7 +59,7 @@ define([
       it ('to a specific location instantly', function () {
         var flightTime = 100;
         camera.zoomTo(aPosition);
-        expect(camera._animateCamera).toHaveBeenCalledWith({
+        expect(camera._animate).toHaveBeenCalledWith({
           position: aPosition,
           orientation: defaultOrientation,
           duration: 0

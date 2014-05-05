@@ -7,7 +7,6 @@ define([
    * @classdesc An Overlay can be used to place panels overlaying the Atlas
    * render (or in fact, any section of the host website) which can display
    * information.
-   * @author Brendan Studds
    *
    * @param {Object} args - Arguments to the constructor.
    * @param {String|HTMLElement} [args.parent=document] - The DOM ID or element instance to place the Overlay on.
@@ -33,8 +32,16 @@ define([
     /**
      * The class(es) to apply to the Overlay HTML.
      * @type {String}
+     * @protected
      */
     _class: null,
+
+    /**
+     * The title to place on the overlay.
+     * @type {String}
+     * @protected
+     */
+    _title: null,
 
     /**
      * The position of the Overlay
@@ -54,6 +61,14 @@ define([
      */
     _content: null,
 
+    /**
+     * Function handler for when the Overlay is removed. The context of this
+     * function is assumed to be correctly set.
+     * @function
+     * @protected
+     */
+    _onRemove: null,
+
     /*
      * Constructor for the overlay
      * @ignore
@@ -63,6 +78,7 @@ define([
       args = mixin({
         parent: document,
         'class': '',
+        title: '',
         dimensions: {top: 0, left: 0},
         content: ''
       }, args);
@@ -70,6 +86,8 @@ define([
 
       this._parent = args.parent;
       this._class = args.class;
+      this._title = args.title;
+      this._onRemove = args.onRemove;
       this._dimensions = args.dimensions;
       this._content = args.content;
       // Construct element and append it to the parent.
@@ -85,6 +103,16 @@ define([
       var element = document.createElement('div');
       element.classList.add('overlay');
       this._class !== '' && element.classList.add(this._class);
+
+      // Add title and remove button to content if necessary.
+      var title = '<div class="title">' + this._title;
+      if (this._onRemove) {
+        title += '<button class="remove">X</button>';
+      }
+      title +=  '</div>'
+      this._content = title.concat(this._content);
+
+      // Create the overlay html.
       element.innerHTML = this._content;
 
       // Set the Overlay's position.
@@ -94,8 +122,20 @@ define([
       this._dimensions.height && (element.style.height = this._dimensions.height + 'px');
       this._dimensions.width && (element.style.width = this._dimensions.width + 'px');
 
+      // Attach to parent
       this._parent.appendChild(element);
-      //this._element = element;
+
+      // Add event handler to close button
+      if (this._onRemove) {
+        var buttons = element.getElementsByClassName('remove');
+        buttons[0].addEventListener('click', function (e) {
+          // 0 -> left click.
+          if (e.button === 0) {
+            this._onRemove(e);
+          }
+        }.bind(this))
+      }
+
       return element;
     },
 
