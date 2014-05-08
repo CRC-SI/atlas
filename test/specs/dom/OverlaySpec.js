@@ -45,7 +45,7 @@ define([
       expect(parent.children[0].innerHTML).toEqual(content);
     });
 
-    it('is dimensionsed', function () {
+    it('has dimensions', function () {
       expect(parent.children[0].style.top).toEqual('100px');
       expect(parent.children[0].style.left).toEqual('200px');
       expect(parent.children[0].style.height).toEqual('300px');

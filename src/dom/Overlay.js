@@ -139,8 +139,9 @@ define([
       return element;
     },
 
-//////
-// MODIFIERS
+    // -------------------------------------------
+    // Modifiers
+    // -------------------------------------------
 
     /**
      * Hides the Overlay from view.
