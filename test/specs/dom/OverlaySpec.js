@@ -6,9 +6,11 @@ define([
 
   describe('An Overlay', function () {
     var parent,
-        dimensions = {
+        position = {
           top: 100,
-          left: 200,
+          left: 200
+        },
+        dimensions = {
           height: 300,
           width: 400
         },
@@ -19,7 +21,7 @@ define([
 
     beforeEach(function () {
       parent = document.createElement('div');
-      args = {parent: parent, dimensions: dimensions, content: content};
+      args = {parent: parent, position: position, dimensions: dimensions, content: content};
       overlay = new Overlay(args);
     });
 
@@ -30,19 +32,19 @@ define([
     });
 
     it('can be constructed', function () {
-      expect(overlay._parent).toBe(parent);
-      expect(overlay._dimensions).toBe(dimensions);
-      expect(overlay._content).toBe(content);
+      expect(overlay.getParent()).toBe(parent);
+      expect(overlay.getDimensions()).toBe(dimensions);
+      expect(overlay.getContent()).toContain(content);
     });
 
     it('can create an element containing plain text from content', function () {
-      expect(overlay._element.innerHTML).toEqual(content);
+      expect(overlay._element.innerHTML).toContain(content);
       expect(overlay._element.classList.contains('hidden')).toBe(false);
     });
 
     it('is attached to the parent node', function () {
       expect(parent.children.length).toBe(1);
-      expect(parent.children[0].innerHTML).toEqual(content);
+      expect(parent.children[0].innerHTML).toContain(content);
     });
 
     it('has dimensions', function () {
@@ -64,9 +66,7 @@ define([
     });
 
     it('can be removed', function() {
-      console.debug(parent.children);
       overlay.remove();
-      console.debug(parent.children);
       expect(parent.children.length).toBe(0);
     });
 
