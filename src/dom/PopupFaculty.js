@@ -15,7 +15,7 @@ define([
   // Uses EventManager:
   //   On 'entity/popup/show' display the overlay
   //   On 'entity/popup/hide'
-  //   On 'entity/deselect'
+  //   On 'entity/selection/change'
   //     - remove and destroy the overlay
   // Depends on Overlay
   // Needs a DOM element to with which to associate the overlays.
@@ -59,8 +59,19 @@ define([
      */
     _domNode: null,
 
-    _init: function (args) {
-      args = mixin({}, args);
+    _init: function () {
+      // TODO(bpstudds): Work out this dependency injection business.
+      // TODO(bpstudds): All the work occurs in setup, not when the object is initialised
+    },
+
+    /**
+     * Performs necessary initialisation after PopupFaculty's dependencies have been
+     * initialised.
+     * @param args
+     */
+    setup: function (args) {
+      // TODO(bpstudds): Work out this dependency injection business.
+      // Resolve parent DOM node where popups will be renderd.
       if (!args.parentDomNode) {
         throw new DeveloperError('PopupFaculty requires a parent DOM node to be specified.');
       } else if (typeof args.parentDomNode === 'string') {
@@ -73,20 +84,47 @@ define([
             + args.parentDomNode + '"');
       }
 
+      // Resolve the event manager
       if (args.eventManager && args.eventManager.addEventHandler) {
+        // TODO(bpstudds): Work out this dependency injection business.
+        this._eventManager = args.eventManager;
+      }
+
+      // Bind events
+      if (this._eventManager !== undefined/*this.has('eventManager')*/) {
         this.bindEvents();
       }
     },
 
-    /**
-     * Performs necessary initialisation after PopupFaculty's dependencies have been
-     * initialised.
-     * @param args
-     */
-    setup: function (args) {
-      if (this.has('eventManager')) {
-        this.bindEvents();
-      }
+    bindEvents: function () {
+      // Define some event handlers.
+      this.__eventHandlerDefs = [
+        {
+          source: 'extern',
+          name: 'entity/popup/show',
+          callback: function (args) {
+            this.show(args);
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'entity/popup/hide',
+          callback: function (args) {
+            this.hide(args);
+          }.bind(this)
+        }/*,
+        {
+          source: 'intern',
+          name: 'entity/selection/change',
+          callback: function (args) {
+            args.ids.forEach(function () {
+              this.hide({entityId: id});
+            });
+          }.bind(this)
+        }*/
+      ];
+      // Register the event handlers with the event manager.
+      this._eventHandlers = this._eventManager.addEventHandlers(this.__eventHandlerDefs);
     },
 
     // -------------------------------------------
