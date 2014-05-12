@@ -8,9 +8,10 @@ define([
       html = '<p>Text</p>',
       cssClass = 'aPopup',
       domNode,
+      position = {top: 0, left: 0},
       args = {
         entityId: entityId,
-        position: {top: 0, left: 0},
+        position: position,
         content: html
       };
 
@@ -19,7 +20,7 @@ define([
     beforeEach(function () {
       domNode = document.createElement('div');
       domNode.id = 'popupContainer';
-      document.appendChild(domNode);
+      popupFaculty = new PopupFaculty({parentDomNode: domNode});
     });
 
     afterEach(function () {
@@ -28,8 +29,8 @@ define([
     });
 
     it('should be constructed with a parent dom node', function () {
-      popupFaculty = new PopupFaculty({parentDomNode: 'popupContainer'});
-      expect(popupFaculty).not.toBeNull();
+      //popupFaculty = new PopupFaculty({parentDomNode: 'popupContainer'});
+      //expect(popupFaculty).not.toBeNull();
       popupFaculty = new PopupFaculty({parentDomNode: domNode});
       expect(popupFaculty).not.toBeNull();
     });
@@ -48,8 +49,7 @@ define([
 
     it('should show popups given HTML content, a top-left position, and a entity ID', function () {
       popup = popupFaculty.show(args);
-      expect(popup.isVisible()).toBe(true);
-      expect(popup.getContent()).toEqual(html);
+      expect(popup.getContent()).toContain(html);
       expect(popup.getPosition()).toEqual(position);
       expect(popup.getEntityId()).toEqual(entityId);
     });
@@ -61,11 +61,11 @@ define([
     });
 
     it('should hide popup identify by associated entity ID', function () {
-      popup = popupFaculty.showPopup(args);
+      popup = popupFaculty.show(args);
       expect(popup.isVisible()).toBe(true);
-      popup = popupFaculty.hidePopup(entityId)
-      expect(popup.getDom()).toBeNull();
+      popup = popupFaculty.hide({entityId: entityId});
+      expect(popup.isVisible()).toBe(false);
     });
 
   });
-});
+});entityId

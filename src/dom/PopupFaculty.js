@@ -12,13 +12,13 @@ define([
   var PopupFaculty;
 
   // Requirements:
-  // Needs a DOM element to associate with.
   // Uses EventManager:
   //   On 'entity/popup/show' display the overlay
   //   On 'entity/popup/hide'
   //   On 'entity/deselect'
   //     - remove and destroy the overlay
   // Depends on Overlay
+  // Needs a DOM element to with which to associate the overlays.
 
   // Interface:
   // The user should be able to specify:
@@ -93,6 +93,12 @@ define([
     // Popup management
     // -------------------------------------------
 
+    hide: function (args) {
+      var overlay = this._overlays.get(args.entityId);
+      overlay.remove();
+      return overlay;
+    },
+
     /**
      * Generates a new Popup and shows it. The new popup is cached so it can be re-shown
      * if necessary.
@@ -102,20 +108,23 @@ define([
       this._overlays = new ItemStore();
 
       args = mixin({
+        parent: this._domNode,
         cssClass: this.DEFAULT_CSS_CLASS,
         onRemove: 'close'
       }, args);
       if (!args.entityId) {throw new DeveloperError('Must specify entity ID associated with popup.');};
       if (!args.content) {throw new DeveloperError('Must content of popup.');};
       if (!args.position) {throw new DeveloperError('Must specify position of popup.');};
+      args.id = args.entityId;
 
-      overlay = new Overlay(args);
-      this.setOverlay(args.entityId, overlay);
+      var overlay = new Overlay(args);
+      this._setOverlay(args.entityId, overlay);
       return overlay;
     },
 
     _setOverlay: function (id, overlay) {
-      this._overlays.add(id, overlay);
+      overlay.getEntityId = function () { return id; };
+      this._overlays.add(overlay);
     }
 
   });
