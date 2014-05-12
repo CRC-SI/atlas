@@ -34,7 +34,7 @@ define([
      * @type {String}
      * @protected
      */
-    _class: null,
+    _cssClass: null,
 
     /**
      * The title to place on the overlay.
@@ -86,16 +86,17 @@ define([
     _init: function (args) {
       args = mixin({
         parent: document,
-        'class': '',
+        cssClass: '',
         title: '',
         position: {top: 0, left: 0},
+        dimensions: {width: 0, height: 0},
         content: ''
       }, args);
       if (typeof args.parent === 'string') { args.parent = document.getElementById(parent); }
 
       this._id = args.id;
       this._parent = args.parent;
-      this._class = args.class;
+      this._cssClass = args.cssClass;
       this._title = args.title;
       this._onRemove = args.onRemove;
       this._position = args.position;
@@ -111,6 +112,10 @@ define([
 
     getContent: function () {
       return this._content;
+    },
+
+    getCssClass: function () {
+      return this._cssClass;
     },
 
     getDimensions: function () {
@@ -141,7 +146,7 @@ define([
     _render: function () {
       var element = document.createElement('div');
       element.classList.add('overlay');
-      this._class !== '' && element.classList.add(this._class);
+      this._cssClass !== '' && element.classList.add(this._cssClass);
 
       // Add title and remove button to content if necessary.
       var title = '<div class="title">' + this._title;
@@ -220,7 +225,7 @@ define([
     /**
      * Converts a map of attributes to a HTML string.
      * @param {Object} data - The map of attributes to values.
-     * @param {String} [data.class=''] - The CSS class of the tag.
+     * @param {String} [data.cssClass=''] - The CSS class of the tag.
      * @param {String} [data.id=''] - The ID of the tag.
      * @param {atlas.model.Colour} [data.bgColour=null] - The CSS background-color to apply to the tag.
      * @returns {String} The HTML string of the attributes.
@@ -229,7 +234,7 @@ define([
       var html = '',
           style = '',
           data = data || {};
-      data.class && (html += 'class="' + data.class +'" ');
+      data.cssClass && (html += 'class="' + data.cssClass +'" ');
       data.id && (html += 'id="' + data.id +'" ');
       data.background && (style += 'background:' + data.background + ';');
       data.bgColour && (style += 'background-color:' + data.bgColour.toHexString() + ';');

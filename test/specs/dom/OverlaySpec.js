@@ -73,7 +73,7 @@ define([
     describe ('can generate HTML', function () {
       it ('with tag class and id', function () {
         var data = {
-          class: 'aClass',
+          cssClass: 'aClass',
           id: 'anId'
         };
         var html = Overlay.parseAttributes(data);
