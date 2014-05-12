@@ -110,6 +110,11 @@ define([
     // Getters and Setters
     // -------------------------------------------
 
+    isVisible: function () {
+      if (this._element === undefined) { return false; }
+      return !this._element.classList.contains('hidden');
+    },
+
     getContent: function () {
       return this._content;
     },
@@ -213,6 +218,7 @@ define([
      */
     remove: function () {
       if (this._element === undefined) { return; }
+      this.hide();
       this._parent.removeChild(this._element);
     }
   }); // End class instance definition
