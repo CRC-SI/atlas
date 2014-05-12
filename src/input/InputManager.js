@@ -88,7 +88,6 @@ define([
         e.metaKey && (args.modifiers.meta = true);
         e.altKey && (args.modifiers.alt = true);
         e.ctrlKey && (args.modifiers.ctrl = true);
-        console.log('last position is ', this.__lastX, this.__lastY);
         return args;
       }.bind(this);
 
@@ -113,9 +112,8 @@ define([
         name: 'mouseup',
         cback: function(e) {
           args = makeMouseEventArgs(buttonIds[e.button] + 'up', e);
-          console.log('position is ', args.position.x, args.position.y);
-          console.log('movement is ', args.movement.cx, args.movement.cy);
-          if (args.movement.cx + args.movement.cy < InputManager.CLICK_SENSITIVITY) {
+          if (Math.abs(args.movement.cx + args.movement.cy) < InputManager.CLICK_SENSITIVITY) {
+            // If mouse moved less than the sensitivity, change event type to click.
             args.name = 'input/' + buttonIds[e.button] + 'click'
           }
           this._atlasManagers.event.handleInternalEvent(args.name, args);
