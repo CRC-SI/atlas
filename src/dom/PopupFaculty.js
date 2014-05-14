@@ -148,7 +148,9 @@ define([
       args = mixin({
         parent: this._domNode,
         cssClass: this.DEFAULT_CSS_CLASS,
-        onRemove: 'close'
+        onRemove: function () {
+          this.hide(args);
+        }.bind(this)
       }, args);
       if (!args.entityId) {throw new DeveloperError('Must specify entity ID associated with popup.');};
       if (!args.content) {throw new DeveloperError('Must content of popup.');};
