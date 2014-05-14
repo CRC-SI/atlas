@@ -90,7 +90,6 @@ define([
         this._eventManager = args.eventManager;
       }
 
-      // Bind events
       if (this._eventManager !== undefined/*this.has('eventManager')*/) {
         this.bindEvents();
       }
@@ -152,10 +151,13 @@ define([
           this.hide(args);
         }.bind(this)
       }, args);
+
       if (!args.entityId) {throw new DeveloperError('Must specify entity ID associated with popup.');};
       if (!args.content) {throw new DeveloperError('Must content of popup.');};
       if (!args.position) {throw new DeveloperError('Must specify position of popup.');};
+
       args.id = args.entityId;
+
 
       var overlay = new Overlay(args);
       this._setOverlay(args.entityId, overlay);
