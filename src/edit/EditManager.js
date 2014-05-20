@@ -308,14 +308,31 @@ define([
         throw new DeveloperError('No module found with name: ' + name);
       }
 
+      var bindEvent = function(source, event, handler) {
+        this._listeners[name][event] = this._atlasManagers.event.addEventHandler(source, event,
+            handler.bind(module));
+      }.bind(this);
+
+      var bindEvents = function(source, handlers) {
+        for (var event in handlers) {
+          bindEvent(source, event, handlers[event]);
+        }
+      }.bind(this);
+
       var bindings = module.getEventBindings();
       if (!this._listeners[name]) {
         this._listeners[name] = {};
       }
+      // Allow bindings to contain 'intern' and 'extern' keys with values as bindings themselves.
+      // Otherwise treat all events as 'intern'.
       for (var event in bindings) {
-        if (bindings.hasOwnProperty(event)) {
-          this._listeners[name][event] = this._atlasManagers.event.addEventHandler('intern', event,
-              bindings[event].bind(module));
+        var value = bindings[event];
+        if (event === 'intern') {
+          bindEvents('intern', value);
+        } else if (event === 'extern') {
+          bindEvents('extern', value);
+        } else {
+          bindEvent('intern', event, value);
         }
       }
       this._enabledModules[name] = module;

@@ -17,20 +17,30 @@ define([
     _feature: null,
     _nextId: 0,
     /**
-     * @type {atlas.core.ItemStore}
+     * A set of event handlers for "entity/draw".
+     * @type {Array.<Object>}
+     */
+    _handlers: null,
+    /**
+     * @type {Array.<atlas.model.Handle>}
      */
     _handles: null,
     _startArgs: null,
+    /**
+     * The time of the last click. Used to detect a double click.
+     * @type {Date}
+     */
+    _lastClickTime: null,
+    /**
+     * The maximum amount of time difference between clicks to detect as a double click.
+     * @type {Number}
+     */
+    _doubleClickDelta: 200,
 
     _init: function(atlasManagers) {
       this._atlasManagers = atlasManagers;
       this.reset();
     },
-
-//    __start: function(args) {
-//      this._startArgs = args;
-//      console.error('start', args);
-//    },
 
     _getNextId: function() {
       return '_draw_' + ++this._nextId;
@@ -39,11 +49,13 @@ define([
     getEventBindings: function() {
       return Setter.mixin(this._super(), {
         'input/leftclick': this._add,
-        'input/left/dblclick': this._finish
+        extern: {
+          'entity/draw': this._draw
+        }
       });
     },
-    
-    _setup: function () {
+
+    _setup: function() {
       if (!this._feature) {
         this._feature = this._atlasManagers.entity.createFeature(this._getNextId(), {
           polygon: {
@@ -54,59 +66,67 @@ define([
       }
     },
 
+    _draw: function(args) {
+      var onUpdate = args.update;
+      var onCreate = args.create;
+      onUpdate && this._handlers.update.push(onUpdate);
+      onCreate && this._handlers.create.push(onCreate);
+    },
+
+    _executeHandlers: function(handlers) {
+      handlers.forEach(function(handler) {
+        handler.call(this, {
+          feature: this._feature,
+          vertices: this._vertices
+        });
+      }, this);
+    },
+
     _add: function(args) {
+      if (this._lastClickTime) {
+        var diff = Date.now() - this._lastClickTime;
+        if (diff <= this._doubleClickDelta) {
+          this._finish(args);
+          return;
+        }
+      }
+      this._lastClickTime = Date.now();
       this._setup();
       var point = this._atlasManagers.render.convertScreenCoordsToLatLng(args.position);
       var vertex = point.toVertex();
       this._vertices.push(vertex);
-      
+
       var handle = this._feature.createHandle(vertex);
       this._handles.push(handle);
       handle.render();
       if (this._vertices.length >= 3) {
         this._feature.show();
       }
+      this._executeHandlers(this._handlers.update);
     },
 
     _finish: function(args) {
-      this._handles.forEach(function (handle) {
+      this._handles.forEach(function(handle) {
         handle.remove();
       });
-      // Since we captured the last click as well, remove the last vertex.
-      this._vertices.pop();
-      this._feature.show();
+      if (this._vertices.length < 3) {
+        alert('A polygon must have at least 3 vertices.');
+        return;
+      }
+      this._executeHandlers(this._handlers.create);
+      this.reset();
       this.disable();
     },
 
-//    _remove: function() {
-//      console.error('remove');
-//      this.reset();
-//    },
-
-//    __end: function(args) {
-//      console.error('end', args);
-//      var posDiff = new Vertex(this._startArgs.position).subtract(new Vertex(args.position));
-//      if (posDiff.x === 0 && posDiff.y === 0) {
-//        var point = this._atlasManagers.render.convertScreenCoordsToLatLng(args.position);
-//        var vertex = point.toVertex();
-//        this._vertices.push(vertex);
-//        this._feature = new Polygon();
-//        this._feature._vertices = this._vertices;
-//        var handles = this._feature.createHandles();
-//        this._handles.addArray(handles);
-//        this._handles.map('render');
-//        console.error('handles', handles);
-//
-//      }
-//    },
-
     reset: function() {
-//      if (this._feature) {
-//        this._feature.remove();
-//        this._feature = null;
-//      }
+      this._feature = null;
       this._vertices = null;
-      this._handles = []; // TODO(aramk) .remove();
+      this._handles = [];
+      this._handlers = {
+        update: [],
+        create: []
+      };
+      this._lastClickTime = null;
     }
 
   });
