@@ -1,11 +1,13 @@
 define([
   'atlas/core/ItemStore',
   'atlas/edit/TranslationModule',
+  'atlas/edit/DrawModule',
   'atlas/lib/utility/Log',
   'atlas/model/Handle',
   'atlas/util/Class',
+  'atlas/util/DeveloperError',
   'atlas/util/mixin'
-], function(ItemStore, TranslationModule, Log, Handle, Class, mixin) {
+], function(ItemStore, TranslationModule, DrawModule, Log, Handle, Class, DeveloperError, mixin) {
 
   // TODO(aramk) refactor this into abstract atlas.core.ModularManager and use elsewhere (e.g. RenderManager).
   /**
@@ -32,7 +34,7 @@ define([
     _atlasManagers: null,
 
     /**
-     * Whether editing is enabled is currently enabled for <code>_entities</code>.
+     * Whether editing is currently enabled for <code>_entities</code>.
      * @type {boolean}
      */
     _editing: null,
@@ -113,6 +115,8 @@ define([
       this.addModule('translation', new TranslationModule(this._atlasManagers));
       // TODO(aramk) Disabled translation by default.
       this.enableModule('translation');
+      this.addModule('draw', new DrawModule(this._atlasManagers));
+      this.enableModule('draw');
       this.bindEvents();
     },
 
@@ -276,6 +280,7 @@ define([
      */
     addModule: function(name, module) {
       this._modules[name] = module;
+      module._name = name;
       this.disableModule(name);
     },
 
@@ -299,16 +304,20 @@ define([
      */
     enableModule: function(name) {
       var module = this.getModule(name);
-      if (!module) return;
+      if (!module) {
+        throw new DeveloperError('No module found with name: ' + name);
+      }
 
-      /*var bindings = module.getEventBindings();
-       if (!this._listeners[name]) this._listeners[name] = {};
-       for (var event in bindings) {
-       if (bindings.hasOwnProperty(event)) {
-       this._listeners[name][event] = this._atlasManagers.event.addEventHandler('intern', event,
-       bindings[event].bind(module));
-       }
-       }*/
+      var bindings = module.getEventBindings();
+      if (!this._listeners[name]) {
+        this._listeners[name] = {};
+      }
+      for (var event in bindings) {
+        if (bindings.hasOwnProperty(event)) {
+          this._listeners[name][event] = this._atlasManagers.event.addEventHandler('intern', event,
+              bindings[event].bind(module));
+        }
+      }
       this._enabledModules[name] = module;
     },
 
@@ -317,13 +326,12 @@ define([
      * @param {String} name - The name of the module.
      */
     disableModule: function(name) {
-      // TODO(aramk) use "handler" or "listener" and not both?
-//      var listeners = this._listeners[name];
-//      for (var event in listeners) {
-//        if (listeners.hasOwnProperty(event)) {
-//          listeners[event].cancel();
-//        }
-//      }
+      var listeners = this._listeners[name];
+      for (var event in listeners) {
+        if (listeners.hasOwnProperty(event)) {
+          listeners[event].cancel();
+        }
+      }
       delete this._enabledModules[name];
     },
 
@@ -366,6 +374,7 @@ define([
      * @param e
      */
     onLeftDown: function(e) {
+//      this._delegateToModules('startDrag', arguments);
       // Check whether a Handle was clicked.
       // getAt always returns an array, but we only care about the top most Entity.
       var targetId = this._atlasManagers.render.getAt(e.position)[0],
@@ -376,25 +385,24 @@ define([
 
       this._dragTarget = target;
       e.target = this._dragTarget;
-      this._delegateToModules('startDrag', arguments);
     },
 
     onMouseMove: function(e) {
+//      this._delegateToModules('updateDrag', arguments);
       if (!this._dragTarget) {
         return;
       }
       e.target = this._dragTarget;
-      this._delegateToModules('updateDrag', arguments);
     },
 
     onLeftUp: function(e) {
+      this._delegateToModules('endDrag', arguments);
       if (!this._dragTarget) {
         return;
       }
 
       e.target = this._dragTarget;
       this._dragTarget = null;
-      this._delegateToModules('endDrag', arguments);
     }
 
   });

@@ -45,6 +45,9 @@ define([
    * translation, only the target entity is translated.
    */
   TranslationModule.prototype.startDrag = function(args) {
+    if (!args.target) {
+      return;
+    }
     this._target = args.target;
     // Lock up camera
     this._atlasManagers.camera.lockCamera();

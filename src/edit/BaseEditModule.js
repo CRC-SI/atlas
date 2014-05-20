@@ -1,101 +1,119 @@
-define([], function() {
-
+define([
+  'atlas/util/Class'
+], function(Class) {
   /**
-   * Constructs a new BaseEditModule object.
-   * @class The BaseEditModule defines the common interface for <code>Modules</code> used in
+   * Defines the common interface for <code>Modules</code> used in
    * the {@link atlas.edit.EditManager}.
-   *
+   * @class atlas.edit.BaseEditModule
    * @abstract
-   * @alias atlas.edit.BaseEditModule
-   * @constructor
    */
-  var BaseEditModule = function() {
+  return Class.extend(/** @class atlas.edit.BaseEditModule# */ {
+
     /**
-     * A set of strings as keys in an object which define what modes are enabled
-     * for the module. Modes determine the behaviour of the module and are implementation specific.
-     * @type {Object}
+     * The name of the module set by the {@link atlas.edit.EditManager}.
+     * @type {String}
      */
-    this._modes = {};
-  };
+    _name: null,
+    /**
+     * A map of strings used by the module which determines its behaviour.
+     * @type {Object.<String, Object>}
+     */
+    _modes: null,
+    _atlasManagers: null,
 
-  /**
-   * @returns {Object} A mapping of event strings to methods which will be used as event handlers.
-   */
-  BaseEditModule.prototype.getEventBindings = function() {
-    return {
-      'input/leftdown': this.start,
-      'input/mousemove': this.update,
-      'input/leftup': this.end,
-      'input/key': function (name, event) {
-        // TODO(aramk) find a nice way to map key codes.
-        if (event.keyCode === 27) {
-          return this.cancel(name, event);
+    _init: function(atlasManagers) {
+      this._atlasManagers = atlasManagers;
+      this._modes = {};
+    },
+
+    /**
+     * @returns {Object} A mapping of event strings to methods which will be used as event handlers.
+     */
+    getEventBindings: function() {
+      return {
+        'input/leftdown': this.start,
+        'input/mousemove': this.update,
+        'input/leftup': this.end,
+        'input/key': function(name, event) {
+          // TODO(aramk) find a nice way to map key codes.
+          if (event.keyCode === 27) {
+            return this.cancel(name, event);
+          }
+          return function() {
+          };
         }
-        return function () {};
       }
+    },
+
+    /**
+     * Sets a mode on the module. Invalid modes will be ignored by the module.
+     * @param {String} mode -
+     * @param {Object} [args=null] - Optional arguments associated with the mode.
+     */
+    setMode: function(mode, args) {
+      this._modes[mode] = args || null;
+    },
+
+    /**
+     * @returns {Object.<String, Object>} The modes for this module.
+     */
+    getModes: function() {
+      return this._modes;
+    },
+
+    /**
+     * @returns {Boolean} Whether the given mode is enabled.
+     * @param {String} mode - The mode name.
+     */
+    hasMode: function(mode) {
+      return this._modes[mode] !== undefined;
+    },
+
+    /**
+     * Removes the mode with the given name from this module.
+     * @param mode - The name of the mode.
+     */
+    removeMode: function(mode) {
+      delete this._modes[mode];
+    },
+
+    /**
+     * An event handler which starts the action this module performs.
+     * @param {Object} args - Event arguments.
+     * @abstract
+     */
+    start: function(args) {
+    },
+
+    /**
+     * An event handler which updates the progress of the action this module performs.
+     * @param {Object} args - Event arguments.
+     * @abstract
+     */
+    update: function(args) {
+    },
+
+    /**
+     * An event handler which ends the action this module performs.
+     * @param {Object} args - Event arguments.
+     * @abstract
+     */
+    end: function(args) {
+    },
+
+    /**
+     * Cancels the action performed by this module and returns to the state before
+     * {@link BaseEditModule.start} was called.
+     * @param {Object} args - Event arguments.
+     * @abstract
+     */
+    cancel: function(args) {
+    },
+
+    disable: function () {
+      // TODO(aramk) Module should ideally not know about the manager.
+      this._atlasManagers.edit.disableModule(this._name);
     }
-  };
 
-  /**
-   * Sets a mode on the module. Invalid modes will be ignored by the module.
-   * @param {String} mode - A string used by the module which determines its behaviour.
-   * @param {Object} [args=null] - Optional arguments associated with the mode.
-   */
-  BaseEditModule.prototype.setMode = function(mode, args) {
-    this._modes[mode] = args || null;
-  };
-
-  /**
-   * @returns {Object} All the enabled modes belonging to this module.
-   */
-  BaseEditModule.prototype.getModes = function() {
-    return this._modes;
-  };
-
-  /**
-   * @returns {Boolean} Whether this .
-   * @param {String} mode - The mode name.
-   */
-  BaseEditModule.prototype.hasMode = function(mode) {
-    return this._modes[mode] !== undefined;
-  };
-
-  /**
-   * Removes the mode with the given name from this module.
-   * @param mode - The name of the mode.
-   */
-  BaseEditModule.prototype.removeMode = function(mode) {
-    delete this._modes[mode];
-  };
-
-  /**
-   * An event handler which starts the action this module performs.
-   * @param {Object} args - Event arguments.
-   * @abstract
-   */
-  BaseEditModule.prototype.start = function(args) {};
-
-  /**
-   * An event handler which updates the progress of the action this module performs.
-   * @param {Object} args - Event arguments.
-   * @abstract
-   */
-  BaseEditModule.prototype.update = function(args) {};
-
-  /**
-   * An event handler which ends the action this module performs.
-   * @param {Object} args - Event arguments.
-   * @abstract
-   */
-  BaseEditModule.prototype.end = function(args) {};
-
-  /**
-   * Cancels the action performed by this module and returns to the state before
-   * {@link BaseEditModule.start} was called.
-   * @param {Object} args - Event arguments.
-   * @abstract
-   */
-  BaseEditModule.prototype.cancel = function(args) {};
-
-  return BaseEditModule;
+  });
 });
