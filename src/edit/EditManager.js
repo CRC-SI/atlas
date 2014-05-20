@@ -221,7 +221,10 @@ define([
      * are used.
      */
     enable: function(args) {
-      args = mixin({}, args);
+      args = mixin({
+        show: true,
+        addHandles: true
+      }, args);
       if (!args.entities) {
         if (args.ids) {
           args.entities = this._atlasManagers.entity.getByIds(args.ids);
@@ -235,8 +238,8 @@ define([
       this._entities.addArray(args.entities);
 
       // Render the editing handles.
-      this._entities.forEach(function(entity) {
-        entity.showAsFootprint();
+      args.addHandles && this._entities.forEach(function(entity) {
+        args.show && entity.showAsFootprint();
         // Put the Handles into the EntityManager and render them.
         this._handles.addArray(entity.createHandles());
         this._handles.map('render');
@@ -391,7 +394,6 @@ define([
      * @param e
      */
     onLeftDown: function(e) {
-//      this._delegateToModules('startDrag', arguments);
       // Check whether a Handle was clicked.
       // getAt always returns an array, but we only care about the top most Entity.
       var targetId = this._atlasManagers.render.getAt(e.position)[0],
@@ -402,24 +404,25 @@ define([
 
       this._dragTarget = target;
       e.target = this._dragTarget;
+      this._delegateToModules('startDrag', arguments);
     },
 
     onMouseMove: function(e) {
-//      this._delegateToModules('updateDrag', arguments);
       if (!this._dragTarget) {
         return;
       }
       e.target = this._dragTarget;
+      this._delegateToModules('updateDrag', arguments);
     },
 
     onLeftUp: function(e) {
-      this._delegateToModules('endDrag', arguments);
       if (!this._dragTarget) {
         return;
       }
 
       e.target = this._dragTarget;
       this._dragTarget = null;
+      this._delegateToModules('endDrag', arguments);
     }
 
   });

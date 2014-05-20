@@ -25,10 +25,9 @@ define([
      * @type {Array.<atlas.model.Handle>}
      */
     _handles: null,
-    _startArgs: null,
     /**
-     * The time of the last click. Used to detect a double click.
-     * @type {Date}
+     * The milliseconds from epoch of the last click. Used to detect a double click.
+     * @type {Number}
      */
     _lastClickTime: null,
     /**
@@ -63,6 +62,8 @@ define([
           }
         });
         this._vertices = this._feature.getVertices();
+        this._atlasManagers.edit.enable({
+          entities: [this._feature], show: false, addHandles: false});
       }
     },
 
@@ -83,6 +84,12 @@ define([
     },
 
     _add: function(args) {
+      var targetId = this._atlasManagers.render.getAt(args.position)[0],
+          target = this._handles.get(targetId);
+      if (target) {
+        this._finish(args);
+      }
+
       if (this._lastClickTime) {
         var diff = Date.now() - this._lastClickTime;
         if (diff <= this._doubleClickDelta) {
@@ -91,14 +98,17 @@ define([
         }
       }
       this._lastClickTime = Date.now();
+
       this._setup();
       var point = this._atlasManagers.render.convertScreenCoordsToLatLng(args.position);
       var vertex = point.toVertex();
       this._vertices.push(vertex);
 
       var handle = this._feature.createHandle(vertex);
-      this._handles.push(handle);
+      this._handles.add(handle);
       handle.render();
+      // TODO(aramk) Abstract this.
+      this._atlasManagers.edit._handles.add(handle);
       if (this._vertices.length >= 3) {
         this._feature.show();
       }
@@ -121,12 +131,13 @@ define([
     reset: function() {
       this._feature = null;
       this._vertices = null;
-      this._handles = [];
+      this._handles = new ItemStore();
       this._handlers = {
         update: [],
         create: []
       };
       this._lastClickTime = null;
+      this._atlasManagers.edit.disable();
     }
 
   });
