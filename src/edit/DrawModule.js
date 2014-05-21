@@ -135,6 +135,10 @@ define([
       if (this._lastClickTime) {
         var diff = Date.now() - this._lastClickTime;
         if (diff <= this._doubleClickDelta) {
+          // Remove the point added on the first click. NOTE: it will still invoke the update
+          // callback.
+          this._vertices.pop();
+          this._render();
           this._stop(args);
           return;
         }
@@ -150,10 +154,18 @@ define([
       handle.render();
       // TODO(aramk) Abstract this.
       handles.add(handle);
+      this._render();
+      this._executeHandlers(this._handlers.update);
+    },
+
+    /**
+     * Renders the feature if it's safe to do so (has the minimum number of vertices).
+     * @private
+     */
+    _render: function() {
       if (this._vertices.length >= 3) {
         this._feature.show();
       }
-      this._executeHandlers(this._handlers.update);
     },
 
     /**
