@@ -1,25 +1,36 @@
 define([
   './BaseEditModule',
-  'atlas/model/GeoEntity',
-  'atlas/model/Vertex',
-//  'atlas-cesium/model/Polygon',
-  'atlas/core/ItemStore',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter'
-], function(BaseEditModule, GeoEntity, Vertex, ItemStore, Log, Setter) {
+], function(BaseEditModule, Log, Setter) {
 
-  // TODO(aramk) Docs.
+  /**
+   * @typedef atlas.edit.DrawModule
+   * @ignore
+   */
+  var DrawModule;
 
-  return BaseEditModule.extend({
+  /**
+   * @classdesc Handles logic for drawing {@link atlas.model.Polygon} objects through user
+   * interaction.
+   * @extends {atlas.render.BaseEditModule}
+   * @class atlas.edit.DrawModule
+   */
+  DrawModule = BaseEditModule.extend({
 
-    _atlasManagers: null,
-    _vertices: null,
-    _feature: null,
-    _nextId: 0,
     /**
-     * @type {Array.<atlas.model.Handle>}
+     * Whether an object is being drawn at the moment.
+     * @type {Boolean}
      */
-    _handles: null,
+    // TODO(aramk) Avoid using a state variable and have two levels of event bindings instead
+    // - one which only works when the module is enabled, and another which is always bound.
+    _isDrawing: false,
+    _vertices: null,
+    /**
+     * Contains the {@link atlas.model.Polygon} being drawn.
+     * @type {atlas.model.Feature}
+     */
+    _feature: null,
     /**
      * The milliseconds from epoch of the last click. Used to detect a double click.
      * @type {Number}
@@ -30,9 +41,14 @@ define([
      * @type {Number}
      */
     _doubleClickDelta: 200,
+    /**
+     * Used the generate IDs for the drawn objects.
+     * @type {Number}
+     */
+    _nextId: 0,
 
     _init: function(atlasManagers) {
-      this._atlasManagers = atlasManagers;
+      this._super(atlasManagers);
       this.reset();
     },
 
@@ -49,6 +65,10 @@ define([
       });
     },
 
+    /**
+     * Sets up the resources needed before drawing.
+     * @private
+     */
     _setup: function() {
       if (!this._feature) {
         this._feature = this._atlasManagers.entity.createFeature(this._getNextId(), {
@@ -62,13 +82,27 @@ define([
       }
     },
 
+    /**
+     * Called at the start of the drawing to bind event callbacks.
+     * @param {Object} args
+     * @param {Function} [args.update] - A callback invoked as the object is drawn (vertices are
+     * added).
+     * @param {Function} [args.create] - A callback invoked when drawing is complete.
+     * @private
+     */
     _draw: function(args) {
       var onUpdate = args.update;
       var onCreate = args.create;
       onUpdate && this._handlers.update.push(onUpdate);
       onCreate && this._handlers.create.push(onCreate);
+      this._isDrawing = true;
     },
 
+    /**
+     * Executes the given handlers with the drawn object.
+     * @param handlers
+     * @private
+     */
     _executeHandlers: function(handlers) {
       handlers.forEach(function(handler) {
         handler.call(this, {
@@ -78,7 +112,14 @@ define([
       }, this);
     },
 
+    /**
+     * Called when a vertex should be added during drawing.
+     * @private
+     */
     _add: function(args) {
+      if (!this._isDrawing) {
+        return;
+      }
       var handles = this._atlasManagers.edit._handles;
       var targetId = this._atlasManagers.render.getAt(args.position)[0],
           target = handles.get(targetId);
@@ -112,6 +153,10 @@ define([
       this._executeHandlers(this._handlers.update);
     },
 
+    /**
+     * Called when drawing has finished.
+     * @private
+     */
     _finish: function(args) {
       if (this._vertices.length < 3) {
         alert('A polygon must have at least 3 vertices.');
@@ -119,9 +164,11 @@ define([
       }
       this._executeHandlers(this._handlers.create);
       this.reset();
-      this.disable();
     },
 
+    /**
+     * Removes drawing resources.
+     */
     reset: function() {
       this._feature = null;
       this._vertices = null;
@@ -130,8 +177,10 @@ define([
         create: []
       };
       this._lastClickTime = null;
+      this._isDrawing = false;
       this._atlasManagers.edit.disable();
     }
 
   });
+  return DrawModule;
 });
