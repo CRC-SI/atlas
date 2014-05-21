@@ -103,7 +103,7 @@ define([
           callback: function(args) {
             Log.time('entity/remove');
             var entity = this.getById(args.id);
-            entity.remove();
+            entity && entity.remove();
             Log.timeEnd('entity/remove');
           }.bind(this)
         },
