@@ -12,6 +12,7 @@ define([
     /**
      * The name of the module set by the {@link atlas.edit.EditManager}.
      * @type {String}
+     * @private
      */
     _name: null,
     /**
@@ -27,7 +28,8 @@ define([
     },
 
     /**
-     * @returns {Object} A mapping of event strings to methods which will be used as event handlers.
+     * @returns {Object.<String, atlas.edit.Handler>} A mapping of event strings to handler
+     * arguments.
      */
     getEventBindings: function() {
       return {
@@ -113,7 +115,25 @@ define([
     disable: function () {
       // TODO(aramk) Module should ideally not know about the manager.
       this._atlasManagers.edit.disableModule(this._name);
+    },
+
+    enable: function () {
+      this._atlasManagers.edit.enableModule(this._name);
     }
+
+    /**
+     * Either a callback function or an object containing the given parameters.
+     * @typedef {Function|Object} atlas.edit.Handler
+     * @param {Function} callback
+     * @param {String} [source='intern'] - Either 'intern' or 'extern'
+     * @param {Boolean} [persistent=false] - If false the handler will be cancelled when the
+     * module is disabled. Otherwise it will remain enabled. Calling {@link #disable} is appropriate
+     * when the module no longer requires handler callbacks, but then the module has no way of
+     * enabling itself when needed without knowledge of individual modules in the manager. Having a
+     * persistent handler allows for calling {@link #enable} even when the module is disabled. The
+     * alternative would be to use state variables and return early in the callbacks which do not
+     * need to run, but this adds an unnecessary overhead to the event-driven architecture.
+     */
 
   });
 });

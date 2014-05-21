@@ -3,11 +3,13 @@ define([
   'atlas/edit/TranslationModule',
   'atlas/edit/DrawModule',
   'atlas/lib/utility/Log',
+  'atlas/lib/utility/Type',
   'atlas/model/Handle',
   'atlas/util/Class',
   'atlas/util/DeveloperError',
   'atlas/util/mixin'
-], function(ItemStore, TranslationModule, DrawModule, Log, Handle, Class, DeveloperError, mixin) {
+], function(ItemStore, TranslationModule, DrawModule, Log, Type, Handle, Class, DeveloperError,
+            mixin) {
 
   // TODO(aramk) refactor this into abstract atlas.core.ModularManager and use elsewhere (e.g. RenderManager).
   /**
@@ -65,7 +67,7 @@ define([
 
     /**
      * Contains a mapping of module name to Module object.
-     * @type {Object.<String,Object>}
+     * @type {Object.<String, atlas.edit.BaseEditModule>}
      */
     _modules: null,
 
@@ -113,9 +115,7 @@ define([
      */
     setup: function() {
       this.addModule('translation', new TranslationModule(this._atlasManagers));
-      this.enableModule('translation');
       this.addModule('draw', new DrawModule(this._atlasManagers));
-      this.enableModule('draw');
       this.bindEvents();
     },
 
@@ -235,6 +235,7 @@ define([
       this._editing = true;
       this.bindMouseInput();
       this._entities.addArray(args.entities);
+      this.enableModule('translation');
 
       // Render the editing handles.
       args.addHandles && this._entities.forEach(function(entity) {
@@ -278,14 +279,20 @@ define([
     /**
      * Adds a new module with the given name.
      * @param {String} name - The name of the module.
-     * @param {Object} module - The module.
+     * @param {atlas.edit.BaseEditModule} module - The module.
      */
     addModule: function(name, module) {
       this._modules[name] = module;
       module._name = name;
+      // Ensures any persistent handlers are bound.
+      this.enableModule(name);
       this.disableModule(name);
     },
 
+    /**
+     * @param name
+     * @returns {atlas.edit.BaseEditModule}
+     */
     getModule: function(name) {
       return this._modules[name];
     },
@@ -309,32 +316,32 @@ define([
       if (!module) {
         throw new DeveloperError('No module found with name: ' + name);
       }
+      if (this._enabledModules[name]) {
+        // Already enabled - don't bind events twice.
+        return;
+      }
 
-      var bindEvent = function(source, event, handler) {
-        this._listeners[name][event] = this._atlasManagers.event.addEventHandler(source, event,
-            handler.bind(module));
-      }.bind(this);
-
-      var bindEvents = function(source, handlers) {
-        for (var event in handlers) {
-          bindEvent(source, event, handlers[event]);
+      var bindEvent = function(event, args) {
+        var handler,
+            source = 'intern';
+        if (Type.isFunction(args)) {
+          handler = args;
+        } else {
+          handler = args.callback;
+          source = args.source || source;
         }
+        var handle = this._atlasManagers.event.addEventHandler(source, event,
+            handler.bind(module));
+        handle.persistent = !!args.persistent;
+        this._listeners[name][event] = handle;
       }.bind(this);
 
       var bindings = module.getEventBindings();
-      if (!this._listeners[name]) {
-        this._listeners[name] = {};
-      }
-      // Allow bindings to contain 'intern' and 'extern' keys with values as bindings themselves.
-      // Otherwise treat all events as 'intern'.
+      this._listeners[name] = this._listeners[name] || {};
       for (var event in bindings) {
-        var value = bindings[event];
-        if (event === 'intern') {
-          bindEvents('intern', value);
-        } else if (event === 'extern') {
-          bindEvents('extern', value);
-        } else {
-          bindEvent('intern', event, value);
+        if (bindings.hasOwnProperty(event)) {
+          var value = bindings[event];
+          bindEvent(event, value);
         }
       }
       this._enabledModules[name] = module;
@@ -348,7 +355,8 @@ define([
       var listeners = this._listeners[name];
       for (var event in listeners) {
         if (listeners.hasOwnProperty(event)) {
-          listeners[event].cancel();
+          var handle = listeners[event];
+          !handle.persistent && handle.cancel();
         }
       }
       delete this._enabledModules[name];

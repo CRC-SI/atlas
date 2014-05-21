@@ -1,10 +1,11 @@
 define([
   'atlas/edit/BaseEditModule',
   'atlas/lib/utility/Log',
+  'atlas/lib/utility/Setter',
   'atlas/model/Vertex',
   'atlas/util/Class',
   'atlas/util/default'
-], function(BaseEditModule, Log, Vertex, Class, defaultValue) {
+], function(BaseEditModule, Log, Setter, Vertex, Class, defaultValue) {
 
   /**
    * @typedef atlas.edit.TranslationModule

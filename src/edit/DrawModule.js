@@ -18,13 +18,6 @@ define([
    */
   DrawModule = BaseEditModule.extend({
 
-    /**
-     * Whether an object is being drawn at the moment.
-     * @type {Boolean}
-     */
-    // TODO(aramk) Avoid using a state variable and have two levels of event bindings instead
-    // - one which only works when the module is enabled, and another which is always bound.
-    _isDrawing: false,
     _vertices: null,
     /**
      * Contains the {@link atlas.model.Polygon} being drawn.
@@ -59,8 +52,10 @@ define([
     getEventBindings: function() {
       return Setter.mixin(this._super(), {
         'input/leftclick': this._add,
-        extern: {
-          'entity/draw': this._draw
+        'entity/draw': {
+          callback: this._draw,
+          source: 'extern',
+          persistent: true
         }
       });
     },
@@ -95,7 +90,8 @@ define([
       var onCreate = args.create;
       onUpdate && this._handlers.update.push(onUpdate);
       onCreate && this._handlers.create.push(onCreate);
-      this._isDrawing = true;
+      this.enable();
+      this._atlasManagers.edit.enableModule('translation');
     },
 
     /**
@@ -117,9 +113,6 @@ define([
      * @private
      */
     _add: function(args) {
-      if (!this._isDrawing) {
-        return;
-      }
       var handles = this._atlasManagers.edit._handles;
       var targetId = this._atlasManagers.render.getAt(args.position)[0],
           target = handles.get(targetId);
@@ -164,6 +157,7 @@ define([
       }
       this._executeHandlers(this._handlers.create);
       this.reset();
+      this.disable();
     },
 
     /**
@@ -177,7 +171,6 @@ define([
         create: []
       };
       this._lastClickTime = null;
-      this._isDrawing = false;
       this._atlasManagers.edit.disable();
     }
 
