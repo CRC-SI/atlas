@@ -3,13 +3,25 @@ define([
   'atlas/selection/SelectionManager'
 ], function (SelectionManager) {
   var sm,
+      entityManager = {
+        getByIds: function (ids) {
+          var ents = [];
+          ids.forEach(function (id) {
+            var i = parseInt(id, 10);
+            ents.push(entities[i]);
+          });
+          return ents;
+        }
+      },
       managers,
       entities;
 
   describe('A SelectionManager', function () {
 
     beforeEach(function () {
-      managers = {};
+      managers = {
+        entity: entityManager
+      };
       entities = [];
       ['1', '2', '3', '4'].forEach(function(id) {
         entities.push({
