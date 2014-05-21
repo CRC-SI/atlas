@@ -117,14 +117,25 @@ define([
     },
 
     bindEvents: function() {
+      var editButtonHandle = null;
       var handlers = [
         {
-          source: 'intern',
-          name: 'input/keyup',
-          callback: function(event) {
-            // TODO(bpstudds): Make an enum for the keyboard event key values.
-            if (event.key === 69 /* lowercase 'e' */) {
-              this.toggleEditing();
+          source: 'extern',
+          name: 'editButton',
+          callback: function(state) {
+            // Bind the event for enabling editing with the keyboard only when needed and allow
+            // unbinding. By default the key is unbound to avoid issues when typing.
+            if (state && !editButtonHandle) {
+              editButtonHandle = this._atlasManagers.event.addEventHandler('intern', 'input/keyup',
+                  function(event) {
+                    // TODO(bpstudds): Make an enum for the keyboard event key values.
+                    if (event.key === 69 /* lowercase 'e' */) {
+                      this.toggleEditing();
+                    }
+                  }.bind(this));
+            } else if (editButtonHandle) {
+              editButtonHandle.cancel();
+              editButtonHandle = null;
             }
           }.bind(this)
         },
