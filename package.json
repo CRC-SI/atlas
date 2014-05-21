@@ -21,7 +21,7 @@
     "grunt-shell": "~0.6.3",
     "load-grunt-tasks": "~0.2.1",
     "karma": "~0.12.14",
-    "karma-jasmine": "~0.1.5",
+    "karma-jasmine": "~0.2",
     "requirejs": "~2.1.11",
     "karma-requirejs": "~0.2.1"
   }

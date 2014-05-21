@@ -1,16 +1,17 @@
 var tests = [];
     specsConfig = [
+      { name: 'camera/Camera', run: true },
+      { name: 'core/ItemStore', run: true },
+      { name: 'dom/PopupFaculty', run: true },
+      { name: 'dom/Overlay', run: true },
+      { name: 'edit/EditManager', run: true },
+      { name: 'entity/EntityManager', run: true },
+      { name: 'model/Handle', run: true },
+      { name: 'model/Ellipse', run: true },
       { name: 'visualisation/AbstractProjection', run: true },
       { name: 'visualisation/HeightProjection', run: true },
       { name: 'visualisation/ColourProjection', run: true },
       { name: 'visualisation/DynamicProjection', run: true },
-      { name: 'core/ItemStore', run: true },
-      { name: 'dom/Overlay', run: true },
-      { name: 'model/Handle', run: true },
-      { name: 'model/Ellipse', run: true },
-      { name: 'edit/EditManager', run: true },
-      { name: 'entity/EntityManager', run: true },
-      { name: 'camera/Camera', run: true },
     ];
 
 specsConfig.forEach(function (config) {
