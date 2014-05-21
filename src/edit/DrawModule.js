@@ -86,7 +86,7 @@ define([
       if (!this._feature) {
         this._feature = this._atlasManagers.entity.createFeature(this._getNextId(), {
           polygon: {vertices: []},
-          line: {vertices: []},
+          line: {vertices: [], width: '2px'},
           displayMode: Feature.DisplayMode.FOOTPRINT
         });
 //        this._vertices = this._feature.getVertices();
