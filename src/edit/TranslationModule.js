@@ -29,6 +29,7 @@ define([
      * @type {Object.<String, atlas.model.GeoEntity>}
      * @private
      */
+    // TODO(aramk) This isn't used at the moment - only _target is.
     this._entities = {};
 
     this._MOVE_SENSITIVITY = defaultValue(args.moveSensitivity, 5);
@@ -89,8 +90,8 @@ define([
    * Cancels the translation and moves all back to their original locations before translation began.
    */
   TranslationModule.prototype.cancel = function(args) {
-    if (!this._entities) {
-      Log.debug('No translation is taking place - cannot cancel', name, args);
+    if (!this._target) {
+      Log.debug('No translation is taking place - cannot cancel', args);
     } else {
       this._atlasManagers.camera.unlockCamera();
       this._translate(this._lastLocation, this._originalLocation);
@@ -128,6 +129,7 @@ define([
     this._entities = undefined;
     this._entities = null;
     delete this._entities;
+    this._target = null;
     this._lastLocation = null;
     this._originalLocation = null;
   };

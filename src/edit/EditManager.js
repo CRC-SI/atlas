@@ -113,7 +113,6 @@ define([
      */
     setup: function() {
       this.addModule('translation', new TranslationModule(this._atlasManagers));
-      // TODO(aramk) Disabled translation by default.
       this.enableModule('translation');
       this.addModule('draw', new DrawModule(this._atlasManagers));
       this.enableModule('draw');

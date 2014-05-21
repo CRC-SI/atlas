@@ -17,11 +17,6 @@ define([
     _feature: null,
     _nextId: 0,
     /**
-     * A set of event handlers for "entity/draw".
-     * @type {Array.<Object>}
-     */
-    _handlers: null,
-    /**
      * @type {Array.<atlas.model.Handle>}
      */
     _handles: null,
@@ -84,10 +79,13 @@ define([
     },
 
     _add: function(args) {
+      var handles = this._atlasManagers.edit._handles;
       var targetId = this._atlasManagers.render.getAt(args.position)[0],
-          target = this._handles.get(targetId);
+          target = handles.get(targetId);
       if (target) {
+        this._atlasManagers.edit.getModule('translation').cancel();
         this._finish(args);
+        return;
       }
 
       if (this._lastClickTime) {
@@ -105,10 +103,9 @@ define([
       this._vertices.push(vertex);
 
       var handle = this._feature.createHandle(vertex);
-      this._handles.add(handle);
       handle.render();
       // TODO(aramk) Abstract this.
-      this._atlasManagers.edit._handles.add(handle);
+      handles.add(handle);
       if (this._vertices.length >= 3) {
         this._feature.show();
       }
@@ -116,9 +113,6 @@ define([
     },
 
     _finish: function(args) {
-      this._handles.forEach(function(handle) {
-        handle.remove();
-      });
       if (this._vertices.length < 3) {
         alert('A polygon must have at least 3 vertices.');
         return;
@@ -131,7 +125,6 @@ define([
     reset: function() {
       this._feature = null;
       this._vertices = null;
-      this._handles = new ItemStore();
       this._handlers = {
         update: [],
         create: []
