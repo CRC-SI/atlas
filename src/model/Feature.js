@@ -138,15 +138,18 @@ define([
       return form && form.getVertices();
     },
 
-    getForm: function() {
-      var form = undefined;
-      if (this._displayMode === Feature.DisplayMode.FOOTPRINT ||
-          this._displayMode === Feature.DisplayMode.EXTRUSION) {
+    getForm: function(displayMode) {
+      displayMode = displayMode || this._displayMode;
+      var form;
+      if (displayMode === Feature.DisplayMode.FOOTPRINT ||
+          displayMode === Feature.DisplayMode.EXTRUSION) {
         form = this._footprint;
-      } else if (this._displayMode === Feature.DisplayMode.MESH) {
+      } else if (displayMode === Feature.DisplayMode.MESH) {
         form = this._mesh;
-      } else if (this._displayMode === Feature.DisplayMode.IMAGE) {
+      } else if (displayMode === Feature.DisplayMode.IMAGE) {
         form = this._image;
+      } else if (displayMode === Feature.DisplayMode.LINE) {
+        form = this._line;
       }
       return form;
     },

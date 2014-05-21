@@ -2,8 +2,11 @@ define([
   'atlas/edit/BaseEditModule',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
+  'atlas/model/Feature',
   'atlas/util/DeveloperError'
-], function(BaseEditModule, Log, Setter, DeveloperError) {
+], function(BaseEditModule, Log, Setter, Feature, DeveloperError) {
+
+  // TODO(aramk) Make this AbstractDrawModule and extend with PolygonDrawModule and LineDrawModule.
 
   /**
    * @typedef atlas.edit.DrawModule
@@ -12,46 +15,47 @@ define([
   var DrawModule;
 
   /**
-   * @classdesc Handles logic for drawing {@link atlas.model.Polygon} objects through user
+   * @classdesc Handles logic for drawing {@link atlas.model.GeoEntity} objects through user
    * interaction.
-   * @extends {atlas.render.BaseEditModule}
+   * @extends atlas.render.BaseEditModule
    * @class atlas.edit.DrawModule
    */
   DrawModule = BaseEditModule.extend({
 
-    _vertices: null,
     /**
-     * Contains the {@link atlas.model.Polygon} being drawn.
+     * The vertices of the object being drawn.
+     * @type {atlas.model.Vertex}
+     */
+//    _vertices: null,
+
+    /**
+     * The object being drawn.
      * @type {atlas.model.Feature}
      */
     _feature: null,
+
     /**
      * The milliseconds from epoch of the last click. Used to detect a double click.
      * @type {Number}
      */
     _lastClickTime: null,
+
     /**
      * The maximum amount of time difference between clicks to detect as a double click.
      * @type {Number}
      */
     _doubleClickDelta: 200,
+
     /**
-     * Used the generate IDs for the drawn objects.
+     * The next available ID for drawn objects.
      * @type {Number}
      */
-    _nextId: 0,
+    _nextId: 1,
 
     _init: function(atlasManagers) {
       this._super(atlasManagers);
       this._reset();
-    },
-
-    _getNextId: function() {
-      return '_draw_' + ++this._nextId;
-    },
-
-    getEventBindings: function() {
-      return Setter.mixin(this._super(), {
+      this.bindEvents({
         'input/leftclick': this._add,
         'entity/draw': {
           callback: this._draw,
@@ -70,6 +74,10 @@ define([
       });
     },
 
+    _getNextId: function() {
+      return '_draw_' + this._nextId++;
+    },
+
     /**
      * Sets up the resources needed before drawing.
      * @private
@@ -77,11 +85,11 @@ define([
     _setup: function() {
       if (!this._feature) {
         this._feature = this._atlasManagers.entity.createFeature(this._getNextId(), {
-          polygon: {
-            vertices: []
-          }
+          polygon: {vertices: []},
+          line: {vertices: []},
+          displayMode: Feature.DisplayMode.FOOTPRINT
         });
-        this._vertices = this._feature.getVertices();
+//        this._vertices = this._feature.getVertices();
         this._atlasManagers.edit.enable({
           entities: [this._feature], show: false, addHandles: false});
       }
@@ -112,20 +120,24 @@ define([
     _executeHandlers: function(handlers) {
       handlers.forEach(function(handler) {
         handler.call(this, {
-          feature: this._feature,
-          vertices: this._vertices
+          feature: this._feature
         });
       }, this);
     },
 
     /**
-     * Called when a vertex should be added during drawing.
+     * Called when a vertex should be added during drawing. Creates a handle for the new vertex.
+     * If two consecutive calls are made within {@link #_doubleClickDelta} it is considered a double
+     * click and drawing stops.
      * @private
      */
     _add: function(args) {
-      var handles = this._atlasManagers.edit._handles;
+      var handles = this._atlasManagers.edit.getHandles();
       var targetId = this._atlasManagers.render.getAt(args.position)[0],
           target = handles.get(targetId);
+      this._setup();
+      var polygon = this._getPolygon(),
+          line = this._getLine();
       if (target) {
         this._atlasManagers.edit.getModule('translation').cancel();
         this._stop(args);
@@ -137,7 +149,8 @@ define([
         if (diff <= this._doubleClickDelta) {
           // Remove the point added on the first click. NOTE: it will still invoke the update
           // callback.
-          this._vertices.pop();
+          polygon.getVertices().pop();
+          line.getVertices().pop();
           this._render();
           this._stop(args);
           return;
@@ -145,14 +158,16 @@ define([
       }
       this._lastClickTime = Date.now();
 
-      this._setup();
       var point = this._atlasManagers.render.convertScreenCoordsToLatLng(args.position);
       var vertex = point.toVertex();
-      this._vertices.push(vertex);
+      polygon.getVertices().push(vertex);
+      if (polygon.getVertices().length <= 2) {
+        line.getVertices().push(vertex.clone());
+      }
 
-      var handle = this._feature.createHandle(vertex);
+      // Use the polygon handle constructor for consistency.
+      var handle = polygon.createHandle(vertex);
       handle.render();
-      // TODO(aramk) Abstract this.
       handles.add(handle);
       this._render();
       this._executeHandlers(this._handlers.update);
@@ -163,28 +178,39 @@ define([
      * @private
      */
     _render: function() {
-      if (this._vertices.length >= 3) {
+      var len = this._getPolygon().getVertices().length;
+      if (len === 2) {
+        this._feature.setDisplayMode(Feature.DisplayMode.LINE);
+        this._feature.show();
+      } else if (len >= 3) {
+        this._feature.setDisplayMode(Feature.DisplayMode.FOOTPRINT);
         this._feature.show();
       }
     },
 
     /**
-     * Stops drawing if the
+     * Stops drawing if the currently drawn object is valid (has the minimum number of vertices).
+     * @returns {Boolean} Whether stopping was successful.
      * @private
      */
     _stop: function(args) {
       if (!this._feature) {
         throw new DeveloperError('Nothing is being drawn - cannot stop.');
       }
-      if (this._vertices.length < 3) {
-        alert('A polygon must have at least 3 vertices.');
+      if (this._getPolygon().getVertices().length < 3) {
+        Log.error('A polygon must have at least 3 vertices.');
         return false;
       }
       this._executeHandlers(this._handlers.create);
       this._reset();
+      return true;
     },
 
-    _cancel: function () {
+    /**
+     * Forcefully stops drawing.
+     * @private
+     */
+    _cancel: function() {
       if (!this._feature) {
         throw new DeveloperError('Nothing is being drawn - cannot cancel.');
       }
@@ -193,11 +219,11 @@ define([
     },
 
     /**
-     * Removes drawing resources.
+     * Removes drawing resources, resets property states and disables drawing and editing.
      */
     _reset: function() {
       this._feature = null;
-      this._vertices = null;
+//      this._vertices = null;
       this._handlers = {
         update: [],
         create: [],
@@ -206,6 +232,14 @@ define([
       this._lastClickTime = null;
       this._atlasManagers.edit.disable();
       this.disable();
+    },
+
+    _getPolygon: function () {
+      return this._feature.getForm(Feature.DisplayMode.FOOTPRINT);
+    },
+
+    _getLine: function () {
+      return this._feature.getForm(Feature.DisplayMode.LINE);
     }
 
   });

@@ -16,7 +16,7 @@ define([
   /**
    * @classdesc Handles logic for movement of {@link atlas.model.GeoEntity} objects through user
    * interaction (e.g. dragging).
-   * @extends {atlas.render.BaseEditModule}
+   * @extends atlas.render.BaseEditModule
    * @class atlas.edit.TranslationModule
    */
   TranslationModule = BaseEditModule.extend(/** @lends atlas.edit.TranslationModule# */ {

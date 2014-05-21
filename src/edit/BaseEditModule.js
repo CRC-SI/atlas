@@ -1,6 +1,7 @@
 define([
-  'atlas/util/Class'
-], function(Class) {
+  'atlas/util/Class',
+  'atlas/util/DeveloperError'
+], function(Class, DeveloperError) {
   /**
    * Defines the common interface for <code>Modules</code> used in
    * the {@link atlas.edit.EditManager}.
@@ -15,36 +16,71 @@ define([
      * @private
      */
     _name: null,
+
     /**
      * A map of strings used by the module which determines its behaviour.
      * @type {Object.<String, Object>}
      */
     _modes: null,
+
     _atlasManagers: null,
+
+    /**
+     * A mapping of event strings to handler arguments.
+     * @type {Object.<String, atlas.edit.Handler>}
+     */
+    _eventBindings: null,
 
     _init: function(atlasManagers) {
       this._atlasManagers = atlasManagers;
       this._modes = {};
+      this._eventBindings = {};
+//      this.bindEvents({
+//        'input/leftdown': this.start,
+//        'input/mousemove': this.update,
+//        'input/leftup': this.end,
+//        'input/key': function(name, event) {
+//          // TODO(aramk) find a nice way to map key codes.
+//          if (event.keyCode === 27) {
+//            return this.cancel(name, event);
+//          }
+//          return function() {
+//          };
+//        }
+//      });
     },
 
     /**
-     * @returns {Object.<String, atlas.edit.Handler>} A mapping of event strings to handler
-     * arguments.
+     * Binds the given handlers.
+     * @param {Object.<String, atlas.edit.Handler>} handlers
+     */
+    bindEvents: function(handlers) {
+      Object.keys(handlers).forEach(function (event) {
+        this.bindEvent(event, handlers[event]);
+      }, this);
+    },
+
+    /**
+     * Binds the given event and handler.
+     * @param {String} event - The event name.
+     * @param {atlas.edit.Handler} handler
+     */
+    bindEvent: function(event, handler) {
+      if (this._eventBindings[event]) {
+        throw new DeveloperError('Event ' + event + ' already bound.');
+      }
+      this._eventBindings[event] = handler;
+    },
+
+    unbindEvent: function(event) {
+      delete this._eventBindings[event];
+    },
+
+    /**
+     * @returns {Object.<String, atlas.edit.Handler>}
      */
     getEventBindings: function() {
-      return {
-        'input/leftdown': this.start,
-        'input/mousemove': this.update,
-        'input/leftup': this.end,
-        'input/key': function(name, event) {
-          // TODO(aramk) find a nice way to map key codes.
-          if (event.keyCode === 27) {
-            return this.cancel(name, event);
-          }
-          return function() {
-          };
-        }
-      }
+      return this._eventBindings;
     },
 
     /**
@@ -79,45 +115,49 @@ define([
       delete this._modes[mode];
     },
 
-    /**
-     * An event handler which starts the action this module performs.
-     * @param {Object} args - Event arguments.
-     * @abstract
-     */
-    start: function(args) {
-    },
+//    /**
+//     * An event handler which starts the action this module performs.
+//     * @param {Object} args - Event arguments.
+//     * @abstract
+//     */
+//    start: function(args) {
+//      throw new DeveloperError("Not implemented");
+//    },
+//
+//    /**
+//     * An event handler which updates the progress of the action this module performs.
+//     * @param {Object} args - Event arguments.
+//     * @abstract
+//     */
+//    update: function(args) {
+//      throw new DeveloperError("Not implemented");
+//    },
+//
+//    /**
+//     * An event handler which ends the action this module performs.
+//     * @param {Object} args - Event arguments.
+//     * @abstract
+//     */
+//    end: function(args) {
+//      throw new DeveloperError("Not implemented");
+//    },
+//
+//    /**
+//     * Cancels the action performed by this module and returns to the state before
+//     * {@link BaseEditModule.start} was called.
+//     * @param {Object} args - Event arguments.
+//     * @abstract
+//     */
+//    cancel: function(args) {
+//      throw new DeveloperError("Not implemented");
+//    },
 
-    /**
-     * An event handler which updates the progress of the action this module performs.
-     * @param {Object} args - Event arguments.
-     * @abstract
-     */
-    update: function(args) {
-    },
-
-    /**
-     * An event handler which ends the action this module performs.
-     * @param {Object} args - Event arguments.
-     * @abstract
-     */
-    end: function(args) {
-    },
-
-    /**
-     * Cancels the action performed by this module and returns to the state before
-     * {@link BaseEditModule.start} was called.
-     * @param {Object} args - Event arguments.
-     * @abstract
-     */
-    cancel: function(args) {
-    },
-
-    disable: function () {
+    disable: function() {
       // TODO(aramk) Module should ideally not know about the manager.
       this._atlasManagers.edit.disableModule(this._name);
     },
 
-    enable: function () {
+    enable: function() {
       this._atlasManagers.edit.enableModule(this._name);
     }
 

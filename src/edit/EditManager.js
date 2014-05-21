@@ -235,6 +235,7 @@ define([
       this._editing = true;
       this.bindMouseInput();
       this._entities.addArray(args.entities);
+      // TODO(aramk) Only allow translation of handles (any) and args.entities.
       this.enableModule('translation');
 
       // Render the editing handles.
@@ -270,6 +271,18 @@ define([
      */
     toggleEditing: function() {
       this._editing ? this.disable() : this.enable();
+    },
+
+    // -------------------------------------------
+    // DRAWING
+    // -------------------------------------------
+
+    /**
+     * The store of Handles that are part of the current edit session.
+     * @type {atlas.core.ItemStore}
+     */
+    getHandles: function () {
+      return this._handles;
     },
 
     // -------------------------------------------
