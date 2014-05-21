@@ -166,7 +166,7 @@ define([
         throw new DeveloperError('Must specify whether event handler is for "intern" or "extern" events.');
       }
       // Create new handler object
-      var id = this._nextHandlerId;
+      var id = this._nextHandlerId++;
       var newHandler = {
         id: id,
         name: name,
@@ -175,7 +175,6 @@ define([
           this._removeEventHandler(source, name, id);
         }.bind(this)
       };
-      this._nextHandlerId++;
       // Add name of handlers dictionary if it doesn't exist.
       if (!(name in allHandlers)) {
         allHandlers[name] = {};
