@@ -1,8 +1,9 @@
 define([
-  './BaseEditModule',
+  'atlas/edit/BaseEditModule',
   'atlas/lib/utility/Log',
-  'atlas/lib/utility/Setter'
-], function(BaseEditModule, Log, Setter) {
+  'atlas/lib/utility/Setter',
+  'atlas/util/DeveloperError'
+], function(BaseEditModule, Log, Setter, DeveloperError) {
 
   /**
    * @typedef atlas.edit.DrawModule
@@ -42,7 +43,7 @@ define([
 
     _init: function(atlasManagers) {
       this._super(atlasManagers);
-      this.reset();
+      this._reset();
     },
 
     _getNextId: function() {
@@ -56,6 +57,15 @@ define([
           callback: this._draw,
           source: 'extern',
           persistent: true
+        },
+        'entity/draw/stop': {
+          callback: function() {
+            if (this._stop() === false) {
+              // Stopping has failed, so we need to abort manually.
+              this._cancel();
+            }
+          },
+          source: 'extern'
         }
       });
     },
@@ -86,10 +96,10 @@ define([
      * @private
      */
     _draw: function(args) {
-      var onUpdate = args.update;
-      var onCreate = args.create;
-      onUpdate && this._handlers.update.push(onUpdate);
-      onCreate && this._handlers.create.push(onCreate);
+      for (var event in this._handlers) {
+        var handler = args[event];
+        handler && this._handlers[event].push(handler);
+      }
       this.enable();
       this._atlasManagers.edit.enableModule('translation');
     },
@@ -118,14 +128,14 @@ define([
           target = handles.get(targetId);
       if (target) {
         this._atlasManagers.edit.getModule('translation').cancel();
-        this._finish(args);
+        this._stop(args);
         return;
       }
 
       if (this._lastClickTime) {
         var diff = Date.now() - this._lastClickTime;
         if (diff <= this._doubleClickDelta) {
-          this._finish(args);
+          this._stop(args);
           return;
         }
       }
@@ -147,31 +157,43 @@ define([
     },
 
     /**
-     * Called when drawing has finished.
+     * Stops drawing if the
      * @private
      */
-    _finish: function(args) {
+    _stop: function(args) {
+      if (!this._feature) {
+        throw new DeveloperError('Nothing is being drawn - cannot stop.');
+      }
       if (this._vertices.length < 3) {
         alert('A polygon must have at least 3 vertices.');
-        return;
+        return false;
       }
       this._executeHandlers(this._handlers.create);
-      this.reset();
-      this.disable();
+      this._reset();
+    },
+
+    _cancel: function () {
+      if (!this._feature) {
+        throw new DeveloperError('Nothing is being drawn - cannot cancel.');
+      }
+      this._executeHandlers(this._handlers.cancel);
+      this._reset();
     },
 
     /**
      * Removes drawing resources.
      */
-    reset: function() {
+    _reset: function() {
       this._feature = null;
       this._vertices = null;
       this._handlers = {
         update: [],
-        create: []
+        create: [],
+        cancel: []
       };
       this._lastClickTime = null;
       this._atlasManagers.edit.disable();
+      this.disable();
     }
 
   });

@@ -330,10 +330,13 @@ define([
           handler = args.callback;
           source = args.source || source;
         }
-        var handle = this._atlasManagers.event.addEventHandler(source, event,
-            handler.bind(module));
-        handle.persistent = !!args.persistent;
-        this._listeners[name][event] = handle;
+        var handle = this._listeners[name][event];
+        if (!handle) {
+          // Avoid adding a handle if it already exists.
+          handle = this._atlasManagers.event.addEventHandler(source, event, handler.bind(module));
+          handle.persistent = !!args.persistent;
+          this._listeners[name][event] = handle;
+        }
       }.bind(this);
 
       var bindings = module.getEventBindings();
@@ -357,6 +360,7 @@ define([
         if (listeners.hasOwnProperty(event)) {
           var handle = listeners[event];
           !handle.persistent && handle.cancel();
+          delete listeners[event];
         }
       }
       delete this._enabledModules[name];
