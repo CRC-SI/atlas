@@ -77,12 +77,17 @@ define([
 
       // Helper function to construct the arguments for Atlas mouse events
       var makeMouseEventArgs = function(name, e) {
+        var absPosition = { x: e.clientX, y: e.clientY };
+        var relPosition = this._atlasManagers.dom.translateEventCoords(absPosition),
+            x = relPosition.x,
+            y = relPosition.y;
         var args = {
           name: 'input/' + name,
           button: buttonIds[e.button],
           modifiers: {},
-          position: { x: e.clientX, y: e.clientY },
-          movement: { cx: e.clientX - this.__lastX, cy: e.clientY - this.__lastY }
+          absPosition: absPosition,
+          position: relPosition,
+          movement: { cx: x - this.__lastX, cy: y - this.__lastY }
         };
         e.shiftKey && (args.modifiers.shift = true);
         e.metaKey && (args.modifiers.meta = true);
@@ -100,9 +105,9 @@ define([
       this._mouseHandlers.push({
         name: 'mousedown',
         cback: function(e) {
+          args = makeMouseEventArgs(buttonIds[e.button] + 'down', e);
           this.__lastX = args.position.x;
           this.__lastY = args.position.y;
-          args = makeMouseEventArgs(buttonIds[e.button] + 'down', e);
           this._atlasManagers.event.handleInternalEvent(args.name, args);
         }.bind(this._atlasManagers.input)
       });
