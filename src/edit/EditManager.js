@@ -281,7 +281,7 @@ define([
      * The store of Handles that are part of the current edit session.
      * @type {atlas.core.ItemStore}
      */
-    getHandles: function () {
+    getHandles: function() {
       return this._handles;
     },
 
@@ -372,8 +372,10 @@ define([
       for (var event in listeners) {
         if (listeners.hasOwnProperty(event)) {
           var handle = listeners[event];
-          !handle.persistent && handle.cancel();
-          delete listeners[event];
+          if (!handle.persistent) {
+            handle.cancel();
+            delete listeners[event];
+          }
         }
       }
       delete this._enabledModules[name];

@@ -23,10 +23,10 @@ define([
   DrawModule = BaseEditModule.extend({
 
     /**
-     * The vertices of the object being drawn.
-     * @type {atlas.model.Vertex}
+     * The handles added during the current draw process. Used to store their sequence.
+     * @type {Array.<atlas.model.Handle>}
      */
-//    _vertices: null,
+    _handles: null,
 
     /**
      * The object being drawn.
@@ -44,13 +44,18 @@ define([
      * The maximum amount of time difference between clicks to detect as a double click.
      * @type {Number}
      */
-    _doubleClickDelta: 200,
+    _doubleClickDelta: 500,
 
     /**
      * The next available ID for drawn objects.
      * @type {Number}
      */
     _nextId: 1,
+
+    /**
+     * @type{Boolean} Whether a current drawing sequence exists.
+     */
+    _isDrawing: false,
 
     _init: function(atlasManagers) {
       this._super(atlasManagers);
@@ -104,12 +109,16 @@ define([
      * @private
      */
     _draw: function(args) {
+      if (this.isDrawing()) {
+        throw new DeveloperError('Already drawing - end the current session first.');
+      }
       for (var event in this._handlers) {
         var handler = args[event];
         handler && this._handlers[event].push(handler);
       }
       this.enable();
       this._atlasManagers.edit.enableModule('translation');
+      this._isDrawing = true;
     },
 
     /**
@@ -133,30 +142,41 @@ define([
      */
     _add: function(args) {
       var handles = this._atlasManagers.edit.getHandles();
-      var targetId = this._atlasManagers.render.getAt(args.position)[0],
-          target = handles.get(targetId);
+      var targetId = this._atlasManagers.render.getAt(args.position)[0];
+      var target = handles.get(targetId);
+      var now = Date.now();
+      var translationModule = this._atlasManagers.edit.getModule('translation');
       this._setup();
       var polygon = this._getPolygon(),
           line = this._getLine();
-      if (target) {
-        this._atlasManagers.edit.getModule('translation').cancel();
-        this._stop(args);
-        return;
-      }
 
       if (this._lastClickTime) {
-        var diff = Date.now() - this._lastClickTime;
+        var diff = now - this._lastClickTime;
         if (diff <= this._doubleClickDelta) {
-          // Remove the point added on the first click. NOTE: it will still invoke the update
-          // callback.
+          // Remove the point added on the first click of the double click.
+          // NOTE: it will still invoke the update callback.
           polygon.getVertices().pop();
           line.getVertices().pop();
+          var lastHandle = this._handles.pop();
+          handles.remove(lastHandle.getId());
+          lastHandle.remove();
           this._render();
+          if (target) {
+            // Ensure a translation doesn't exist if we clicked on a handle.
+            translationModule.cancel();
+          }
           this._stop(args);
           return;
         }
       }
-      this._lastClickTime = Date.now();
+      this._lastClickTime = now;
+
+      if (target) {
+        // Ensure a translation doesn't exist if we clicked on a handle.
+        translationModule.cancel();
+        this._stop(args);
+        return;
+      }
 
       var point = this._atlasManagers.render.convertScreenCoordsToLatLng(args.position);
       var vertex = point.toVertex();
@@ -169,6 +189,7 @@ define([
       var handle = polygon.createHandle(vertex);
       handle.render();
       handles.add(handle);
+      this._handles.push(handle);
       this._render();
       this._executeHandlers(this._handlers.update);
     },
@@ -223,7 +244,7 @@ define([
      */
     _reset: function() {
       this._feature = null;
-//      this._vertices = null;
+      this._handles = [];
       this._handlers = {
         update: [],
         create: [],
@@ -232,14 +253,22 @@ define([
       this._lastClickTime = null;
       this._atlasManagers.edit.disable();
       this.disable();
+      this._isDrawing = false;
     },
 
-    _getPolygon: function () {
+    _getPolygon: function() {
       return this._feature.getForm(Feature.DisplayMode.FOOTPRINT);
     },
 
-    _getLine: function () {
+    _getLine: function() {
       return this._feature.getForm(Feature.DisplayMode.LINE);
+    },
+
+    /**
+     * @returns {Boolean} Whether an object is being drawn at the moment.
+     */
+    isDrawing: function() {
+      return !!this._isDrawing;
     }
 
   });
