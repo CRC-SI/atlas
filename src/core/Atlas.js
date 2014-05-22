@@ -1,6 +1,7 @@
 define([
+  'atlas/dom/PopupFaculty',
   'atlas/util/DeveloperError'
-], function (DeveloperError) {
+], function (PopupFaculty, DeveloperError) {
 
   /**
    * Facade class for the Atlas API. This class maintains references to all
@@ -22,6 +23,18 @@ define([
      * @type {Object}
      */
     this._managers = {};
+  };
+
+  Atlas.prototype.attachTo = function(elem) {
+    var dom = typeof elem === 'string' ? document.getElementById(elem) : elem;
+    this._managers.dom.setDom(dom, true);
+    // Hook up the InputManager to the selected DOM element.
+    this._managers.input.setup(dom);
+
+    // TODO(bpstudds): Work out all this dependency injection stuff.
+    this._faculties = {};
+    this._faculties.popup = new PopupFaculty()
+    this._faculties.popup.setup({parentDomNode: elem, eventManager: this._managers.event})
   };
 
   Atlas.prototype.getCameraMetrics = function () {
