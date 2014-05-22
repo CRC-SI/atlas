@@ -111,8 +111,6 @@ define([
         displayMode = defaultValue(args.displayMode, Feature.DisplayMode.LINE);
       } else if (args.image) {
         displayMode = defaultValue(args.displayMode, Feature.DisplayMode.IMAGE);
-      } else {
-        throw new DeveloperError('Invalid Feature constructor call.');
       }
       this.setDisplayMode(displayMode);
       this._height = parseFloat(args.height) || 0.0;
