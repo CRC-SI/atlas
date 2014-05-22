@@ -343,6 +343,10 @@ define([
         this._image.remove();
         this._image = null;
       }
+      if (this._line !== null) {
+        this._line.remove();
+        this._line = null;
+      }
     },
 
     // -------------------------------------------

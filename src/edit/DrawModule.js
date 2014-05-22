@@ -75,6 +75,12 @@ define([
             }
           },
           source: 'extern'
+        },
+        'input/keyup': function (args) {
+          // Cancel drawing on escape key.
+          if (this.isDrawing() && args.key === 27) {
+            this._cancel();
+          }
         }
       });
     },
@@ -94,7 +100,6 @@ define([
           line: {vertices: [], width: '2px'},
           displayMode: Feature.DisplayMode.FOOTPRINT
         });
-//        this._vertices = this._feature.getVertices();
         this._atlasManagers.edit.enable({
           entities: [this._feature], show: false, addHandles: false});
       }
@@ -215,7 +220,7 @@ define([
      * @private
      */
     _stop: function(args) {
-      if (!this._feature) {
+      if (!this.isDrawing()) {
         throw new DeveloperError('Nothing is being drawn - cannot stop.');
       }
       if (this._getPolygon().getVertices().length < 3) {
@@ -232,10 +237,16 @@ define([
      * @private
      */
     _cancel: function() {
-      if (!this._feature) {
+      if (!this.isDrawing()) {
         throw new DeveloperError('Nothing is being drawn - cannot cancel.');
       }
       this._executeHandlers(this._handlers.cancel);
+      var handles = this._atlasManagers.edit.getHandles();
+      this._handles.forEach(function (handle) {
+        handles.remove(handle.getId());
+        handle.remove();
+      }, this);
+      this._feature.remove();
       this._reset();
     },
 
