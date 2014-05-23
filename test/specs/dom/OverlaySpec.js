@@ -34,11 +34,11 @@ define([
 
     beforeEach(function () {
       parent = document.createElement('div');
-      args = {parent: parent, dimensions: dimensions, content: content};
-      overlay = new Overlay(args);
+      args = {parent: parent, position: position, dimensions: dimensions, content: content};
     });
 
     afterEach(function () {
+      overlay && overlay.remove();
       parent = null;
       overlay = null;
       element = null;
@@ -55,32 +55,35 @@ define([
       });
 
       it('should have an enable checkbox if an onEnabledChange callback is given', function () {
+        args.title = 'title';
         args.onEnabledChange = function () {};
         overlay = new Overlay(args);
 
         var actual = getOverlayDom(),
             enableCb = actual.title.getElementsByClassName('enable-overlay')[0];
+        expect(enableCb).not.toBeUndefined();
         expect(enableCb).not.toBeNull();
         expect(enableCb.type).toEqual('checkbox');
       });
 
       it('should not have an enable checkbox if onEnabledChange is not a valid function', function () {
+        args.title = 'title';
         // onEnabledChange is undefined
         overlay = new Overlay(args);
         var actual = getOverlayDom(),
           enableCb = actual.title.getElementsByClassName('enable-overlay')[0];
-        expect(enableCb).toBeNull();
+        expect(enableCb).toBeUndefined();
 
         // onEnabledChange is not a function
         args.onEnabledChange = {};
         var actual = getOverlayDom(),
           enableCb = actual.title.getElementsByClassName('enable-overlay')[0];
-        expect(enableCb).toBeNull();
+        expect(enableCb).toBeUndefined();
 
       });
     });
 
-    describe('Defaults', function () {
+    describe('Default', function () {
 
       beforeEach(function () {
         overlay = new Overlay(args);
@@ -103,7 +106,7 @@ define([
         expect(actualOverlay).not.toBeNull();
       });
 
-      it('is dimensionsed', function () {
+      it('it has dimensions', function () {
         expect(parent.children[0].style.top).toEqual('100px');
         expect(parent.children[0].style.left).toEqual('200px');
         expect(parent.children[0].style.height).toEqual('300px');
