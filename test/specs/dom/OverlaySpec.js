@@ -4,17 +4,19 @@ define([
   'atlas/dom/Overlay'
 ], function (Colour, Overlay) {
 
-  var parent,
-      dimensions = {
-        top: 100,
-        left: 200,
-        height: 300,
-        width: 400
-      },
-      content = '<p>Wootage!</p>',
-      args,
-      overlay,
-      element;
+    var parent,
+        position = {
+          top: 100,
+          left: 200
+        },
+        dimensions = {
+          height: 300,
+          width: 400
+        },
+        content = '<p>Wootage!</p>',
+        args,
+        overlay,
+        element;
 
   var getOverlayDom = function () {
     var overlay = parent.getElementsByClassName('overlay')[0],
@@ -33,6 +35,7 @@ define([
     beforeEach(function () {
       parent = document.createElement('div');
       args = {parent: parent, dimensions: dimensions, content: content};
+      overlay = new Overlay(args);
     });
 
     afterEach(function () {
@@ -84,9 +87,9 @@ define([
       });
 
       it('can be constructed', function () {
-        expect(overlay._parent).toBe(parent);
-        expect(overlay._dimensions).toBe(dimensions);
-        expect(overlay._content).toBe(content);
+        expect(overlay.getParent()).toBe(parent);
+        expect(overlay.getDimensions()).toBe(dimensions);
+        expect(overlay.getContent()).toContain(content);
       });
 
       it('can create an element containing plain text from content', function () {
@@ -96,7 +99,6 @@ define([
       });
 
       it('is attached to the parent node', function () {
-         // Check that the overlay was added correctly to the parent
         var actualOverlay = parent.getElementsByClassName('overlay')[0];
         expect(actualOverlay).not.toBeNull();
       });
@@ -120,9 +122,7 @@ define([
       });
 
       it('can be removed', function() {
-        console.debug(parent.children);
         overlay.remove();
-        console.debug(parent.children);
         expect(parent.children.length).toBe(0);
       });
     });
@@ -130,7 +130,7 @@ define([
     describe ('can generate HTML', function () {
       it ('with tag class and id', function () {
         var data = {
-          class: 'aClass',
+          cssClass: 'aClass',
           id: 'anId'
         };
         var html = Overlay.parseAttributes(data);

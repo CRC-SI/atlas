@@ -1,11 +1,15 @@
 define([
   'atlas/core/ItemStore',
   'atlas/edit/TranslationModule',
+  'atlas/edit/DrawModule',
   'atlas/lib/utility/Log',
+  'atlas/lib/utility/Type',
   'atlas/model/Handle',
   'atlas/util/Class',
+  'atlas/util/DeveloperError',
   'atlas/util/mixin'
-], function(ItemStore, TranslationModule, Log, Handle, Class, mixin) {
+], function(ItemStore, TranslationModule, DrawModule, Log, Type, Handle, Class, DeveloperError,
+            mixin) {
 
   // TODO(aramk) refactor this into abstract atlas.core.ModularManager and use elsewhere (e.g. RenderManager).
   /**
@@ -32,7 +36,7 @@ define([
     _atlasManagers: null,
 
     /**
-     * Whether editing is enabled is currently enabled for <code>_entities</code>.
+     * Whether editing is currently enabled for <code>_entities</code>.
      * @type {boolean}
      */
     _editing: null,
@@ -63,7 +67,7 @@ define([
 
     /**
      * Contains a mapping of module name to Module object.
-     * @type {Object.<String,Object>}
+     * @type {Object.<String, atlas.edit.BaseEditModule>}
      */
     _modules: null,
 
@@ -111,20 +115,30 @@ define([
      */
     setup: function() {
       this.addModule('translation', new TranslationModule(this._atlasManagers));
-      // TODO(aramk) Disabled translation by default.
-      this.enableModule('translation');
+      this.addModule('draw', new DrawModule(this._atlasManagers));
       this.bindEvents();
     },
 
     bindEvents: function() {
+      var editButtonHandle = null;
       var handlers = [
         {
-          source: 'intern',
-          name: 'input/keyup',
-          callback: function(event) {
-            // TODO(bpstudds): Make an enum for the keyboard event key values.
-            if (event.key === 69 /* lowercase 'e' */) {
-              this.toggleEditing();
+          source: 'extern',
+          name: 'editButton',
+          callback: function(state) {
+            // Bind the event for enabling editing with the keyboard only when needed and allow
+            // unbinding. By default the key is unbound to avoid issues when typing.
+            if (state && !editButtonHandle) {
+              editButtonHandle = this._atlasManagers.event.addEventHandler('intern', 'input/keyup',
+                  function(event) {
+                    // TODO(bpstudds): Make an enum for the keyboard event key values.
+                    if (event.key === 69 /* lowercase 'e' */) {
+                      this.toggleEditing();
+                    }
+                  }.bind(this));
+            } else if (editButtonHandle) {
+              editButtonHandle.cancel();
+              editButtonHandle = null;
             }
           }.bind(this)
         },
@@ -217,7 +231,10 @@ define([
      * are used.
      */
     enable: function(args) {
-      args = mixin({}, args);
+      args = mixin({
+        show: true,
+        addHandles: true
+      }, args);
       if (!args.entities) {
         if (args.ids) {
           args.entities = this._atlasManagers.entity.getByIds(args.ids);
@@ -229,10 +246,12 @@ define([
       this._editing = true;
       this.bindMouseInput();
       this._entities.addArray(args.entities);
+      // TODO(aramk) Only allow translation of handles (any) and args.entities.
+      this.enableModule('translation');
 
       // Render the editing handles.
-      this._entities.forEach(function(entity) {
-        entity.showAsFootprint();
+      args.addHandles && this._entities.forEach(function(entity) {
+        args.show && entity.showAsFootprint();
         // Put the Handles into the EntityManager and render them.
         this._handles.addArray(entity.createHandles());
         this._handles.map('render');
@@ -266,19 +285,38 @@ define([
     },
 
     // -------------------------------------------
+    // DRAWING
+    // -------------------------------------------
+
+    /**
+     * The store of Handles that are part of the current edit session.
+     * @type {atlas.core.ItemStore}
+     */
+    getHandles: function() {
+      return this._handles;
+    },
+
+    // -------------------------------------------
     // MODULE MANAGEMENT
     // -------------------------------------------
 
     /**
      * Adds a new module with the given name.
      * @param {String} name - The name of the module.
-     * @param {Object} module - The module.
+     * @param {atlas.edit.BaseEditModule} module - The module.
      */
     addModule: function(name, module) {
       this._modules[name] = module;
+      module._name = name;
+      // Ensures any persistent handlers are bound.
+      this.enableModule(name);
       this.disableModule(name);
     },
 
+    /**
+     * @param name
+     * @returns {atlas.edit.BaseEditModule}
+     */
     getModule: function(name) {
       return this._modules[name];
     },
@@ -299,16 +337,40 @@ define([
      */
     enableModule: function(name) {
       var module = this.getModule(name);
-      if (!module) return;
+      if (!module) {
+        throw new DeveloperError('No module found with name: ' + name);
+      }
+      if (this._enabledModules[name]) {
+        // Already enabled - don't bind events twice.
+        return;
+      }
 
-      /*var bindings = module.getEventBindings();
-       if (!this._listeners[name]) this._listeners[name] = {};
-       for (var event in bindings) {
-       if (bindings.hasOwnProperty(event)) {
-       this._listeners[name][event] = this._atlasManagers.event.addEventHandler('intern', event,
-       bindings[event].bind(module));
-       }
-       }*/
+      var bindEvent = function(event, args) {
+        var handler,
+            source = 'intern';
+        if (Type.isFunction(args)) {
+          handler = args;
+        } else {
+          handler = args.callback;
+          source = args.source || source;
+        }
+        var handle = this._listeners[name][event];
+        if (!handle) {
+          // Avoid adding a handle if it already exists.
+          handle = this._atlasManagers.event.addEventHandler(source, event, handler.bind(module));
+          handle.persistent = !!args.persistent;
+          this._listeners[name][event] = handle;
+        }
+      }.bind(this);
+
+      var bindings = module.getEventBindings();
+      this._listeners[name] = this._listeners[name] || {};
+      for (var event in bindings) {
+        if (bindings.hasOwnProperty(event)) {
+          var value = bindings[event];
+          bindEvent(event, value);
+        }
+      }
       this._enabledModules[name] = module;
     },
 
@@ -317,13 +379,16 @@ define([
      * @param {String} name - The name of the module.
      */
     disableModule: function(name) {
-      // TODO(aramk) use "handler" or "listener" and not both?
-//      var listeners = this._listeners[name];
-//      for (var event in listeners) {
-//        if (listeners.hasOwnProperty(event)) {
-//          listeners[event].cancel();
-//        }
-//      }
+      var listeners = this._listeners[name];
+      for (var event in listeners) {
+        if (listeners.hasOwnProperty(event)) {
+          var handle = listeners[event];
+          if (!handle.persistent) {
+            handle.cancel();
+            delete listeners[event];
+          }
+        }
+      }
       delete this._enabledModules[name];
     },
 

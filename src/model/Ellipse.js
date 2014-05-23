@@ -158,17 +158,6 @@ define([
     },
 
     /**
-     * Gets the centroid of the Ellipse. Assumes that the polygon is 2D surface, ie. Vertex.z is
-     * constant across the polygon.
-     * @returns {atlas.model.Vertex} The Ellipse's centroid.
-     * @see {@link http://stackoverflow.com/questions/9692448/how-can-you-find-the-centroid-of-a-concave-irregular-polygon-in-javascript/9939071#9939071}
-     * @see  {@link http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon}
-     */
-    getCentroid: function() {
-      return this._centroid;
-    },
-
-    /**
      * Set the elevation of the base of the polygon (or prism).
      * @param {Number} elevation - The elevation of the base of the polygon.
      */
@@ -222,21 +211,21 @@ define([
     /**
      * @returns {Number} The rotation of the Ellipse.
      */
-    getRotation: function () {
+    getRotation: function() {
       return this._rotation;
     },
 
     /**
      * @returns {Number} The semi major axis of the Ellipse.
      */
-    getSemiMajorAxis: function () {
+    getSemiMajorAxis: function() {
       return this._semiMajor;
     },
 
     /**
      * @returns {Number} The semi minor axis of the Ellipse.
      */
-    getSemiMinorAxis: function () {
+    getSemiMinorAxis: function() {
       return this._semiMinor;
     },
 
@@ -355,13 +344,17 @@ define([
    * Defines the default style to use when rendering a polygon.
    * @type {atlas.model.Style}
    */
-  Ellipse.getDefaultStyle = function () {return new Style({fillColour: Colour.GREEN}); };
+  Ellipse.getDefaultStyle = function() {
+    return new Style({fillColour: Colour.GREEN});
+  };
 
   /**
    * Defines the default style to use when rendering a selected polygon.
    * @type {atlas.model.Style}
    */
-  Ellipse.getSelectedStyle = function () { return new Style({fillColour: Colour.RED}); };
+  Ellipse.getSelectedStyle = function() {
+    return new Style({fillColour: Colour.RED});
+  };
 
   return Ellipse;
 });

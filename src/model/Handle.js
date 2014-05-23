@@ -22,7 +22,7 @@ define([
    * @param {number} [args.dotRadius=1] - The diameter of the Handle's dot in metres.
    * @class atlas.model.Handle
    */
-  Handle = Class.extend( /** @lends atlas.model.Handle# */ {
+  Handle = GeoEntity.extend( /** @lends atlas.model.Handle# */ {
 
     /**
      * ID of the Handle.

@@ -109,6 +109,7 @@ define([
      * @ignore
      */
     _init: function(id, polygonData, args) {
+      polygonData = mixin({}, polygonData);
       args = mixin({}, args);
       this._super(id, args);
       if (typeof polygonData.vertices === 'string') {
@@ -124,7 +125,8 @@ define([
         this._vertices = defaultValue(polygonData.vertices, []);
       }
       // Don't have closed polygons.
-      if (this._vertices.first === this._vertices.last) {
+      var len = this._vertices.length;
+      if (this._vertices[0] === this._vertices[len - 1] && len > 1) {
         this._vertices.pop();
       }
       if (polygonData.holes) {
@@ -189,7 +191,7 @@ define([
      */
     getCentroid: function() {
       if (this._centroid) {
-        return this._centroid;
+        return this._centroid.clone();
       }
       // Need a closed set of vertices for the algorithm to work. Temporarily add the first vertex
       // to the end of the list of vertices.
@@ -208,7 +210,7 @@ define([
       this._vertices.pop();
       f = 3 * twiceArea;
       this._centroid = GeoPoint.fromVertex(new Vertex(x / f, y / f, p1.z + this.getElevation()));
-      return this._centroid;
+      return this._centroid.clone();
     },
 
     /**

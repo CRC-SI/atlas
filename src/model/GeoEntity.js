@@ -189,7 +189,7 @@ define([
      * @abstract
      */
     getCentroid: function() {
-      throw new DeveloperError('Can not call abstract method "getCentroid" of GeoEntity');
+      return this._centroid && this._centroid.clone();
     },
 
     /**
@@ -218,10 +218,18 @@ define([
     },
 
     /**
-     * @returns {[atlas.model.Handle]} An array of Handles used to edit the GeoEntity.
+     * @returns {Array.<atlas.model.Handle>} An array of Handles used to edit the GeoEntity.
      */
     createHandles: function () {
-      throw new DeveloperError('Can not call abstract method "getArea" of GeoEntity');
+      throw new DeveloperError('Can not call abstract method "createHandles" of GeoEntity');
+    },
+
+    /**
+     * @param {atlas.model.Vertex} vertex
+     * @returns {atlas.model.Handle}
+     */
+    createHandle: function (vertex) {
+      throw new DeveloperError('Can not call abstract method "createHandles" of GeoEntity');
     },
 
     /**

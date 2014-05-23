@@ -7,6 +7,12 @@ define([
 ], function(Class, DeveloperError, Event, EventTarget, Log) {
 
   /**
+   * @typedef atlas.selection.SelectionManager
+   * @ignore
+   */
+  var SelectionManager;
+
+  /**
    * @classdesc The SelectionManager maintains a list of the currently
    * selected GeoEntities. It exposes an API to select and deselect
    * individual GeoEntities or a set of entities either specified
@@ -17,7 +23,7 @@ define([
    *
    * @class atlas.selection.SelectionManager
    */
-  var SelectionManager = Class.extend(/** @lends atlas.selection.SelectionManager# */ {
+  SelectionManager = Class.extend(/** @lends atlas.selection.SelectionManager# */ {
     /**
      * Contains a map of entity ID to entity of all selected entities.
      * @type {Object}
@@ -70,7 +76,7 @@ define([
         },
         {
           source: 'intern',
-          name: 'input/leftdown',
+          name: 'input/leftclick',
           callback: function(args) {
             if (!args.modifiers) args.modifiers = {};
             // var worldPosition = this._atlasManagers.render.convertScreenCoordsToLatLng(args);
@@ -79,7 +85,7 @@ define([
                 keepSelection = 'shift' in args.modifiers,
                 changed;
             if (selectedEntities.length > 0) {
-              changed = this.selectEntity(selectedEntities[0].getId(), keepSelection);
+              changed = this.selectEntity(selectedEntities[0].getId(), keepSelection, args.position);
             } else if (!keepSelection) {
               changed = this.clearSelection();
             }
@@ -154,10 +160,12 @@ define([
      * @param {Boolean} [keepSelection=false] - If true, the GeoEntity will be added to the current
      *      selection. If false, the current selection will be cleared before
      *      the GeoEntity is selected.
+     * @param {atlas.model.Vertex} mousePosition - The position of the mouse when GeoEntities are
+     *      selected. Null if a mouse action did not result in the selection.
      */
     // TODO(aramk) Make it less ambiguous by only accepting IDs.
-    selectEntity: function(id, keepSelection) {
-      return this.selectEntities([id], keepSelection);
+    selectEntity: function(id, keepSelection, mousePosition) {
+      return this.selectEntities([id], keepSelection, mousePosition);
     },
 
     /**
@@ -174,8 +182,10 @@ define([
      * @param {Boolean} [keepSelection=false] - If true, the GeoEntities will be added to current
      *      selection. If false, the current selection will be cleared before
      *      the GeoEntities are selected.
+     * @param {atlas.model.Vertex} mousePosition - The position of the mouse when GeoEntities are
+     *      selected. Null if a mouse action did not result in the selection.
      */
-    selectEntities: function(ids, keepSelection) {
+    selectEntities: function(ids, keepSelection, mousePosition) {
       Log.debug('selecting entities', ids);
       var entities = this._atlasManagers.entity.getByIds(ids),
           toSelectIds = [],
@@ -203,7 +213,10 @@ define([
           }.bind(this));
 
           this._atlasManagers.event.dispatchEvent(
-            new Event(null, 'entity/select', {ids: toSelectIds})
+            new Event(null, 'entity/select', {
+              ids: toSelectIds,
+              mousePosition: mousePosition
+            })
           );
         }
       }

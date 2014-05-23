@@ -56,7 +56,7 @@ define([
     _normals: null,
 
     /**
-     * The location of the mesh object, specified by latitude, longitude, and elevation.
+     * The location of the mesh object, specified by longitude, latitude, and elevation.
      * @type {atlas.model.Vertex}
      * @protected
      */
@@ -160,8 +160,8 @@ define([
     /**
      * Translates the Mesh.
      * @param {atlas.model.Vertex} translation - The vector from the Mesh's current location to the desired location.
-     * @param {Number} translation.x - The change in latitude, given in decimal degrees.
-     * @param {Number} translation.y - The change in longitude, given in decimal degrees.
+     * @param {Number} translation.x - The change in longitude, given in decimal degrees.
+     * @param {Number} translation.y - The change in latitude, given in decimal degrees.
      * @param {Number} translation.z - The change in altitude, given in metres.
      */
     translate: function(translation) {

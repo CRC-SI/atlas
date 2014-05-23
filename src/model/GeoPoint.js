@@ -1,10 +1,10 @@
 define([
+  'atlas/lib/utility/Type',
   'atlas/model/Vertex',
   'atlas/util/AtlasMath',
   'atlas/util/Class',
-  'atlas/util/mixin',
-  'atlas/lib/utility/Type'
-], function(Vertex, AtlasMath, Class, mixin, Type) {
+  'atlas/util/mixin'
+], function(Type, Vertex, AtlasMath, Class, mixin) {
 
   /**
    * @typedef atlas.model.GeoPoint
@@ -127,6 +127,13 @@ define([
      */
     toDmsString: function() {
       throw 'GeoPoint.toDmsString not yet implemented.';
+    },
+
+    /**
+     * @returns {atlas.model.GeoPoint} A deep copy of this object.
+     */
+    clone: function () {
+      return new GeoPoint(this);
     }
 
   });

@@ -1,16 +1,21 @@
 define([
   'atlas/util/Class',
-  'atlas/util/mixin',
   'atlas/lib/keycode'
-], function(Class, mixin, Keycode) {
+], function(Class, Keycode) {
+
+  /**
+   * @typedef atlas.input.InputManager
+   * @ignore
+   */
+  var InputManager;
 
   /**
    * @classdesc The InputManager is used to link user input events to the
-   * Atlas  event system.
+   * Atlas event system.
    * @param {Object} atlasManagers - The map of all atlas manager objects.
    * @class atlas.input.InputManager
    */
-  var InputManager = mixin(Class.extend(/** @lends atlas.input.InputManager# */ {
+  InputManager = Class.extend( /** @lends atlas.input.InputManager# */ {
 
     /**
      * The current DOM element the InputManager is bound to.
@@ -26,9 +31,32 @@ define([
      */
     _atlasManagers: null,
 
+    /**
+     * An array of event handlers attached to Atlas' dom element.
+     * @type {Array.<Object>}
+     */
+    _mouseHandlers: null,
+
+    /**
+     * The last client X coord of the mouse.
+     * @type {number}
+     * @private
+     */
+    __lastX: 0,
+
+    /**
+     * The last client Y coord of the mouse.
+     * @type {number}
+     * @private
+     */
+    __lastY: 0,
+
     _init: function(atlasManagers) {
       this._atlasManagers = atlasManagers;
       this._atlasManagers.input = this;
+      this.__lastX = this.__lastY = 0;
+
+      this._mouseHandlers = [];
     },
 
     /**
@@ -47,14 +75,19 @@ define([
       // Buttons to add event handlers for.
       var buttonIds = ['left', 'middle', 'right'];
 
-      // DRY constructing the event handler arguments.
-      var makeArgs = function(name, e) {
+      // Helper function to construct the arguments for Atlas mouse events
+      var makeMouseEventArgs = function(name, e) {
+        var absPosition = { x: e.clientX, y: e.clientY };
+        var relPosition = this._atlasManagers.dom.translateEventCoords(absPosition),
+            x = relPosition.x,
+            y = relPosition.y;
         var args = {
           name: 'input/' + name,
           button: buttonIds[e.button],
           modifiers: {},
-          position: { x: e.clientX, y: e.clientY },
-          movement: { cx: e.movementX, cy: e.movementY }
+          absPosition: absPosition,
+          position: relPosition,
+          movement: { cx: x - this.__lastX, cy: y - this.__lastY }
         };
         e.shiftKey && (args.modifiers.shift = true);
         e.metaKey && (args.modifiers.meta = true);
@@ -63,33 +96,52 @@ define([
         return args;
       }.bind(this);
 
-      // Construct HTML DOM mouse event listeners.
-      this._mouseHandlers = [];
-      ['down', 'up'].forEach(function(press) {
-        this._mouseHandlers.push({
-          name: 'mouse' + press,
-          cback: function(e) {
-            var args = makeArgs(buttonIds[e.button] + press, e);
-            this.handleInternalEvent(args.name, args);
-          }.bind(this._atlasManagers.event)
-        });
-      }, this);
+      // -------------------------------------------
+      // Construct mouse event handlers
+      // -------------------------------------------
+      var args, press;
 
-      // TODO(bpstudds): DRY this code up.
+      // Mouse button down
+      this._mouseHandlers.push({
+        name: 'mousedown',
+        cback: function(e) {
+          args = makeMouseEventArgs(buttonIds[e.button] + 'down', e);
+          this.__lastX = args.position.x;
+          this.__lastY = args.position.y;
+          this._atlasManagers.event.handleInternalEvent(args.name, args);
+        }.bind(this._atlasManagers.input)
+      });
+
+      // Mouse button up
+      this._mouseHandlers.push({
+        name: 'mouseup',
+        cback: function(e) {
+          args = makeMouseEventArgs(buttonIds[e.button] + 'up', e);
+          if (Math.abs(args.movement.cx + args.movement.cy) < InputManager.CLICK_SENSITIVITY) {
+            // If mouse moved less than the sensitivity, change event type to click.
+            args.name = 'input/' + buttonIds[e.button] + 'click'
+          }
+          this._atlasManagers.event.handleInternalEvent(args.name, args);
+        }.bind(this._atlasManagers.input)
+      });
+
+      // Mouse move handler
       this._mouseHandlers.push({
         name: 'mousemove',
         cback: function (e) {
-          var args = makeArgs('mousemove', e);
-          this.handleInternalEvent(args.name, args);
-        }.bind(this._atlasManagers.event)
+          args = makeMouseEventArgs('mousemove', e);
+          this._atlasManagers.event.handleInternalEvent(args.name, args);
+        }.bind(this._atlasManagers.input)
       });
 
+      // Double click handler
       this._mouseHandlers.push({
         name: 'dblclick',
         cback: function (e) {
-          var args = makeArgs('left/dblclick', e);
-          this.handleInternalEvent(args.name, args);
-        }.bind(this._atlasManagers.event)
+          // TODO(bpstudds): This will convert all double click events to left dbl click.
+          args = makeMouseEventArgs('left/dblclick', e);
+          this._atlasManagers.event.handleInternalEvent(args.name, args);
+        }.bind(this._atlasManagers.input)
       });
 
       // Add the event listeners to the current DOM element.
@@ -122,17 +174,15 @@ define([
         }.bind(this._atlasManagers.event), false);
       }, this);
     }
-  }), // End class instances definition.
+  });
 
-      // -------------------------------------------
-      // STATICS
-      // -------------------------------------------
-
-      {
-        // Nope
-      }
-
-  ); // End class static definition.
+  /**
+   * Maximum distance the mouse can move between buttonDown and buttonUp and
+   * still be registered as a 'click'.
+   * @type {number}
+   * @static
+   */
+  InputManager.CLICK_SENSITIVITY = 3;
 
   return InputManager;
 });
