@@ -165,7 +165,7 @@ define([
     // -------------------------------------------
 
     isVisible: function () {
-      if (this._element === undefined) { return false; }
+      if (!this._element) { return false; }
       return !this._element.classList.contains('hidden');
     },
 
@@ -277,8 +277,8 @@ define([
 
       // Add event handler to close button and checkbox
       if (this._onRemove) {
-        var buttons = element.getElementsByClassName('remove-overlay');
-        buttons[0].addEventListener('click', function (e) {
+        var closeBtn = element.getElementsByClassName('remove-overlay')[0];
+        closeBtn.addEventListener('click', function (e) {
           // 0 -> left click.
           if (e.button === 0) {
             this._onRemove(e);
@@ -286,8 +286,8 @@ define([
         }.bind(this))
       }
       if (this._onEnabledChange) {
-        var checkboxes = element.getElementsByClassName('enable-overlay');
-        checkboxes[0].addEventListener('click', function (e) {
+        var enableCB = element.getElementsByClassName('enable-overlay')[0];
+        enableCB.addEventListener('click', function (e) {
           // 0 -> left click.
           if (e.button === 0) {
             this._onEnabledChange(e.target.value, e);
