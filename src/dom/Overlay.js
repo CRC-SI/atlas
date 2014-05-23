@@ -126,6 +126,7 @@ define([
      */
     _init: function (args) {
       // Set defaults
+      var parent = args.parent;
       args = mixin({
         parent: document,
         cssClass: '',
@@ -134,6 +135,8 @@ define([
         dimensions: {width: 0, height: 0},
         content: ''
       }, args);
+      if (typeof args.parent === 'string') { parent = document.getElementById(parent); }
+      if (!args.parent) { throw new Error('Error attaching to element ' + args.parent)}
 
       // Sanitise the dimensions and positions passed in.
       ['top', 'left', 'right', 'bottom'].forEach(function (p) {
@@ -143,9 +146,8 @@ define([
       args.dimensions.height === null && delete args.dimensions.height;
 
       // Set instance members
-      if (typeof args.parent === 'string') { args.parent = document.getElementById(parent); }
       this._id = args.id;
-      this._parent = args.parent;
+      this._parent = parent;
       this._title = args.title;
       this._cssClass = args.cssClass;
 
