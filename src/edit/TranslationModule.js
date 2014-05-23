@@ -42,6 +42,23 @@ define([
       this._MOVE_SENSITIVITY = defaultValue(args.moveSensitivity, 5);
       this._atlasManagers = atlasManagers;
       this._reset();
+      // TODO(aramk) Abstract this into a method in BaseEditModule.
+      var provideTarget = function (callback) {
+        return function () {
+          return callback.call(this, this._provideTarget.apply(this, arguments));
+        }.bind(this)
+      }.bind(this);
+      this.bindEvents({
+        'input/leftdown': provideTarget(this._start),
+        'input/mousemove': provideTarget(this._update),
+        // TODO(aramk) Doesn't always execute - seems the handler is unregistered?
+        'input/leftup': provideTarget(this._stop)
+      });
+    },
+    
+    _provideTarget: function (args) {
+      args.target = this._atlasManagers.entity.getAt(args.position)[0];
+      return args;
     },
 
     /**
@@ -49,7 +66,7 @@ define([
      * then all selected entities are included in the translation. If no object is selected before
      * translation, only the target entity is translated.
      */
-    startDrag: function(args) {
+    _start: function(args) {
       if (!args.target) {
         return;
       }
@@ -64,7 +81,7 @@ define([
     /**
      * Translates from the last location to the current location of the event for all entities.
      */
-    updateDrag: function(args) {
+    _update: function(args) {
       if (!this._target) {
         return;
       }
@@ -84,7 +101,7 @@ define([
      * Translates from the last location to the current location of the event for all entities and then
      * stops translating.
      */
-    endDrag: function(args) {
+    _stop: function(args) {
       if (!this._target) {
         return;
       }

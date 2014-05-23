@@ -151,6 +151,12 @@ define([
      */
     _selected: false,
 
+    /**
+     * The editing handles.
+     * @type {Array.<atlas.model.Handle>}
+     */
+    _handles: null,
+
     _init: function(id, args) {
       if (typeof id === 'object') {
         args = id;
@@ -171,6 +177,7 @@ define([
       this._eventManager = args.eventManager;
       this._entityManager = args.entityManager;
       this.setStyle(args.style || GeoEntity.getDefaultStyle());
+      this.clearHandles();
     },
 
     // -------------------------------------------
@@ -230,6 +237,14 @@ define([
      */
     createHandle: function (vertex) {
       throw new DeveloperError('Can not call abstract method "createHandles" of GeoEntity');
+    },
+
+    setHandles: function (handles) {
+      this._handles = handles;
+    },
+
+    clearHandles: function () {
+      this._handles = [];
     },
 
     /**

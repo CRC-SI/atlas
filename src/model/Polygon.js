@@ -369,11 +369,12 @@ define([
      * @param {Number} translation.z - The change in altitude, given in metres.
      */
     translate: function(translation) {
+      // TODO(aramk) This should be abstracted and shared by Polygon, Mesh etc.
       for (var i = 0; i < this._vertices.length; i++) {
         this._vertices[i] = this._vertices[i].add(translation);
       }
-      for (var i = 1; i < this._editingHandles.length; i++) {
-        this._editingHandles[i]._dot.translate(translation);
+      for (var j = 0; j < this._handles.length; j++) {
+        this._handles[j] = this._handles[j].add(translation);
       }
       this.setDirty('model');
       this.isVisible() && this.show();
