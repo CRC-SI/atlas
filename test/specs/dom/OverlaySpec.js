@@ -54,6 +54,33 @@ define([
         expect(actual.title.innerHTML).toEqual('title');
       });
 
+      it('should have a remove button if an onRemove callback is given', function () {
+        args.title = 'title';
+        args.onRemove = function () {};
+        overlay = new Overlay(args);
+
+        var actual = getOverlayDom(),
+            removeBtn = actual.title.getElementsByClassName('remove-overlay')[0];
+        expect(removeBtn).not.toBeUndefined();
+        expect(removeBtn).not.toBeNull();
+        expect(removeBtn.type).toEqual('submit');
+      });
+
+      it('should not have a remove button if onRemove is not a valid function', function () {
+        args.title = 'title';
+        // onEnabledChange is undefined
+        overlay = new Overlay(args);
+        var actual = getOverlayDom(),
+            removeBtn = actual.title.getElementsByClassName('remove-overlay')[0];
+        expect(removeBtn).toBeUndefined();
+
+        // onEnabledChange is not a function
+        args.onEnabledChange = {};
+        var actual = getOverlayDom(),
+            removeBtn = actual.title.getElementsByClassName('remove-overlay')[0];
+        expect(removeBtn).toBeUndefined();
+      });
+
       it('should have an enable checkbox if an onEnabledChange callback is given', function () {
         args.title = 'title';
         args.onEnabledChange = function () {};
@@ -79,7 +106,6 @@ define([
         var actual = getOverlayDom(),
           enableCb = actual.title.getElementsByClassName('enable-overlay')[0];
         expect(enableCb).toBeUndefined();
-
       });
     });
 

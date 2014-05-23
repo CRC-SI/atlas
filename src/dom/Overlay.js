@@ -248,7 +248,7 @@ define([
       }
       title += this._title;
       if (this._onRemove) {
-        title += '<button class="remove">X</button>';
+        title += '<button class="remove-overlay">X</button>';
       }
       title +=  '</div>'
       this._html = title + '<div class="overlay-body">' + this._content + '</div>';
