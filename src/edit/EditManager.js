@@ -160,8 +160,18 @@ define([
         {
           source: 'extern',
           name: 'edit/disable',
-          callback: function(event) {
+          callback: function(args) {
             this.disable();
+          }.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'input/left/dblclick',
+          callback: function (args) {
+            var targets = this._atlasManagers.render.getAt(args.position);
+            if (targets.length === 0 && this._editing) {
+              this.disable();
+            }
           }.bind(this)
         }
         /*,

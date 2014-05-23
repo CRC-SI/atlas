@@ -76,7 +76,7 @@ define([
           },
           source: 'extern'
         },
-        'input/keyup': function (args) {
+        'input/keyup': function(args) {
           // Cancel drawing on escape key.
           if (this.isDrawing() && args.key === 27) {
             this._cancel();
@@ -177,9 +177,12 @@ define([
       this._lastClickTime = now;
 
       if (target) {
-        // Ensure a translation doesn't exist if we clicked on a handle.
         translationModule.cancel();
-        this._stop(args);
+        // Stop editing if clicking on the first handle, otherwise ignore.
+        if (this._handles.length > 0 && target === this._handles[0]) {
+          // Ensure a translation doesn't exist if we clicked on a handle.
+          this._stop(args);
+        }
         return;
       }
 
@@ -242,7 +245,7 @@ define([
       }
       this._executeHandlers(this._handlers.cancel);
       var handles = this._atlasManagers.edit.getHandles();
-      this._handles.forEach(function (handle) {
+      this._handles.forEach(function(handle) {
         handles.remove(handle.getId());
         handle.remove();
       }, this);
