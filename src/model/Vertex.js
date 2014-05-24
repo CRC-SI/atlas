@@ -156,6 +156,14 @@ define([
      */
     clone: function () {
       return new Vertex(this);
+    },
+
+    /**
+     * @param {atlas.model.Vertex} other
+     * @returns {Boolean} Whether the given object is equal to this one.
+     */
+    equals: function (other) {
+      return this.x === other.x && this.y === other.y && this.z === other.z;
     }
 
   }), {

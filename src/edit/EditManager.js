@@ -239,6 +239,8 @@ define([
      * @param {Object.<atlas.model.GeoEntity>} [args.entities] A set of entities to enable for
      * editing. If not provided, args.ids are used first, otherwise the currently selected entities
      * are used.
+     * @param {Boolean} [args.show=true] Whether to show the entities as footprints.
+     * @param {Boolean} [args.addHandles=true] Whether to add handles to entities.
      */
     enable: function(args) {
       args = mixin({
@@ -261,13 +263,14 @@ define([
       this.enableModule('translation');
 
       // Render the editing handles.
-      args.addHandles && this._entities.forEach(function(entity) {
+      this._entities.forEach(function(entity) {
         args.show && entity.showAsFootprint();
-        // Put the Handles into the EntityManager and render them.
-        var handles = entity.createHandles();
-        this._handles.addArray(handles);
-        entity.setHandles(handles);
-        this._handles.map('render');
+        if (args.addHandles) {
+          // Put the Handles into the EntityManager and render them.
+          var handles = entity.addHandles();
+          this._handles.addArray(handles);
+          this._handles.map('render');
+        }
       }, this);
     },
 

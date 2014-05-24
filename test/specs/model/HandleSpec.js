@@ -36,12 +36,12 @@ define([
 
     describe ('can be constructed', function () {
       it ('with a linked or target GeoEntity', function () {
-        handle = new Handle({linked: entity1});
+        handle = new Handle({target: entity1});
         expect(handle).not.toBeNull();
         expect(handle.getLinked()).toEqual(entity1);
         expect(handle.getTarget()).toEqual(entity1);
         expect(handle._id).toEqual('handle100000');
-        handle = new Handle({linked: entity2, target: entity1});
+        handle = new Handle({target: entity2, owner: entity1});
         expect(handle).not.toBeNull();
         expect(handle.getLinked()).toEqual(entity2);
         expect(handle.getTarget()).toEqual(entity2);
@@ -49,7 +49,7 @@ define([
       });
 
       it ('with a Vertex', function () {
-        handle = new Handle({linked: vertex, target: entity1});
+        handle = new Handle({target: vertex, owner: entity1});
         expect(handle).not.toBeNull();
         expect(handle.getLinked()).toEqual(vertex);
         expect(handle.getTarget()).toEqual(entity1);
@@ -61,21 +61,21 @@ define([
         };
         expect(noArg).toThrow();
         noArg = function () {
-          return new Handle({linked: null});
+          return new Handle({target: null});
         };
         expect(noArg).toThrow();
       });
 
       it ('but fails with a non-Vertex or GeoEntity link', function () {
         var incorrectArg = function () {
-          return new Handle({linked: 'string'});
+          return new Handle({target: 'string'});
         };
         expect(incorrectArg).toThrow();
       });
 
       it ('but fails if a Vertex is linked without a target', function () {
         var incorrectArg = function () {
-          return new Handle({linked: vertex});
+          return new Handle({target: vertex});
         };
         expect(incorrectArg).toThrow();
       });
@@ -83,7 +83,7 @@ define([
 
     describe ('delegates modification calls', function () {
       it ('when linked directly to a GeoEntity', function () {
-        handle = new Handle({linked: entity1});
+        handle = new Handle({target: entity1});
         modifiers.forEach(function (method) {
           spyOn(handle, method).andCallThrough();
           handle[method]();
@@ -93,7 +93,7 @@ define([
       });
 
       it ('when linked to a Vertex, which then updates the GeoEntity', function () {
-        handle = new Handle({linked: vertex, target: entity1});
+        handle = new Handle({target: vertex, owner: entity1});
         spyOn(entity1, 'setDirty');
         handle.translate({x: 0, y: 0, z: 0});
         expect(entity1.setDirty).toHaveBeenCalledWith('vertices');
@@ -104,7 +104,7 @@ define([
     describe ('can be removed', function () {
 
       it ('from a single GeoEntity', function () {
-        handle = new Handle({linked: entity1});
+        handle = new Handle({target: entity1});
         handle.remove();
 
         expect(handle.getLinked()).toBeNull();

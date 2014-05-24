@@ -50,9 +50,12 @@ define([
       }.bind(this);
       this.bindEvents({
         'input/leftdown': provideTarget(this._start),
-        'input/mousemove': provideTarget(this._update),
-        // TODO(aramk) Doesn't always execute - seems the handler is unregistered?
-        'input/leftup': provideTarget(this._stop)
+        'input/mousemove': function (args) {
+          this._target && this._update(args);
+        }.bind(this),
+        'input/leftup': function () {
+          this._target && this._stop(args);
+        }.bind(this)
       });
     },
     

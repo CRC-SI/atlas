@@ -100,6 +100,8 @@ define([
           line: {vertices: [], width: '2px'},
           displayMode: Feature.DisplayMode.FOOTPRINT
         });
+        // We will be adding new handles ourselves, and the new feature doesn't have any to begin
+        // with.
         this._atlasManagers.edit.enable({
           entities: [this._feature], show: false, addHandles: false});
       }
@@ -194,7 +196,7 @@ define([
       }
 
       // Use the polygon handle constructor for consistency.
-      var handle = polygon.createHandle(vertex);
+      var handle = polygon.addHandle(polygon.createHandle(vertex));
       handle.render();
       handles.add(handle);
       this._handles.push(handle);

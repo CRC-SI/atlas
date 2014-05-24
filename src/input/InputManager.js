@@ -15,7 +15,7 @@ define([
    * @param {Object} atlasManagers - The map of all atlas manager objects.
    * @class atlas.input.InputManager
    */
-  InputManager = Class.extend( /** @lends atlas.input.InputManager# */ {
+  InputManager = Class.extend(/** @lends atlas.input.InputManager# */ {
 
     /**
      * The current DOM element the InputManager is bound to.
@@ -118,8 +118,9 @@ define([
         cback: function(e) {
           args = makeMouseEventArgs(buttonIds[e.button] + 'up', e);
           if (Math.abs(args.movement.cx + args.movement.cy) < InputManager.CLICK_SENSITIVITY) {
-            // If mouse moved less than the sensitivity, change event type to click.
-            args.name = 'input/' + buttonIds[e.button] + 'click'
+            // If mouse moved less than the sensitivity, also emit a click event.
+            this._atlasManagers.event.handleInternalEvent('input/' + buttonIds[e.button] + 'click',
+                args);
           }
           this._atlasManagers.event.handleInternalEvent(args.name, args);
         }.bind(this._atlasManagers.input)
@@ -128,7 +129,7 @@ define([
       // Mouse move handler
       this._mouseHandlers.push({
         name: 'mousemove',
-        cback: function (e) {
+        cback: function(e) {
           args = makeMouseEventArgs('mousemove', e);
           this._atlasManagers.event.handleInternalEvent(args.name, args);
         }.bind(this._atlasManagers.input)
@@ -137,7 +138,7 @@ define([
       // Double click handler
       this._mouseHandlers.push({
         name: 'dblclick',
-        cback: function (e) {
+        cback: function(e) {
           // TODO(bpstudds): This will convert all double click events to left dbl click.
           args = makeMouseEventArgs('left/dblclick', e);
           this._atlasManagers.event.handleInternalEvent(args.name, args);
