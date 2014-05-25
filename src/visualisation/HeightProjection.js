@@ -1,9 +1,10 @@
 define([
   'atlas/lib/utility/Log',
+  'atlas/model/Feature',
   // Base class
   'atlas/visualisation/AbstractProjection',
   'atlas/util/DeveloperError'
-], function(Log, AbstractProjection, DeveloperError) {
+], function(Log, Feature, AbstractProjection, DeveloperError) {
 
   /**
    * @classdesc The HeightProjection represents a projection of Entity parameter values onto
@@ -12,11 +13,18 @@ define([
    * @extends atlas.visualisation.AbstractProjection
    */
   return AbstractProjection.extend(/** @lends atlas.visualisation.HeightProjection.prototype */ {
-    ARTIFACT: 'height',
 
+    ARTIFACT: 'height',
     DEFAULT_CODOMAIN: {startProj: 50, endProj: 100},
 
-    getCurrentState: function () {
+    /**
+     * A map of parent IDs to a map of old elevations before projection to an array of objects
+     * containing meta-data, including the new elevations after projection.
+     * @type {Object.<String, Array.<Object.<Number, Object>>>}
+     */
+    _modifiedElevations: null,
+
+    getCurrentState: function() {
       // Otherwise return the current state of the actual render.
       var state = {};
       Object.keys(this._entities).forEach(function(id) {
@@ -40,14 +48,23 @@ define([
     },
 
     _render: function(entity, attributes) {
-      var oldHeight = entity.getHeight(),
-          oldElevation = entity.getElevation(),
+      var oldHeight = entity.getHeight();
+      var oldElevation = entity.getElevation();
       // TODO(bpstudds): Handle the case where an entity sits on two entities.
       // TODO(bpstudds): Handle the case where there's a hierarchy of 'parents'
-          newElevation = this._getModifiedElevation(oldElevation, entity.getCentroid(),
-              entity.parent),
-          newHeight = this._regressProjectionValueFromCodomain(attributes,
-              this._configuration.codomain);
+      var newElevation = this._getModifiedElevation(oldElevation, entity.getCentroid(),
+          entity.parent);
+      // Footprints can have elevation but not height. Generating height will cause an invalid
+      // top elevation as applying height on the footprint will have no effect.
+      var isFootprint = false;
+      if (entity.isExtrusion) {
+        isFootprint = !entity.isExtrusion();
+      } else if (entity instanceof Feature &&
+          entity.getDisplayMode() === Feature.DisplayMode.FOOTPRINT) {
+        isFootprint = true;
+      }
+      var newHeight = isFootprint ? oldHeight : this._regressProjectionValueFromCodomain(attributes,
+          this._configuration.codomain);
       this._setEffects(entity.getId(), {
         oldValue: {height: oldHeight, elevation: oldElevation},
         newValue: {height: newHeight, elevation: newElevation}
@@ -61,7 +78,7 @@ define([
 
     /**
      * Gets the modified top elevation of an entity so an entity sitting on top
-     * of it get be moved appropriately so it stacks on top of it.
+     * of it is moved appropriately so it stacks on top of it.
      * @param {Number} oldElevation - The bottom elevation of the Entity to be moved.
      * @param {atlas.model.GeoPoint} centroid - The centroid of the entity.
      * @param {atlas.model.GeoEntity} parent - The ID of the parent of the entity being moved.
@@ -70,16 +87,20 @@ define([
     _getModifiedElevation: function(oldElevation, centroid, parent) {
       var newElevations,
           result = oldElevation,
-          modifiedElevations = this._modifiedElevations[parent];
+          parent = parent || null;
 
+      var modifiedElevations = this._modifiedElevations[parent];
       newElevations = modifiedElevations ? modifiedElevations[oldElevation] : null;
+
       if (newElevations) {
         // A 'stacked elevation' exists.
         if (newElevations.length === 1) {
           result = newElevations[0].newElevation;
         } else {
+          // There are several siblings which had the given top elevation before projection.
+          // Find the sibling which was below this entity by finding the closest centroid to the
+          // given centroid.
           var centroidVertex = centroid.toVertex();
-          // Find the elevation with the closest centroid.
           var minId = 0,
               minValue = centroidVertex.distanceSquared(newElevations[minId].centroid.toVertex());
           for (var i = 1; i < newElevations.length; i++) {
@@ -97,8 +118,8 @@ define([
 
     /**
      * When an entity's height is modified, a map of the old top elevation to the new
-     * top elevation is created; so any entity that is stacked ontop can be moved
-     * appropriately.
+     * top elevation is created; so any entity that is stacked on top can be moved
+     * appropriately. Only sibling entities sharing the same parent are stacked.
      * @param {atlas.model.GeoEntity} entity - The entity being modified.
      * @param {Number} oldElevation - The old elevation of the top of the Entity.
      * @param {Number} newElevation - The new elevation of the top of the Entity.
@@ -108,7 +129,6 @@ define([
       var parent = entity.parent || null;
 
       if (!this._modifiedElevations[parent]) {
-        this._modifiedElevations = {};
         this._modifiedElevations[parent] = {};
       }
       if (!this._modifiedElevations[parent][oldElevation]) {
