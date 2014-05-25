@@ -11,7 +11,6 @@ define([
 ], function(ItemStore, TranslationModule, DrawModule, Log, Type, Handle, Class, DeveloperError,
             mixin) {
 
-  // TODO(aramk) refactor this into abstract atlas.core.ModularManager and use elsewhere (e.g. RenderManager).
   /**
    * @typedef atlas.edit.EditManager
    * @ignore
@@ -54,7 +53,7 @@ define([
     _entityIds: null,
 
     /**
-     * The store of Handles that are part of the current edit session.
+     * The store of Handles that are part of the current editing session.
      * @type {atlas.core.ItemStore}
      */
     _handles: null,
@@ -83,14 +82,6 @@ define([
      * @type {Object.<String, Object>}
      */
     _eventHandlers: null,
-
-    /**
-     * An array of event listeners for user input. <code>_inputEventHandlers</code> is non-null
-     * when editing is enabled. When editing is disabled, the only event being listened for
-     * is the event to enable and disable editing.
-     * @type {Object.<String, Object>}
-     */
-    _mouseEventHandlers: null,
 
     /**
      * Whether the translation module was enabled when editing began.
@@ -168,63 +159,18 @@ define([
           source: 'intern',
           name: 'input/left/dblclick',
           callback: function(args) {
+            // TODO(aramk) Unbind when disabled.
+            if (!this._editing) {
+              return;
+            }
             var targets = this._atlasManagers.render.getAt(args.position);
-            if (targets.length === 0 && this._editing) {
+            if (targets.length === 0) {
               this.disable();
             }
           }.bind(this)
         }
-        /*,
-         {
-         source: 'intern',
-         name: 'entity/deselect',
-         callback: function (event) {
-         this._entities.purge();
-         }.bind(this)
-         }*/
       ];
       this._eventHandlers = this._atlasManagers.event.addEventHandlers(handlers);
-    },
-
-    bindMouseInput: function() {
-//      if (this._mouseEventHandlers) {
-//        return;
-//      }
-//      var handlers = [
-//        {
-//          source: 'intern',
-//          name: 'input/leftdown',
-//          callback: function(e) {
-//            this.onLeftDown(e);
-//          }.bind(this)
-//        },
-//        {
-//          source: 'intern',
-//          name: 'input/mousemove',
-//          callback: function(e) {
-//            this.onMouseMove(e);
-//          }.bind(this)
-//        },
-//        {
-//          source: 'intern',
-//          name: 'input/leftup',
-//          callback: function(e) {
-//            this.onLeftUp(e);
-//          }.bind(this)
-//        }
-//      ];
-//      this._mouseEventHandlers = this._atlasManagers.event.addEventHandlers(handlers);
-    },
-
-    unbindMouseInput: function() {
-      if (!this._mouseEventHandlers) {
-        return;
-      }
-
-      Object.keys(this._mouseEventHandlers).forEach(function(key) {
-        this._mouseEventHandlers[key].cancel();
-      }, this);
-      this._mouseEventHandlers = null;
     },
 
     // -------------------------------------------
@@ -256,7 +202,6 @@ define([
       }
       Log.debug('EditManager enabled');
       this._editing = true;
-      this.bindMouseInput();
       this._entities.addArray(args.entities);
       // TODO(aramk) Only allow translation of handles (any) and args.entities.
       this._wasTranslationModuleEnabled = this.isModuleEnabled('translation');
@@ -282,8 +227,6 @@ define([
     disable: function() {
       Log.debug('EditManager disabled');
       this._editing = false;
-      // End the editing session
-      this.unbindMouseInput();
       this._handles.map('remove');
       this._entities.map('showAsExtrusion');
       // Remove stored elements
@@ -439,48 +382,7 @@ define([
      */
     toggleModule: function(name) {
       return this._enabledModules[name] ? this.disableModule(name) : this.enableModule(name);
-    },
-
-    // -------------------------------------------
-    // EVENT HANDLERS
-    // -------------------------------------------
-
-    /**
-     * Handles initiating a mouse drag with a left click. If a Handle is not clicked,
-     * nothing occurs.
-     * @param e
-     */
-//    onLeftDown: function(e) {
-//      // Check whether a Handle was clicked.
-//      // getAt always returns an array, but we only care about the top most Entity.
-//      var targetId = this._atlasManagers.render.getAt(e.position)[0],
-//          target = this._handles.get(targetId);
-//      if (!target) {
-//        return;
-//      }
-//
-//      this._dragTarget = target;
-//      e.target = this._dragTarget;
-//      this._delegateToModules('startDrag', arguments);
-//    },
-
-//    onMouseMove: function(e) {
-//      if (!this._dragTarget) {
-//        return;
-//      }
-//      e.target = this._dragTarget;
-//      this._delegateToModules('updateDrag', arguments);
-//    },
-
-//    onLeftUp: function(e) {
-//      if (!this._dragTarget) {
-//        return;
-//      }
-//
-//      e.target = this._dragTarget;
-//      this._dragTarget = null;
-//      this._delegateToModules('endDrag', arguments);
-//    }
+    }
 
   });
 
