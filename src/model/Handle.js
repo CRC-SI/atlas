@@ -18,8 +18,8 @@ define([
    * The Handle provides an interface between the editing subsystem and GeoEntities.
    * When a handle is modified, the Handle delegates these calls
    * to the target GeoEntities.
-   * @param {atlas.model.Vertex} [args.target] - The Vertex or GeoEntity that
-   * is target to the Handle. If no target is provided, the owner is considered the target.
+   * @param {atlas.model.Vertex} [args.target] - The Vertex that is target to the Handle. If no
+   * target is provided, the owner is considered the target.
    * @param {atlas.model.GeoEntity} args.owner - The owner of the target
    * {@link atlas.model.Vertex}.
    * @param {Number} [args.dotRadius=1] - The diameter of the Handle's dot in metres.
@@ -64,7 +64,7 @@ define([
     _init: function(args) {
       this._super(Handle._getNextId(), args);
       if (!args.target && !args.owner) {
-        throw new DeveloperError('Can not create Handle without target vertex or owner.');
+        throw new DeveloperError('Cannot create Handle without either a target or an owner.');
       }
       this._target = args.target;
       this._owner = args.owner;
@@ -142,7 +142,6 @@ define([
       // is functioning.
       var target = this.getTarget(),
           owner = this.getOwner();
-//      var callOwner = args.length > 1 ? args[1].callOwner : true;
       if (target) {
         var result = target[method].apply(target, args);
         // Avoid updating the owner unless necessary to allow the owner to call methods on the
@@ -153,13 +152,10 @@ define([
           // Since the Vertex methods produce new instances, set the result of the previous
           // call as the new value of the target instance.
           target.set(result);
-//          if (callOwner) {
-            owner.setDirty('vertices');
-            owner.show();
-//          }
+          owner.setDirty('vertices');
+          owner.show();
         }
       } else {
-//      if (callOwner) {
         // Move the owner instead if we don't have a target vertex. Delegate updating vertices to
         // the owner.
         owner[method].apply(owner, args);

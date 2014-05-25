@@ -153,6 +153,11 @@ define([
       return form;
     },
 
+    /**
+     * Binds various methods in {@link atlas.model.GeoEntity} which should be entirely delegated to
+     * the currently active form without any extra work.
+     * @private
+     */
     _initDelegation: function() {
       var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
         'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles'];

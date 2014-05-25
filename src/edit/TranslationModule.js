@@ -26,7 +26,9 @@ define([
      * @type {Object.<String, atlas.model.GeoEntity>}
      * @private
      */
-    // TODO(aramk) This isn't used at the moment - only _target is.
+    // TODO(aramk) This isn't used at the moment - only _target is. We would want to check the
+    // selected entities when dragging starts and move those, otherwise whatever entity we started
+    // dragging.
     _entities: null,
 
     /**

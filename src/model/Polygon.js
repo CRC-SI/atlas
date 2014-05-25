@@ -369,7 +369,7 @@ define([
      * @param {Number} translation.z - The change in altitude, given in metres.
      */
     translate: function(translation) {
-      // TODO(aramk) This method be abstracted and shared by Polygon, Mesh etc.
+      // TODO(aramk) This method should be abstracted and shared by Polygon, Mesh etc.
       this._vertices.forEach(function (vertex) {
         vertex.set(vertex.translate(translation));
       });
