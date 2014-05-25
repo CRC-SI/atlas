@@ -122,21 +122,6 @@ define([
     // GETTERS AND SETTERS
     // -------------------------------------------
 
-    getArea: function() {
-      var form = this.getForm();
-      return form && form.getArea();
-    },
-
-    getCentroid: function() {
-      var form = this.getForm();
-      return form && form.getCentroid();
-    },
-
-    getVertices: function() {
-      var form = this.getForm();
-      return form && form.getVertices();
-    },
-
     getForm: function(displayMode) {
       displayMode = displayMode || this._displayMode;
       var form;
@@ -160,7 +145,8 @@ define([
      */
     _initDelegation: function() {
       var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
-        'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles'];
+        'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles',
+        'getCentroid', 'getArea', 'getVertices'];
       methods.forEach(function(method) {
         this[method] = function() {
           return this._delegateToForm(method, arguments);

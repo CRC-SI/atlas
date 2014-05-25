@@ -1,10 +1,11 @@
 define([
+  'atlas/lib/utility/Type',
   'atlas/model/Style',
   'atlas/model/Colour',
   'atlas/util/Class',
   'atlas/util/DeveloperError',
   'atlas/util/mixin'
-], function(Style, Colour, Class, DeveloperError, mixin) {
+], function(Type, Style, Colour, Class, DeveloperError, mixin) {
 
   /**
    * @typedef atlas.visualisation.AbstractProjection
@@ -83,11 +84,9 @@ define([
     _values: null,
 
     /**
-     * A map of Entity ID to the effect the projection has. It is
-     * assumed that every ID that appears in <code>_effects</code> appears in <code>_entities</code>
-     * @type {Object.<String, Object>}
-     * @property {Number} oldValue - The value of an Entity's artifact before this projection was applied.
-     * @property {Number} newValue - The value of an Entity's artifact after this projection was applied.
+     * A map of Entity ID to the effect the projection has. It is assumed that every ID that appears
+     * in {@link #_effects} appears in {@link #_entities}.
+     * @type {Object.<String, atlas.visualisation.Effects>}
      * @protected
      */
     _effects: null,
@@ -213,10 +212,11 @@ define([
     /**
      * Sets the previous state, or the state of the render before the Projection is applied. ie.
      * sets what will be re-rendered when the Projection is removed.
+     * @param {Object.<String, Object>} state
      */
     setPreviousState: function(state) {
       Object.keys(state).forEach(function(id) {
-        this._effects[id].oldValue = state[id];
+        this._setEffect(id, 'oldValue', state[id]);
       }, this);
     },
 
@@ -227,12 +227,19 @@ define([
     getPreviousState: function() {
       var state = {};
       Object.keys(this._entities).forEach(function(id) {
-        var effects = this._effects[id];
+        var effects = this._getEffects(id);
         if (effects) {
           state[id] = effects.oldValue;
         }
       }, this);
       return state;
+    },
+
+    /**
+     * @returns {Object.<String, Object>} The current state. Override to return specific properties.
+     */
+    getCurrentState: function () {
+      return {};
     },
 
     /**
@@ -266,8 +273,8 @@ define([
      * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
      */
     render: function(id) {
-      this._rendered = true;
       this._mapToEntitiesById(this._render, id);
+      this._rendered = true;
     },
 
     /**
@@ -287,8 +294,8 @@ define([
      * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
      */
     unrender: function(id) {
-      this._rendered = false;
       this._mapToEntitiesById(this._unrender, id);
+      this._rendered = false;
     },
 
     /**
@@ -355,36 +362,6 @@ define([
       entity.setStyle(prevStyle);
       entity.show();
       this._removeEffect(id, 'prevStyle');
-    },
-
-    _getEffect: function(id, name) {
-      var effects = this._effects[id];
-      return effects && effects[name];
-    },
-
-    _setEffect: function(id, name, value) {
-      var effects = this._initEffect(id);
-      effects[name] = value;
-    },
-
-    _removeEffect: function(id, name) {
-      var effects = this._initEffect(id);
-      delete effects[name];
-    },
-
-    _initEffect: function(id) {
-      var effects = this._effects[id];
-      if (!effects) {
-        effects = this._effects[id] = {};
-      }
-      return effects;
-    },
-
-    _initEffects: function() {
-      this._effects = {};
-      for (var id in this._entities) {
-        this._initEffect(id);
-      }
     },
 
     /**
@@ -680,22 +657,128 @@ define([
      * @protected
      */
     _constructIdList: function(id) {
-      var ids = null;
-      var allIds = Object.keys(this._entities);
-      // If argument id was provided...
-      if (id && (typeof id).match(/(string|number)/)) {
-        ids = [id];
+      if (!id) {
+        return Object.keys(this._entities);
+      } else if (Type.isArrayLiteral(id)) {
+        return id;
+      } else {
+        return [id];
       }
-      if (id && id instanceof Array) {
-        ids = id;
+    },
+
+    // -------------------------------------------
+    // GETTERS & SETTERS
+    // -------------------------------------------
+
+    /**
+     * @param {String} id
+     * @param {String} name
+     * @param value
+     * @private
+     */
+    _setEffect: function(id, name, value) {
+      var effects = this._initEffect(id);
+      effects[name] = value;
+    },
+
+    /**
+     * @param {String} id
+     * @param {String} name
+     * @returns {atlas.visualisation.Effects}
+     * @private
+     */
+    _getEffect: function(id, name) {
+      var effects = this._getEffects(id);
+      return effects && effects[name];
+    },
+
+    /**
+     * @param {String} id
+     * @param {atlas.visualisation.Effects} effects
+     * @private
+     */
+    _setEffects: function(id, effects) {
+      for (var name in effects) {
+        this._setEffect(id, name, effects[name]);
       }
-      // ... use the entities it specifies instead of all the entities.
-      if (!ids) {
-        ids = allIds;
+    },
+
+    /**
+     * @param {String} [id] - The ID of the entity.
+     * @returns {atlas.visualisation.Effects}
+     * @private
+     */
+    _getEffects: function (id) {
+      return this._effects[id];
+    },
+
+    /**
+     * @param {Object.<String, atlas.visualisation.Effects>} effects
+     * @private
+     */
+    _setAllEffects: function(effects) {
+      for (var id in effects) {
+        this._setEffects(id, effects[id]);
       }
-      return ids;
+    },
+
+    /**
+     * @returns {Object.<String, atlas.visualisation.Effects>}
+     * @private
+     */
+    _getAllEffects: function () {
+      return this._effects;
+    },
+
+    /**
+     * @param {String} id
+     * @param {String} name
+     * @private
+     */
+    _removeEffect: function(id, name) {
+      var effects = this._initEffect(id);
+      delete effects[name];
+    },
+
+    /**
+     * @param {String} id
+     * @private
+     */
+    _removeEffects: function (id) {
+      delete this._effects[id];
+    },
+
+    /**
+     * Sets up the necessary structure needed to store effects.
+     * @private
+     */
+    _initEffects: function() {
+      this._effects = {};
+    },
+    
+    /**
+     * Sets up the necessary structure needed to store effects for the given ID.
+     * @param {String} id
+     * @returns {atlas.visualisation.Effects}
+     * @private
+     */
+    _initEffect: function(id) {
+      var effects = this._effects[id];
+      if (!effects) {
+        effects = this._effects[id] = {};
+      }
+      return effects;
     }
+
   });
+
+  /**
+   * @typedef {Object} atlas.visualisation.Effects
+   * @property {Number} [oldValue] - The value of an Entity's artifact before this projection was
+   * applied.
+   * @property {Number} [newValue] - The value of an Entity's artifact after this projection was
+   * applied.
+   */
 
   return AbstractProjection;
 });
