@@ -146,7 +146,7 @@ define([
       var newColour = this._regressProjectionValueFromCodomain(attributes, this._configuration.codomain),
           oldColour = entity.modifyStyle(newColour);
       entity.isVisible() && entity.show();
-      this.setEffects(entity.getId(), {oldValue: oldColour, newValue: newColour});
+      this._setEffects(entity.getId(), {oldValue: oldColour, newValue: newColour});
     },
 
     /**
@@ -158,7 +158,7 @@ define([
     _unrender:function (entity, params) {
       // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
       var id = entity.getId(),
-          oldColour = this.getEffect(id, 'oldValue');
+          oldColour = this._getEffect(id, 'oldValue');
       if (oldColour) {
         entity.modifyStyle(oldColour);
         entity.isVisible() && entity.show();

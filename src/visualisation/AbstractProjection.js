@@ -216,7 +216,7 @@ define([
      */
     setPreviousState: function(state) {
       Object.keys(state).forEach(function(id) {
-        this.setEffect(id, 'oldValue', state[id]);
+        this._setEffect(id, 'oldValue', state[id]);
       }, this);
     },
 
@@ -227,7 +227,7 @@ define([
     getPreviousState: function() {
       var state = {};
       Object.keys(this._entities).forEach(function(id) {
-        var effects = this.getEffects(id);
+        var effects = this._getEffects(id);
         if (effects) {
           state[id] = effects.oldValue;
         }
@@ -327,7 +327,7 @@ define([
           } else {
             if (this._rendered) {
               this._disableEntity(id);
-            } else if (this.getEffect(id, 'disabled')) {
+            } else if (this._getEffect(id, 'disabled')) {
               this._enableEntity(id);
             }
           }
@@ -341,13 +341,13 @@ define([
      * @private
      */
     _disableEntity: function(id) {
-      this.setEffect(id, 'disabled', true);
+      this._setEffect(id, 'disabled', true);
       var entity = this._entities[id],
           disabledStyle = new Style({fillColour: Colour.GREY, borderColour: Colour.GREY,
                                      borderWidth: 1}),
           prevStyle = entity.setStyle(disabledStyle);
       entity.show();
-      this.setEffect(id, 'prevStyle', prevStyle);
+      this._setEffect(id, 'prevStyle', prevStyle);
     },
 
     /**
@@ -356,12 +356,12 @@ define([
      * @private
      */
     _enableEntity: function(id) {
-      this.removeEffect(id, 'disabled');
-      var prevStyle = this.getEffect(id, 'prevStyle'),
+      this._removeEffect(id, 'disabled');
+      var prevStyle = this._getEffect(id, 'prevStyle'),
           entity = this._entities[id];
       entity.setStyle(prevStyle);
       entity.show();
-      this.removeEffect(id, 'prevStyle');
+      this._removeEffect(id, 'prevStyle');
     },
 
     /**
@@ -674,8 +674,9 @@ define([
      * @param {String} id
      * @param {String} name
      * @param value
+     * @private
      */
-    setEffect: function(id, name, value) {
+    _setEffect: function(id, name, value) {
       var effects = this._initEffect(id);
       effects[name] = value;
     },
@@ -684,59 +685,66 @@ define([
      * @param {String} id
      * @param {String} name
      * @returns {atlas.visualisation.Effects}
+     * @private
      */
-    getEffect: function(id, name) {
-      var effects = this.getEffects(id);
+    _getEffect: function(id, name) {
+      var effects = this._getEffects(id);
       return effects && effects[name];
     },
 
     /**
      * @param {String} id
      * @param {atlas.visualisation.Effects} effects
+     * @private
      */
-    setEffects: function(id, effects) {
+    _setEffects: function(id, effects) {
       for (var name in effects) {
-        this.setEffect(id, name, effects[name]);
+        this._setEffect(id, name, effects[name]);
       }
     },
 
     /**
      * @param {String} [id] - The ID of the entity.
      * @returns {atlas.visualisation.Effects}
+     * @private
      */
-    getEffects: function (id) {
+    _getEffects: function (id) {
       return this._effects[id];
     },
 
     /**
      * @param {Object.<String, atlas.visualisation.Effects>} effects
+     * @private
      */
-    setAllEffects: function(effects) {
+    _setAllEffects: function(effects) {
       for (var id in effects) {
-        this.setEffects(id, effects[id]);
+        this._setEffects(id, effects[id]);
       }
     },
 
     /**
      * @returns {Object.<String, atlas.visualisation.Effects>}
+     * @private
      */
-    getAllEffects: function () {
+    _getAllEffects: function () {
       return this._effects;
     },
 
     /**
      * @param {String} id
      * @param {String} name
+     * @private
      */
-    removeEffect: function(id, name) {
+    _removeEffect: function(id, name) {
       var effects = this._initEffect(id);
       delete effects[name];
     },
 
     /**
      * @param {String} id
+     * @private
      */
-    removeEffects: function (id) {
+    _removeEffects: function (id) {
       delete this._effects[id];
     },
 
