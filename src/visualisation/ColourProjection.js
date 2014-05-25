@@ -122,15 +122,7 @@ define([
       return legend;
     },
 
-    /**
-     * Returns the state before the Projection has been applied, or if the Projection has not been
-     * applied, the current state of the actual render.
-     * @returns {Object.<String, Object>}
-     */
-    getPreviousState: function () {
-      // If changes have been made, superclass AbstractProjection can handle getting the previous state.
-      if (Object.keys(this._effects).length > 0) { return this._super(); }
-      // Otherwise, the ColourProjection needs to return the current state of the actual render.
+    getCurrentState: function () {
       var state = {};
       Object.keys(this._entities).forEach(function (id) {
         state[id] = {fillColour: this._entities[id].getStyle().getFillColour()};
@@ -154,7 +146,7 @@ define([
       var newColour = this._regressProjectionValueFromCodomain(attributes, this._configuration.codomain),
           oldColour = entity.modifyStyle(newColour);
       entity.isVisible() && entity.show();
-      this._effects[entity.getId()] = { 'oldValue': oldColour, 'newValue': newColour };
+      this._setEffects(entity.getId(), {oldValue: oldColour, newValue: newColour});
     },
 
     /**
@@ -166,13 +158,11 @@ define([
     _unrender:function (entity, params) {
       // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
       var id = entity.getId(),
-          oldColour = this._effects[id].oldValue;
+          oldColour = this._getEffect(id, 'oldValue');
       if (oldColour) {
         entity.modifyStyle(oldColour);
         entity.isVisible() && entity.show();
       }
-      // TODO(aramk) We should abstract all this behind protected methods in AbstractProjection.
-//      delete this._effects[id];
     },
 
     /**

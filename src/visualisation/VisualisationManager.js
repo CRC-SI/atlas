@@ -223,7 +223,7 @@ define([
         'class': 'legend',
         // TODO(bpstudds): Add IDs to projections, use the ID rather than artifact to store.
         onRemove: function (e) { this.remove('colour'); }.bind(this),
-        dimensions: {top: 50, left: 0},
+        position: {top: 50, left: 0},
         content: html
       });
 
@@ -274,7 +274,7 @@ define([
       this._projections[target] = dynamic;
       this._overlays[target] = new Overlay({
         parent: this._atlasManagers.dom.getDom(),
-        dimensions: {top: 0, left: 0},
+        position: {top: 0, left: 0},
         content:
           '<p>'+target+'</p>' +
           '<input type="range" id="' + SLIDER + '-fps-' + target + '" min="1" max="30"> </br> ' +

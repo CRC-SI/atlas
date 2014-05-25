@@ -248,6 +248,13 @@ define([
     },
 
     /**
+     * @returns {Boolean} Whether the polygon should be shown as an extruded polygon.
+     */
+    isExtrusion: function () {
+      return this._showAsExtrusion;
+    },
+
+    /**
      * Set the extruded height of the polygon to form a prism.
      * @param {Number} height The extruded height of the building.
      */
