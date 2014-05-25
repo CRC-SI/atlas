@@ -88,8 +88,8 @@ define([
         parent: document,
         cssClass: '',
         title: '',
-        position: {top: 0, left: 0},
-        dimensions: {width: 0, height: 0},
+        position: {},
+        dimensions: {},
         content: ''
       }, args);
       if (typeof args.parent === 'string') {
