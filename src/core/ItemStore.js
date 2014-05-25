@@ -1,7 +1,7 @@
 define([
   'atlas/util/Class',
   'atlas/util/DeveloperError'
-], function (Class, DeveloperError) {
+], function(Class, DeveloperError) {
 
   /**
    * Define the ItemStore constructor as type atlas.core.ItemStore
@@ -18,7 +18,7 @@ define([
    * to <code>getId</code>.
    * @class atlas.core.ItemStore
    */
-  ItemStore = Class.extend( /** @lends atlas.core.ItemStore# */ {
+  ItemStore = Class.extend(/** @lends atlas.core.ItemStore# */ {
 
     /**
      * The getter function for the ID of the stored objects.
@@ -39,7 +39,7 @@ define([
      */
     _items: null,
 
-    _init: function (getter) {
+    _init: function(getter) {
       this.purge();
       this._getterName = getter || 'getId';
     },
@@ -51,7 +51,7 @@ define([
     /**
      * @returns {number} The number of items in the store.
      */
-    getCount: function () {
+    getCount: function() {
       return this._count;
     },
 
@@ -63,21 +63,23 @@ define([
      * Add an object to the store.
      * @param {Object} obj - The object to add.
      */
-    add: function (obj) {
+    add: function(obj) {
       if (!obj[this._getterName]) {
         throw new DeveloperError('Tried to add object without an ID getter to the store.');
       }
       var id = obj[this._getterName]();
-      this._items[id] = obj;
-      this._count++;
+      if (!this._items[id]) {
+        this._items[id] = obj;
+        this._count++;
+      }
     },
 
     /**
      * Adds an array of objects to the store.
      * @param {Array.<Object>} objs - The array of objects to add.
      */
-    addArray: function (objs) {
-      objs.forEach(function (obj) {
+    addArray: function(objs) {
+      objs.forEach(function(obj) {
         this.add(obj);
       }, this);
     },
@@ -87,7 +89,7 @@ define([
      * @param {String} id - The ID of the object to remove.
      * @returns {Object} The removed object.
      */
-    remove: function (id) {
+    remove: function(id) {
       var obj = this._items[id];
       delete this._items[id];
       this._count--;
@@ -98,15 +100,16 @@ define([
      * @param {String} id - The ID of the object to retrieve.
      * @returns {Object?} The object with the given ID.
      */
-    get: function (id) {
+    get: function(id) {
       return this._items[id];
     },
 
     /**
      * Removes all items from the store.
      */
-    purge: function () {
+    purge: function() {
       this._items = {};
+      this._count = 0;
     },
 
     // -------------------------------------------------
@@ -119,8 +122,8 @@ define([
      * @param {String} functionName - Name of the function to apply.
      * @param {Array} [args] - An array of arguments for the function.
      */
-    map: function (functionName, args) {
-      Object.keys(this._items).map(function (id) {
+    map: function(functionName, args) {
+      Object.keys(this._items).map(function(id) {
         var foo = this.get(id);
         return foo[functionName].apply(foo, args);
       }, this);
@@ -132,9 +135,9 @@ define([
      * @param {Function.<Object>} f - The function to call.
      * @param {Object} [scope] - The object that <code>this</code> will refer to.
      */
-    forEach: function (f, scope) {
+    forEach: function(f, scope) {
       scope = scope || this;
-      Object.keys(this._items).forEach(function (id) {
+      Object.keys(this._items).forEach(function(id) {
         var foo = this.get(id);
         f.bind(scope)(foo)
       }, this);

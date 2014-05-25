@@ -115,6 +115,7 @@ define([
       this.setDisplayMode(displayMode);
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
+      this._initDelegation();
     },
 
     // -------------------------------------------
@@ -152,35 +153,19 @@ define([
       return form;
     },
 
-    // All dirty state logic should be delegated to the current centroid.
+    _initDelegation: function() {
+      var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
+        'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles'];
+      methods.forEach(function(method) {
+        this[method] = function() {
+          return this._delegateToForm(method, arguments);
+        }
+      }, this);
+    },
 
     _delegateToForm: function(method, args) {
       var form = this.getForm();
       return form && form[method].apply(form, args);
-    },
-
-    isRenderable: function() {
-      this._delegateToForm('isRenderable', arguments);
-    },
-
-    isDirty: function() {
-      this._delegateToForm('isDirty', arguments);
-    },
-
-    setDirty: function() {
-      this._delegateToForm('setDirty', arguments);
-    },
-
-    clean: function() {
-      this._delegateToForm('clean', arguments);
-    },
-
-    createHandles: function() {
-      return this._delegateToForm('createHandles', arguments);
-    },
-
-    createHandle: function () {
-      return this._delegateToForm('createHandle', arguments);
     },
 
     /**

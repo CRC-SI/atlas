@@ -1,4 +1,5 @@
 define([
+  'atlas/core/ItemStore',
   'atlas/events/Event',
   // Base class
   'atlas/events/EventTarget',
@@ -6,7 +7,7 @@ define([
   'atlas/model/Style',
   'atlas/util/DeveloperError',
   'atlas/util/mixin'
-], function(Event, EventTarget, Colour, Style, DeveloperError, mixin) {
+], function(ItemStore, Event, EventTarget, Colour, Style, DeveloperError, mixin) {
 
   /**
    * @typedef atlas.model.GeoEntity
@@ -151,6 +152,12 @@ define([
      */
     _selected: false,
 
+    /**
+     * The editing {@link atlas.model.Handle}
+     * @type {atlas.core.ItemStore}
+     */
+    _handles: null,
+
     _init: function(id, args) {
       if (typeof id === 'object') {
         args = id;
@@ -170,7 +177,23 @@ define([
       this._renderManager = args.renderManager;
       this._eventManager = args.eventManager;
       this._entityManager = args.entityManager;
+      this._entityManager && this._entityManager.add(this.getId(), this);
       this.setStyle(args.style || GeoEntity.getDefaultStyle());
+      this._handles = new ItemStore();
+    },
+
+    // TODO(aramk) Use better dependency injection.
+    /**
+     * @param args - Any object used for construction.
+     * @returns {Object} - The given object with manager dependencies added.
+     * @private
+     */
+    _bindDependencies: function (args) {
+      return mixin(args, {
+        renderManager: this._renderManager,
+        eventManager: this._eventManager,
+        entityManager: this._entityManager
+      });
     },
 
     // -------------------------------------------
@@ -220,7 +243,7 @@ define([
     /**
      * @returns {Array.<atlas.model.Handle>} An array of Handles used to edit the GeoEntity.
      */
-    createHandles: function () {
+    createHandles: function() {
       throw new DeveloperError('Can not call abstract method "createHandles" of GeoEntity');
     },
 
@@ -228,8 +251,41 @@ define([
      * @param {atlas.model.Vertex} vertex
      * @returns {atlas.model.Handle}
      */
-    createHandle: function (vertex) {
-      throw new DeveloperError('Can not call abstract method "createHandles" of GeoEntity');
+    createHandle: function(vertex) {
+      throw new DeveloperError('Can not call abstract method "createHandle" of GeoEntity');
+    },
+
+    /**
+     * @returns {Array.<atlas.model.Handle>}
+     */
+    addHandles: function() {
+      var handles = this.createHandles();
+      this.setHandles(handles);
+      return handles;
+    },
+
+    /**
+     * @param {atlas.model.Handle} handle
+     * @returns {atlas.model.Handle}
+     */
+    addHandle: function(handle) {
+      this._handles.add(handle);
+    },
+
+    /**
+     * @param {Array.<atlas.model.Handle>} handles
+     */
+    setHandles: function(handles) {
+      this.clearHandles();
+      this._handles.addArray(handles);
+    },
+
+    getHandles: function() {
+      return this._handles;
+    },
+
+    clearHandles: function() {
+      this._handles.purge();
     },
 
     /**
@@ -527,7 +583,7 @@ define([
   // -------------------------------------------------
   // Statics
   // -------------------------------------------------
-  GeoEntity.getDefaultStyle = function () {
+  GeoEntity.getDefaultStyle = function() {
     return new Style({fillColour: Colour.GREEN});
   };
 

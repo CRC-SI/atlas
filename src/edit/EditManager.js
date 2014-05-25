@@ -60,12 +60,6 @@ define([
     _handles: null,
 
     /**
-     * The Handle that is the current focus of dragging.
-     * @type {atlas.model.Handle?}
-     */
-    _dragTarget: null,
-
-    /**
      * Contains a mapping of module name to Module object.
      * @type {Object.<String, atlas.edit.BaseEditModule>}
      */
@@ -97,6 +91,12 @@ define([
      * @type {Object.<String, Object>}
      */
     _mouseEventHandlers: null,
+
+    /**
+     * Whether the translation module was enabled when editing began.
+     * @type {Boolean}
+     */
+    _wasTranslationModuleEnabled: false,
 
     _init: function(atlasManagers) {
       this._atlasManagers = atlasManagers;
@@ -167,7 +167,7 @@ define([
         {
           source: 'intern',
           name: 'input/left/dblclick',
-          callback: function (args) {
+          callback: function(args) {
             var targets = this._atlasManagers.render.getAt(args.position);
             if (targets.length === 0 && this._editing) {
               this.disable();
@@ -187,33 +187,33 @@ define([
     },
 
     bindMouseInput: function() {
-      if (this._mouseEventHandlers) {
-        return;
-      }
-      var handlers = [
-        {
-          source: 'intern',
-          name: 'input/leftdown',
-          callback: function(e) {
-            this.onLeftDown(e);
-          }.bind(this)
-        },
-        {
-          source: 'intern',
-          name: 'input/mousemove',
-          callback: function(e) {
-            this.onMouseMove(e);
-          }.bind(this)
-        },
-        {
-          source: 'intern',
-          name: 'input/leftup',
-          callback: function(e) {
-            this.onLeftUp(e);
-          }.bind(this)
-        }
-      ];
-      this._mouseEventHandlers = this._atlasManagers.event.addEventHandlers(handlers);
+//      if (this._mouseEventHandlers) {
+//        return;
+//      }
+//      var handlers = [
+//        {
+//          source: 'intern',
+//          name: 'input/leftdown',
+//          callback: function(e) {
+//            this.onLeftDown(e);
+//          }.bind(this)
+//        },
+//        {
+//          source: 'intern',
+//          name: 'input/mousemove',
+//          callback: function(e) {
+//            this.onMouseMove(e);
+//          }.bind(this)
+//        },
+//        {
+//          source: 'intern',
+//          name: 'input/leftup',
+//          callback: function(e) {
+//            this.onLeftUp(e);
+//          }.bind(this)
+//        }
+//      ];
+//      this._mouseEventHandlers = this._atlasManagers.event.addEventHandlers(handlers);
     },
 
     unbindMouseInput: function() {
@@ -239,6 +239,8 @@ define([
      * @param {Object.<atlas.model.GeoEntity>} [args.entities] A set of entities to enable for
      * editing. If not provided, args.ids are used first, otherwise the currently selected entities
      * are used.
+     * @param {Boolean} [args.show=true] Whether to show the entities as footprints.
+     * @param {Boolean} [args.addHandles=true] Whether to add handles to entities.
      */
     enable: function(args) {
       args = mixin({
@@ -257,14 +259,18 @@ define([
       this.bindMouseInput();
       this._entities.addArray(args.entities);
       // TODO(aramk) Only allow translation of handles (any) and args.entities.
+      this._wasTranslationModuleEnabled = this.isModuleEnabled('translation');
       this.enableModule('translation');
 
       // Render the editing handles.
-      args.addHandles && this._entities.forEach(function(entity) {
+      this._entities.forEach(function(entity) {
         args.show && entity.showAsFootprint();
-        // Put the Handles into the EntityManager and render them.
-        this._handles.addArray(entity.createHandles());
-        this._handles.map('render');
+        if (args.addHandles) {
+          // Put the Handles into the EntityManager and render them.
+          var handles = entity.addHandles();
+          this._handles.addArray(handles);
+          this._handles.map('render');
+        }
       }, this);
     },
 
@@ -282,7 +288,11 @@ define([
       this._entities.map('showAsExtrusion');
       // Remove stored elements
       this._handles.purge();
+      this._entities.forEach(function(entity) {
+        entity.clearHandles();
+      });
       this._entities.purge();
+      this.setIsModuleEnabled('translation', this._wasTranslationModuleEnabled);
     },
 
     /**
@@ -440,37 +450,37 @@ define([
      * nothing occurs.
      * @param e
      */
-    onLeftDown: function(e) {
-      // Check whether a Handle was clicked.
-      // getAt always returns an array, but we only care about the top most Entity.
-      var targetId = this._atlasManagers.render.getAt(e.position)[0],
-          target = this._handles.get(targetId);
-      if (!target) {
-        return;
-      }
+//    onLeftDown: function(e) {
+//      // Check whether a Handle was clicked.
+//      // getAt always returns an array, but we only care about the top most Entity.
+//      var targetId = this._atlasManagers.render.getAt(e.position)[0],
+//          target = this._handles.get(targetId);
+//      if (!target) {
+//        return;
+//      }
+//
+//      this._dragTarget = target;
+//      e.target = this._dragTarget;
+//      this._delegateToModules('startDrag', arguments);
+//    },
 
-      this._dragTarget = target;
-      e.target = this._dragTarget;
-      this._delegateToModules('startDrag', arguments);
-    },
+//    onMouseMove: function(e) {
+//      if (!this._dragTarget) {
+//        return;
+//      }
+//      e.target = this._dragTarget;
+//      this._delegateToModules('updateDrag', arguments);
+//    },
 
-    onMouseMove: function(e) {
-      if (!this._dragTarget) {
-        return;
-      }
-      e.target = this._dragTarget;
-      this._delegateToModules('updateDrag', arguments);
-    },
-
-    onLeftUp: function(e) {
-      if (!this._dragTarget) {
-        return;
-      }
-
-      e.target = this._dragTarget;
-      this._dragTarget = null;
-      this._delegateToModules('endDrag', arguments);
-    }
+//    onLeftUp: function(e) {
+//      if (!this._dragTarget) {
+//        return;
+//      }
+//
+//      e.target = this._dragTarget;
+//      this._dragTarget = null;
+//      this._delegateToModules('endDrag', arguments);
+//    }
 
   });
 

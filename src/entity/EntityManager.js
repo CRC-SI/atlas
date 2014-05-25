@@ -28,12 +28,6 @@ define([
     _entities: null,
 
     /**
-     * A map of handle ID to Handle objects.
-     * @type {Object.<String, atlas.model.Handle>}
-     */
-    _handles: null,
-
-    /**
      * Contains a mapping of GeoEntity subclass names to the constructor object
      * used to create that GeoEntity. Allows overriding of the default atlas GeoEntities
      * without having to subclass the EntityManager.
@@ -60,7 +54,6 @@ define([
       this._atlasManagers.entity = this;
       this._origDisplayModes = {};
       this._entities = {};
-      this._handles = {};
     },
 
     /**
@@ -254,6 +247,8 @@ define([
       } else if (id in this._entities) {
         throw new DeveloperError('Can not create Feature with a duplicate ID');
       } else {
+        // TODO(aramk) Use dependency injection to ensure all entities that are created have these
+        // if they need them.
         // Add EventManger to the args for the feature.
         args.eventManager = this._atlasManagers.event;
         // Add the RenderManager to the args for the feature.
@@ -261,7 +256,7 @@ define([
         // Add the EntityManager to the args for the feature.
         args.entityManager = this;
         Log.debug('Creating entity', id);
-        return this._entities[id] = new this._entityTypes.Feature(id, args);
+        return new this._entityTypes.Feature(id, args);
       }
     },
 
@@ -278,8 +273,8 @@ define([
         var entity = this.getById(id);
         if (!entity) {
           var args = this._parseC3ML(c3ml);
-          this.createFeature(id, args);
-          args.show && this._entities[id].show();
+          var feature = this.createFeature(id, args);
+          args.show && feature.show();
           ids.push(id);
         }
       }, this);
@@ -417,7 +412,7 @@ define([
      */
     add: function(id, entity) {
       if (id in this._entities) {
-        Log.log('tried to add entity', id, 'which already exists.');
+        Log.warn('tried to add entity', id, 'which already exists.');
         return false;
       }
       if (!entity instanceof GeoEntity) {
