@@ -119,7 +119,8 @@ define([
     /**
      * When an entity's height is modified, a map of the old top elevation to the new
      * top elevation is created; so any entity that is stacked on top can be moved
-     * appropriately. Only sibling entities sharing the same parent are stacked.
+     * appropriately. Only sibling entities sharing the same parent are stacked. Entities without a
+     * parent are considered siblings.
      * @param {atlas.model.GeoEntity} entity - The entity being modified.
      * @param {Number} oldElevation - The old elevation of the top of the Entity.
      * @param {Number} newElevation - The new elevation of the top of the Entity.
