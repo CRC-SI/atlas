@@ -65,7 +65,7 @@ define([
       }
       var newHeight = isFootprint ? oldHeight : this._regressProjectionValueFromCodomain(attributes,
           this._configuration.codomain);
-      this._setEffects(entity.getId(), {
+      this.setEffects(entity.getId(), {
         oldValue: {height: oldHeight, elevation: oldElevation},
         newValue: {height: newHeight, elevation: newElevation}
       });
@@ -146,7 +146,7 @@ define([
      */
     _unrender: function(entity, attributes) {
       var id = entity.getId(),
-          oldValue = this._getEffect(id, 'oldValue');
+          oldValue = this.getEffect(id, 'oldValue');
       if (oldValue) {
         entity.setElevation(oldValue.elevation);
         entity.setHeight(oldValue.height);
