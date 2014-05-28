@@ -146,6 +146,7 @@ define([
         title: '',
         position: {top: 0, left: 0},
         dimensions: {width: 0, height: 0},
+        showMinimised: false,
         content: '',
         hasRemoveBtn: false,
         hasChangeCheckbox: false
@@ -165,10 +166,12 @@ define([
       this._parent = parent;
       this._title = args.title;
       this._cssClass = args.cssClass;
+      this._cssPosition = args.cssPosition;
 
       this._position = args.position;
       this._dimensions = args.dimensions;
       this._content = args.content;
+      this._showMinimised = args.showMinimised;
 
       this._onRemove = typeof args.onRemove === 'function' ? args.onRemove : null;
       this._hasRemoveBtn = args.hasRemoveBtn || this._onRemove !== null;
@@ -198,6 +201,10 @@ define([
 
     getDimensions: function () {
       return this._dimensions;
+    },
+
+    getDom: function () {
+      return this._element;
     },
 
     /**
@@ -251,8 +258,13 @@ define([
      * Sets the content of the Overlay to be visible.
      */
     maximise: function () {
-      var content = this.getDomElements().content;
+      var content = this.getDomElements().content,
+          enableCheckbox = this.getDomElements().title.getElementsByClassName('enable-overlay');
+
       content && content.classList.remove('hidden');
+      if (enableCheckbox) {
+        enableCheckbox.value = true;
+      }
     },
 
     /**
@@ -260,8 +272,13 @@ define([
      * only it uses only sufficient space to display the title.
      */
     minimise: function () {
-      var content = this.getDomElements().content;
+      var content = this.getDomElements().content,
+          enableCheckbox = this.getDomElements().title.getElementsByClassName('enable-overlay');
+
       content && content.classList.add('hidden');
+      if (enableCheckbox) {
+        enableCheckbox.value = false;
+      }
     },
 
     /**
@@ -296,6 +313,11 @@ define([
       element.classList.add('overlay');
       this._cssClass !== '' && element.classList.add(this._cssClass);
 
+      if (this._cssPosition) {
+        element.style.position = this._cssPosition;
+      }
+
+      // Create HTML for title of overlay.
       // Wrap the title with an enable checkbox and remove button if necessary.
       var title = '<div class="overlay-title">';
       if (this._hasEnableCheckbox) {
@@ -306,7 +328,11 @@ define([
         title += '<button class="remove-overlay">X</button>';
       }
       title +=  '</div>'
-      this._html = title + '<div class="overlay-body">' + this._content + '</div>';
+
+      // Create HTML for body of overlay.
+      var bodyClass = 'overlay-body';
+      bodyClass += this._showMinimised ? ' hidden' : '';
+      this._html = title + '<div class="' + bodyClass + '">' + this._content + '</div>';
 
       // Create the overlay html.
       element.innerHTML = this._html;
@@ -338,6 +364,8 @@ define([
           // 0 -> left click.
           if (e.button === 0) {
             this[removeFunction](e);
+            //this._onRemove && this._onRemove(e);
+            //this.remove();
           }
         }.bind(this))
       }
@@ -348,6 +376,8 @@ define([
           // 0 -> left click.
           if (e.button === 0) {
             this[enableFunction](e.target.value, e);
+            //this._onEnabledChange && this._onEnabledChange();
+            //this.toggleMinimisation();
           }
         }.bind(this))
       }
