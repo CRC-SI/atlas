@@ -444,18 +444,37 @@ define([
     // -------------------------------------------
 
     /**
-     * Returns the GeoEntity instances that are rendered and visible.
-     * @returns {Object.<String, atlas.model.GeoEntity>} A map of visible GeoEntity ID to GeoEntity.
+     * Returns the {@link atlas.model.GeoEntity} instances that are rendered and visible.
+     * @returns {Object.<String, atlas.model.GeoEntity>} A map of IDs to visible entities.
      */
-    getVisibleEntities: function() {
-      var visible = {};
-      Object.keys(this._entities).forEach(function(id) {
-        var entity = this._entities[id];
+    getVisibleEntities: function(args) {
+      args = mixin({}, args);
+      if (!args.ids) {
+        args.ids = Object.keys(this._entities);
+      }
+      var visible = {},
+          ids = args.ids,
+          filter = args.filter;
+      ids.forEach(function(id) {
+        var entity = this.getById(id);
+        if (filter && !filter(entity)) {
+          return;
+        }
         if (entity.isVisible()) {
           visible[id] = entity;
         }
       }, this);
       return visible;
+    },
+
+    /**
+     * Returns the {@link atlas.model.Feature} instances that are rendered and visible.
+     * @returns {Object.<String, atlas.model.GeoEntity>} A map of IDs to visible features.
+     */
+    getVisibleFeatures: function() {
+      return this.getVisibleEntities({filter: function (entity) {
+        return entity instanceof Feature;
+      }});
     },
 
     /**
