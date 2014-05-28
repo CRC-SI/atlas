@@ -56,6 +56,13 @@ define([
     _parent: null,
 
     /**
+     * The HTMLElement generated from this Overlay.
+     * @type {HTMLElement}
+     * @protected
+     */
+    _element: null,
+
+    /**
      * The class(es) to apply to the Overlay HTML.
      * @type {String}
      * @protected
@@ -78,6 +85,7 @@ define([
      * @property {Number} left - Distance in pixels from the left edge of the Parent.
      * @property {Number} bottom - Distance in pixels from the bottom edge of the Parent.
      * @property {Number} right - Distance in pixels from the right edge of the Parent.
+     * @protected
      */
     _position: null,
 
@@ -183,6 +191,17 @@ define([
       return this._dimensions;
     },
 
+    /**
+     * Gets the individual DOM elements for the title and content of the Overlay.
+     * @returns {{title: HTMLElement, content: HTMLElement}}
+     */
+    getDomElements: function () {
+      var overlay = this._element,
+          title = overlay.getElementsByClassName('overlay-title')[0],
+          content = overlay.getElementsByClassName('overlay-body')[0];
+      return {title: title, content: content};
+    },
+
     getHtml: function () {
       return this._html;
     },
@@ -220,11 +239,36 @@ define([
     },
 
     /**
+     * Sets the content of the Overlay to be visible.
+     */
+    maximise: function () {
+      var content = this.getDomElements().content;
+      content && content.classList.remove('hidden');
+    },
+
+    /**
+     * Sets the content of the Overlay to be hidden. The Overlay should be sized so that
+     * only it uses only sufficient space to display the title.
+     */
+    minimise: function () {
+      var content = this.getDomElements().content;
+      content && content.classList.add('hidden');
+    },
+
+    /**
+     * Toggles whether the Overlay is minimised.
+     */
+    toggleMinimisation: function () {
+      var content = this.getDomElements().content;
+      content && content.classList.toggle('hidden');
+    },
+
+    /**
      * Removes the Overlay from the parent document.
      */
     remove: function () {
       if (!this._element || !this._element.parentElement) {
-        Log.error('Tried to remove an unrendered Overlay.');
+        Log.warn('Tried to remove an unrendered Overlay.');
         return;
       }
       this.hide();

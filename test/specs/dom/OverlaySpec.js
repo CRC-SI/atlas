@@ -54,7 +54,7 @@ define([
         expect(actual.title.innerHTML).toEqual('title');
       });
 
-      it('should have a remove button if an onRemove callback is given', function () {
+      it('should have a remove button if an onRemove callback or hasRemoveBtn is given', function () {
         args.title = 'title';
         args.onRemove = function () {};
         overlay = new Overlay(args);
@@ -64,6 +64,50 @@ define([
         expect(removeBtn).not.toBeUndefined();
         expect(removeBtn).not.toBeNull();
         expect(removeBtn.type).toEqual('submit');
+      });
+
+      it('should have a remove button if hasRemoveBtn is true', function () {
+        args.hasRemoveBtn = true;
+        overlay = new Overlay(args);
+
+        var actual = getOverlayDom(),
+            removeBtn = actual.title.getElementsByClassName('remove-overlay')[0];
+        expect(removeBtn).not.toBeUndefined();
+        expect(removeBtn).not.toBeNull();
+        expect(removeBtn.type).toEqual('submit');
+      });
+
+      it('should not have a remove button by default', function () {
+        overlay = new Overlay(args);
+        var actual = getOverlayDom(),
+            removeBtn = actual.title.getElementsByClassName('remove-overlay')[0];
+        expect(removeBtn).toBeUndefined();
+      });
+
+      it('should not have a remove button if told not to', function () {
+        args.hasRemoveButton = false;
+        overlay = new Overlay(args);
+
+        var actual = getOverlayDom(),
+            removeBtn = actual.title.getElementsByClassName('remove-overlay')[0];
+        expect(removeBtn).toBeUndefined();
+      });
+
+      it('should be able to be minimised and maximised', function () {
+        overlay = new Overlay(args);
+        var domBefore = getOverlayDom(),
+            isMinimised = domBefore.content.classList.contains('hidden');
+        expect(isMinimised).toBe(false);
+
+        overlay.minimise();
+        var domAfter = getOverlayDom();
+        isMinimised = domAfter.content.classList.contains('hidden');
+        expect(isMinimised).toBe(true);
+
+        overlay.maximise();
+        domAfter = getOverlayDom();
+        isMinimised = domAfter.content.classList.contains('hidden');
+        expect(isMinimised).toBe(false);
       });
 
       it('should not have a remove button if onRemove is not a valid function', function () {
