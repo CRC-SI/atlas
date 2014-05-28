@@ -22,11 +22,16 @@ define([
    * @param {String} [args.title] - A title to show in the overlay.
    * @param {String} [args.class] - The CSS class to apply to the <code><div</code> surrounding
    *    the Overlay.
-   * @param {Function|boolean} [args.onRemove] - A callback that is called when the overlay remove
-   *    button is clicked or a boolean value. If a callback or true is given, the
-   *    remove button is rendered.
+   * @param {boolean} [args.hasRemoveBtn=false] - Whether the Overlay should have a remove
+   *    button. The default action of this button is to remove and destroy the Overlay.
+   * @param {function} [args.onRemove] - A callback that is called when the Overlay remove
+   *    button is clicked. This callback overrides the default action of the remove button, so the
+   *    callback should remove the Overlay if that is required.
+   * @param {boolean} [args.hasEnableCheckbox=false] - Whether the Overlay should have an enable
+   *    checkbox. The default action of this checkbox is to minimise and maximise the Overlay.
    * @param {function} [args.onEnabledChange] - A callback that is called when the overlay enable
-   *    checkbox is clicked. This checkbox is only shown if the callback is given.
+   *    checkbox is clicked. This callback overrides the default behaviour of the enable checkbox,
+   *    so the callback should minimise/maximise the Overlay if this is required.
    * @param {Object} [args.position] - The position of the Overlay.
    * @param {Object} [args.position.top=0] - The dimension from the top of <code>parent</code>
    *    to the top of the Overlay in pixels.
@@ -141,7 +146,9 @@ define([
         title: '',
         position: {top: 0, left: 0},
         dimensions: {width: 0, height: 0},
-        content: ''
+        content: '',
+        hasRemoveBtn: false,
+        hasChangeCheckbox: false
       }, args);
       if (typeof args.parent === 'string') { parent = document.getElementById(parent); }
       if (!args.parent) { throw new Error('Error attaching to element ' + args.parent)}
@@ -163,8 +170,10 @@ define([
       this._dimensions = args.dimensions;
       this._content = args.content;
 
-      this._onRemove = args.onRemove;
-      this._onEnabledChange = args.onEnabledChange;
+      this._onRemove = typeof args.onRemove === 'function' ? args.onRemove : null;
+      this._hasRemoveBtn = args.hasRemoveBtn || this._onRemove !== null;
+      this._onEnabledChange = typeof args.onEnabledChange === 'function' ? args.onEnabledChange : null;
+      this._hasEnableCheckbox = args.hasEnableCheckbox || this._onEnabledChange !== null;
 
       // Construct element and append it to the parent.
       this._element = this._render();
@@ -289,11 +298,11 @@ define([
 
       // Wrap the title with an enable checkbox and remove button if necessary.
       var title = '<div class="overlay-title">';
-      if (this._onEnabledChange) {
+      if (this._hasEnableCheckbox) {
         title += '<input type="checkbox" value="false" class="enable-overlay">'
       }
       title += this._title;
-      if (this._onRemove) {
+      if (this._hasRemoveBtn) {
         title += '<button class="remove-overlay">X</button>';
       }
       title +=  '</div>'
@@ -322,21 +331,23 @@ define([
       this._parent.appendChild(element);
 
       // Add event handler to close button and checkbox
-      if (this._onRemove) {
+      if (this._hasRemoveBtn) {
         var closeBtn = element.getElementsByClassName('remove-overlay')[0];
+            removeFunction = this._onRemove ? '_onRemove' : 'remove';
         closeBtn.addEventListener('click', function (e) {
           // 0 -> left click.
           if (e.button === 0) {
-            this._onRemove(e);
+            this[removeFunction](e);
           }
         }.bind(this))
       }
       if (this._onEnabledChange) {
-        var enableCB = element.getElementsByClassName('enable-overlay')[0];
-        enableCB.addEventListener('click', function (e) {
+        var enableCheckbox = element.getElementsByClassName('enable-overlay')[0];
+            enableFunction = this._onEnabledChange ? '_onEnabledChange' : 'toggleMinimisation';
+        enableCheckbox.addEventListener('click', function (e) {
           // 0 -> left click.
           if (e.button === 0) {
-            this._onEnabledChange(e.target.value, e);
+            this[enableFunction](e.target.value, e);
           }
         })
       }

@@ -54,7 +54,7 @@ define([
         expect(actual.title.innerHTML).toEqual('title');
       });
 
-      it('should have a remove button if an onRemove callback or hasRemoveBtn is given', function () {
+      it('should have a remove button if an onRemove callback is given', function () {
         args.title = 'title';
         args.onRemove = function () {};
         overlay = new Overlay(args);
@@ -93,23 +93,6 @@ define([
         expect(removeBtn).toBeUndefined();
       });
 
-      it('should be able to be minimised and maximised', function () {
-        overlay = new Overlay(args);
-        var domBefore = getOverlayDom(),
-            isMinimised = domBefore.content.classList.contains('hidden');
-        expect(isMinimised).toBe(false);
-
-        overlay.minimise();
-        var domAfter = getOverlayDom();
-        isMinimised = domAfter.content.classList.contains('hidden');
-        expect(isMinimised).toBe(true);
-
-        overlay.maximise();
-        domAfter = getOverlayDom();
-        isMinimised = domAfter.content.classList.contains('hidden');
-        expect(isMinimised).toBe(false);
-      });
-
       it('should not have a remove button if onRemove is not a valid function', function () {
         args.title = 'title';
         // onEnabledChange is undefined
@@ -117,9 +100,11 @@ define([
         var actual = getOverlayDom(),
             removeBtn = actual.title.getElementsByClassName('remove-overlay')[0];
         expect(removeBtn).toBeUndefined();
+        overlay.remove();
 
         // onEnabledChange is not a function
         args.onEnabledChange = {};
+        overlay = new Overlay(args);
         var actual = getOverlayDom(),
             removeBtn = actual.title.getElementsByClassName('remove-overlay')[0];
         expect(removeBtn).toBeUndefined();
@@ -137,19 +122,60 @@ define([
         expect(enableCb.type).toEqual('checkbox');
       });
 
+      it('should have an enable checkbox if hasEnableCheckbox is true', function () {
+        args.title = 'title';
+        args.hasEnableCheckbox = true;
+        overlay = new Overlay(args);
+
+        var actual = getOverlayDom(),
+            enableCb = actual.title.getElementsByClassName('enable-overlay')[0];
+        expect(enableCb).not.toBeUndefined();
+        expect(enableCb).not.toBeNull();
+        expect(enableCb.type).toEqual('checkbox');
+      });
+
+      it('should not have an enable checkbox if hasEnableCheckbox is false', function () {
+        args.title = 'title';
+        args.hasEnableCheckbox = false;
+        overlay = new Overlay(args);
+
+        var actual = getOverlayDom(),
+            enableCb = actual.title.getElementsByClassName('enable-overlay')[0];
+        expect(enableCb).toBeUndefined();
+      });
+
       it('should not have an enable checkbox if onEnabledChange is not a valid function', function () {
         args.title = 'title';
         // onEnabledChange is undefined
         overlay = new Overlay(args);
         var actual = getOverlayDom(),
-          enableCb = actual.title.getElementsByClassName('enable-overlay')[0];
+            enableCb = actual.title.getElementsByClassName('enable-overlay')[0];
         expect(enableCb).toBeUndefined();
+        overlay.remove();
 
         // onEnabledChange is not a function
         args.onEnabledChange = {};
-        var actual = getOverlayDom(),
-          enableCb = actual.title.getElementsByClassName('enable-overlay')[0];
+        overlay = new Overlay(args);
+        actual = getOverlayDom();
+        enableCb = actual.title.getElementsByClassName('enable-overlay')[0];
         expect(enableCb).toBeUndefined();
+      });
+
+      it('should be able to be minimised and maximised', function () {
+        overlay = new Overlay(args);
+        var domBefore = getOverlayDom(),
+            isMinimised = domBefore.content.classList.contains('hidden');
+        expect(isMinimised).toBe(false);
+
+        overlay.minimise();
+        var domAfter = getOverlayDom();
+        isMinimised = domAfter.content.classList.contains('hidden');
+        expect(isMinimised).toBe(true);
+
+        overlay.maximise();
+        domAfter = getOverlayDom();
+        isMinimised = domAfter.content.classList.contains('hidden');
+        expect(isMinimised).toBe(false);
       });
     });
 
