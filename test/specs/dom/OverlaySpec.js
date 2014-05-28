@@ -1,8 +1,9 @@
 define([
   'atlas/model/Colour',
+  '../../lib/simulate.js',
   // Code under test.
   'atlas/dom/Overlay'
-], function (Colour, Overlay) {
+], function (Colour, simulate, Overlay) {
 
     var parent,
         position = {
@@ -61,6 +62,7 @@ define([
 
         var actual = getOverlayDom(),
             removeBtn = actual.title.getElementsByClassName('remove-overlay')[0];
+        expect(overlay._onRemove).toEqual(args.onRemove);
         expect(removeBtn).not.toBeUndefined();
         expect(removeBtn).not.toBeNull();
         expect(removeBtn.type).toEqual('submit');
@@ -75,6 +77,26 @@ define([
         expect(removeBtn).not.toBeUndefined();
         expect(removeBtn).not.toBeNull();
         expect(removeBtn.type).toEqual('submit');
+      });
+
+      it('should be removed by default when the remove button is clicked', function () {
+        // default callback
+        args.hasRemoveBtn = true;
+        overlay = new Overlay(args);
+
+        var removeBtn = getOverlayDom().title.getElementsByClassName('remove-overlay')[0];
+        spyOn(overlay, 'remove');
+        simulate(removeBtn, 'click');
+        expect(overlay.remove).toHaveBeenCalled();
+      });
+
+      it('should call the given callback when the remove button is pressed', function () {
+        args.onRemove = function () {};
+        var overlay = new Overlay(args),
+            removeBtn = getOverlayDom().title.getElementsByClassName('remove-overlay')[0];
+        spyOn(overlay, '_onRemove');
+        simulate(removeBtn, 'click');
+        expect(overlay._onRemove).toHaveBeenCalled();
       });
 
       it('should not have a remove button by default', function () {
@@ -132,6 +154,25 @@ define([
         expect(enableCb).not.toBeUndefined();
         expect(enableCb).not.toBeNull();
         expect(enableCb.type).toEqual('checkbox');
+      });
+
+      it('should call a callback when the enable checkbox is toggled', function () {
+        args.hasEnableCheckbox = true;
+        overlay = new Overlay(args);
+
+        var enableCb = getOverlayDom().title.getElementsByClassName('enable-overlay')[0];
+        spyOn(overlay, 'toggleMinimisation');
+        simulate(enableCb, 'click');
+        expect(overlay.toggleMinimisation).toHaveBeenCalled();
+
+        overlay.remove();
+        args.onEnabledChange = function () {};
+        overlay = new Overlay(args);
+
+        enableCb = getOverlayDom().title.getElementsByClassName('enable-overlay')[0];
+        spyOn(overlay, '_onEnabledChange');
+        simulate(enableCb, 'click');
+        expect(overlay._onEnabledChange).toHaveBeenCalled();
       });
 
       it('should not have an enable checkbox if hasEnableCheckbox is false', function () {

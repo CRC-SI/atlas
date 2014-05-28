@@ -299,7 +299,7 @@ define([
       // Wrap the title with an enable checkbox and remove button if necessary.
       var title = '<div class="overlay-title">';
       if (this._hasEnableCheckbox) {
-        title += '<input type="checkbox" value="false" class="enable-overlay">'
+        title += '<input type="checkbox" value="true" class="enable-overlay">'
       }
       title += this._title;
       if (this._hasRemoveBtn) {
@@ -341,7 +341,7 @@ define([
           }
         }.bind(this))
       }
-      if (this._onEnabledChange) {
+      if (this._hasEnableCheckbox) {
         var enableCheckbox = element.getElementsByClassName('enable-overlay')[0];
             enableFunction = this._onEnabledChange ? '_onEnabledChange' : 'toggleMinimisation';
         enableCheckbox.addEventListener('click', function (e) {
@@ -349,7 +349,7 @@ define([
           if (e.button === 0) {
             this[enableFunction](e.target.value, e);
           }
-        })
+        }.bind(this))
       }
 
       return element;
