@@ -106,6 +106,7 @@ define([
 
         it('with values', function () {
           abPro = new parametrisedTestClass({values: someValues, entities: someEntities});
+          expect(abPro.getId()).toEqual('projection_100000');
           expect(abPro.getValues()).toEqual(someValues);
         });
 

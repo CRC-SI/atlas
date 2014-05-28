@@ -18,6 +18,7 @@ define([
    * is used project the value of an Entity's parameter onto some renderable artifact.
    * @class atlas.visualisation.AbstractProjection
    * @param {Object} args - Arguments to construct the AbstractProjection
+   * @param {string} [args.id] - An ID for the Projection. If one isn't provided, one will be generated.
    * @param {String} args.type - The type of projection, either 'discrete' or 'continuous'.
    * @param {String} args.title - The title of the Projection, used to generate the legend.
    * @param {String} args.caption - The caption of the projection, used to generate the legend.
@@ -40,6 +41,13 @@ define([
      * @constant
      */
     SUPPORTED_PROJECTIONS: {'continuous': true, 'discrete': true},
+
+    /**
+     * The ID of the Projection. Can be automatically generated or passed in.
+     * @type {string}
+     * @protected
+     */
+    _id: null,
 
     /**
      * The title of the Projection. This is displayed on the Projection's legend.
@@ -161,6 +169,8 @@ define([
         throw new DeveloperError('Tried to instantiate Projection with unsupported type',
             args.type);
       }
+
+      this._id = args.id || AbstractProjection._generateNextId();
       this._title = args.title;
       this._caption = args.caption;
       this._type = args.type;
@@ -193,6 +203,13 @@ define([
      */
     getConfiguration: function() {
       return this._configuration;
+    },
+
+    /**
+     * @returns {string} The ID of the Projection.
+     */
+    getId: function () {
+      return this._id;
     },
 
     /**
@@ -696,6 +713,16 @@ define([
       return ids;
     }
   });
+
+  /**
+   * Used by AbstractProjection to generate the next GUID for a projection.
+   */
+  AbstractProjection._nextId = 100000;
+
+  AbstractProjection._generateNextId = function () {
+    var num = AbstractProjection._nextId++;
+    return 'projection_' + num;
+  };
 
   return AbstractProjection;
 });
