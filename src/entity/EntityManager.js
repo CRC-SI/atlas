@@ -153,7 +153,7 @@ define([
           callback: function(args) {
             // Set all features to 'footprint' display mode.
             Log.time('entity/display-mode');
-            var features = args.ids ? this._getFeaturesByIds(args.ids) : this._getFeatures();
+            var features = args.ids ? this._getFeaturesByIds(args.ids) : this.getFeatures();
             features.forEach(function(feature) {
               var id = feature.getId();
               // Save a reference to the previous display mode to allow resetting.
@@ -536,7 +536,10 @@ define([
       return this._filterFeatures(this.getByIds(ids));
     },
 
-    _getFeatures: function() {
+    /**
+     * @returns {Array.<atlas.model.Feature>}
+     */
+    getFeatures: function() {
       return this._filterFeatures(this.getEntities());
     },
 
