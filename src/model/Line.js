@@ -28,8 +28,9 @@ define([
     _vertices: null,
 
     /**
-     * The width of the line segment.
-     * @type {Number}
+     * The width of the line segment in metres (e.g. 10) or pixels (eg. '10px'). If in pixels, the
+     * absolute width remains fixed while scaling/zooming.
+     * @type {Number|String}
      * @private
      */
     _width: 10,

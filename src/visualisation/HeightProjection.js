@@ -1,8 +1,10 @@
 define([
+  'atlas/lib/utility/Log',
+  'atlas/model/Feature',
   // Base class
   'atlas/visualisation/AbstractProjection',
   'atlas/util/DeveloperError'
-], function (AbstractProjection, DeveloperError) {
+], function(Log, Feature, AbstractProjection, DeveloperError) {
 
   /**
    * @classdesc The HeightProjection represents a projection of Entity parameter values onto
@@ -11,21 +13,21 @@ define([
    * @extends atlas.visualisation.AbstractProjection
    */
   return AbstractProjection.extend(/** @lends atlas.visualisation.HeightProjection.prototype */ {
-    ARTIFACT: 'height',
 
+    ARTIFACT: 'height',
     DEFAULT_CODOMAIN: {startProj: 50, endProj: 100},
 
     /**
-     * Returns the state before the Projection has been applied, or if the Projection has not been
-     * applied, the current state of the actual render.
-     * @returns {Object.<String, Object>}
+     * A map of parent IDs to a map of old elevations before projection to an array of objects
+     * containing meta-data, including the new elevations after projection.
+     * @type {Object.<String, Array.<Object.<Number, Object>>>}
      */
-    getPreviousState: function () {
-      // If changes have been made, superclass AbstractProjection can handle getting the previous state.
-      if (Object.keys(this._effects).length > 0) { return this._super(); }
-      // Other, the HeightProjection needs to return the current state of the actual render.
+    _modifiedElevations: null,
+
+    getCurrentState: function() {
+      // Otherwise return the current state of the actual render.
       var state = {};
-      Object.keys(this._entities).forEach(function (id) {
+      Object.keys(this._entities).forEach(function(id) {
         // Set previous state for this entity
         state[id] = {
           height: this._entities[id].getHeight(),
@@ -35,103 +37,99 @@ define([
       return state;
     },
 
-    /**
-     * Renders the effects of the Projection on all or a subset of the GeoEntities linked
-     * to this projection.
-     * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
-     */
-    render: function () {
-      this._preRenderState = this.getPreviousState();
+    render: function(id) {
+      var ids = this._constructIdList(id);
+      this.setPreviousState(this.getCurrentState());
       this._modifiedElevations = {};
-      var sortedIds = Object.keys(this._entities).sort(function (a, b) {
-            return this._entities[a].getElevation() - this._entities[b].getElevation();
-          }.bind(this));
-
-      sortedIds.forEach(function (id) {
-        // TODO(aramk) Used the API which checks for null attributes.
-        this._mapToEntitiesById(this._render, id);
-//        var entity = this._entities[id];
-//        this._render(entity, this._attributes[id]);
-      }, this);
-      this._rendered = true;
+      var sortedIds = ids.sort(function(a, b) {
+        return this._entities[a].getElevation() - this._entities[b].getElevation();
+      }.bind(this));
+      this._super(sortedIds);
     },
 
-    /**
-     * Renders the effects of the Projection on a single GeoEntity.
-     * @param {atlas.model.GeoEntity} entity - The GeoEntity to render.
-     * @param {Object} attributes - The attributes of the parameter value for the given GeoEntity.
-     * @private
-     */
-    _render: function (entity, attributes) {
-      var oldHeight = entity.getHeight(),
-          oldElevation = entity.getElevation(),
-          // TODO(bpstudds): Handle the case where an entity sits on two entities.
-          // TODO(bpstudds): Handle the case where there's a hierarchy of 'parents'
-          newElevation = this._getModifiedElevation(oldElevation, entity.getCentroid(), entity.parent),
-          newHeight = this._regressProjectionValueFromCodomain(attributes, this._configuration.codomain),
-          elevationDelta = newElevation - oldElevation,
-          heightDelta = newHeight - oldHeight;
-      this._effects[entity.getId()] = {
-        'oldValue': {height: oldHeight, elevation: oldElevation},
-        'newValue': {height: newHeight, elevation: newElevation}
-      };
+    _render: function(entity, attributes) {
+      var oldHeight = entity.getHeight();
+      var oldElevation = entity.getElevation();
+      // TODO(bpstudds): Handle the case where an entity sits on two entities.
+      // TODO(bpstudds): Handle the case where there's a hierarchy of 'parents'
+      var newElevation = this._getModifiedElevation(oldElevation, entity.getCentroid(),
+          entity.parent);
+      // Footprints can have elevation but not height. Generating height will cause an invalid
+      // top elevation as applying height on the footprint will have no effect.
+      var isFootprint = false;
+      if (entity.isExtrusion) {
+        isFootprint = !entity.isExtrusion();
+      } else if (entity instanceof Feature &&
+          entity.getDisplayMode() === Feature.DisplayMode.FOOTPRINT) {
+        isFootprint = true;
+      }
+      var newHeight = isFootprint ? oldHeight : this._regressProjectionValueFromCodomain(attributes,
+          this._configuration.codomain);
+      this._setEffects(entity.getId(), {
+        oldValue: {height: oldHeight, elevation: oldElevation},
+        newValue: {height: newHeight, elevation: newElevation}
+      });
       // Update the mapping of old building top to new building top elevation.
       this._setModifiedElevation(entity, oldElevation + oldHeight, newElevation + newHeight);
       entity.setElevation(newElevation);
       entity.setHeight(newHeight);
       entity.isVisible() && entity.show();
-
     },
 
     /**
      * Gets the modified top elevation of an entity so an entity sitting on top
-     * of it get be moved appropriately so it stacks on top of it.
+     * of it is moved appropriately so it stacks on top of it.
      * @param {Number} oldElevation - The bottom elevation of the Entity to be moved.
-     * @param {atlas.model.Vertex} centroid - The centroid of the entity.
+     * @param {atlas.model.GeoPoint} centroid - The centroid of the entity.
      * @param {atlas.model.GeoEntity} parent - The ID of the parent of the entity being moved.
      * @private
      */
-    _getModifiedElevation: function (oldElevation, centroid, parent) {
+    _getModifiedElevation: function(oldElevation, centroid, parent) {
       var newElevations,
-          parent = parent || null,
-          returns = oldElevation;
+          result = oldElevation,
+          parent = parent || null;
 
-      if (this._modifiedElevations[parent] &&
-          (newElevations = this._modifiedElevations[parent][oldElevation]) ){
+      var modifiedElevations = this._modifiedElevations[parent];
+      newElevations = modifiedElevations ? modifiedElevations[oldElevation] : null;
+
+      if (newElevations) {
         // A 'stacked elevation' exists.
         if (newElevations.length === 1) {
-          returns = newElevations[0].newElevation;
+          result = newElevations[0].newElevation;
         } else {
-          // Find the elevation with the closest centroid.
+          // There are several siblings which had the given top elevation before projection.
+          // Find the sibling which was below this entity by finding the closest centroid to the
+          // given centroid.
+          var centroidVertex = centroid.toVertex();
           var minId = 0,
-              minValue = centroid.distanceSquared(newElevations[minId].centroid);
+              minValue = centroidVertex.distanceSquared(newElevations[minId].centroid.toVertex());
           for (var i = 1; i < newElevations.length; i++) {
-            var temp = centroid.distanceSquared(newElevations[i].centroid);
+            var temp = centroidVertex.distanceSquared(newElevations[i].centroid.toVertex());
             if (temp < minValue) {
               minId = i;
               minValue = temp;
             }
           }
-          returns = newElevations[minId].newElevation;
+          result = newElevations[minId].newElevation;
         }
       }
-      return returns;
+      return result;
     },
 
     /**
      * When an entity's height is modified, a map of the old top elevation to the new
-     * top elevation is created; so any entity that is stacked ontop can be moved
-     * appropriately.
+     * top elevation is created; so any entity that is stacked on top can be moved
+     * appropriately. Only sibling entities sharing the same parent are stacked. Entities without a
+     * parent are considered siblings.
      * @param {atlas.model.GeoEntity} entity - The entity being modified.
      * @param {Number} oldElevation - The old elevation of the top of the Entity.
      * @param {Number} newElevation - The new elevation of the top of the Entity.
      * @private
      */
-    _setModifiedElevation: function (entity, oldElevation, newElevation) {
+    _setModifiedElevation: function(entity, oldElevation, newElevation) {
       var parent = entity.parent || null;
 
       if (!this._modifiedElevations[parent]) {
-        this._modifiedElevations = {};
         this._modifiedElevations[parent] = {};
       }
       if (!this._modifiedElevations[parent][oldElevation]) {
@@ -141,29 +139,25 @@ define([
           .push({centroid: entity.getCentroid(), newElevation: newElevation});
     },
 
-    unrender: function (entity, attributes) {
-      this.setPreviousState(this._preRenderState);
-      this._super(entity, attributes);
-    },
-
     /**
      * Unrenders the effects of the Projection on a single GeoEntity.
      * @param {atlas.model.GeoEntity} entity - The GeoEntity to unrender.
      * @param {Object} attributes - The parameters of the Projection for the given GeoEntity.
      * @private
      */
-    _unrender: function (entity, attributes) {
-      var id = entity.getId();
-      var oldHeight = this._effects[id].oldValue.height,
-          oldElevation = this._effects[id].oldValue.elevation;
-      entity.setElevation(oldElevation);
-      entity.setHeight(oldHeight);
-      entity.isVisible() && entity.show();
-      // TODO(aramk) We should abstract all this behind protected methods in AbstractProjection.
-//      delete this._effects[id];
+    _unrender: function(entity, attributes) {
+      var id = entity.getId(),
+          oldValue = this._getEffect(id, 'oldValue');
+      if (oldValue) {
+        entity.setElevation(oldValue.elevation);
+        entity.setHeight(oldValue.height);
+        entity.isVisible() && entity.show();
+      } else {
+        Log.warn('Cannot unrender height and elevation - oldValue not defined', oldValue);
+      }
     },
 
-    _regressProjectionValueFromCodomain: function (attributes, codomain) {
+    _regressProjectionValueFromCodomain: function(attributes, codomain) {
       // Check if this is a continuous or discrete projection to set the regression factor.
       // Check if the codomain has been binned and select the correct one.
       if (codomain instanceof Array) {

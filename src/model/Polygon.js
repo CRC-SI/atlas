@@ -109,6 +109,7 @@ define([
      * @ignore
      */
     _init: function(id, polygonData, args) {
+      polygonData = mixin({}, polygonData);
       args = mixin({}, args);
       this._super(id, args);
       if (typeof polygonData.vertices === 'string') {
@@ -124,7 +125,8 @@ define([
         this._vertices = defaultValue(polygonData.vertices, []);
       }
       // Don't have closed polygons.
-      if (this._vertices.first === this._vertices.last) {
+      var len = this._vertices.length;
+      if (this._vertices[0] === this._vertices[len - 1] && len > 1) {
         this._vertices.pop();
       }
       if (polygonData.holes) {
@@ -243,6 +245,13 @@ define([
     disableExtrusion: function() {
       this._showAsExtrusion = false;
       this.setDirty('model');
+    },
+
+    /**
+     * @returns {Boolean} Whether the polygon should be shown as an extruded polygon.
+     */
+    isExtrusion: function () {
+      return this._showAsExtrusion;
     },
 
     /**
@@ -367,12 +376,12 @@ define([
      * @param {Number} translation.z - The change in altitude, given in metres.
      */
     translate: function(translation) {
-      for (var i = 0; i < this._vertices.length; i++) {
-        this._vertices[i] = this._vertices[i].add(translation);
-      }
-      for (var i = 1; i < this._editingHandles.length; i++) {
-        this._editingHandles[i]._dot.translate(translation);
-      }
+      // TODO(aramk) This method should be abstracted and shared by Polygon, Mesh etc.
+      this._vertices.forEach(function (vertex) {
+        vertex.set(vertex.translate(translation));
+      });
+      // TODO(aramk) Observer pattern would be best.
+      this._handles.map('translate', [translation, {delegate: false}]);
       this.setDirty('model');
       this.isVisible() && this.show();
     },

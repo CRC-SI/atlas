@@ -1,7 +1,7 @@
 define([
   'atlas/util/Class',
-  'atlas/util/mixin'
-], function (Class, mixin) {
+  'atlas/lib/utility/Setter'
+], function (Class, Setter) {
 
   /**
    * @classdesc An Overlay can be used to place panels overlaying the Atlas
@@ -84,24 +84,17 @@ define([
      * @ignore
      */
     _init: function (args) {
-      ['top', 'left', 'right', 'bottom'].forEach(function (p) {
-        args.position[p] === null && delete args.position[p];
-      });
-      args.dimensions.width === null && delete args.dimensions.width;
-      args.dimensions.height === null && delete args.dimensions.height;
-
-      args = mixin({
+      args = Setter.mixin({
         parent: document,
         cssClass: '',
         title: '',
-        position: {top: 0, left: 0},
-        dimensions: {width: 0, height: 0},
+        position: {},
+        dimensions: {},
         content: ''
       }, args);
-      if (typeof args.parent === 'string') { args.parent = document.getElementById(parent); }
-
-
-
+      if (typeof args.parent === 'string') {
+        args.parent = document.getElementById(parent);
+      }
       this._id = args.id;
       this._parent = args.parent;
       this._cssClass = args.cssClass;

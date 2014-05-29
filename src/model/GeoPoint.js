@@ -96,7 +96,7 @@ define([
      * @param {atlas.model.GeoPoint} other
      * @returns {atlas.model.GeoPoint} This GeoPoint.
      */
-    set: function (other) {
+    set: function(other) {
       this._setFromObject(other);
       return this;
     },
@@ -132,8 +132,17 @@ define([
     /**
      * @returns {atlas.model.GeoPoint} A deep copy of this object.
      */
-    clone: function () {
+    clone: function() {
       return new GeoPoint(this);
+    },
+
+    /**
+     * @param {atlas.model.GeoPoint} other
+     * @returns {Boolean} Whether the given object is equal to this one.
+     */
+    equals: function(other) {
+      return this.longitude === other.longitude && this.latitude === other.latitude &&
+          this.elevation === other.elevation;
     }
 
   });

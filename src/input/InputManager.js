@@ -15,7 +15,7 @@ define([
    * @param {Object} atlasManagers - The map of all atlas manager objects.
    * @class atlas.input.InputManager
    */
-  InputManager = Class.extend( /** @lends atlas.input.InputManager# */ {
+  InputManager = Class.extend(/** @lends atlas.input.InputManager# */ {
 
     /**
      * The current DOM element the InputManager is bound to.
@@ -77,12 +77,17 @@ define([
 
       // Helper function to construct the arguments for Atlas mouse events
       var makeMouseEventArgs = function(name, e) {
+        var absPosition = { x: e.clientX, y: e.clientY };
+        var relPosition = this._atlasManagers.dom.translateEventCoords(absPosition),
+            x = relPosition.x,
+            y = relPosition.y;
         var args = {
           name: 'input/' + name,
           button: buttonIds[e.button],
           modifiers: {},
-          position: { x: e.clientX, y: e.clientY },
-          movement: { cx: e.clientX - this.__lastX, cy: e.clientY - this.__lastY }
+          absPosition: absPosition,
+          position: relPosition,
+          movement: { cx: x - this.__lastX, cy: y - this.__lastY }
         };
         e.shiftKey && (args.modifiers.shift = true);
         e.metaKey && (args.modifiers.meta = true);
@@ -100,9 +105,9 @@ define([
       this._mouseHandlers.push({
         name: 'mousedown',
         cback: function(e) {
+          args = makeMouseEventArgs(buttonIds[e.button] + 'down', e);
           this.__lastX = args.position.x;
           this.__lastY = args.position.y;
-          args = makeMouseEventArgs(buttonIds[e.button] + 'down', e);
           this._atlasManagers.event.handleInternalEvent(args.name, args);
         }.bind(this._atlasManagers.input)
       });
@@ -113,8 +118,9 @@ define([
         cback: function(e) {
           args = makeMouseEventArgs(buttonIds[e.button] + 'up', e);
           if (Math.abs(args.movement.cx + args.movement.cy) < InputManager.CLICK_SENSITIVITY) {
-            // If mouse moved less than the sensitivity, change event type to click.
-            args.name = 'input/' + buttonIds[e.button] + 'click'
+            // If mouse moved less than the sensitivity, also emit a click event.
+            this._atlasManagers.event.handleInternalEvent('input/' + buttonIds[e.button] + 'click',
+                args);
           }
           this._atlasManagers.event.handleInternalEvent(args.name, args);
         }.bind(this._atlasManagers.input)
@@ -123,7 +129,7 @@ define([
       // Mouse move handler
       this._mouseHandlers.push({
         name: 'mousemove',
-        cback: function (e) {
+        cback: function(e) {
           args = makeMouseEventArgs('mousemove', e);
           this._atlasManagers.event.handleInternalEvent(args.name, args);
         }.bind(this._atlasManagers.input)
@@ -132,7 +138,7 @@ define([
       // Double click handler
       this._mouseHandlers.push({
         name: 'dblclick',
-        cback: function (e) {
+        cback: function(e) {
           // TODO(bpstudds): This will convert all double click events to left dbl click.
           args = makeMouseEventArgs('left/dblclick', e);
           this._atlasManagers.event.handleInternalEvent(args.name, args);
