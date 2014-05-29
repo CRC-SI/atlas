@@ -14,7 +14,7 @@
   display: none;
 }
 
-.atlas .overlay-remove {
+.atlas .remove-overlay {
   /* this is a bit of a hack */
   position: absolute;
   top: 5px;
@@ -29,17 +29,25 @@
 /* Formatting for Projection legend titles. */
 .atlas .overlay-title {
   font-size: 1.2em;
-  font-weight: bold;
 }
 
-.atlas .overlay-caption {
+.atlas .legend .overlay-title {
+  font-size: 1em;
+  font-weight: normal;
+  font-variant: small-caps;
+}
+
+.atlas .legend-caption {
+  font-size: 0.8em;
+  text-align: right;
 }
 
 /* The 'table' selector is inefficient :( */
-.atlas .overlay.legend .table {
+.atlas .overlay.legend table {
   margin: 5px;
   line-height: 150%;
   border-collapse: collapse;
   text-align: right;
   font-size: 0.9em;
+  font-family: "Consolas", monospace;
 }
