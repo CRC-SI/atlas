@@ -1,9 +1,10 @@
 define([
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
+  'atlas/lib/utility/Type',
   'atlas/util/Class',
   'atlas/util/mixin'
-], function (Log, Setter, Class, mixin) {
+], function (Log, Setter, Type, Class, mixin) {
 
   /**
    * @typedef atlas.dom.Overlay
@@ -175,9 +176,9 @@ define([
       this._content = args.content;
       this._showMinimised = args.showMinimised;
 
-      this._onRemove = typeof args.onRemove === 'function' ? args.onRemove : null;
+      this._onRemove = Type.isFunction(args.onRemove) ? args.onRemove : null;
       this._hasRemoveBtn = args.hasRemoveBtn || this._onRemove !== null;
-      this._onEnabledChange = typeof args.onEnabledChange === 'function' ? args.onEnabledChange : null;
+      this._onEnabledChange = Type.isFunction(args.onEnabledChange) ? args.onEnabledChange : null;
       this._hasEnableCheckbox = args.hasEnableCheckbox || this._onEnabledChange !== null;
 
       // Construct element and append it to the parent.
@@ -236,6 +237,28 @@ define([
       return this._position;
     },
 
+    /**
+     * Sets whether the Overlay is minimised.
+     * @param {boolean} isMinimised - The Overlay should be minimised.
+     */
+    setMinimised: function (isMinimised) {
+      var content = this.getDomElements().content,
+      enableCheckbox = this.getDomElements().title.getElementsByClassName('enable-overlay')[0];
+
+      content && content.classList.toggle('hidden', isMinimised);
+      if (enableCheckbox) {
+        enableCheckbox.checked = !isMinimised;
+      }
+    },
+
+    /**
+     * @returns {boolean} Whether the Overlay is minimised.
+     */
+    isMinimised: function () {
+      var content = this.getDomElements().content;
+      return content && content.classList.contains('hidden');
+    },
+
     // -------------------------------------------
     // Modifiers
     // -------------------------------------------
@@ -260,13 +283,7 @@ define([
      * Sets the content of the Overlay to be visible.
      */
     maximise: function () {
-      var content = this.getDomElements().content,
-          enableCheckbox = this.getDomElements().title.getElementsByClassName('enable-overlay')[0];
-
-      content && content.classList.remove('hidden');
-      if (enableCheckbox) {
-        enableCheckbox.checked = true;
-      }
+      this.setMinimised(false);
     },
 
     /**
@@ -274,21 +291,14 @@ define([
      * only it uses only sufficient space to display the title.
      */
     minimise: function () {
-      var content = this.getDomElements().content,
-          enableCheckbox = this.getDomElements().title.getElementsByClassName('enable-overlay')[0];
-
-      content && content.classList.add('hidden');
-      if (enableCheckbox) {
-        enableCheckbox.checked = false;
-      }
+      this.setMinimised(true);
     },
 
     /**
      * Toggles whether the Overlay is minimised.
      */
     toggleMinimisation: function () {
-      var content = this.getDomElements().content;
-      content && content.classList.toggle('hidden');
+      this.setMinimised(!this.isMinimised());
     },
 
     /**
@@ -366,8 +376,6 @@ define([
           // 0 -> left click.
           if (e.button === 0) {
             this[removeFunction](e);
-            //this._onRemove && this._onRemove(e);
-            //this.remove();
           }
         }.bind(this))
       }
@@ -378,8 +386,6 @@ define([
           // 0 -> left click.
           if (e.button === 0) {
             this[enableFunction](e.target.value, e);
-            //this._onEnabledChange && this._onEnabledChange();
-            //this.toggleMinimisation();
           }
         }.bind(this))
       }
@@ -414,7 +420,7 @@ define([
       html += 'style="' + style +'"';
     }
     if (html === '') { return ''; }
-    return (html = ' ' + html.trim());
+    return html.trim();
   };
 
   /**
@@ -449,13 +455,13 @@ define([
   Overlay.generateTable = function (data) {
     if (!data || !data.rows) { return ''; }
     var tableAttributes = Overlay.parseAttributes(data),
-        html = '<table' + tableAttributes + '>';
+        html = '<table ' + tableAttributes + '>';
     data.rows.forEach(function (row) {
       var rowAttributes = Overlay.parseAttributes(row);
-      html += '<tr' + rowAttributes + '>';
+      html += '<tr ' + rowAttributes + '>';
       row.cells.forEach(function (cell) {
         var cellAttributes = Overlay.parseAttributes(cell);
-        html += '<td' + cellAttributes + '>' + (cell.value || '') + '</td>';
+        html += '<td ' + cellAttributes + '>' + (cell.value || '') + '</td>';
       });
       html += '</tr>';
     });
