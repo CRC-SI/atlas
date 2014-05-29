@@ -219,11 +219,11 @@ define([
     },
 
     /**
-     * @returns {{title: String, caption: String}}
+     * @returns {{title: String, caption: String, key: Object}}
      * An object literal with properties for the title and caption of the Projection.
      */
-    getLegend: function () {
-      return {title: this.getTitle(), caption: this.getCaption()};
+    getLegendData: function () {
+      return {title: this.getTitle(), caption: this.getCaption(), key: {}};
     },
 
     /**

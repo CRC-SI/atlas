@@ -44,13 +44,13 @@ define([
      * The data property can be converted by {@link atlas.dom.Overlay} to a table.
      * @see {@link atlas.dom.Overlay#generateTable}
      */
-    getLegend: function () {
+    getLegendData: function () {
       // TODO(bpstudds): Properly invalidate this so it's not recreated every time.
       this._legend = this._super();
       if (this._type === 'discrete') {
-        this._legend.legend = (this._buildDiscreteLegend());
+        this._legend.key = (this._buildDiscreteLegend());
       } else {
-        this._legend.legend = (this._buildContinuousLegend());
+        this._legend.key = (this._buildContinuousLegend());
       }
       return this._legend;
     },

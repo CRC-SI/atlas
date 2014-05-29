@@ -245,10 +245,10 @@ define([
 
     _addLegend: function (projection) {
       var id = projection.getId(),
-          legendData = projection.getLegend(),
-          keyHtml = Overlay.generateTable(legendData.legend),
+          legendData = projection.getLegendData(),
+          keyHtml = Overlay.generateTable(legendData.key),
           legendHtml;
-      legendHtml = '<div class="caption">' + legendData.caption + '</div>';
+      legendHtml = '<div class="legend-caption">' + legendData.caption + '</div>';
       legendHtml += keyHtml;
 
       var container = this.getLegendContainer().getDomElements().content,
@@ -266,34 +266,34 @@ define([
       this._legendStore.add(legendOverlay);
     },
 
-    showLegends: function () {
-      if (!this._projections['colour']) { return; }
+//    showLegends: function () {
+//      if (!this._projections['colour']) { return; }
+//
+//      // TODO(bpstudds): This needs to be refactored so we can have multiple legends.
+//      var legendData = this._projections['colour'].getLegend(),
+//          legendHtml = Overlay.generateTable(legendData.legend),
+//          html;
+//      html = '<div class="caption">' + legendData.caption + '</div>';
+//      html += legendHtml;
+//
+//      this._legends = new Overlay({
+//        parent: this._atlasManagers.dom.getDom(),
+//        title: legendData.title,
+//        'class': 'legend',
+//        // TODO(bpstudds): Add IDs to projections, use the ID rather than artifact to store.
+//        onRemove: function (e) { this.remove('colour'); }.bind(this),
+//        position: {top: 50, left: 0},
+//        content: html
+//      });
+//
+//      this._legends.show();
+//    },
 
-      // TODO(bpstudds): This needs to be refactored so we can have multiple legends.
-      var legendData = this._projections['colour'].getLegend(),
-          legendHtml = Overlay.generateTable(legendData.legend),
-          html;
-      html = '<div class="caption">' + legendData.caption + '</div>';
-      html += legendHtml;
-
-      this._legends = new Overlay({
-        parent: this._atlasManagers.dom.getDom(),
-        title: legendData.title,
-        'class': 'legend',
-        // TODO(bpstudds): Add IDs to projections, use the ID rather than artifact to store.
-        onRemove: function (e) { this.remove('colour'); }.bind(this),
-        position: {top: 50, left: 0},
-        content: html
-      });
-
-      this._legends.show();
-    },
-
-    hideLegends: function () {
-      if (this._legends) {
-        this._legends.remove();
-      }
-    },
+//    hideLegends: function () {
+//      if (this._legends) {
+//        this._legends.remove();
+//      }
+//    },
 
     // -------------------------------------------
     // MODIFIERS
