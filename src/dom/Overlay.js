@@ -259,11 +259,11 @@ define([
      */
     maximise: function () {
       var content = this.getDomElements().content,
-          enableCheckbox = this.getDomElements().title.getElementsByClassName('enable-overlay');
+          enableCheckbox = this.getDomElements().title.getElementsByClassName('enable-overlay')[0];
 
       content && content.classList.remove('hidden');
       if (enableCheckbox) {
-        enableCheckbox.value = true;
+        enableCheckbox.checked = true;
       }
     },
 
@@ -273,11 +273,11 @@ define([
      */
     minimise: function () {
       var content = this.getDomElements().content,
-          enableCheckbox = this.getDomElements().title.getElementsByClassName('enable-overlay');
+          enableCheckbox = this.getDomElements().title.getElementsByClassName('enable-overlay')[0];
 
       content && content.classList.add('hidden');
       if (enableCheckbox) {
-        enableCheckbox.value = false;
+        enableCheckbox.checked = false;
       }
     },
 
