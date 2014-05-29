@@ -394,15 +394,22 @@ define([
      */
     render: function (id) {
       // Unrender all other projections
-      var prj = this._staticProjections.get(id),
-          artifact = prj.ARTIFACT;
-      if (!prj) {
+      var projection = this._staticProjections.get(id),
+          legend = this._legendStore.get(id),
+          artifact = projection.ARTIFACT;
+
+      if (!projection) {
         throw new DeveloperError('Tried to render projection ' + id
             + ' without adding a projection object.');
       } else {
-        prj.render();
+        if (this._currentProjection && this._currentProjection !== id) {
+          this.unrender(this._currentProjection);
+        }
+        projection.render();
+        legend.maximise();
+        this._currentProjection = id;
         this._atlasManagers.event.handleInternalEvent('projection/render/complete',
-            {id: prj.getId(), name: artifact});
+            {id: projection.getId(), name: artifact});
       }
     },
 
@@ -412,15 +419,19 @@ define([
      */
     unrender: function (id) {
       // TODO(bpstudds): Add support for un-rendering a subset of entities.
-      var prj = this._staticProjections.get(id),
-          artifact = prj.ARTIFACT;
-      if (!prj) {
+      var projection = this._staticProjections.get(id),
+          legend = this._legendStore.get(id),
+          artifact = projection.ARTIFACT;
+
+      if (!projection) {
         throw new DeveloperError('Tried to unrender projection ' + id
-          + ' without adding a projection object.');
+            + ' without adding a projection object.');
       } else {
-        prj.unrender();
+        projection.unrender();
+        legend.minimise();
+        this._currentProjection = null;
         this._atlasManagers.event.handleInternalEvent('projection/unrender/complete',
-            {id: prj.getId(), name: artifact});
+            {id: projection.getId(), name: artifact});
       }
     },
 
@@ -429,29 +440,12 @@ define([
      * @param {String} id - The artifact of the projection to toggle.
      */
     toggleRender: function (id) {
-      var projection = this._staticProjections.get(id),
-          legend = this._legendStore.get(id);
+      var projection = this._staticProjections.get(id);
 
-      if (!this._currentProjection) {
-        projection.render();
-        legend.maximise();
-        this._currentProjection = id;
-
-      } else if (this._currentProjection === id) {
-        projection.unrender();
-        legend.minimise();
-        this._currentProjection = null;
-
+      if (projection.isRendered()) {
+        this.unrender(id);
       } else {
-        var prevId = this._currentProjection,
-            prevProjection = this._staticProjections.get(prevId),
-            prevLegend = this._legendStore.get(prevId);
-
-        prevProjection.unrender();
-        prevLegend.minimise();
-        projection.render();
-        legend.maximise();
-        this._currentProjection = id;
+        this.render(id);
       }
     }
   });
