@@ -115,26 +115,12 @@ define([
       this.setDisplayMode(displayMode);
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
+      this._initDelegation();
     },
 
     // -------------------------------------------
     // GETTERS AND SETTERS
     // -------------------------------------------
-
-    getArea: function() {
-      var form = this.getForm();
-      return form && form.getArea();
-    },
-
-    getCentroid: function() {
-      var form = this.getForm();
-      return form && form.getCentroid();
-    },
-
-    getVertices: function() {
-      var form = this.getForm();
-      return form && form.getVertices();
-    },
 
     getForm: function(displayMode) {
       displayMode = displayMode || this._displayMode;
@@ -152,35 +138,25 @@ define([
       return form;
     },
 
-    // All dirty state logic should be delegated to the current centroid.
+    /**
+     * Binds various methods in {@link atlas.model.GeoEntity} which should be entirely delegated to
+     * the currently active form without any extra work.
+     * @private
+     */
+    _initDelegation: function() {
+      var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
+        'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles',
+        'getCentroid', 'getArea', 'getVertices'];
+      methods.forEach(function(method) {
+        this[method] = function() {
+          return this._delegateToForm(method, arguments);
+        }
+      }, this);
+    },
 
     _delegateToForm: function(method, args) {
       var form = this.getForm();
       return form && form[method].apply(form, args);
-    },
-
-    isRenderable: function() {
-      this._delegateToForm('isRenderable', arguments);
-    },
-
-    isDirty: function() {
-      this._delegateToForm('isDirty', arguments);
-    },
-
-    setDirty: function() {
-      this._delegateToForm('setDirty', arguments);
-    },
-
-    clean: function() {
-      this._delegateToForm('clean', arguments);
-    },
-
-    createHandles: function() {
-      return this._delegateToForm('createHandles', arguments);
-    },
-
-    createHandle: function () {
-      return this._delegateToForm('createHandle', arguments);
     },
 
     /**

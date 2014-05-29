@@ -1,8 +1,9 @@
 define([
   'atlas/lib/utility/Log',
+  'atlas/lib/utility/Setter',
   'atlas/util/Class',
   'atlas/util/mixin'
-], function (Log, Class, mixin) {
+], function (Log, Setter, Class, mixin) {
 
   /**
    * @typedef atlas.dom.Overlay
@@ -139,19 +140,20 @@ define([
      */
     _init: function (args) {
       // Set defaults
-      var parent = args.parent;
-      args = mixin({
+      args = Setter.mixin({
         parent: document,
         cssClass: '',
         title: '',
-        position: {top: 0, left: 0},
-        dimensions: {width: 0, height: 0},
+        position: {},
+        dimensions: {},
         showMinimised: false,
         content: '',
         hasRemoveBtn: false,
         hasChangeCheckbox: false
       }, args);
-      if (typeof args.parent === 'string') { parent = document.getElementById(parent); }
+      if (typeof args.parent === 'string') {
+        args.parent = document.getElementById(args.parent);
+      }
       if (!args.parent) { throw new Error('Error attaching to element ' + args.parent)}
 
       // Sanitise the dimensions and positions passed in.
@@ -163,7 +165,7 @@ define([
 
       // Set instance members
       this._id = args.id;
-      this._parent = parent;
+      this._parent = args.parent;
       this._title = args.title;
       this._cssClass = args.cssClass;
       this._cssPosition = args.cssPosition;

@@ -248,6 +248,13 @@ define([
     },
 
     /**
+     * @returns {Boolean} Whether the polygon should be shown as an extruded polygon.
+     */
+    isExtrusion: function () {
+      return this._showAsExtrusion;
+    },
+
+    /**
      * Set the extruded height of the polygon to form a prism.
      * @param {Number} height The extruded height of the building.
      */
@@ -369,12 +376,12 @@ define([
      * @param {Number} translation.z - The change in altitude, given in metres.
      */
     translate: function(translation) {
-      for (var i = 0; i < this._vertices.length; i++) {
-        this._vertices[i] = this._vertices[i].add(translation);
-      }
-      for (var i = 1; i < this._editingHandles.length; i++) {
-        this._editingHandles[i]._dot.translate(translation);
-      }
+      // TODO(aramk) This method should be abstracted and shared by Polygon, Mesh etc.
+      this._vertices.forEach(function (vertex) {
+        vertex.set(vertex.translate(translation));
+      });
+      // TODO(aramk) Observer pattern would be best.
+      this._handles.map('translate', [translation, {delegate: false}]);
       this.setDirty('model');
       this.isVisible() && this.show();
     },

@@ -76,7 +76,7 @@ define([
           },
           source: 'extern'
         },
-        'input/keyup': function (args) {
+        'input/keyup': function(args) {
           // Cancel drawing on escape key.
           if (this.isDrawing() && args.key === 27) {
             this._cancel();
@@ -100,6 +100,8 @@ define([
           line: {vertices: [], width: '2px'},
           displayMode: Feature.DisplayMode.FOOTPRINT
         });
+        // We will be adding new handles ourselves, and the new feature doesn't have any to begin
+        // with.
         this._atlasManagers.edit.enable({
           entities: [this._feature], show: false, addHandles: false});
       }
@@ -177,9 +179,12 @@ define([
       this._lastClickTime = now;
 
       if (target) {
-        // Ensure a translation doesn't exist if we clicked on a handle.
         translationModule.cancel();
-        this._stop(args);
+        // Stop editing if clicking on the first handle, otherwise ignore.
+        if (this._handles.length > 0 && target === this._handles[0]) {
+          // Ensure a translation doesn't exist if we clicked on a handle.
+          this._stop(args);
+        }
         return;
       }
 
@@ -191,7 +196,7 @@ define([
       }
 
       // Use the polygon handle constructor for consistency.
-      var handle = polygon.createHandle(vertex);
+      var handle = polygon.addHandle(polygon.createHandle(vertex));
       handle.render();
       handles.add(handle);
       this._handles.push(handle);
@@ -242,7 +247,7 @@ define([
       }
       this._executeHandlers(this._handlers.cancel);
       var handles = this._atlasManagers.edit.getHandles();
-      this._handles.forEach(function (handle) {
+      this._handles.forEach(function(handle) {
         handles.remove(handle.getId());
         handle.remove();
       }, this);
