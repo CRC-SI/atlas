@@ -3,9 +3,8 @@ define([
   'atlas/util/DeveloperError',
   'atlas/util/mixin',
   'atlas/model/GeoEntity',
-  'atlas/model/Vertex',
-  'utility/Log'
-], function(Class, DeveloperError, mixin, GeoEntity, Vertex, Log) {
+  'atlas/lib/utility/Log'
+], function(Class, DeveloperError, mixin, GeoEntity, Log) {
 
   /**
    * @typedef atlas.model.Handle
