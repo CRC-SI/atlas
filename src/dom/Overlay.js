@@ -267,7 +267,7 @@ define([
      * Hides the Overlay from view.
      */
     hide: function () {
-      if (this._element === undefined) { return; }
+      if (!this._element) { return; }
       this._element.classList.add('hidden');
     },
 
@@ -275,7 +275,7 @@ define([
      * Shows the overlay on the parent document.
      */
     show: function () {
-      if (this._element === undefined) { return; }
+      if (!this._element) { return; }
       this._element.classList.remove('hidden');
     },
 
