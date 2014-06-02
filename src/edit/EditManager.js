@@ -173,6 +173,10 @@ define([
       this._eventHandlers = this._atlasManagers.event.addEventHandlers(handlers);
     },
 
+    entityCanBeEdited: function (entity) {
+      return this._entityIds.indexOf(entity.getId()) !== -1;
+    },
+
     // -------------------------------------------
     // EDITING STATE
     // -------------------------------------------
