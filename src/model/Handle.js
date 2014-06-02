@@ -4,7 +4,7 @@ define([
   'atlas/util/mixin',
   'atlas/model/GeoEntity',
   'atlas/model/Vertex',
-  'utility/Log'
+  'atlas/lib/utility/Log'
 ], function(Class, DeveloperError, mixin, GeoEntity, Vertex, Log) {
 
   /**

@@ -6,8 +6,6 @@
 .atlas .overlay {
   position: absolute;
   background-color: rgba(255, 255, 255, 0.8);
-  top: 0;
-  left: 0;
   padding: 5px;
   vertical-align: middle;
 }
@@ -16,7 +14,7 @@
   display: none;
 }
 
-.atlas .overlay .remove {
+.atlas .remove-overlay {
   /* this is a bit of a hack */
   position: absolute;
   top: 5px;
@@ -24,17 +22,24 @@
   display: none;
 }
 
-.atlas .overlay .title:hover > button {
+.atlas .overlay-title:hover > button {
   display: block;
 }
 
 /* Formatting for Projection legend titles. */
-.atlas .overlay.legend .title {
+.atlas .overlay-title {
   font-size: 1.2em;
-  font-weight: bold;
 }
 
-.atlas .overlay.legend .caption {
+.atlas .legend .overlay-title {
+  font-size: 1em;
+  font-weight: normal;
+  font-variant: small-caps;
+}
+
+.atlas .legend-caption {
+  font-size: 0.8em;
+  text-align: right;
 }
 
 /* The 'table' selector is inefficient :( */
@@ -44,4 +49,5 @@
   border-collapse: collapse;
   text-align: right;
   font-size: 0.9em;
+  font-family: "Consolas", monospace;
 }

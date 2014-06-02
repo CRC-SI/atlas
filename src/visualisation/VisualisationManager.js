@@ -1,4 +1,5 @@
 define([
+  'atlas/core/ItemStore',
   'atlas/util/Class',
   'atlas/util/DeveloperError',
   'atlas/dom/Overlay',
@@ -7,7 +8,7 @@ define([
   'atlas/visualisation/DynamicProjection',
   'atlas/visualisation/HeightProjection',
   'atlas/lib/utility/Log'
-], function (Class, DeveloperError, Overlay, AbstractProjection, ColourProjection,
+], function (ItemStore, Class, DeveloperError, Overlay, AbstractProjection, ColourProjection,
              DynamicProjection, HeightProjection, Log) {
 
   /**
@@ -23,21 +24,36 @@ define([
     _atlasManagers: null,
 
     /**
-     * The defined projections currently affecting Atlas.
-     * @type {Object.<String, atlas.visualisation.AbstractProjection>}
+     * The an ItemStore of all static projections.
+     * @type {atlas.core.ItemStore}
      * @private
      */
-    _projections: null,
+    _staticPrjs: null,
 
     /**
      * A map of GUI overlays to control rendering/unrendering of Projections.
      */
     _overlays: null,
 
+    /**
+     * An Overlay containing all the Legends for current projections.
+     * @type {atlas.dom.Overlay}
+     * @private
+     */
+    _legendContainer: null,
+
+    /**
+     * An ItemStore for all of the Overlay objects for the legends.
+     * @type {atlas.core.ItemStore}
+     * @private
+     */
+    _legendStore: null,
+
     _init: function (atlasManagers) {
       this._atlasManagers = atlasManagers;
       this._atlasManagers.visualisation = this;
-      this._projections = {};
+      this._staticProjections = new ItemStore();
+      this._legendStore = new ItemStore();
       this._overlays = {};
     },
 
@@ -64,7 +80,7 @@ define([
            */
           callback: function (args) {
             args.theProjection = this.createProjection(args);
-            args.theOldProjection = this.addProjection(args.theProjection);
+            this.addProjection(args.theProjection);
           }.bind(this)
         },
         {
@@ -73,8 +89,8 @@ define([
           /*
            * @param {String} args - The artifact of the projection to render.
            */
-          callback: function (artifact) {
-            this.render(artifact);
+          callback: function (args) {
+            this.render(args.id);
           }.bind(this)
         },
         {
@@ -83,8 +99,8 @@ define([
           /*
            * @param {String} args - The artifact of the projection to unrender.
            */
-          callback: function (artifact) {
-            this.unrender(artifact);
+          callback: function (args) {
+            this.unrender(args.id);
           }.bind(this)
         },
         {
@@ -93,8 +109,8 @@ define([
           /*
            * @param {String} args - The artifact of the projection to remove.
            */
-          callback: function (artifact) {
-            this.remove(artifact);
+          callback: function (args) {
+            this.remove(args.id);
           }.bind(this)
         },
         {
@@ -166,6 +182,26 @@ define([
       this._atlasManagers.event.addEventHandlers(this._eventHandlers);
     },
 
+    // -------------------------------------------
+    // Getters and Setters
+    // -------------------------------------------
+
+    getLegendContainer: function () {
+      if (!this._legendContainer) {
+        this._legendContainer = new Overlay({
+          id: 'visman-projection-container',
+          parent: this._atlasManagers.dom.getDom(),
+          title: 'Projections',
+          position: {top: 300, left: 0}
+        })
+      }
+      return this._legendContainer;
+    },
+
+    // -------------------------------------------
+    // Static Projections
+    // -------------------------------------------
+
     /**
      * Creates a new projection.
      * @param {Object} args
@@ -207,63 +243,78 @@ define([
       return new DynamicProjection(staticPrj, args.data, args);
     },
 
-    showLegends: function () {
-      if (!this._projections['colour']) { return; }
+    _addLegend: function (projection) {
+      var id = projection.getId(),
+          legendData = projection.getLegendData(),
+          keyHtml = Overlay.generateTable(legendData.key),
+          legendHtml;
+      legendHtml = '<div class="legend-caption">' + legendData.caption + '</div>';
+      legendHtml += keyHtml;
 
-      // TODO(bpstudds): This needs to be refactored so we can have multiple legends.
-      var legendData = this._projections['colour'].getLegend(),
-          legendHtml = Overlay.generateTable(legendData.legend),
-          html;
-      html = '<div class="caption">' + legendData.caption + '</div>';
-      html += legendHtml;
-
-      this._legends = new Overlay({
-        parent: this._atlasManagers.dom.getDom(),
-        title: legendData.title,
-        'class': 'legend',
-        // TODO(bpstudds): Add IDs to projections, use the ID rather than artifact to store.
-        onRemove: function (e) { this.remove('colour'); }.bind(this),
-        position: {top: 50, left: 0},
-        content: html
-      });
-
-      this._legends.show();
+      var container = this.getLegendContainer().getDomElements().content,
+          legendOverlay = new Overlay({
+            id: id,
+            parent: container,
+            title: legendData.title,
+            cssClass: 'legend',
+            onRemove: function (e) { this.remove(id); }.bind(this),
+            onEnabledChange: function (e) { this.toggleRender(id); }.bind(this),
+            showMinimised: true,
+            cssPosition: 'relative',
+            content: legendHtml
+          });
+      this._legendStore.add(legendOverlay);
     },
 
-    hideLegends: function () {
-      if (this._legends) {
-        this._legends.remove();
-      }
-    },
+//    showLegends: function () {
+//      if (!this._projections['colour']) { return; }
+//
+//      // TODO(bpstudds): This needs to be refactored so we can have multiple legends.
+//      var legendData = this._projections['colour'].getLegend(),
+//          legendHtml = Overlay.generateTable(legendData.legend),
+//          html;
+//      html = '<div class="caption">' + legendData.caption + '</div>';
+//      html += legendHtml;
+//
+//      this._legends = new Overlay({
+//        parent: this._atlasManagers.dom.getDom(),
+//        title: legendData.title,
+//        'class': 'legend',
+//        // TODO(bpstudds): Add IDs to projections, use the ID rather than artifact to store.
+//        onRemove: function (e) { this.remove('colour'); }.bind(this),
+//        position: {top: 50, left: 0},
+//        content: html
+//      });
+//
+//      this._legends.show();
+//    },
+
+//    hideLegends: function () {
+//      if (this._legends) {
+//        this._legends.remove();
+//      }
+//    },
 
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------
 
     /**
-     * Adds a Projection to be managed by the VisualisationManager. Only one projection can be active
-     * per artifact. If a Projection that is bound to an artifact that is already in use, the old
-     * Projection is unrendered and removed.
+     * Adds a Projection to be managed by the VisualisationManager.
      * @param {atlas.visualisation.AbstractProjection} projection - The New Projection instance to add.
-     * @returns {atlas.visualisation.AbstractProjection|undefined} The existing Projection bound
-     *    to same artifact as the new Projection, if it exists.
      */
     addProjection: function (projection) {
       if (!(projection instanceof AbstractProjection)) {
         throw new DeveloperError('Tried to add an object to the VisualisationManager which is not a subclass of atlas.visualisation.AbstractProjection');
       }
-      var target = projection.ARTIFACT,
-          old = this._projections[projection.ARTIFACT],
-          ret;
+      var id = projection.getId(),
+          old = this._staticProjections.get(id);
       if (old) {
-        // TODO(bpstudds): This needs to be changed so we can have multiple projections per artifact.
-        Log.debug('Overriding projection on', target, 'with new projection.');
-        old.unrender();
-        ret = old;
+        Log.error('Tried to add projection with the same ID as an existing projection');
+        return;
       }
-      this._projections[target] = projection;
-
-      return ret;
+      this._staticProjections.add(projection);
+      this._addLegend(projection);
     },
 
     addDynamicProjection: function (dynamic) {
@@ -301,17 +352,26 @@ define([
 
     /**
      * Removes the projection affecting the given artifact.
-     * @param {String} artifact - The artifact of the projection object to be removed.
+     * @param {string} id - The id of the projection to be removed.
      * @returns {atlas.visualisation.AbstractProjection|null} The Projection removed, or null
      *    if a projection does not existing for the given artifact.
      */
-    remove: function (artifact) {
-      var removedProjection = this._projections[artifact];
-      if (removedProjection) {
-        this.unrender(artifact);
-        this._projections[artifact] = null;
+    remove: function (id) {
+      var prj = this._staticProjections.get(id),
+          legend = this._legendStore.get(id);
+      if (!prj) {
+        Log.warn('Tried to remove projection ' + id + ' that does not exist.');
+        return;
       }
-      return removedProjection;
+      if (this._currentProjection === id) {
+        this._currentProjection = null;
+      }
+      // Unrender projection and remove the projections legend.
+      prj.unrender();
+      legend.remove();
+      this._legendStore.remove(id);
+      this._staticProjections.remove(id);
+      return prj;
     },
 
     /**
@@ -330,51 +390,65 @@ define([
 
     /**
      * Renders the effects of the Projection currently Affect the given artifact.
-     * @param {Object} artifact - The artifact to render.
+     * @param {Object} id - The ID of the projection to render.
      */
-    render: function (artifact) {
-      // TODO(bpstudds): Add function to render all currently managed Projections.
-      // TODO(bpstudds): Add support for rendering a subset of entities.
-      if (!this._projections[artifact]) {
-        throw new DeveloperError('Tried to render projection ' + artifact + ' without adding a projection object.');
+    render: function (id) {
+      // Unrender all other projections
+      var projection = this._staticProjections.get(id),
+          legend = this._legendStore.get(id),
+          artifact = projection.ARTIFACT;
+
+      if (!projection) {
+        throw new DeveloperError('Tried to render projection ' + id
+            + ' without adding a projection object.');
       } else {
-        this._projections[artifact].render();
-        artifact === 'colour' && this.showLegends();
-        this._atlasManagers.event.handleInternalEvent('projection/render/complete', {name: artifact});
+        if (this._currentProjection && this._currentProjection !== id) {
+          this.unrender(this._currentProjection);
+        }
+        projection.render();
+        legend.maximise();
+        this._currentProjection = id;
+        this._atlasManagers.event.handleInternalEvent('projection/render/complete',
+            {id: projection.getId(), name: artifact});
       }
     },
 
     /**
      * Unrenders the effects of the Projection currently affecting the given artifact.
-     * @param {String} artifact - The artifact to unrender.
+     * @param {String} id - The ID of the projection to unrender.
      */
-    unrender: function (artifact) {
-      // TODO(bpstudds): Add function to unrender all currently managed Projections.
+    unrender: function (id) {
       // TODO(bpstudds): Add support for un-rendering a subset of entities.
-      if (!this._projections[artifact]) {
-        throw new DeveloperError('Tried to unrender projection ' + artifact + ' without adding a projection object.');
+      var projection = this._staticProjections.get(id),
+          legend = this._legendStore.get(id),
+          artifact = projection.ARTIFACT;
+
+      if (!projection) {
+        throw new DeveloperError('Tried to unrender projection ' + id
+            + ' without adding a projection object.');
       } else {
-        this._projections[artifact].unrender();
-        artifact === 'colour' && this.hideLegends();
-        this._atlasManagers.event.handleInternalEvent('projection/unrender/complete', {name: artifact});
+        projection.unrender();
+        legend.minimise();
+        this._currentProjection = null;
+        this._atlasManagers.event.handleInternalEvent('projection/unrender/complete',
+            {id: projection.getId(), name: artifact});
       }
     },
 
     /**
      * Toggles a static projection between having its effects rendered and not rendered.
-     * @param {String} artifact - The artifact of the projection to toggle.
+     * @param {String} id - The artifact of the projection to toggle.
      */
-    toggleRender: function (artifact) {
-      if (artifact.match(/dynamic-/)) { return; }
+    toggleRender: function (id) {
+      var projection = this._staticProjections.get(id);
 
-      // TODO (bpstudds): This code appears to be buggy.
-      var prj = this._projections[artifact];
-      if (!prj) {
-        throw new DeveloperError('Tried to toggle render of projection', artifact, 'without adding a projection object.');
+      if (projection.isRendered()) {
+        this.unrender(id);
       } else {
-        prj.isRendered() ? this.unrender(artifact) : this.render(artifact);
+        this.render(id);
       }
     }
   });
+
   return VisualisationManager;
 });

@@ -1,25 +1,58 @@
 define([
+  'atlas/lib/utility/Log',
+  'atlas/lib/utility/Setter',
+  'atlas/lib/utility/Type',
   'atlas/util/Class',
-  'atlas/lib/utility/Setter'
-], function (Class, Setter) {
+  'atlas/util/mixin'
+], function (Log, Setter, Type, Class, mixin) {
+
+  /**
+   * @typedef atlas.dom.Overlay
+   * @ignore
+   */
+  var Overlay;
 
   /**
    * @classdesc An Overlay can be used to place panels overlaying the Atlas
-   * render (or in fact, any section of the host website) which can display
-   * information.
+   * render which can display information. They can be used to display plain text
+   * or HTML. The content is wrapped in a <div> and includes an option title, enable
+   * checkbox, and close button.
    *
    * @param {Object} args - Arguments to the constructor.
-   * @param {String|HTMLElement} [args.parent=document] - The DOM ID or element instance to place the Overlay on.
-   * @param {Object} [args.dimensions] - The dimensions of the Overlay.
-   * @param {Object} [args.dimensions.top=0] - The dimension from the top of <code>parent</code> to the top of the Overlay in pixels.
-   * @param {Object} [args.dimensions.left=0] - The dimension from the left of <code>parent</code> to the left of the Overlay in pixels.
+   * @param {String|HTMLElement} [args.parent=document] - The DOM ID or element instance to place
+   *    the Overlay on.
+   * @param {String} [args.title] - A title to show in the overlay.
+   * @param {String} [args.class] - The CSS class to apply to the <code><div</code> surrounding
+   *    the Overlay.
+   * @param {boolean} [args.hasRemoveBtn=false] - Whether the Overlay should have a remove
+   *    button. The default action of this button is to remove and destroy the Overlay.
+   * @param {function} [args.onRemove] - A callback that is called when the Overlay remove
+   *    button is clicked. This callback overrides the default action of the remove button, so the
+   *    callback should remove the Overlay if that is required.
+   * @param {boolean} [args.hasEnableCheckbox=false] - Whether the Overlay should have an enable
+   *    checkbox. The default action of this checkbox is to minimise and maximise the Overlay.
+   * @param {function} [args.onEnabledChange] - A callback that is called when the overlay enable
+   *    checkbox is clicked. This callback overrides the default behaviour of the enable checkbox,
+   *    so the callback should minimise/maximise the Overlay if this is required.
+   * @param {Object} [args.position] - The position of the Overlay.
+   * @param {Object} [args.position.top=0] - The dimension from the top of <code>parent</code>
+   *    to the top of the Overlay in pixels.
+   * @param {Object} [args.position.left=0] - The dimension from the left of <code>parent</code>
+   *    to the left of the Overlay in pixels.
+   * @param {Object} [args.position.bottom=undefined] - The dimension from the bottom of
+   *    <code>parent</code> to the top of the Overlay in pixels.
+   * @param {Object} [args.position.right=undefined] - The dimension from the right of
+   *    <code>parent</code> to the left of the Overlay in pixels.
+   * @param {Object} [args.dimensions] - The dimensions of the Overlay. Dimensions are overridden
+   *    if both <code>position.top</code> and <code>position.bottom</code> or
+   *    <code>position.top</code> and <code>position.bottom</code> are defined.
    * @param {Object} [args.dimensions.height] - The height of the Overlay, by default it fits the content.
    * @param {Object} [args.dimensions.width] - The width of the Overlay, by default it fits the content.
    * @param {String} [args.content=''] - Either a plain text or HTML to be rendered in the Overlay.
    *
    * @class atlas.dom.Overlay
    */
-  var Overlay = Class.extend(/** @lends atlas.dom.Overlay# */ {
+  Overlay = Class.extend(/** @lends atlas.dom.Overlay# */ {
 
     /**
      * The parent element of the Overlay, null if the Overlay is positioned absolutely within
@@ -28,6 +61,13 @@ define([
      * @protected
      */
     _parent: null,
+
+    /**
+     * The HTMLElement generated from this Overlay.
+     * @type {HTMLElement}
+     * @protected
+     */
+    _element: null,
 
     /**
      * The class(es) to apply to the Overlay HTML.
@@ -52,6 +92,7 @@ define([
      * @property {Number} left - Distance in pixels from the left edge of the Parent.
      * @property {Number} bottom - Distance in pixels from the bottom edge of the Parent.
      * @property {Number} right - Distance in pixels from the right edge of the Parent.
+     * @protected
      */
     _position: null,
 
@@ -72,6 +113,13 @@ define([
     _content: null,
 
     /**
+     * The entire HTML of the rendered Overlay.
+     * @type {String}
+     * @protected
+     */
+    _html: null,
+
+    /**
      * Function handler for when the Overlay is removed. The context of this
      * function is assumed to be correctly set.
      * @function
@@ -79,30 +127,60 @@ define([
      */
     _onRemove: null,
 
+    /**
+     * Function handler for when the Overlay is enabled or disabled. The function should
+     * accept one argument, a boolean that if true means the Overlay is being enabled.
+     * @function
+     * @protected
+     */
+    _onEnabledChange: null,
+
     /*
      * Constructor for the overlay
      * @ignore
      */
     _init: function (args) {
+      // Set defaults
       args = Setter.mixin({
         parent: document,
         cssClass: '',
         title: '',
         position: {},
         dimensions: {},
-        content: ''
+        showMinimised: false,
+        content: '',
+        hasRemoveBtn: false,
+        hasChangeCheckbox: false
       }, args);
       if (typeof args.parent === 'string') {
-        args.parent = document.getElementById(parent);
+        args.parent = document.getElementById(args.parent);
       }
+      if (!args.parent) { throw new Error('Error attaching to element ' + args.parent)}
+
+      // Sanitise the dimensions and positions passed in.
+      ['top', 'left', 'right', 'bottom'].forEach(function (p) {
+        args.position[p] === null && delete args.position[p];
+      });
+      args.dimensions.width === null && delete args.dimensions.width;
+      args.dimensions.height === null && delete args.dimensions.height;
+
+      // Set instance members
       this._id = args.id;
       this._parent = args.parent;
-      this._cssClass = args.cssClass;
       this._title = args.title;
-      this._onRemove = args.onRemove;
+      this._cssClass = args.cssClass;
+      this._cssPosition = args.cssPosition;
+
       this._position = args.position;
       this._dimensions = args.dimensions;
       this._content = args.content;
+      this._showMinimised = args.showMinimised;
+
+      this._onRemove = Type.isFunction(args.onRemove) ? args.onRemove : null;
+      this._hasRemoveBtn = args.hasRemoveBtn || this._onRemove !== null;
+      this._onEnabledChange = Type.isFunction(args.onEnabledChange) ? args.onEnabledChange : null;
+      this._hasEnableCheckbox = args.hasEnableCheckbox || this._onEnabledChange !== null;
+
       // Construct element and append it to the parent.
       this._element = this._render();
     },
@@ -112,7 +190,7 @@ define([
     // -------------------------------------------
 
     isVisible: function () {
-      if (this._element === undefined) { return false; }
+      if (!this._element) { return false; }
       return !this._element.classList.contains('hidden');
     },
 
@@ -128,6 +206,25 @@ define([
       return this._dimensions;
     },
 
+    getDom: function () {
+      return this._element;
+    },
+
+    /**
+     * Gets the individual DOM elements for the title and content of the Overlay.
+     * @returns {{title: HTMLElement, content: HTMLElement}}
+     */
+    getDomElements: function () {
+      var overlay = this._element,
+          title = overlay.getElementsByClassName('overlay-title')[0],
+          content = overlay.getElementsByClassName('overlay-body')[0];
+      return {title: title, content: content};
+    },
+
+    getHtml: function () {
+      return this._html;
+    },
+
     getId: function () {
       return this._id;
     },
@@ -140,9 +237,82 @@ define([
       return this._position;
     },
 
+    /**
+     * Sets whether the Overlay is minimised.
+     * @param {boolean} isMinimised - The Overlay should be minimised.
+     */
+    setMinimised: function (isMinimised) {
+      var content = this.getDomElements().content,
+      enableCheckbox = this.getDomElements().title.getElementsByClassName('enable-overlay')[0];
+
+      content && content.classList.toggle('hidden', isMinimised);
+      if (enableCheckbox) {
+        enableCheckbox.checked = !isMinimised;
+      }
+    },
+
+    /**
+     * @returns {boolean} Whether the Overlay is minimised.
+     */
+    isMinimised: function () {
+      var content = this.getDomElements().content;
+      return content && content.classList.contains('hidden');
+    },
+
     // -------------------------------------------
     // Modifiers
     // -------------------------------------------
+
+    /**
+     * Hides the Overlay from view.
+     */
+    hide: function () {
+      if (!this._element) { return; }
+      this._element.classList.add('hidden');
+    },
+
+    /**
+     * Shows the overlay on the parent document.
+     */
+    show: function () {
+      if (!this._element) { return; }
+      this._element.classList.remove('hidden');
+    },
+
+    /**
+     * Sets the content of the Overlay to be visible.
+     */
+    maximise: function () {
+      this.setMinimised(false);
+    },
+
+    /**
+     * Sets the content of the Overlay to be hidden. The Overlay should be sized so that
+     * only it uses only sufficient space to display the title.
+     */
+    minimise: function () {
+      this.setMinimised(true);
+    },
+
+    /**
+     * Toggles whether the Overlay is minimised.
+     */
+    toggleMinimisation: function () {
+      this.setMinimised(!this.isMinimised());
+    },
+
+    /**
+     * Removes the Overlay from the parent document.
+     */
+    remove: function () {
+      if (!this._element || !this._element.parentElement) {
+        Log.warn('Tried to remove an unrendered Overlay.');
+        return;
+      }
+      this.hide();
+      this._element.parentElement.removeChild(this._element);
+      this._element = null;
+    },
 
     /**
      * Creates the element for the HTML of the Overlay.
@@ -150,20 +320,34 @@ define([
      * @protected
      */
     _render: function () {
+      // TODO(bpstudds): Refactor this function.
       var element = document.createElement('div');
       element.classList.add('overlay');
       this._cssClass !== '' && element.classList.add(this._cssClass);
 
-      // Add title and remove button to content if necessary.
-      var title = '<div class="title">' + this._title;
-      if (this._onRemove) {
-        title += '<button class="remove">X</button>';
+      if (this._cssPosition) {
+        element.style.position = this._cssPosition;
+      }
+
+      // Create HTML for title of overlay.
+      // Wrap the title with an enable checkbox and remove button if necessary.
+      var title = '<div class="overlay-title">';
+      if (this._hasEnableCheckbox) {
+        title += '<input type="checkbox" value="true" class="enable-overlay">'
+      }
+      title += this._title;
+      if (this._hasRemoveBtn) {
+        title += '<button class="remove-overlay">X</button>';
       }
       title +=  '</div>'
-      this._content = title.concat(this._content);
+
+      // Create HTML for body of overlay.
+      var bodyClass = 'overlay-body';
+      bodyClass += this._showMinimised ? ' hidden' : '';
+      this._html = title + '<div class="' + bodyClass + '">' + this._content + '</div>';
 
       // Create the overlay html.
-      element.innerHTML = this._content;
+      element.innerHTML = this._html;
 
       // Set the Overlay's position.
       this._position.top !== undefined && (element.style.top = this._position.top + 'px');
@@ -184,120 +368,106 @@ define([
       // Attach to parent
       this._parent.appendChild(element);
 
-      // Add event handler to close button
-      if (this._onRemove) {
-        var buttons = element.getElementsByClassName('remove');
-        buttons[0].addEventListener('click', function (e) {
+      // Add event handler to close button and checkbox
+      if (this._hasRemoveBtn) {
+        var closeBtn = element.getElementsByClassName('remove-overlay')[0];
+            removeFunction = this._onRemove ? '_onRemove' : 'remove';
+        closeBtn.addEventListener('click', function (e) {
           // 0 -> left click.
           if (e.button === 0) {
-            this._onRemove(e);
+            this[removeFunction](e);
+          }
+        }.bind(this))
+      }
+      if (this._hasEnableCheckbox) {
+        var enableCheckbox = element.getElementsByClassName('enable-overlay')[0];
+            enableFunction = this._onEnabledChange ? '_onEnabledChange' : 'toggleMinimisation';
+        enableCheckbox.addEventListener('click', function (e) {
+          // 0 -> left click.
+          if (e.button === 0) {
+            this[enableFunction](e.target.value, e);
           }
         }.bind(this))
       }
 
       return element;
-    },
-
-    /**
-     * Hides the Overlay from view.
-     */
-    hide: function () {
-      if (this._element === undefined) { return; }
-      this._element.classList.add('hidden');
-    },
-
-    /**
-     * Shows the overlay on the parent document.
-     */
-    show: function () {
-      if (this._element === undefined) { return; }
-      this._element.classList.remove('hidden');
-    },
-
-    /**
-     * Removes the Overlay from the parent document.
-     */
-    remove: function () {
-      if (this._element === undefined) { return; }
-      this.hide();
-      this._parent.removeChild(this._element);
     }
   }); // End class instance definition
 
 
-    // -------------------------------------------
-    // Statics
-    // -------------------------------------------
+  // -------------------------------------------
+  // Statics
+  // -------------------------------------------
 
-    /**
-     * Creates a series of HTML attributes based on the given data structure.
-     * @param {Object} data - The map of attributes to values.
-     * @param {String} [data.cssClass=''] - The CSS class of the tag.
-     * @param {String} [data.id=''] - The ID of the tag.
-     * @param {atlas.model.Colour} [data.bgColour=null] - The CSS background-color to apply to the tag.
-     * @returns {String} The HTML string of the attributes.
-     */
-    Overlay.parseAttributes = function (data) {
-      var html = '',
-          style = '',
-          data = data || {};
-      data.cssClass && (html += 'class="' + data.cssClass +'" ');
-      data.id && (html += 'id="' + data.id +'" ');
-      data.background && (style += 'background:' + data.background + ';');
-      data.bgColour && (style += 'background-color:' + data.bgColour.toHexString() + ';');
-      data.width && (style += 'width:' + data.width + ';');
-      if (style !== '') {
-        html += 'style="' + style +'"';
-      }
-      if (html === '') { return ''; }
-      return (html = ' ' + html.trim());
-    };
+  /**
+   * Creates a series of HTML attributes based on the given data structure.
+   * @param {Object} data - The map of attributes to values.
+   * @param {String} [data.cssClass=''] - The CSS class of the tag.
+   * @param {String} [data.id=''] - The ID of the tag.
+   * @param {atlas.model.Colour} [data.bgColour=null] - The CSS background-color to apply to the tag.
+   * @returns {String} The HTML string of the attributes.
+   */
+  Overlay.parseAttributes = function (data) {
+    var html = '',
+        style = '',
+        data = data || {};
+    data.cssClass && (html += 'class="' + data.cssClass +'" ');
+    data.id && (html += 'id="' + data.id +'" ');
+    data.background && (style += 'background:' + data.background + ';');
+    data.bgColour && (style += 'background-color:' + data.bgColour.toHexString() + ';');
+    data.width && (style += 'width:' + data.width + ';');
+    if (style !== '') {
+      html += 'style="' + style +'"';
+    }
+    if (html === '') { return ''; }
+    return html.trim();
+  };
 
-    /**
-     * Generates a HTML table from a 2D array of objects describing the table. The first
-     * index of the 2D array represents a row in the table, the second index represents
-     * the column. Each array element should conform to the <code>data</code> parameter
-     * of {@link atlas.dom.Overlay~parseAttributes}, as well as having a <code>value</code>
-     * property which will be placed into the cell.
-     * @param {Object} data - The table data.
-     * @returns {String}
-     *
-     * @example <caption>Form of data expected by generateTable</caption>
-     * data = {
-     *   id: 'tableID',
-     *   class: 'tableClass',
-     *   rows: [
-     *     { id: 'row1_ID',
-     *       cells: [
-     *         { value: 'cellContents', class: 'class', bgColour = Colour.RED, ... }
-     *         { value: 'cellContents2', bgColour = Colour.GREEN, ... }
-     *       ]
-     *     },
-     *     { id: 'row2_ID',
-     *       cells: [
-     *         { value: 'cellContents', class: 'class', bgColour = Colour.RED, ... }
-     *         { value: 'cellContents2', bgColour = Colour.GREEN, ... }
-     *       ]
-     *     }
-     *   ]
-     * }
-     */
-    Overlay.generateTable = function (data) {
-      if (!data || !data.rows) { return ''; }
-      var tableAttributes = Overlay.parseAttributes(data),
-          html = '<table' + tableAttributes + '>';
-      data.rows.forEach(function (row) {
-        var rowAttributes = Overlay.parseAttributes(row);
-        html += '<tr' + rowAttributes + '>';
-        row.cells.forEach(function (cell) {
-          var cellAttributes = Overlay.parseAttributes(cell);
-          html += '<td' + cellAttributes + '>' + (cell.value || '') + '</td>';
-        });
-        html += '</tr>';
+  /**
+   * Generates a HTML table from a 2D array of objects describing the table. The first
+   * index of the 2D array represents a row in the table, the second index represents
+   * the column. Each array element should conform to the <code>data</code> parameter
+   * of {@link atlas.dom.Overlay~parseAttributes}, as well as having a <code>value</code>
+   * property which will be placed into the cell.
+   * @param {Object} data - The table data.
+   * @returns {String}
+   *
+   * @example <caption>Form of data expected by generateTable</caption>
+   * data = {
+   *   id: 'tableID',
+   *   class: 'tableClass',
+   *   rows: [
+   *     { id: 'row1_ID',
+   *       cells: [
+   *         { value: 'cellContents', class: 'class', bgColour = Colour.RED, ... }
+   *         { value: 'cellContents2', bgColour = Colour.GREEN, ... }
+   *       ]
+   *     },
+   *     { id: 'row2_ID',
+   *       cells: [
+   *         { value: 'cellContents', class: 'class', bgColour = Colour.RED, ... }
+   *         { value: 'cellContents2', bgColour = Colour.GREEN, ... }
+   *       ]
+   *     }
+   *   ]
+   * }
+   */
+  Overlay.generateTable = function (data) {
+    if (!data || !data.rows) { return ''; }
+    var tableAttributes = Overlay.parseAttributes(data),
+        html = '<table ' + tableAttributes + '>';
+    data.rows.forEach(function (row) {
+      var rowAttributes = Overlay.parseAttributes(row);
+      html += '<tr ' + rowAttributes + '>';
+      row.cells.forEach(function (cell) {
+        var cellAttributes = Overlay.parseAttributes(cell);
+        html += '<td ' + cellAttributes + '>' + (cell.value || '') + '</td>';
       });
-      html += '</table>';
-      return html;
-    };
+      html += '</tr>';
+    });
+    html += '</table>';
+    return html;
+  };
 
   return Overlay;
 });
