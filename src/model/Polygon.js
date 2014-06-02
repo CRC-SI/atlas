@@ -416,8 +416,9 @@ define([
      */
     onSelect: function() {
       this._super();
-      this.setStyle(Polygon.getSelectedStyle());
-      this.setDirty('style');
+      this._selected = true;
+      //this.setStyle(Polygon.getSelectedStyle());
+      //this.setDirty('style');
     },
 
     /**
@@ -427,8 +428,9 @@ define([
      */
     onDeselect: function() {
       this._super();
-      this.setStyle(this._previousStyle);
-      this.setDirty('style');
+      this._selected = false;
+      //this.setStyle(this._previousStyle);
+      //this.setDirty('style');
     }
   }), {
 

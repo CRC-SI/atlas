@@ -1,11 +1,9 @@
 define([
-  'atlas/util/Class',
-  'atlas/util/DeveloperError',
-  'atlas/util/mixin',
+  'atlas/lib/utility/Log',
+  'atlas/lib/utility/Setter',
   'atlas/model/GeoEntity',
-  'atlas/model/Vertex',
-  'atlas/lib/utility/Log'
-], function(Class, DeveloperError, mixin, GeoEntity, Vertex, Log) {
+  'atlas/util/DeveloperError',
+], function(Log, Setter, GeoEntity, DeveloperError) {
 
   /**
    * @typedef atlas.model.Handle
@@ -183,7 +181,7 @@ define([
      * See {@link atlas.model.GeoEntity} for arguments format.
      */
     translate: function(translation, args) {
-      args = mixin({
+      args = Setter.mixin({
         delegate: true
       }, args);
       args.delegate && this._delegateToTarget('translate', arguments);
