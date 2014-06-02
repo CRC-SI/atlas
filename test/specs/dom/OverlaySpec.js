@@ -1,10 +1,10 @@
 define([
   'atlas/model/Colour',
+  '../../lib/simulate.js',
   // Code under test.
   'atlas/dom/Overlay'
-], function (Colour, Overlay) {
+], function (Colour, simulate, Overlay) {
 
-  describe('An Overlay', function () {
     var parent,
         position = {
           top: 100,
@@ -19,55 +19,252 @@ define([
         overlay,
         element;
 
+  var getOverlayDom = function () {
+    var overlay = parent.getElementsByClassName('overlay')[0],
+        title = overlay.getElementsByClassName('overlay-title')[0],
+        content = overlay.getElementsByClassName('overlay-body')[0];
+    return {
+      overlay: overlay,
+      title: title,
+      content: content
+    }
+  };
+
+  describe('An Overlay', function () {
+
+
     beforeEach(function () {
       parent = document.createElement('div');
       args = {parent: parent, position: position, dimensions: dimensions, content: content};
-      overlay = new Overlay(args);
     });
 
     afterEach(function () {
+      overlay && overlay.remove();
       parent = null;
       overlay = null;
       element = null;
     });
 
-    it('can be constructed', function () {
-      expect(overlay.getParent()).toBe(parent);
-      expect(overlay.getDimensions()).toBe(dimensions);
-      expect(overlay.getContent()).toContain(content);
+    describe('Non-default', function () {
+
+      it('can have a title', function () {
+        args.title = 'title';
+        overlay = new Overlay(args);
+
+        var actual = getOverlayDom();
+        expect(actual.title.innerHTML).toEqual('title');
+      });
+
+      it('should have a remove button if an onRemove callback is given', function () {
+        args.title = 'title';
+        args.onRemove = function () {};
+        overlay = new Overlay(args);
+
+        var actual = getOverlayDom(),
+            removeBtn = actual.title.getElementsByClassName('remove-overlay')[0];
+        expect(overlay._onRemove).toEqual(args.onRemove);
+        expect(removeBtn).not.toBeUndefined();
+        expect(removeBtn).not.toBeNull();
+        expect(removeBtn.type).toEqual('submit');
+      });
+
+      it('should have a remove button if hasRemoveBtn is true', function () {
+        args.hasRemoveBtn = true;
+        overlay = new Overlay(args);
+
+        var actual = getOverlayDom(),
+            removeBtn = actual.title.getElementsByClassName('remove-overlay')[0];
+        expect(removeBtn).not.toBeUndefined();
+        expect(removeBtn).not.toBeNull();
+        expect(removeBtn.type).toEqual('submit');
+      });
+
+      it('should be removed by default when the remove button is clicked', function () {
+        // default callback
+        args.hasRemoveBtn = true;
+        overlay = new Overlay(args);
+
+        var removeBtn = getOverlayDom().title.getElementsByClassName('remove-overlay')[0];
+        spyOn(overlay, 'remove');
+        simulate(removeBtn, 'click');
+        expect(overlay.remove).toHaveBeenCalled();
+      });
+
+      it('should call the given callback when the remove button is pressed', function () {
+        args.onRemove = function () {};
+        var overlay = new Overlay(args),
+            removeBtn = getOverlayDom().title.getElementsByClassName('remove-overlay')[0];
+        spyOn(overlay, '_onRemove');
+        simulate(removeBtn, 'click');
+        expect(overlay._onRemove).toHaveBeenCalled();
+      });
+
+      it('should not have a remove button by default', function () {
+        overlay = new Overlay(args);
+        var actual = getOverlayDom(),
+            removeBtn = actual.title.getElementsByClassName('remove-overlay')[0];
+        expect(removeBtn).toBeUndefined();
+      });
+
+      it('should not have a remove button if told not to', function () {
+        args.hasRemoveButton = false;
+        overlay = new Overlay(args);
+
+        var actual = getOverlayDom(),
+            removeBtn = actual.title.getElementsByClassName('remove-overlay')[0];
+        expect(removeBtn).toBeUndefined();
+      });
+
+      it('should not have a remove button if onRemove is not a valid function', function () {
+        args.title = 'title';
+        // onEnabledChange is undefined
+        overlay = new Overlay(args);
+        var actual = getOverlayDom(),
+            removeBtn = actual.title.getElementsByClassName('remove-overlay')[0];
+        expect(removeBtn).toBeUndefined();
+        overlay.remove();
+
+        // onEnabledChange is not a function
+        args.onEnabledChange = {};
+        overlay = new Overlay(args);
+        var actual = getOverlayDom(),
+            removeBtn = actual.title.getElementsByClassName('remove-overlay')[0];
+        expect(removeBtn).toBeUndefined();
+      });
+
+      it('should have an enable checkbox if an onEnabledChange callback is given', function () {
+        args.title = 'title';
+        args.onEnabledChange = function () {};
+        overlay = new Overlay(args);
+
+        var actual = getOverlayDom(),
+            enableCb = actual.title.getElementsByClassName('enable-overlay')[0];
+        expect(enableCb).not.toBeUndefined();
+        expect(enableCb).not.toBeNull();
+        expect(enableCb.type).toEqual('checkbox');
+      });
+
+      it('should have an enable checkbox if hasEnableCheckbox is true', function () {
+        args.title = 'title';
+        args.hasEnableCheckbox = true;
+        overlay = new Overlay(args);
+
+        var actual = getOverlayDom(),
+            enableCb = actual.title.getElementsByClassName('enable-overlay')[0];
+        expect(enableCb).not.toBeUndefined();
+        expect(enableCb).not.toBeNull();
+        expect(enableCb.type).toEqual('checkbox');
+      });
+
+      it('should call a callback when the enable checkbox is toggled', function () {
+        args.hasEnableCheckbox = true;
+        overlay = new Overlay(args);
+
+        var enableCb = getOverlayDom().title.getElementsByClassName('enable-overlay')[0];
+        spyOn(overlay, 'toggleMinimisation');
+        simulate(enableCb, 'click');
+        expect(overlay.toggleMinimisation).toHaveBeenCalled();
+
+        overlay.remove();
+        args.onEnabledChange = function () {};
+        overlay = new Overlay(args);
+
+        enableCb = getOverlayDom().title.getElementsByClassName('enable-overlay')[0];
+        spyOn(overlay, '_onEnabledChange');
+        simulate(enableCb, 'click');
+        expect(overlay._onEnabledChange).toHaveBeenCalled();
+      });
+
+      it('should not have an enable checkbox if hasEnableCheckbox is false', function () {
+        args.title = 'title';
+        args.hasEnableCheckbox = false;
+        overlay = new Overlay(args);
+
+        var actual = getOverlayDom(),
+            enableCb = actual.title.getElementsByClassName('enable-overlay')[0];
+        expect(enableCb).toBeUndefined();
+      });
+
+      it('should not have an enable checkbox if onEnabledChange is not a valid function', function () {
+        args.title = 'title';
+        // onEnabledChange is undefined
+        overlay = new Overlay(args);
+        var actual = getOverlayDom(),
+            enableCb = actual.title.getElementsByClassName('enable-overlay')[0];
+        expect(enableCb).toBeUndefined();
+        overlay.remove();
+
+        // onEnabledChange is not a function
+        args.onEnabledChange = {};
+        overlay = new Overlay(args);
+        actual = getOverlayDom();
+        enableCb = actual.title.getElementsByClassName('enable-overlay')[0];
+        expect(enableCb).toBeUndefined();
+      });
+
+      it('should be able to be minimised and maximised', function () {
+        overlay = new Overlay(args);
+        var domBefore = getOverlayDom(),
+            isMinimised = domBefore.content.classList.contains('hidden');
+        expect(isMinimised).toBe(false);
+
+        overlay.minimise();
+        var domAfter = getOverlayDom();
+        isMinimised = domAfter.content.classList.contains('hidden');
+        expect(isMinimised).toBe(true);
+
+        overlay.maximise();
+        domAfter = getOverlayDom();
+        isMinimised = domAfter.content.classList.contains('hidden');
+        expect(isMinimised).toBe(false);
+      });
     });
 
-    it('can create an element containing plain text from content', function () {
-      expect(overlay._element.innerHTML).toContain(content);
-      expect(overlay._element.classList.contains('hidden')).toBe(false);
-    });
+    describe('Default', function () {
 
-    it('is attached to the parent node', function () {
-      expect(parent.children.length).toBe(1);
-      expect(parent.children[0].innerHTML).toContain(content);
-    });
+      beforeEach(function () {
+        overlay = new Overlay(args);
+      });
 
-    it('has dimensions', function () {
-      expect(parent.children[0].style.top).toEqual('100px');
-      expect(parent.children[0].style.left).toEqual('200px');
-      expect(parent.children[0].style.height).toEqual('300px');
-      expect(parent.children[0].style.width).toEqual('400px');
-    });
+      it('can be constructed', function () {
+        expect(overlay.getParent()).toBe(parent);
+        expect(overlay.getDimensions()).toBe(dimensions);
+        expect(overlay.getContent()).toContain(content);
+      });
 
-    it('can be hidden', function () {
-      overlay.hide();
-      expect(parent.children[0].classList.contains('hidden')).toBe(true);
-    });
+      it('can create an element containing plain text from content', function () {
+        var actual = getOverlayDom();
+        expect(actual.overlay.classList.contains('hidden')).toBe(false);
+        expect(actual.content.innerHTML).toEqual(content);
+      });
 
-    it('can be unhidden', function () {
-      overlay.hide();
-      overlay.show();
-      expect(parent.children[0].classList.contains('hidden')).toBe(false);
-    });
+      it('is attached to the parent node', function () {
+        var actualOverlay = parent.getElementsByClassName('overlay')[0];
+        expect(actualOverlay).not.toBeNull();
+      });
 
-    it('can be removed', function() {
-      overlay.remove();
-      expect(parent.children.length).toBe(0);
+      it('it has dimensions', function () {
+        expect(parent.children[0].style.top).toEqual('100px');
+        expect(parent.children[0].style.left).toEqual('200px');
+        expect(parent.children[0].style.height).toEqual('300px');
+        expect(parent.children[0].style.width).toEqual('400px');
+      });
+
+      it('can be hidden', function () {
+        overlay.hide();
+        expect(parent.children[0].classList.contains('hidden')).toBe(true);
+      });
+
+      it('can be unhidden', function () {
+        overlay.hide();
+        overlay.show();
+        expect(parent.children[0].classList.contains('hidden')).toBe(false);
+      });
+
+      it('can be removed', function() {
+        overlay.remove();
+        expect(parent.children.length).toBe(0);
+      });
     });
 
     describe ('can generate HTML', function () {

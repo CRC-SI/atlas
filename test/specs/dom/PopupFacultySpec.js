@@ -20,7 +20,6 @@ define([
     beforeEach(function () {
       domNode = document.createElement('div');
       domNode.id = 'popupContainer';
-      popupFaculty = new PopupFaculty({parentDomNode: domNode});
     });
 
     afterEach(function () {
@@ -31,7 +30,7 @@ define([
     it('should be constructed with a parent dom node', function () {
       //popupFaculty = new PopupFaculty({parentDomNode: 'popupContainer'});
       //expect(popupFaculty).not.toBeNull();
-      popupFaculty = new PopupFaculty({parentDomNode: domNode});
+      popupFaculty = new PopupFaculty({parent: domNode});
       expect(popupFaculty).not.toBeNull();
     });
 
@@ -48,6 +47,7 @@ define([
     });
 
     it('should show popups given HTML content, a top-left position, and a entity ID', function () {
+      popupFaculty = new PopupFaculty({parent: domNode});
       popup = popupFaculty.show(args);
       expect(popup.getContent()).toContain(html);
       expect(popup.getPosition()).toEqual(position);
@@ -55,12 +55,14 @@ define([
     });
 
     it('should allow a CSS class for the overlay contained be set', function () {
+      popupFaculty = new PopupFaculty({parent: domNode});
       args.cssClass = cssClass;
       popup = popupFaculty.show(args);
       expect(popup.getCssClass()).toEqual(cssClass);
     });
 
     it('should hide popup identify by associated entity ID', function () {
+      popupFaculty = new PopupFaculty({parent: domNode});
       popup = popupFaculty.show(args);
       expect(popup.isVisible()).toBe(true);
       popup = popupFaculty.hide({entityId: entityId});
@@ -68,4 +70,4 @@ define([
     });
 
   });
-});entityId
+});
