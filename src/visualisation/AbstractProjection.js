@@ -4,8 +4,9 @@ define([
   'atlas/model/Colour',
   'atlas/util/Class',
   'atlas/util/DeveloperError',
+  'atlas/util/NumberFormatter',
   'atlas/util/mixin'
-], function(Type, Style, Colour, Class, DeveloperError, mixin) {
+], function(Type, Style, Colour, Class, DeveloperError, NumberFormatter, mixin) {
 
   /**
    * @typedef atlas.visualisation.AbstractProjection
@@ -135,6 +136,12 @@ define([
     _configuration: null,
 
     /**
+     * Used to format values (e.g. in legends).
+     * @type {atlas.util.NumberFormatter}.
+     */
+    _formatter: null,
+
+    /**
      * The number of bins to use by default for projections.
      * @type {Number}
      * @constant
@@ -180,104 +187,11 @@ define([
         bins: args.bins,
         codomain: args.codomain
       };
+      this._formatter = new NumberFormatter();
 
       this._stats = this._calculateBinnedStatistics();
       // TODO(bpstudds): Do we need to calculate this for a discrete projection?
       this._attributes = this._calculateValueAttributes();
-    },
-
-    // -------------------------------------------
-    // GETTERS AND SETTERS
-    // -------------------------------------------
-
-    /**
-     * @returns {String} The caption of the Projection.
-     */
-    getCaption: function () {
-      return this._caption;
-    },
-
-    /**
-     * @returns {Object} The configuration of the Projection.
-     */
-    getConfiguration: function() {
-      return this._configuration;
-    },
-
-    /**
-     * @returns {string} The ID of the Projection.
-     */
-    getId: function () {
-      return this._id;
-    },
-
-    /**
-     * @returns {String} The type of the Projection.
-     */
-    getType: function() {
-      return this._type;
-    },
-
-    /**
-     * @returns {{title: String, caption: String, key: Object}}
-     * An object literal with properties for the title and caption of the Projection.
-     */
-    getLegendData: function () {
-      return {title: this.getTitle(), caption: this.getCaption(), key: {}};
-    },
-
-    /**
-     * Sets the previous state, or the state of the render before the Projection is applied. ie.
-     * sets what will be re-rendered when the Projection is removed.
-     * @param {Object.<String, Object>} state
-     */
-    setPreviousState: function(state) {
-      Object.keys(state).forEach(function(id) {
-        this._setEffect(id, 'oldValue', state[id]);
-      }, this);
-    },
-
-    /**
-     * Returns the state before the Projection has been applied.
-     * @returns {Object.<String, Object>}
-     */
-    getPreviousState: function() {
-      var state = {};
-      Object.keys(this._entities).forEach(function(id) {
-        var effects = this._getEffects(id);
-        if (effects) {
-          state[id] = effects.oldValue;
-        }
-      }, this);
-      return state;
-    },
-
-    /**
-     * @returns {Object.<String, Object>} The current state. Override to return specific properties.
-     */
-    getCurrentState: function () {
-      return {};
-    },
-
-    /**
-     * @returns {String} The title of the projection.
-     */
-    getTitle: function() {
-      return this._title;
-    },
-
-    /**
-     * @returns {Object.<String, Number>} The map of Entity ID to value for the Projection.
-     */
-    getValues: function() {
-      return this._values;
-    },
-
-    /**
-     * @returns {Boolean} Whether the Projection is currently rendered.
-     */
-    isRendered: function() {
-      return this._rendered;
     },
 
     // -------------------------------------------
@@ -361,7 +275,7 @@ define([
       this._setEffect(id, 'disabled', true);
       var entity = this._entities[id],
           disabledStyle = new Style({fillColour: Colour.GREY, borderColour: Colour.GREY,
-                                     borderWidth: 1}),
+            borderWidth: 1}),
           prevStyle = entity.setStyle(disabledStyle);
       entity.show();
       this._setEffect(id, 'prevStyle', prevStyle);
@@ -587,7 +501,7 @@ define([
         }
         // Calculate more stats
         binStats.average =
-            binStats.count !== 0 ? binStats.sum / binStats.count : Number.POSITIVE_INFINITY;
+                binStats.count !== 0 ? binStats.sum / binStats.count : Number.POSITIVE_INFINITY;
         binStats.range = binStats.max.value - binStats.min.value;
         // TODO(bpstudds): Is this the most efficient way of doing this?
         theStats.push(mixin(binStats, bin));
@@ -656,7 +570,7 @@ define([
             divisor = thisAttribute.ratioFromAverage < 0 ?
                 (bin.average - bin.min.value) : (bin.max.value - bin.average);
             thisAttribute.ratioFromAverage =
-                divisor > 0 ? thisAttribute / divisor : Number.POSITIVE_INFINITY;
+                    divisor > 0 ? thisAttribute / divisor : Number.POSITIVE_INFINITY;
             // Push onto new attribute onto attribute collection.
             theAttributes[id] = thisAttribute;
           }
@@ -683,9 +597,109 @@ define([
       }
     },
 
+    /**
+     * @param {Number} x
+     * @returns {String} A formatted string of the rounded number.
+     * @private
+     */
+    _round: function(x) {
+      return this._formatter.exponentsToHTML(this._formatter.eNotationToTimes(
+          this._formatter.round(x)));
+    },
+
     // -------------------------------------------
     // GETTERS & SETTERS
     // -------------------------------------------
+
+    /**
+     * @returns {String} The caption of the Projection.
+     */
+    getCaption: function() {
+      return this._caption;
+    },
+
+    /**
+     * @returns {Object} The configuration of the Projection.
+     */
+    getConfiguration: function() {
+      return this._configuration;
+    },
+
+    /**
+     * @returns {string} The ID of the Projection.
+     */
+    getId: function() {
+      return this._id;
+    },
+
+    /**
+     * @returns {String} The type of the Projection.
+     */
+    getType: function() {
+      return this._type;
+    },
+
+    /**
+     * @returns {{title: String, caption: String, key: Object}}
+     * An object literal with properties for the title and caption of the Projection.
+     */
+    getLegendData: function() {
+      return {title: this.getTitle(), caption: this.getCaption(), key: {}};
+    },
+
+    /**
+     * Sets the previous state, or the state of the render before the Projection is applied. ie.
+     * sets what will be re-rendered when the Projection is removed.
+     * @param {Object.<String, Object>} state
+     */
+    setPreviousState: function(state) {
+      Object.keys(state).forEach(function(id) {
+        this._setEffect(id, 'oldValue', state[id]);
+      }, this);
+    },
+
+    /**
+     * Returns the state before the Projection has been applied.
+     * @returns {Object.<String, Object>}
+     */
+    getPreviousState: function() {
+      var state = {};
+      Object.keys(this._entities).forEach(function(id) {
+        var effects = this._getEffects(id);
+        if (effects) {
+          state[id] = effects.oldValue;
+        }
+      }, this);
+      return state;
+    },
+
+    /**
+     * @returns {Object.<String, Object>} The current state. Override to return specific properties.
+     */
+    getCurrentState: function() {
+      return {};
+    },
+
+    /**
+     * @returns {String} The title of the projection.
+     */
+    getTitle: function() {
+      return this._title;
+    },
+
+    /**
+     * @returns {Object.<String, Number>} The map of Entity ID to value for the Projection.
+     */
+    getValues: function() {
+      return this._values;
+    },
+
+    /**
+     * @returns {Boolean} Whether the Projection is currently rendered.
+     */
+    isRendered: function() {
+      return this._rendered;
+    },
 
     /**
      * @param {String} id
@@ -725,7 +739,7 @@ define([
      * @returns {atlas.visualisation.Effects}
      * @private
      */
-    _getEffects: function (id) {
+    _getEffects: function(id) {
       return this._effects[id];
     },
 
@@ -743,7 +757,7 @@ define([
      * @returns {Object.<String, atlas.visualisation.Effects>}
      * @private
      */
-    _getAllEffects: function () {
+    _getAllEffects: function() {
       return this._effects;
     },
 
@@ -761,7 +775,7 @@ define([
      * @param {String} id
      * @private
      */
-    _removeEffects: function (id) {
+    _removeEffects: function(id) {
       delete this._effects[id];
     },
 
@@ -794,7 +808,7 @@ define([
    */
   AbstractProjection._nextId = 100000;
 
-  AbstractProjection._generateNextId = function () {
+  AbstractProjection._generateNextId = function() {
     var num = AbstractProjection._nextId++;
     return 'projection_' + num;
   };

@@ -38,7 +38,8 @@ module.exports = function(grunt) {
          {src: './lib/Requirejs/require.js', dest: './lib/require.js'},
          {src: './lib/Openlayers/index.js', dest: './lib/open-layers.js'},
          {src: './lib/Tinycolor/tinycolor.js', dest: './lib/tinycolor.js'},
-         {src: './lib/Keycode/keycode.js', dest: './lib/keycode.js'}
+         {src: './lib/Keycode/keycode.js', dest: './lib/keycode.js'},
+         {src: './lib/numeraljs/min/numeral.min.js', dest: './lib/numeral.js'}
        ]
      }
     }

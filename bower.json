@@ -19,6 +19,7 @@
     "Openlayers": "http://openlayers.org/api/2.13.1/OpenLayers.js",
     "Keycode": "https://github.com/mantelpiece/keycode.js.git#master",
     "Tinycolor": "tinycolor#~0.9.x",
-    "utility": "https://bitbucket.org/mutopia/utility.git"
+    "utility": "https://bitbucket.org/mutopia/utility.git",
+    "numeraljs": "~1.5.3"
   }
 }

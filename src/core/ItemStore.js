@@ -56,6 +56,13 @@ define([
       return this._count;
     },
 
+    /**
+     * @returns {boolean} Whether there are items in the store.
+     */
+    isEmpty: function () {
+      return this.getCount() === 0;
+    },
+
     // -------------------------------------------------
     // ADDING AND REMOVING
     // -------------------------------------------------

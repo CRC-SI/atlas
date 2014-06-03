@@ -385,6 +385,9 @@ define([
       legend.remove();
       this._legendStore.remove(id);
       this._staticProjections.remove(id);
+      if (this._staticProjections.isEmpty()) {
+        this.getLegendContainer().hide();
+      }
       return prj;
     },
 
@@ -393,11 +396,9 @@ define([
      * @returns {Object.<String, atlas.visualisation.AbstractProjection>} The removed projections.
      */
     removeAll: function () {
-      var removed = this._staticProjections.map(function (projection, id) {
+      return this._staticProjections.map(function (projection, id) {
         return this.remove(id);
       }.bind(this));
-      this.getLegendContainer().hide();
-      return removed;
     },
 
     // -------------------------------------------
