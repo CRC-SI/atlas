@@ -120,8 +120,8 @@ define([
     /**
      * Applies a given function to every foo in the store. The function is assumed to be a
      * property of every object in the store.
-     * @param {String|Function.<Object>} func - The function to call on each item, or the name of a
-     * method existing on each item.
+     * @param {String|Function.<Object>} func - The name of a method existing on each item, or a
+     * function to call with each item and the id as passed arguments.
      * or a callback function to apply for each item.
      * @param {Object} [scope] - The object that <code>this</code> will refer to. Only valid when
      * <code>func</code> is a callback function.
@@ -134,8 +134,8 @@ define([
     /**
      * Applies a given function to every foo in the store. The given function is called once for
      * every object in the store, with the object being the only argument.
-     * @param {String|Function.<Object>} func - The function to call on each item, or the name of a
-     * method existing on each item.
+     * @param {String|Function.<Object>} func - The name of a method existing on each item, or a
+     * function to call with each item and the id as passed arguments.
      * @param {Object} [scope] - The object that <code>this</code> will refer to. Only valid when
      * <code>func</code> is a callback function.
      */
@@ -146,8 +146,8 @@ define([
     /**
      * Calls an array method with the given function and scope.
      * @param arrayMethod - A method which exists in <code>Array.prototype<code>.
-     * @param {String|Function.<Object>} func - The function to call on each item, or the name of a
-     * method existing on each item.
+     * @param {String|Function.<Object>} func - The name of a method existing on each item, or a
+     * function to call with each item and the id as passed arguments.
      * @param {Object} [scope] - The object that <code>this</code> will refer to. Only valid when
      * <code>func</code> is a callback function.
      * @returns {Array} The returned value from the given Array method.
