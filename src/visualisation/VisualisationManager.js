@@ -76,7 +76,7 @@ define([
            * @param {String} args.type - The type of projection, either 'colour' or 'height'.
            * @param {Array.<String>} args.ids - An array of GeoEntity IDs that the projection affects.
            * @param {Object} args.config - Constructor arguments as required by the type of projection. Refer to @{link atlas.visualisation.AbstractProjection}, @{link atlas.visualisation.ColourProjection}, and @{link atlas.visualisation.HeightProjection}.
-           * @returns {atlas.visualisation.AbstractProjection} The old projection as <code>args.theOldProjection</code> and the new one as <code>args.projection</code>.
+           * @returns {atlas.visualisation.AbstractProjection} The new projection as <code>args.projection</code>.
            */
           callback: function (args) {
             args.projection = this.createProjection(args);
@@ -99,7 +99,7 @@ define([
           name: 'projection/unrender',
           /*
            * @param {Object} args
-           * @param {String} args.id - The artifact of the projection to unrender.
+           * @param {String} args.id - The id of the projection to unrender.
            */
           callback: function (args) {
             this.unrender(args.id);

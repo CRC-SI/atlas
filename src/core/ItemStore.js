@@ -121,11 +121,11 @@ define([
     },
 
     // -------------------------------------------------
-    // FOO MODIFICATION
+    // LOOPING
     // -------------------------------------------------
 
     /**
-     * Applies a given function to every foo in the store. The function is assumed to be a
+     * Applies a given function to every item in the store. The function is assumed to be a
      * property of every object in the store.
      * @param {String|Function.<Object>} func - The name of a method existing on each item, or a
      * function to call with each item and the id as passed arguments.
@@ -139,11 +139,11 @@ define([
     },
 
     /**
-     * Applies a given function to every foo in the store. The given function is called once for
+     * Applies a given function to every item in the store. The given function is called once for
      * every object in the store, with the object being the only argument.
      * @param {String|Function.<Object>} func - The name of a method existing on each item, or a
      * function to call with each item and the id as passed arguments.
-     * @param {Object} [scope] - The object that <code>this</code> will refer to. Only valid when
+     * @param {Object} [scope] - The object that <code>this</code> will refer to. Only used when
      * <code>func</code> is a callback function.
      */
     forEach: function(func, scope) {
