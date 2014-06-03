@@ -14,6 +14,11 @@
   display: none;
 }
 
+.atlas .overlay .enable-overlay-label {
+  display: inline-block;
+  margin-left: 5px;
+}
+
 .atlas .remove-overlay {
   /* this is a bit of a hack */
   position: absolute;
@@ -29,12 +34,12 @@
 /* Formatting for Projection legend titles. */
 .atlas .overlay-title {
   font-size: 1.2em;
+  margin-bottom: 5px;
 }
 
 .atlas .legend .overlay-title {
   font-size: 1em;
   font-weight: normal;
-  font-variant: small-caps;
 }
 
 .atlas .legend-caption {

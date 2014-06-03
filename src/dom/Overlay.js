@@ -335,11 +335,11 @@ define([
       if (this._hasEnableCheckbox) {
         title += '<input type="checkbox" value="true" class="enable-overlay">'
       }
-      title += this._title;
+      title += '<div class="enable-overlay-label">' + this._title + '</div>';
       if (this._hasRemoveBtn) {
         title += '<button class="remove-overlay">X</button>';
       }
-      title +=  '</div>'
+      title +=  '</div>';
 
       // Create HTML for body of overlay.
       var bodyClass = 'overlay-body';
