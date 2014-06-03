@@ -382,6 +382,10 @@ define([
       });
       // TODO(aramk) Observer pattern would be best.
       this._handles.map('translate', [translation, {delegate: false}]);
+      this._handles.map(function (handle) {
+        handle.translate(translation, {delegate: false});
+      });
+
       this.setDirty('model');
       this.isVisible() && this.show();
     },

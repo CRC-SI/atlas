@@ -1,7 +1,8 @@
 define([
+  'atlas/lib/utility/Type',
   'atlas/util/Class',
   'atlas/util/DeveloperError'
-], function(Class, DeveloperError) {
+], function(Type, Class, DeveloperError) {
 
   /**
    * Define the ItemStore constructor as type atlas.core.ItemStore
@@ -117,29 +118,50 @@ define([
     // -------------------------------------------------
 
     /**
-     * Maps a function to every foo in the store. The function is assumed to be a
+     * Applies a given function to every foo in the store. The function is assumed to be a
      * property of every object in the store.
-     * @param {String} functionName - Name of the function to apply.
-     * @param {Array} [args] - An array of arguments for the function.
+     * @param {String|Function.<Object>} func - The function to call on each item, or the name of a
+     * method existing on each item.
+     * or a callback function to apply for each item.
+     * @param {Object} [scope] - The object that <code>this</code> will refer to. Only valid when
+     * <code>func</code> is a callback function.
+     * @returns {Array} The returned values from each call of the given function.
      */
-    map: function(functionName, args) {
-      Object.keys(this._items).map(function(id) {
-        var foo = this.get(id);
-        return foo[functionName].apply(foo, args);
-      }, this);
+    map: function(func, scope) {
+      return this._forEach('map', func, scope);
     },
 
     /**
      * Applies a given function to every foo in the store. The given function is called once for
      * every object in the store, with the object being the only argument.
-     * @param {Function.<Object>} f - The function to call.
-     * @param {Object} [scope] - The object that <code>this</code> will refer to.
+     * @param {String|Function.<Object>} func - The function to call on each item, or the name of a
+     * method existing on each item.
+     * @param {Object} [scope] - The object that <code>this</code> will refer to. Only valid when
+     * <code>func</code> is a callback function.
      */
-    forEach: function(f, scope) {
+    forEach: function(func, scope) {
+      return this._forEach('forEach', func, scope);
+    },
+
+    /**
+     * Calls an array method with the given function and scope.
+     * @param arrayMethod - A method which exists in <code>Array.prototype<code>.
+     * @param {String|Function.<Object>} func - The function to call on each item, or the name of a
+     * method existing on each item.
+     * @param {Object} [scope] - The object that <code>this</code> will refer to. Only valid when
+     * <code>func</code> is a callback function.
+     * @returns {Array} The returned value from the given Array method.
+     * @private
+     */
+    _forEach: function(arrayMethod, func, scope) {
       scope = scope || this;
-      Object.keys(this._items).forEach(function(id) {
-        var foo = this.get(id);
-        f.bind(scope)(foo)
+      return Object.keys(this._items)[arrayMethod](function(id) {
+        var item = this.get(id);
+        if (Type.isString(func)) {
+          return item.call(func, item, id);
+        } else {
+          return func.bind(scope)(item, id);
+        }
       }, this);
     }
 
