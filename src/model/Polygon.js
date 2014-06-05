@@ -408,34 +408,8 @@ define([
       }, this);
       this.setDirty('model');
       this.isVisible() && this.show();
-    },
-
-    // -------------------------------------------
-    // BEHAVIOUR
-    // -------------------------------------------
-
-    /**
-     * Handles the behaviour of the Polygon when it is selected.
-     * Causes the Polygon to be rendered with the selection style.
-     */
-    onSelect: function() {
-      this._super();
-      this._selected = true;
-      //this.setStyle(Polygon.getSelectedStyle());
-      //this.setDirty('style');
-    },
-
-    /**
-     * Handles the behaviour of the Polygon when it is deselected.
-     * Causes the Polygon to be rendered with either the previously set style or
-     * the <code>getDefaultStyle</code>.
-     */
-    onDeselect: function() {
-      this._super();
-      this._selected = false;
-      //this.setStyle(this._previousStyle);
-      //this.setDirty('style');
     }
+
   }), {
 
     // -------------------------------------------
@@ -448,15 +422,7 @@ define([
      */
     getDefaultStyle: function() {
       return new Style({fillColour: Colour.GREEN});
-    },
-
-    /**
-     * Defines the default style to use when rendering a selected polygon.
-     * @type {atlas.model.Style}
-     */
-    getSelectedStyle: function() {
-      return new Style({fillColour: Colour.RED});
-    },
+    }
 
   });
   return Polygon;

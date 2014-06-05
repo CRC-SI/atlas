@@ -39,7 +39,7 @@ define([
    * @extends atlas.events.EventTarget
    * @class atlas.model.GeoEntity
    */
-  GeoEntity = EventTarget.extend(/** @lends atlas.model.GeoEntity# */ {
+  GeoEntity = mixin(EventTarget.extend(/** @lends atlas.model.GeoEntity# */ {
     /**
      * The ID of the GeoEntity
      * @type {String}
@@ -188,7 +188,7 @@ define([
      * @returns {Object} - The given object with manager dependencies added.
      * @private
      */
-    _bindDependencies: function (args) {
+    _bindDependencies: function(args) {
       return mixin(args, {
         renderManager: this._renderManager,
         eventManager: this._eventManager,
@@ -352,10 +352,17 @@ define([
     },
 
     /**
-     * @returns {atlas.model.Style} The style of the GeoEntity.
+     * @returns {atlas.model.Style}
      */
     getStyle: function() {
       return this._style;
+    },
+
+    /**
+     * @returns {atlas.model.Style}
+     */
+    getPreviousStyle: function() {
+      return this._previousStyle;
     },
 
     /**
@@ -525,6 +532,7 @@ define([
      */
     onSelect: function() {
       this._selected = true;
+      this.setStyle(GeoEntity.getSelectedStyle());
 //      this.onEnableEditing();
     },
 
@@ -533,6 +541,7 @@ define([
      */
     onDeselect: function() {
       this._selected = false;
+      this.setStyle(this.getPreviousStyle());
 //      this.onDisableEditing();
     },
 
@@ -578,14 +587,21 @@ define([
 //      this._editingHandles = [];
     }
 
-  });
+  }), {
 
-  // -------------------------------------------------
-  // Statics
-  // -------------------------------------------------
-  GeoEntity.getDefaultStyle = function() {
-    return new Style({fillColour: Colour.GREEN});
-  };
+    // -------------------------------------------------
+    // Statics
+    // -------------------------------------------------
+
+    getDefaultStyle: function() {
+      return new Style({fillColour: Colour.GREEN});
+    },
+
+    getSelectedStyle: function() {
+      return new Style({fillColour: Colour.RED});
+    }
+
+  });
 
   return GeoEntity;
 });

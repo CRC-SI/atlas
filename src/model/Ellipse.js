@@ -308,32 +308,8 @@ define([
       this._rotation += (parseFloat(rotation) || 0.0);
       this.setDirty('model');
       this.isVisible() && this.show();
-    },
-
-    // -------------------------------------------
-    // BEHAVIOUR
-    // -------------------------------------------
-
-    /**
-     * Handles the behaviour of the Ellipse when it is selected.
-     * Causes the Ellipse to be rendered with the selection style.
-     */
-    onSelect: function() {
-      this._super();
-      this.setStyle(Ellipse.getSelectedStyle());
-      this.setDirty('style');
-    },
-
-    /**
-     * Handles the behaviour of the Ellipse when it is deselected.
-     * Causes the Ellipse to be rendered with either the previously set style or
-     * the <code>getDefaultStyle</code>.
-     */
-    onDeselect: function() {
-      this._super();
-      this.setStyle(this._previousStyle || Ellipse.getDefaultStyle());
-      this.setDirty('style');
     }
+
   });
 
   // -------------------------------------------
@@ -346,14 +322,6 @@ define([
    */
   Ellipse.getDefaultStyle = function() {
     return new Style({fillColour: Colour.GREEN});
-  };
-
-  /**
-   * Defines the default style to use when rendering a selected polygon.
-   * @type {atlas.model.Style}
-   */
-  Ellipse.getSelectedStyle = function() {
-    return new Style({fillColour: Colour.RED});
   };
 
   return Ellipse;

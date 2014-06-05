@@ -201,10 +201,6 @@ define([
       this.isVisible() && this.show();
     }
 
-    // -------------------------------------------
-    // BEHAVIOUR
-    // -------------------------------------------
-
   }), {
 
     // -------------------------------------------
@@ -217,14 +213,6 @@ define([
      */
     getDefaultStyle: function() {
       return new Style({fillColour: Colour.GREY});
-    },
-
-    /**
-     * The default selected style of a Mesh.
-     * @type {atlas.model.Colour}
-     */
-    getSelectedStyle: function() {
-      return new Style({fillColour: Colour.RED});
     }
 
   });

@@ -1,11 +1,12 @@
 define([
+  'atlas/model/GeoEntity',
+  'atlas/model/Style',
+  'atlas/model/Colour',
   'atlas/util/DeveloperError',
   'atlas/util/default',
-  'atlas/util/WKT',
-  './GeoEntity',
-  './Style',
-  './Colour'
-], function(DeveloperError, defaultValue, WKT, GeoEntity, Style, Colour) {
+  'atlas/util/mixin',
+  'atlas/util/WKT'
+], function(GeoEntity, Style, Colour, DeveloperError, defaultValue, mixin, WKT) {
 
   /**
    * @typedef atlas.model.Line
@@ -18,7 +19,7 @@ define([
    * @class atlas.model.Line
    * @extends atlas.model.GeoEntity
    */
-  Line = GeoEntity.extend(/** @lends atlas.model.Line# */{
+  Line = mixin(GeoEntity.extend(/** @lends atlas.model.Line# */{
 
     /**
      * Counter-clockwise ordered array of vertices constructing polygon.
@@ -78,6 +79,21 @@ define([
       throw new DeveloperError('Can not call methods on abstract Polygon.');
     }
 
+  }), {
+
+    // -------------------------------------------
+    // STATICS
+    // -------------------------------------------
+
+    /**
+     * Defines the default style to use when rendering a polygon.
+     * @type {atlas.model.Style}
+     */
+    getDefaultStyle: function() {
+      return new Style({fillColour: Colour.GREEN});
+    }
+
   });
+
   return Line;
 });
