@@ -1,17 +1,15 @@
 define([
+  'atlas/lib/utility/Setter',
   'atlas/model/Colour',
-  'atlas/model/Handle',
   'atlas/model/Material',
   'atlas/model/Style',
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/default',
-  'atlas/util/mixin',
   'atlas/util/WKT',
   // Base class
   'atlas/model/GeoEntity'
-], function(Colour, Handle, Material, Style, Vertex, DeveloperError, defaultValue, mixin, WKT,
-            GeoEntity) {
+], function(Setter, Colour, Material, Style, Vertex, DeveloperError, defaultValue, WKT, GeoEntity) {
 
   /**
    * @typedef atlas.model.Image
@@ -128,7 +126,7 @@ define([
      * @ignore
      */
     _init: function(id, imageData, args) {
-      args = mixin({}, args);
+      args = Setter.mixin({}, args);
       this._super(id, args);
       if (typeof imageData.vertices === 'string') {
         // TODO(aramk) Add support for MULTIPOLYGON by not taking the first item.

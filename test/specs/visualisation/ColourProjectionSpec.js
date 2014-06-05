@@ -1,11 +1,11 @@
 define([
   'atlas/lib/tinycolor',
-  'atlas/util/mixin',
+  'atlas/lib/utility/Setter',
   'atlas/model/Feature',
   'atlas/model/Colour',
   // Code under test.
   'atlas/visualisation/ColourProjection'
-], function (tinycolor, mixin, Feature, Colour, ColourProjection) {
+], function (tinycolor, Setter, Feature, Colour, ColourProjection) {
   var colourProj,
       someValues = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4},
       someEntities,
@@ -40,7 +40,7 @@ define([
       describe('for a discrete projection', function () {
         it('with a fixed codomain', function () {
           var codomain = {fixedProj: Colour.RED};
-          args = mixin({type: 'discrete', bins: 3, codomain: codomain}, args);
+          args = Setter.mixin({type: 'discrete', bins: 3, codomain: codomain}, args);
           colourProj = new ColourProjection(args);
           colourProj.render();
           expect(colourProj._entities[0].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.RED});
@@ -51,7 +51,7 @@ define([
         it('with a single codomain', function () {
           // This test _will_ fail if Colour.BLUE and Colour.RED are frozen.
           var codomain = {regressBy: 'hue', startProj: Colour.RED, endProj: Colour.BLUE};
-          args = mixin({type: 'discrete', bins: 3, codomain: codomain}, args);
+          args = Setter.mixin({type: 'discrete', bins: 3, codomain: codomain}, args);
           colourProj = new ColourProjection(args);
           colourProj.render();
           // Check that GeoEntities were binned correctly.
@@ -75,7 +75,7 @@ define([
         it('with a single codomain', function () {
           // This test _will_ fail if Colour.BLUE and Colour.GREEN are frozen.
           var codomain = {regressBy: 'hue', startProj: Colour.BLUE, endProj: Colour.GREEN};
-          args = mixin({type: 'continuous', codomain: codomain}, args);
+          args = Setter.mixin({type: 'continuous', codomain: codomain}, args);
           colourProj = new ColourProjection(args);
           colourProj.render();
           expect(colourProj._attributes[0].binId).toEqual(0);

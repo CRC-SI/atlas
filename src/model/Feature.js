@@ -1,14 +1,12 @@
 define([
   'atlas/util/default',
   'atlas/util/DeveloperError',
-  'atlas/util/mixin',
-  'atlas/model/Colour',
+  'atlas/lib/utility/Setter',
   'atlas/model/Mesh',
   'atlas/model/Polygon',
-  'atlas/model/Style',
   // Base class.
-  './GeoEntity'
-], function(defaultValue, DeveloperError, mixin, Colour, Mesh, Polygon, Style, GeoEntity) {
+  'atlas/model/GeoEntity'
+], function(defaultValue, DeveloperError, Setter, Mesh, Polygon, GeoEntity) {
 
   /**
    * @typedef atlas.model.Feature
@@ -44,7 +42,7 @@ define([
    * @class atlas.model.Feature
    * @extends atlas.model.GeoEntity
    */
-  Feature = mixin(GeoEntity.extend(/** @lends atlas.model.Feature# */ {
+  Feature = Setter.mixin(GeoEntity.extend(/** @lends atlas.model.Feature# */ {
 
     /**
      * The 2D line of this Feature.

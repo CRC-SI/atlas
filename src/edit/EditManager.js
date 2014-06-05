@@ -3,13 +3,11 @@ define([
   'atlas/edit/TranslationModule',
   'atlas/edit/DrawModule',
   'atlas/lib/utility/Log',
+  'atlas/lib/utility/Setter',
   'atlas/lib/utility/Type',
-  'atlas/model/Handle',
   'atlas/util/Class',
-  'atlas/util/DeveloperError',
-  'atlas/util/mixin'
-], function(ItemStore, TranslationModule, DrawModule, Log, Type, Handle, Class, DeveloperError,
-            mixin) {
+  'atlas/util/DeveloperError'
+], function(ItemStore, TranslationModule, DrawModule, Log, Setter, Type, Class, DeveloperError) {
 
   /**
    * @typedef atlas.edit.EditManager
@@ -189,7 +187,7 @@ define([
      * @param {Boolean} [args.addHandles=true] Whether to add handles to entities.
      */
     enable: function(args) {
-      args = mixin({
+      args = Setter.mixin({
         show: true,
         addHandles: true
       }, args);

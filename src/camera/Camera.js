@@ -1,10 +1,10 @@
 // Camera.js
 define([
   'atlas/model/GeoPoint',
+  'atlas/lib/utility/Setter',
   'atlas/util/Class',
-  'atlas/util/DeveloperError',
-  'atlas/util/mixin'
-], function(GeoPoint, Class, DeveloperError, mixin) {
+  'atlas/util/DeveloperError'
+], function(GeoPoint, Setter, Class, DeveloperError) {
 
   /**
    * @typedef atlas.camera.Camera
@@ -23,7 +23,7 @@ define([
    * @class atlas.camera.Camera
    * @abstract
    */
-  Camera = mixin(Class.extend(/** @lends atlas.camera.Camera# */ {
+  Camera = Setter.mixin(Class.extend(/** @lends atlas.camera.Camera# */ {
 
     /**
      * The current position of the Camera.
@@ -38,7 +38,7 @@ define([
     _orientation: null,
 
     _init: function(args) {
-      args = mixin({}, args);
+      args = Setter.mixin({}, args);
       this._setPosition(args.position);
       this._setOrientation(args.orientation);
       this.inputHandlers = {
@@ -65,7 +65,7 @@ define([
      * @private
      */
     _setPosition: function (position) {
-      this._position = mixin(this._position || Camera.getDefaultPosition(), position);
+      this._position = Setter.merge(this._position || Camera.getDefaultPosition(), position);
     },
 
     /**
@@ -116,7 +116,7 @@ define([
      * @private
      */
     _setOrientation: function (orientation) {
-      this._orientation = mixin(this._orientation || Camera.getDefaultOrientation(), orientation);
+      this._orientation = Setter.mixin(this._orientation || Camera.getDefaultOrientation(), orientation);
     },
 
     /**
@@ -206,7 +206,7 @@ define([
      * @param {Number} [args.duration=0] - The duration of the zoom animation in milliseconds.
      */
     zoomTo: function(args) {
-      args = mixin({}, args);
+      args = Setter.mixin({}, args);
       if (args.position === undefined) {
         throw new DeveloperError('Can not move camera without specifying position');
       }
@@ -258,12 +258,11 @@ define([
     // -------------------------------------------
 
     getDefaultPosition: function () {
-      return new GeoPoint(-37, 144, 20000);
+      return new GeoPoint({longitude: 144, latitude: -37, elevation: 20000});
     },
 
     getDefaultOrientation: function () {
-      // Return a new object each time.
-      return mixin({}, {tilt: 90, bearing: 0, rotation: 0});
+      return {tilt: 90, bearing: 0, rotation: 0};
     },
 
     /**

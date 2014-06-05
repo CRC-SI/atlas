@@ -2,11 +2,11 @@ define([
   'atlas/model/GeoEntity',
   'atlas/model/Style',
   'atlas/model/Colour',
+  'atlas/lib/utility/Setter',
   'atlas/util/DeveloperError',
   'atlas/util/default',
-  'atlas/util/mixin',
   'atlas/util/WKT'
-], function(GeoEntity, Style, Colour, DeveloperError, defaultValue, mixin, WKT) {
+], function(GeoEntity, Style, Colour, Setter, DeveloperError, defaultValue, WKT) {
 
   /**
    * @typedef atlas.model.Line
@@ -19,7 +19,7 @@ define([
    * @class atlas.model.Line
    * @extends atlas.model.GeoEntity
    */
-  Line = mixin(GeoEntity.extend(/** @lends atlas.model.Line# */{
+  Line = Setter.mixin(GeoEntity.extend(/** @lends atlas.model.Line# */{
 
     /**
      * Counter-clockwise ordered array of vertices constructing polygon.

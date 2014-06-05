@@ -2,9 +2,8 @@ define([
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Type',
-  'atlas/util/Class',
-  'atlas/util/mixin'
-], function (Log, Setter, Type, Class, mixin) {
+  'atlas/util/Class'
+], function (Log, Setter, Type, Class) {
 
   /**
    * @typedef atlas.dom.Overlay
@@ -141,7 +140,7 @@ define([
      */
     _init: function (args) {
       // Set defaults
-      args = Setter.mixin({
+      args = Setter.merge({
         parent: document,
         cssClass: '',
         title: '',

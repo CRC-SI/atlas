@@ -1,12 +1,11 @@
 define([
-  'atlas/util/DeveloperError',
-  'atlas/util/mixin',
+  'atlas/lib/utility/Setter',
   'atlas/model/Colour',
   'atlas/model/Style',
   'atlas/model/Vertex',
   // Base class
   'atlas/model/GeoEntity'
-], function(DeveloperError, mixin, Colour, Style, Vertex, GeoEntity) {
+], function(Setter, Colour, Style, Vertex, GeoEntity) {
 
   /**
    * @typedef atlas.model.Mesh
@@ -28,7 +27,7 @@ define([
    * @class atlas.model.Mesh
    * @extends atlas.model.GeoEntity
    */
-  Mesh = mixin(GeoEntity.extend(/** @lends atlas.model.Mesh# */ {
+  Mesh = Setter.mixin(GeoEntity.extend(/** @lends atlas.model.Mesh# */ {
     /**
      * The array of vertex positions for this Mesh, in model space coordinates.
      * This is a 1D array to conform with Cesium requirements. Every three elements of this
@@ -209,7 +208,7 @@ define([
 
     /**
      * The default style of a Mesh.
-     * @type {atlas.model.Colour}
+     * @type {atlas.model.Style}
      */
     getDefaultStyle: function() {
       return new Style({fillColour: Colour.GREY});

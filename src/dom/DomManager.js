@@ -1,12 +1,12 @@
 define([
+  'atlas/lib/utility/Log',
+  'atlas/lib/utility/Setter',
   'atlas/util/Class',
   'atlas/util/DeveloperError',
   'atlas/util/default',
   'atlas/util/dom/DomClass',
-  'atlas/util/dom/DomChild',
-  'atlas/util/mixin',
-  'atlas/lib/utility/Log'
-], function(Class, DeveloperError, defaultValue, DomClass, DomChild, mixin, Log) {
+  'atlas/util/dom/DomChild'
+], function(Log, Setter, Class, DeveloperError, defaultValue, DomClass, DomChild, mixin) {
   "use strict";
 
   /**
@@ -17,7 +17,7 @@ define([
    *
    * @class atlas.dom.DomManager
    */
-  var DomManager = mixin(Class.extend(/** @lends atlas.dom.DomManager# */ {
+  var DomManager = Setter.mixin(Class.extend(/** @lends atlas.dom.DomManager# */ {
     /**
      * A mapping of every manager type in Atlas to the manager instance. This
      * object is created on Atlas, but the manager instances are set by each

@@ -1,17 +1,13 @@
 define([
-  'atlas/util/DeveloperError',
-  'atlas/util/default',
-  'atlas/util/mixin',
-  'atlas/util/WKT',
-  './Colour',
-  './GeoPoint',
-  './Material',
-  './Style',
-  './Vertex',
+  'atlas/lib/utility/Setter',
+  'atlas/model/Colour',
+  'atlas/model/GeoPoint',
+  'atlas/model/Material',
+  'atlas/model/Style',
   // Base class
-  './GeoEntity'
-], function(DeveloperError, defaultValue, mixin, WKT, Colour, GeoPoint, Material, Style, Vertex,
-            GeoEntity) {
+  'atlas/model/GeoEntity',
+  'atlas/util/DeveloperError'
+], function(Setter, Colour, GeoPoint, Material, Style, GeoEntity, DeveloperError) {
 
   /**
    * @classdesc Represents a 2D ellipse that can be rendered within an
@@ -108,8 +104,8 @@ define([
       } else if (!parseFloat(ellipseData.semiMajor)) {
         throw new DeveloperError('Can not construct ellipse without semi major axis.');
       }
-      args = mixin({}, args);
-      ellipseData = mixin({
+      args = Setter.mixin({}, args);
+      ellipseData = Setter.mixin({
         rotation: 0
       }, ellipseData);
       if (typeof id === 'object') {

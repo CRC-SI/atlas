@@ -1,9 +1,9 @@
 define([
+  'atlas/lib/utility/Setter',
   'atlas/lib/utility/Type',
   'atlas/util/Class',
-  'atlas/util/mixin',
   'atlas/util/DeveloperError'
-], function(Type, Class, mixin, DeveloperError) {
+], function(Setter, Type, Class, DeveloperError) {
   
   /**
    * @typedef atlas.model.Vertex
@@ -20,7 +20,7 @@ define([
    * @param {Number} [z=0] - the 'z' coordinate.
    * @class atlas.model.Vertex
    */
-  Vertex = mixin(Class.extend(/** @lends atlas.model.Vertex# */ {
+  Vertex = Setter.mixin(Class.extend(/** @lends atlas.model.Vertex# */ {
 
     /**
      * The <code>x</code> coordinate.
@@ -133,7 +133,7 @@ define([
      * z index is omitted if it is undefined.
      */
     toArray: function(args) {
-      args = mixin({
+      args = Setter.mixin({
         dimension: 3
       }, args);
       var dimension = args.dimension,

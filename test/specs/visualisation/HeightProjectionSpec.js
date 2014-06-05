@@ -1,9 +1,9 @@
 define([
-  'atlas/util/mixin',
+  'atlas/lib/utility/Setter',
   'atlas/model/Feature',
   // Code under test
   'atlas/visualisation/HeightProjection'
-], function (mixin, Feature, HeightProjection) {
+], function (Setter, Feature, HeightProjection) {
   describe('A HeightProjection', function () {
     var heightProj,
         someValues = {0: 0, 1: 1, 2: 2},
@@ -61,7 +61,7 @@ define([
         var args = {values: someValues, entities: someEntities};
 
         it('a fixed codomain', function () {
-          heightProj = new HeightProjection(mixin(args, {codomain: {fixedProj: 15}}));
+          heightProj = new HeightProjection(Setter.mixin(args, {codomain: {fixedProj: 15}}));
           expect(someEntities[id].setHeight).toHaveBeenCalledWith(15);
           expect(someEntities[id].setHeight.calls.length).toEqual(1);
         });

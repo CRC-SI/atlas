@@ -1,11 +1,11 @@
 define([
-  'atlas/util/mixin',
+  'atlas/lib/utility/Setter',
   'atlas/model/Feature',
   // Code under test
   'atlas/visualisation/AbstractProjection',
   'atlas/visualisation/HeightProjection',
   'atlas/visualisation/ColourProjection'
-], function (mixin, Feature, AbstractProjection, HeightProjection, ColourProjection) {
+], function (Setter, Feature, AbstractProjection, HeightProjection, ColourProjection) {
 
   /**
    * Wrapper for the AbstractProjection test suite. This allows the test suite
@@ -131,7 +131,7 @@ define([
           });
 
           it('of variable number but fixed capacity', function () {
-            args = mixin({bins: 2}, args);
+            args = Setter.mixin({bins: 2}, args);
             abPro = new parametrisedTestClass(args);
             expect(abPro._bins).toEqual(bins2auto);
           });
@@ -139,7 +139,7 @@ define([
           describe('of variable number and capacity', function () {
 
             it('that are unbounded above', function () {
-              args = mixin({
+              args = Setter.mixin({
                 bins: [{firstValue: 0, lastValue: 5}, {firstValue:5}]
               }, args);
               abPro = new parametrisedTestClass(args);
@@ -147,7 +147,7 @@ define([
             });
 
             it('that are unbounded below', function () {
-              args = mixin({
+              args = Setter.mixin({
                 bins: [{lastValue: 5}, {firstValue:5, lastValue: 9}]
               }, args);
               abPro = new parametrisedTestClass(args);
@@ -155,7 +155,7 @@ define([
             });
 
             it('that have specified range', function () {
-              args = mixin({
+              args = Setter.mixin({
                 bins: [{firstValue: 1, lastValue: 4}, {firstValue:6, lastValue: 9}]
               }, args);
               abPro = new parametrisedTestClass(args);

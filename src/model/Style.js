@@ -1,10 +1,10 @@
 // Style.js
 define([
+  'atlas/lib/utility/Setter',
   'atlas/util/Class',
   'atlas/util/DeveloperError',
-  'atlas/util/mixin',
   './Colour'
-], function (Class, DeveloperError, mixin, Colour) {
+], function (Setter, Class, DeveloperError, Colour) {
 
   /**
    * @typedef atlas.model.Style
@@ -48,7 +48,7 @@ define([
     _borderWidth: null,
 
     _init: function(args) {
-      args = mixin({
+      args = Setter.mixin({
         fillColour: Colour.GREEN,
         borderWidth: 1
       }, args);

@@ -3,11 +3,11 @@ define([
   'atlas/events/Event',
   // Base class
   'atlas/events/EventTarget',
+  'atlas/lib/utility/Setter',
   'atlas/model/Colour',
   'atlas/model/Style',
-  'atlas/util/DeveloperError',
-  'atlas/util/mixin'
-], function(ItemStore, Event, EventTarget, Colour, Style, DeveloperError, mixin) {
+  'atlas/util/DeveloperError'
+], function(ItemStore, Event, EventTarget, Setter, Colour, Style, DeveloperError) {
 
   /**
    * @typedef atlas.model.GeoEntity
@@ -33,13 +33,12 @@ define([
    * @see {atlas.model.Network}
    * @see {atlas.model.Line}
    * @see {atlas.model.Vertex}
-   * @see {atlas.model.PointHandle}
    *
    * @abstract
    * @extends atlas.events.EventTarget
    * @class atlas.model.GeoEntity
    */
-  GeoEntity = mixin(EventTarget.extend(/** @lends atlas.model.GeoEntity# */ {
+  GeoEntity = Setter.mixin(EventTarget.extend(/** @lends atlas.model.GeoEntity# */ {
     /**
      * The ID of the GeoEntity
      * @type {String}
@@ -189,7 +188,7 @@ define([
      * @private
      */
     _bindDependencies: function(args) {
-      return mixin(args, {
+      return Setter.mixin(args, {
         renderManager: this._renderManager,
         eventManager: this._eventManager,
         entityManager: this._entityManager
@@ -416,7 +415,7 @@ define([
       newStyle.borderColour && (oldStyle.borderColour = this._style.getBorderColour());
       newStyle.borderWidth && (oldStyle.borderWidth = this._style.getBorderWidth());
       // Generate new style based on what's changed.
-      newStyle = mixin({
+      newStyle = Setter.mixin({
         fillColour: this._style.getFillColour(),
         borderColour: this._style.getBorderColour(),
         borderWidth: this._style.getBorderWidth()
@@ -533,7 +532,6 @@ define([
     onSelect: function() {
       this._selected = true;
       this.setStyle(GeoEntity.getSelectedStyle());
-//      this.onEnableEditing();
     },
 
     /**
@@ -542,7 +540,6 @@ define([
     onDeselect: function() {
       this._selected = false;
       this.setStyle(this.getPreviousStyle());
-//      this.onDisableEditing();
     },
 
     /**
@@ -593,10 +590,18 @@ define([
     // Statics
     // -------------------------------------------------
 
+    /**
+     * The default style of the entity.
+     * @returns {atlas.model.Style}
+     */
     getDefaultStyle: function() {
       return new Style({fillColour: Colour.GREEN});
     },
 
+    /**
+     * The style of the entity during selection.
+     * @returns {atlas.model.Style}
+     */
     getSelectedStyle: function() {
       return new Style({fillColour: Colour.RED});
     }

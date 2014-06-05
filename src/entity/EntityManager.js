@@ -1,6 +1,7 @@
 define([
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Objects',
+  'atlas/lib/utility/Setter',
   'atlas/model/Ellipse',
   'atlas/model/Feature',
   'atlas/model/GeoEntity',
@@ -10,11 +11,10 @@ define([
   'atlas/model/Image',
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
-  'atlas/util/mixin',
   // Base class.
   'atlas/util/Class'
-], function(Log, Objects, Ellipse, Feature, GeoEntity, Mesh, Polygon, Line, Image, Vertex,
-            DeveloperError, mixin, Class) {
+], function(Log, Objects, Setter, Ellipse, Feature, GeoEntity, Mesh, Polygon, Line, Image, Vertex,
+            DeveloperError, Class) {
 
   //noinspection JSUnusedGlobalSymbols
   var EntityManager = Class.extend({
@@ -299,7 +299,7 @@ define([
           };
       // Generate the Geometry for the C3ML type if it is supported.
       parsers[c3ml.type] && (geometry = parsers[c3ml.type](c3ml, this));
-      return mixin(c3ml, geometry);
+      return Setter.mixin(c3ml, geometry);
     },
 
     /**
@@ -448,7 +448,7 @@ define([
      * @returns {Object.<String, atlas.model.GeoEntity>} A map of IDs to visible entities.
      */
     getVisibleEntities: function(args) {
-      args = mixin({}, args);
+      args = Setter.mixin({}, args);
       if (!args.ids) {
         args.ids = Object.keys(this._entities);
       }

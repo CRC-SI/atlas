@@ -1,17 +1,9 @@
-/**
- * Well-Known Text Utility
- * Uses subsets of Open Layers library.
- * Has functionality to convert to and from WKT, OpenLayers geometry, and an atlas-compatible
- * format. Exposes an API to scale and rotate supported geometries as well.
- * @author aramk
- */
-
 define([
-  'atlas/util/Class',
+  'atlas/lib/utility/Setter',
   'atlas/lib/open-layers',
   'atlas/model/Vertex',
-  'atlas/util/mixin'
-], function(Class, OpenLayers, Vertex, mixin) {
+  'atlas/util/Class'
+], function(Setter, OpenLayers, Vertex, Class) {
   OpenLayers = !OpenLayers || typeof OpenLayers === 'string' ? window.OpenLayers : OpenLayers;
   var _instance = null;
 
@@ -19,7 +11,7 @@ define([
    * Defines a set of utility methods for working with Well-Known-Text.
    * @class {atlas.util.WKT}
    */
-  var WKT = mixin(Class.extend({
+  var WKT = Setter.mixin(Class.extend({
 
     _init: function() {
       this.parser = new OpenLayers.Format.WKT();

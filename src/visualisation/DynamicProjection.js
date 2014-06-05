@@ -1,9 +1,9 @@
 define([
+  'atlas/lib/utility/Setter',
+  'atlas/lib/utility/Log',
   'atlas/util/Class',
-  'atlas/util/DeveloperError',
-  'atlas/util/mixin',
-  'atlas/lib/utility/Log'
-], function (Class, DeveloperError, mixin, Log) {
+  'atlas/util/DeveloperError'
+], function (Setter, Log, Class, DeveloperError) {
 
   /**
    * @typedef atlas.visualisation.DynamicProjection
@@ -74,7 +74,7 @@ define([
       if (!data) {
         throw new DeveloperError('Data required to construct Dynamic projection.')
       }
-      args = mixin({
+      args = Setter.mixin({
         fps: 1,
         delta: 1
       }, args);

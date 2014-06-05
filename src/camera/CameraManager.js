@@ -2,10 +2,10 @@ define([
   'atlas/camera/Camera',
   'atlas/model/GeoPoint',
   'atlas/lib/utility/Log',
+  'atlas/lib/utility/Setter',
   'atlas/util/Class',
-  'atlas/util/DeveloperError',
-  'atlas/util/mixin'
-], function (Camera, GeoPoint, Log, Class, DeveloperError, mixin) {
+  'atlas/util/DeveloperError'
+], function (Camera, GeoPoint, Log, Setter, Class, DeveloperError) {
 
   /**
    * Constructs a new CameraManager object.
@@ -33,7 +33,7 @@ define([
     _bookmarks: null,
 
     _init: function (atlasManagers, options) {
-      this._options = mixin({
+      this._options = Setter.mixin({
         forceCustomControl: true
       }, options);
 
@@ -160,7 +160,7 @@ define([
         Log.debug('Tried to go to non-existent bookmark ' + id);
         return;
       }
-      this._current.zoomTo(mixin({duration: 0}, this._bookmarks[id]));
+      this._current.zoomTo(Setter.mixin({duration: 0}, this._bookmarks[id]));
     },
 
     lockCamera: function () {},

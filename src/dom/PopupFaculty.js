@@ -1,10 +1,10 @@
 define([
   'atlas/core/ItemStore',
   'atlas/dom/Overlay',
+  'atlas/lib/utility/Setter',
   'atlas/util/Class',
   'atlas/util/DeveloperError',
-  'atlas/util/mixin'
-], function (ItemStore, Overlay, Class, DeveloperError, mixin) {
+], function (ItemStore, Overlay, Setter, Class, DeveloperError) {
   /**
    * @typedef atlas.visualisation.FeaturePopupFaculty
    * @ignore
@@ -147,7 +147,7 @@ define([
     show: function (args) {
       this._overlays = new ItemStore();
 
-      args = mixin({
+      args = Setter.mixin({
         parent: this._parent,
         cssClass: this.DEFAULT_CSS_CLASS
         /*onRemove: function () {

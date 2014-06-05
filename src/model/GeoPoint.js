@@ -1,10 +1,10 @@
 define([
   'atlas/lib/utility/Type',
+  'atlas/lib/utility/Setter',
   'atlas/model/Vertex',
   'atlas/util/AtlasMath',
-  'atlas/util/Class',
-  'atlas/util/mixin'
-], function(Type, Vertex, AtlasMath, Class, mixin) {
+  'atlas/util/Class'
+], function(Type, Setter, Vertex, AtlasMath, Class) {
 
   /**
    * @typedef atlas.model.GeoPoint
@@ -147,7 +147,7 @@ define([
 
   });
 
-  return mixin(GeoPoint, {
+  return Setter.mixin(GeoPoint, {
     // -------------------------------------------
     // STATICS
     // -------------------------------------------

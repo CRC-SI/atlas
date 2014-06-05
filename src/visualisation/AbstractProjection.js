@@ -1,12 +1,12 @@
 define([
+  'atlas/lib/utility/Setter',
   'atlas/lib/utility/Type',
   'atlas/model/Style',
   'atlas/model/Colour',
   'atlas/util/Class',
   'atlas/util/DeveloperError',
-  'atlas/util/NumberFormatter',
-  'atlas/util/mixin'
-], function(Type, Style, Colour, Class, DeveloperError, NumberFormatter, mixin) {
+  'atlas/util/NumberFormatter'
+], function(Setter, Type, Style, Colour, Class, DeveloperError, NumberFormatter) {
 
   /**
    * @typedef atlas.visualisation.AbstractProjection
@@ -160,7 +160,7 @@ define([
      * @ignore
      */
     _init: function(args) {
-      args = mixin({
+      args = Setter.mixin({
         title: '',
         caption: '',
         type: 'continuous',
@@ -316,7 +316,7 @@ define([
     update: function(args) {
       args.addToExisting = args.addToExisting === undefined ? false : args.addToExisting;
       if (args.values) {
-        this._values = args.addToExisting ? mixin(this._values, args.values) : args.values;
+        this._values = args.addToExisting ? Setter.mixin(this._values, args.values) : args.values;
         // TODO(bpstudds): Allow for updating a subset of parameters.
         delete this._stats;
         delete this._attributes;
@@ -504,7 +504,7 @@ define([
                 binStats.count !== 0 ? binStats.sum / binStats.count : Number.POSITIVE_INFINITY;
         binStats.range = binStats.max.value - binStats.min.value;
         // TODO(bpstudds): Is this the most efficient way of doing this?
-        theStats.push(mixin(binStats, bin));
+        theStats.push(Setter.mixin(binStats, bin));
       }, this);
       return theStats;
     },

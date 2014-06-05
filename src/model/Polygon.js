@@ -1,18 +1,17 @@
 define([
+  'atlas/lib/utility/Setter',
   'atlas/model/Colour',
-  'atlas/model/Handle',
   'atlas/model/Material',
   'atlas/model/Style',
   'atlas/model/Vertex',
   'atlas/model/GeoPoint',
   'atlas/util/DeveloperError',
   'atlas/util/default',
-  'atlas/util/mixin',
   'atlas/util/WKT',
   // Base class
   'atlas/model/GeoEntity'
-], function(Colour, Handle, Material, Style, Vertex, GeoPoint, DeveloperError, defaultValue, mixin,
-            WKT, GeoEntity) {
+], function(Setter, Colour, Material, Style, Vertex, GeoPoint, DeveloperError, defaultValue, WKT,
+            GeoEntity) {
 
   /**
    * @typedef atlas.model.Polygon
@@ -42,7 +41,7 @@ define([
    * @class atlas.model.Polygon
    * @extends atlas.model.GeoEntity
    */
-  Polygon = mixin(GeoEntity.extend(/** @lends atlas.model.Polygon# */ {
+  Polygon = Setter.mixin(GeoEntity.extend(/** @lends atlas.model.Polygon# */ {
     // TODO(aramk) Either put docs on params and document the getters and setters which don't have
     // obvious usage/logic.
     // TODO(aramk) Units for height etc. are open to interpretation - define them as metres in docs.
@@ -109,8 +108,8 @@ define([
      * @ignore
      */
     _init: function(id, polygonData, args) {
-      polygonData = mixin({}, polygonData);
-      args = mixin({}, args);
+      polygonData = Setter.mixin({}, polygonData);
+      args = Setter.mixin({}, args);
       this._super(id, args);
       if (typeof polygonData.vertices === 'string') {
         // TODO(aramk) Add support for MULTIPOLYGON by not taking the first item.
@@ -250,7 +249,7 @@ define([
     /**
      * @returns {Boolean} Whether the polygon should be shown as an extruded polygon.
      */
-    isExtrusion: function () {
+    isExtrusion: function() {
       return this._showAsExtrusion;
     },
 
@@ -377,12 +376,12 @@ define([
      */
     translate: function(translation) {
       // TODO(aramk) This method should be abstracted and shared by Polygon, Mesh etc.
-      this._vertices.forEach(function (vertex) {
+      this._vertices.forEach(function(vertex) {
         vertex.set(vertex.translate(translation));
       });
       // TODO(aramk) Observer pattern would be best.
       this._handles.map('translate', [translation, {delegate: false}]);
-      this._handles.map(function (handle) {
+      this._handles.map(function(handle) {
         handle.translate(translation, {delegate: false});
       });
 
