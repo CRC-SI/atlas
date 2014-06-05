@@ -24,6 +24,13 @@ define([
    * @class atlas.selection.SelectionManager
    */
   SelectionManager = Class.extend(/** @lends atlas.selection.SelectionManager# */ {
+
+    /**
+     * Whether the SelectionManager is enabled.
+     * @type {boolean}
+     */
+    _enabled: true,
+
     /**
      * Contains a map of entity ID to entity of all selected entities.
      * @type {Object}
@@ -53,6 +60,8 @@ define([
     bindEvents: function() {
       // Create event handlers for pertinent events.
       var handleSelection = function(args, method) {
+        if (!this.isEnabled()) { return; }
+
         if (args.ids instanceof Array) {
           this[method + 'Entities'](args.ids, args.keepSelection);
         } else {
@@ -60,6 +69,20 @@ define([
         }
       }.bind(this);
       var handlers = [
+        {
+          source: 'extern',
+          name: 'selection/enable',
+          callback: function() {
+            this.setEnabled(true);
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'selection/disable',
+          callback: function() {
+            this.setEnabled(false);
+          }.bind(this)
+        },
         {
           source: 'extern',
           name: 'entity/select',
@@ -78,6 +101,7 @@ define([
           source: 'intern',
           name: 'input/leftclick',
           callback: function(args) {
+            if (!this.isEnabled()) { return; }
             if (!args.modifiers) args.modifiers = {};
             // var worldPosition = this._atlasManagers.render.convertScreenCoordsToLatLng(args);
             // var picked = this._atlasManagers.entity.getAt(worldPosition);
@@ -127,6 +151,21 @@ define([
     // -------------------------------------------
     // GETTERS AND SETTERS
     // -------------------------------------------
+
+    /**
+     * @returns {boolean} Whether the SelectionManager is enabled.
+     */
+    isEnabled: function () {
+      return this._enabled;
+    },
+
+    /**
+     * Sets whether the SelectionManager is enabled.
+     * @param enable - True to enable the selection manager, false to disable.
+     */
+    setEnabled: function(enable) {
+      this._enabled = enable;
+    },
 
     /**
      * Returns an array of the currently selected GeoEntities.
