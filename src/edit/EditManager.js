@@ -173,6 +173,10 @@ define([
       this._eventHandlers = this._atlasManagers.event.addEventHandlers(handlers);
     },
 
+    entityCanBeEdited: function (entity) {
+      return this._entityIds.indexOf(entity.getId()) !== -1;
+    },
+
     // -------------------------------------------
     // EDITING STATE
     // -------------------------------------------
@@ -207,6 +211,9 @@ define([
       this._wasTranslationModuleEnabled = this.isModuleEnabled('translation');
       this.enableModule('translation');
 
+      // Disable selection
+      this._atlasManagers.event.handleExternalEvent('selection/disable');
+
       // Render the editing handles.
       this._entities.forEach(function(entity) {
         args.show && entity.showAsFootprint();
@@ -230,12 +237,13 @@ define([
       this._handles.map('remove');
       this._entities.map('showAsExtrusion');
       // Remove stored elements
-      this._handles.purge();
       this._entities.forEach(function(entity) {
         entity.clearHandles();
       });
+      this._handles.purge();
       this._entities.purge();
       this.setIsModuleEnabled('translation', this._wasTranslationModuleEnabled);
+      this._atlasManagers.event.handleExternalEvent('selection/enable');
     },
 
     /**

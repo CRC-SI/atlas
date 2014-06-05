@@ -60,7 +60,7 @@ define([
         }.bind(this)
       });
     },
-    
+
     _provideTarget: function (args) {
       args.target = this._atlasManagers.entity.getAt(args.position)[0];
       return args;
@@ -72,7 +72,7 @@ define([
      * translation, only the target entity is translated.
      */
     _start: function(args) {
-      if (!args.target) {
+      if (!args.target || !this._atlasManagers.edit.entityCanBeEdited(args.target)) {
         return;
       }
       this._target = args.target;
