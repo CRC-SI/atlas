@@ -45,12 +45,6 @@ define([
     _entities: null,
 
     /**
-     * The IDs of the GeoEntities that will be edited when editing is enabled.
-     * @type {Array.<String>}
-     */
-    _entityIds: null,
-
-    /**
      * The store of Handles that are part of the current editing session.
      * @type {atlas.core.ItemStore}
      */
@@ -136,7 +130,7 @@ define([
           name: 'entity/select',
           callback: function(event) {
             // TODO(bpstudds): Implement this functionality (in future feature branch).
-            this._entityIds = event.ids
+            // TODO(aramk) Using this._entities instead of this._entityIds.
           }.bind(this)
         },
         {
@@ -171,8 +165,8 @@ define([
       this._eventHandlers = this._atlasManagers.event.addEventHandlers(handlers);
     },
 
-    entityCanBeEdited: function (entity) {
-      return this._entityIds.indexOf(entity.getId()) !== -1;
+    entityCanBeEdited: function(entity) {
+      return !!(this._handles.get(entity.getId()) || this._entities.get(entity.getId()));
     },
 
     // -------------------------------------------

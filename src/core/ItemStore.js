@@ -165,9 +165,9 @@ define([
       return Object.keys(this._items)[arrayMethod](function(id) {
         var item = this.get(id);
         if (Type.isString(func)) {
-          return item.call(func, item, id);
+          return item[func]();
         } else {
-          return func.bind(scope)(item, id);
+          return func.call(scope, item, id);
         }
       }, this);
     }
