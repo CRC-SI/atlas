@@ -33,7 +33,7 @@ define([
 
     // TODO(bpstudds): Work out all this dependency injection stuff.
     this._faculties = {};
-    this._faculties.popup = new PopupFaculty()
+    this._faculties.popup = new PopupFaculty();
     this._faculties.popup.setup({parentDomNode: elem, eventManager: this._managers.event})
   };
 
