@@ -70,26 +70,9 @@ define([
     },
 
     /**
-     * Shows the visual element of the Handle from rendering.
-     * @abstract
-     */
-    render: function() {
-      throw new DeveloperError('Handle.render() must be implemented.');
-    },
-
-    /**
-     * Removes the visual element of the Handle from rendering.
-     * @abstract
-     */
-    unrender: function() {
-      throw new DeveloperError('Handle.unrender() must be implemented.');
-    },
-
-    /**
      * Removes the Handle from its target object.
      */
     remove: function() {
-      this.unrender();
       this._target = null;
       this._owner = null;
       this._dot && this._dot.remove();

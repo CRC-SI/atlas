@@ -213,7 +213,7 @@ define([
           // Put the Handles into the EntityManager and render them.
           var handles = entity.addHandles();
           this._handles.addArray(handles);
-          this._handles.map('render');
+          this._handles.map('show');
         }
       }, this);
     },
@@ -227,11 +227,12 @@ define([
       Log.debug('EditManager disabled');
       this._editing = false;
       this._handles.map('remove');
-      this._entities.map('showAsExtrusion');
-      // Remove stored elements
+      // Remove handles from entities before showing as extrusion to prevent re-build showing the
+      // handles again.
       this._entities.forEach(function(entity) {
         entity.clearHandles();
       });
+      this._entities.map('showAsExtrusion');
       this._handles.purge();
       this._entities.purge();
       this.setIsModuleEnabled('translation', this._wasTranslationModuleEnabled);
