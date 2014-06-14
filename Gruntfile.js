@@ -2,20 +2,16 @@ module.exports = function(grunt) {
   var path = require('path'),
       glob = require('glob'),
       fs = require('fs');
+  // Load grunt tasks automatically
+  require('load-grunt-tasks')(grunt);
+  // Time how long tasks take. Can help when optimizing build times
+  //require('time-grunt')(grunt); // Not installed
 
   var SRC_DIR = 'src';
   var MAIN_FILE = srcPath('main.js');
   var BUILD_FILE = 'build.js';
-
-  // Load grunt tasks automatically
-  require('load-grunt-tasks')(grunt);
-
-  // Time how long tasks take. Can help when optimizing build times
-  //require('time-grunt')(grunt); // Not installed
-
-  grunt.loadNpmTasks('grunt-shell');
-
-  pkg: grunt.file.readJSON('package.json');
+  var RE_AMD_MODULE = /\b(?:define|require)\s*\(/;
+  var MODULE_NAME = 'atlas';
 
   // Define the configuration for all the tasks.
   grunt.initConfig({
@@ -46,7 +42,7 @@ module.exports = function(grunt) {
         },
         command: [
           'echo "----- Building -----"',
-            'node node_modules/requirejs/bin/r.js -o ' + BUILD_FILE
+              'node node_modules/requirejs/bin/r.js -o ' + BUILD_FILE
         ].join('&&')
       }
     },
@@ -68,36 +64,39 @@ module.exports = function(grunt) {
 
   grunt.registerTask('install', ['shell:installBowerDep', 'copy:bowerDep']);
 
-  grunt.registerTask('compile-imports',
-      'Builds a RequireJS script to import all source files which are AMD modules.', function() {
-        console.log('Compiling modules for importing...');
-        var findResults = findAmdModules(SRC_DIR),
-            modules = findResults.modules,
-            notModules = findResults.notModules;
+  grunt.registerTask('compile-imports', 'Builds a RequireJS script to import all source files '
+      + 'which are AMD modules.', function() {
+    console.log('Compiling modules for importing...');
+    var findResults = findAmdModules(SRC_DIR),
+        modules = findResults.modules,
+        notModules = findResults.notModules;
 
-        modules = modules.filter(function(file) {
-          return srcPath(file) !== MAIN_FILE;
-        });
-        console.log('Modules:');
-        modules.forEach(function(file) {
-          console.log(' ' + file);
-        });
-        console.log('\nNot Modules:');
-        notModules.forEach(function(file) {
-          console.log(' ' + file);
-        });
-        console.log('');
-
-        var imports = modules.map(function (module) {
-          return 'atlas/' + module.replace(/\.js$/, '');
-        });
-
-        var mainFile = '// This file is generated automatically - avoid modifying manually.\n' +
-            "require(['" + imports.join("', '") + "']);\n";
-        console.log('Writing to', MAIN_FILE);
-        fs.writeFileSync(MAIN_FILE, mainFile);
-        console.log('Compilation complete');
+    modules = modules.filter(function(file) {
+      return srcPath(file) !== MAIN_FILE;
+    });
+    if (modules.length > 0) {
+      console.log('Modules:');
+      modules.forEach(function(file) {
+        console.log(' ' + file);
       });
+    }
+    if (notModules.length > 0) {
+      console.log('\nNot Modules:');
+      notModules.forEach(function(file) {
+        console.log(' ' + file);
+      });
+    }
+    console.log('');
+
+    var moduleIds = modules.map(function(module) {
+      return MODULE_NAME + '/' + module.replace(/\.js$/, '');
+    });
+    var mainFile = '// This file is generated automatically - avoid modifying manually.\n' +
+        "require(['" + moduleIds.join("', '") + "']);\n";
+    console.log('Writing to', MAIN_FILE);
+    fs.writeFileSync(MAIN_FILE, mainFile);
+    console.log('Compilation complete');
+  });
 
   grunt.registerTask('build', ['compile-imports', 'shell:build']);
   grunt.registerTask('doc', ['shell:jsDoc']);
@@ -105,8 +104,6 @@ module.exports = function(grunt) {
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // AUXILIARY
   //////////////////////////////////////////////////////////////////////////////////////////////////
-
-  var RE_AMD_MODULE = /\b(?:define|require)\s*\(/;
 
   function findAmdModules(dir) {
     var files = glob.sync('**/*.js', {cwd: dir});
