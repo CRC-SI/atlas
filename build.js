@@ -6,5 +6,6 @@
     'atlas/lib': '../lib'
   },
   name: 'main',
-  out: 'dist/atlas.js'
+  out: 'dist/atlas.js',
+  excludeShallow: ['main']
 })

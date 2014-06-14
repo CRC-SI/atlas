@@ -88,8 +88,12 @@ module.exports = function(grunt) {
         });
         console.log('');
 
+        var imports = modules.map(function (module) {
+          return 'atlas/' + module.replace(/\.js$/, '');
+        });
+
         var mainFile = '// This file is generated automatically - avoid modifying manually.\n' +
-            "require(['" + modules.join("', '") + "']);\n";
+            "require(['" + imports.join("', '") + "']);\n";
         console.log('Writing to', MAIN_FILE);
         fs.writeFileSync(MAIN_FILE, mainFile);
         console.log('Compilation complete');
