@@ -41,7 +41,7 @@ module.exports = function(grunt) {
           stdout: true
         },
         command: [
-          'echo "----- Building -----"',
+          'echo "----- Building Atlas -----"',
               'node node_modules/requirejs/bin/r.js -o ' + BUILD_FILE
         ].join('&&')
       }
