@@ -1,0 +1,60 @@
+.atlas {
+
+  position: relative;
+  // Formatting for Dom overlays.
+  .overlay {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 5px;
+    vertical-align: middle;
+    .hidden {
+      display: none;
+    }
+    .enable-overlay-label {
+      display: inline-block;
+      margin-left: 5px;
+    }
+    .remove-overlay {
+      // TODO this is a bit of a hack
+      position: absolute;
+      top: 5px;
+      right: 0;
+      display: none;
+    }
+    .overlay-title {
+      // Formatting for Projection legend titles.
+      font-size: 1.2em;
+      margin-bottom: 5px;
+      &:hover > button {
+        display: block;
+      }
+    }
+    // The 'table' selector is inefficient :(
+    .legend table {
+      margin: 5px;
+      line-height: 150%;
+      border-collapse: collapse;
+      text-align: right;
+      font-size: 0.9em;
+      font-family: "Consolas", monospace;
+    }
+  }
+
+  .legend {
+    .overlay-title {
+      font-size: 1em;
+      font-weight: normal;
+    }
+    .legend-caption {
+      font-size: 0.8em;
+      text-align: right;
+    }
+  }
+
+}
+
+
+
+
+
+

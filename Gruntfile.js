@@ -8,6 +8,7 @@ module.exports = function(grunt) {
   //require('time-grunt')(grunt); // Not installed
 
   var SRC_DIR = 'src';
+  var DIST_DIR = 'dist';
   var MAIN_FILE = srcPath('main.js');
   var BUILD_FILE = 'build.js';
   var RE_AMD_MODULE = /\b(?:define|require)\s*\(/;
@@ -18,7 +19,7 @@ module.exports = function(grunt) {
     // What?
     yeoman: {
       app: require('./bower.json').appPath || 'app',
-      dist: 'dist'
+      dist: distPath()
     },
 
     // TODO(aramk) Convert shell to grunt logs.
@@ -57,6 +58,21 @@ module.exports = function(grunt) {
           {src: './lib/Tinycolor/tinycolor.js', dest: './lib/tinycolor.js'},
           {src: './lib/Keycode/keycode.js', dest: './lib/keycode.js'},
           {src: './lib/numeraljs/min/numeral.min.js', dest: './lib/numeral.js'}
+        ]
+      }
+    },
+
+    less: {
+      dist: {
+        options: {
+          cleancss: true,
+          relativeUrls: true
+        },
+        files: [
+          {
+            src: path.join('resources', 'atlas.less'),
+            dest: distPath('atlas.css')
+          }
         ]
       }
     }
@@ -98,7 +114,7 @@ module.exports = function(grunt) {
     console.log('Compilation complete');
   });
 
-  grunt.registerTask('build', ['compile-imports', 'shell:build']);
+  grunt.registerTask('build', ['compile-imports', 'shell:build', 'less']);
   grunt.registerTask('doc', ['shell:jsDoc']);
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -138,6 +154,10 @@ module.exports = function(grunt) {
 
   function srcPath() {
     return _prefixPath(SRC_DIR, arguments);
+  }
+
+  function distPath() {
+    return _prefixPath(DIST_DIR, arguments);
   }
 
 };
