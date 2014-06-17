@@ -1,10 +1,10 @@
 define([
   'atlas/lib/utility/Setter',
-  'atlas/lib/open-layers',
   'atlas/model/Vertex',
-  'atlas/util/Class'
-], function(Setter, OpenLayers, Vertex, Class) {
-  OpenLayers = !OpenLayers || typeof OpenLayers === 'string' ? window.OpenLayers : OpenLayers;
+  'atlas/util/Class',
+  // Required
+  'atlas/lib/open-layers'
+], function(Setter, Vertex, Class) {
   var _instance = null;
 
   /**
@@ -135,8 +135,8 @@ define([
      * @param {Array.<Array<Number>>} coords - An array of coordinates.
      * @returns A new array with the first 2 indices switched.
      */
-    switchLatLng: function (coords) {
-      return coords.map(function (coord) {
+    switchLatLng: function(coords) {
+      return coords.map(function(coord) {
         var switched = Array.prototype.slice.apply(coord);
         var tmp = switched[0];
         switched[0] = switched[1];
