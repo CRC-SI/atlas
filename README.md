@@ -26,3 +26,7 @@ Generate JSDocs in `docs/` with:
 ```
 grunt doc
 ```
+
+## Contact
+* Issues: <https://bitbucket.org/mutopia/atlas/issues>
+* Email: <support@urbanetic.net>
