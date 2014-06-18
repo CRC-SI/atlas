@@ -13,14 +13,10 @@ module.exports = function(grunt) {
   var BUILD_FILE = 'build.js';
   var RE_AMD_MODULE = /\b(?:define|require)\s*\(/;
   var MODULE_NAME = 'atlas';
+  var STYLE_BUILD_FILE = 'atlas.min.css';
 
   // Define the configuration for all the tasks.
   grunt.initConfig({
-    // What?
-    yeoman: {
-      app: require('./bower.json').appPath || 'app',
-      dist: distPath()
-    },
 
     // TODO(aramk) Convert shell to grunt logs.
 
@@ -71,7 +67,20 @@ module.exports = function(grunt) {
         files: [
           {
             src: path.join('resources', 'atlas.less'),
-            dest: distPath('atlas.css')
+            dest: distPath(STYLE_BUILD_FILE)
+          }
+        ]
+      }
+    },
+
+    clean: {
+      dist: {
+        files: [
+          {
+            dot: true,
+            src: [
+              distPath('**', '*')
+            ]
           }
         ]
       }
@@ -114,7 +123,7 @@ module.exports = function(grunt) {
     console.log('Compilation complete');
   });
 
-  grunt.registerTask('build', ['compile-imports', 'shell:build', 'less']);
+  grunt.registerTask('build', ['compile-imports', 'clean:dist', 'shell:build', 'less']);
   grunt.registerTask('doc', ['shell:jsDoc']);
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
