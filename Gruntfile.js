@@ -25,18 +25,30 @@ module.exports = function(grunt) {
     // TODO(aramk) Convert shell to grunt logs.
 
     shell: {
+      // Installs all Bower dependencies.
       installBowerDep: {
         options: {
           stdout: true
         },
         command: ['echo "----- Installing bower dependencies -----"',
           'bower install',
-          'echo "----- Installing bower dependencies -----"']
-            .join('&&')
+          'echo "----- Bower dependencies installed -----"'
+        ].join('&&')
       },
+      
+      // Compiles JSDoc from JS source files.
       jsDoc: {
-        command: 'rm -rf docs/ & jsdoc -c jsdoc.conf.json -l'
+        options: {
+          stdout: true
+        },
+        command: [
+          'echo "----- Compiling JSDoc -----"',
+          'rm -rf docs',
+          path.join('node_modules', '.bin', 'jsdoc') + ' -c jsdoc.conf.json -l'
+        ].join('&&')
       },
+      
+      // Compile JS source files.
       build: {
         options: {
           stdout: true
@@ -47,8 +59,6 @@ module.exports = function(grunt) {
         ].join('&&')
       }
     },
-
-    // TODO(aramk) Use path.join() to ensure this works for Windows.
 
     copy: {
       bowerDep: {
