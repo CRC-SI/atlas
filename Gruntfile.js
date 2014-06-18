@@ -21,18 +21,30 @@ module.exports = function(grunt) {
     // TODO(aramk) Convert shell to grunt logs.
 
     shell: {
+      // Installs all Bower dependencies.
       installBowerDep: {
         options: {
           stdout: true
         },
         command: ['echo "----- Installing bower dependencies -----"',
           'bower install',
-          'echo "----- Installing bower dependencies -----"']
-            .join('&&')
+          'echo "----- Bower dependencies installed -----"'
+        ].join('&&')
       },
+      
+      // Compiles JSDoc from JS source files.
       jsDoc: {
-        command: 'rm -rf docs/ & jsdoc -c jsdoc.conf.json -l'
+        options: {
+          stdout: true
+        },
+        command: [
+          'echo "----- Compiling JSDoc -----"',
+          'rm -rf docs',
+          path.join('node_modules', '.bin', 'jsdoc') + ' -c jsdoc.conf.json -l'
+        ].join('&&')
       },
+      
+      // Compile JS source files.
       build: {
         options: {
           stdout: true
@@ -43,8 +55,6 @@ module.exports = function(grunt) {
         ].join('&&')
       }
     },
-
-    // TODO(aramk) Use path.join() to ensure this works for Windows.
 
     copy: {
       bowerDep: {
@@ -87,7 +97,8 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('install', ['shell:installBowerDep', 'copy:bowerDep']);
+  grunt.registerTask('install', 'Installs dependencies.',
+      ['shell:installBowerDep', 'copy:bowerDep']);
 
   grunt.registerTask('compile-imports', 'Builds a RequireJS script to import all source files '
       + 'which are AMD modules.', function() {
@@ -123,8 +134,9 @@ module.exports = function(grunt) {
     console.log('Compilation complete');
   });
 
-  grunt.registerTask('build', ['compile-imports', 'clean:dist', 'shell:build', 'less']);
-  grunt.registerTask('doc', ['shell:jsDoc']);
+  grunt.registerTask('build', 'Builds the app into a distributable package.',
+      ['compile-imports', 'clean:dist', 'shell:build', 'less']);
+  grunt.registerTask('doc', 'Generates documentation.', ['shell:jsDoc']);
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // AUXILIARY
