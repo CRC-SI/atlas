@@ -21,15 +21,36 @@ module.exports = function(grunt) {
     // TODO(aramk) Convert shell to grunt logs.
 
     shell: {
+      // Installs all NodeJS dependencies.
+      installNpmDep: {
+        options: {
+          stdout: true
+        },
+        command: 'npm install'
+      },
+
       // Installs all Bower dependencies.
       installBowerDep: {
         options: {
           stdout: true
         },
-        command: ['echo "----- Installing bower dependencies -----"',
-          'bower install',
-          'echo "----- Bower dependencies installed -----"'
-        ].join('&&')
+        command: 'bower install'
+      },
+
+      // Updates all NodeJS dependencies.
+      updateNpmDep: {
+        options: {
+          stdout: true
+        },
+        command: 'npm update'
+      },
+
+      // Updates all Bower dependencies.
+      updateBowerDep: {
+        options: {
+          stdout: true
+        },
+        command: 'bower update'
       },
       
       // Compiles JSDoc from JS source files.
@@ -98,9 +119,6 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('install', 'Installs dependencies.',
-      ['shell:installBowerDep', 'copy:bowerDep']);
-
   grunt.registerTask('compile-imports', 'Builds a RequireJS script to import all source files '
       + 'which are AMD modules.', function() {
     console.log('Compiling modules for importing...');
@@ -135,6 +153,10 @@ module.exports = function(grunt) {
     console.log('Compilation complete');
   });
 
+  grunt.registerTask('install', 'Installs dependencies.',
+      ['shell:installNpmDep', 'shell:installBowerDep', 'copy:bowerDep']);
+  grunt.registerTask('update', 'Updates dependencies.',
+      ['shell:updateNpmDep', 'shell:updateBowerDep']);
   grunt.registerTask('build', 'Builds the app into a distributable package.',
       ['compile-imports', 'clean:dist', 'shell:build', 'less']);
   grunt.registerTask('doc', 'Generates documentation.', ['shell:jsDoc']);
