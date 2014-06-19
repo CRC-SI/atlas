@@ -8,17 +8,18 @@ module.exports = function(grunt) {
   //require('time-grunt')(grunt); // Not installed
 
   var SRC_DIR = 'src';
+  var LIB_DIR = 'lib';
   var DIST_DIR = 'dist';
+  var BUILD_DIR = 'build';
   var MAIN_FILE = srcPath('main.js');
-  var BUILD_FILE = 'build.js';
+  var BUILD_FILE = buildPath('build.js');
   var RE_AMD_MODULE = /\b(?:define|require)\s*\(/;
   var MODULE_NAME = 'atlas';
   var STYLE_BUILD_FILE = 'atlas.min.css';
 
+  require('logfile-grunt')(grunt, {filePath: buildPath('grunt.log'), clearLogFile: true});
   // Define the configuration for all the tasks.
   grunt.initConfig({
-
-    // TODO(aramk) Convert shell to grunt logs.
 
     shell: {
       // Installs all NodeJS dependencies.
@@ -52,26 +53,24 @@ module.exports = function(grunt) {
         },
         command: 'bower update'
       },
-      
+
       // Compiles JSDoc from JS source files.
       jsDoc: {
         options: {
           stdout: true
         },
         command: [
-          'echo "----- Compiling JSDoc -----"',
           'rm -rf docs',
           path.join('node_modules', '.bin', 'jsdoc') + ' -c jsdoc.conf.json -l'
         ].join('&&')
       },
-      
+
       // Compile JS source files.
       build: {
         options: {
           stdout: true
         },
         command: [
-          'echo "----- Building Atlas -----"',
               'node node_modules/requirejs/bin/r.js -o ' + BUILD_FILE
         ].join('&&')
       }
@@ -80,11 +79,11 @@ module.exports = function(grunt) {
     copy: {
       bowerDep: {
         files: [
-          {src: './lib/Requirejs/require.js', dest: './lib/require.js'},
-          {src: './lib/Openlayers/index.js', dest: './lib/open-layers.js'},
-          {src: './lib/Tinycolor/tinycolor.js', dest: './lib/tinycolor.js'},
-          {src: './lib/Keycode/keycode.js', dest: './lib/keycode.js'},
-          {src: './lib/numeraljs/min/numeral.min.js', dest: './lib/numeral.js'}
+          {src: libPath('Requirejs', 'require.js'), dest: libPath('require.js')},
+          {src: libPath('Openlayers', 'index.js'), dest: libPath('open-layers.js')},
+          {src: libPath('Tinycolor', 'tinycolor.js'), dest: libPath('tinycolor.js')},
+          {src: libPath('Keycode', 'keycode.js'), dest: libPath('keycode.js')},
+          {src: libPath('numeraljs','min','numeral.min.js'), dest: libPath('numeral.js')}
         ]
       }
     },
@@ -199,8 +198,16 @@ module.exports = function(grunt) {
     return _prefixPath(SRC_DIR, arguments);
   }
 
+  function libPath() {
+    return _prefixPath(LIB_DIR, arguments);
+  }
+
   function distPath() {
     return _prefixPath(DIST_DIR, arguments);
+  }
+
+  function buildPath() {
+    return _prefixPath(BUILD_DIR, arguments);
   }
 
 };
