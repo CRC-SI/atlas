@@ -108,6 +108,7 @@ module.exports = function(grunt) {
         files: [
           {
             dot: true,
+            cwd: DIST_DIR,
             src: [
               distPath('**', '*')
             ]
