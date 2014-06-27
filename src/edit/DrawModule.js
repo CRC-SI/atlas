@@ -113,12 +113,14 @@ define([
      * @param {Function} [args.update] - A callback invoked as the object is drawn (vertices are
      * added).
      * @param {Function} [args.create] - A callback invoked when drawing is complete.
+     * @param {Function} [args.cancel] - A callback invoked when drawing is cancelled.
      * @private
      */
     _draw: function(args) {
       if (this.isDrawing()) {
         throw new DeveloperError('Already drawing - end the current session first.');
       }
+      // Bind the draw event handlers.
       for (var event in this._handlers) {
         var handler = args[event];
         handler && this._handlers[event].push(handler);
@@ -145,6 +147,7 @@ define([
      * Called when a vertex should be added during drawing. Creates a handle for the new vertex.
      * If two consecutive calls are made within {@link #_doubleClickDelta} it is considered a double
      * click and drawing stops.
+     * @param {Object} args - The event object.
      * @private
      */
     _add: function(args) {
