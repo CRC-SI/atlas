@@ -1,10 +1,9 @@
 define([
+  'atlas/lib/OpenLayers',
   'atlas/lib/utility/Setter',
   'atlas/model/Vertex',
-  'atlas/util/Class',
-  // Required
-  'atlas/lib/open-layers'
-], function(Setter, Vertex, Class) {
+  'atlas/util/Class'
+], function(OpenLayers, Setter, Vertex, Class) {
   var _instance = null;
 
   /**
@@ -18,8 +17,7 @@ define([
     },
 
     /**
-     * Converts a WKT polygon string to an array of
-     * {@see atlas.model.Vertex|Vertices}.
+     * Converts a WKT polygon string to an array of {@link atlas.model.Vertex} objects.
      * @param {String} wktStr - The WKT string to convert
      * @returns {Array.<Array.<atlas.model.Vertex>> | Array.<atlas.model.Vertex>} The convert polygon.
      */
@@ -73,7 +71,7 @@ define([
     /**
      * Converts an array of coordinates into an array of Points.
      * @param {Array.<atlas.model.Vertex>} vertices - The coordinates to convert.
-     * @returns {Array.<OpenLayers.Geometry.Points>}
+     * @returns {Array.<OpenLayers.Geometry.Point>}
      */
     openLayersPointsFromVertices: function(vertices) {
       var points = [];
