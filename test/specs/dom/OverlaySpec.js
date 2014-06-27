@@ -55,6 +55,12 @@ define([
         expect(actual.title.innerHTML).toEqual('title');
       });
 
+      it('should not have a title if one is not specified', function () {
+        overlay = new Overlay(args);
+        var title = getOverlayDom().title;
+        expect(title).toBeUndefined();
+      });
+
       it('should have a remove button if an onRemove callback is given', function () {
         args.title = 'title';
         args.onRemove = function () {};
