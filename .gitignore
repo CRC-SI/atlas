@@ -8,7 +8,7 @@ bower_components/
 /lib/
 /dist
 src/main.js
-.build/
+.build*
 
 # Misc #
 ########
@@ -60,4 +60,3 @@ Thumbs.db
 #######
 .settings
 .idea
-.build*
