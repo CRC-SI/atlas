@@ -161,6 +161,8 @@ define([
       if (typeof id === 'object') {
         args = id;
         id = args.id;
+      } else {
+        args = args || {};
       }
       id = id.toString();
       // Call the superclass' (EventTarget) constructor.
