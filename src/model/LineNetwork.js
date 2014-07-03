@@ -1,8 +1,9 @@
 define([
   'atlas/model/GeoEntity',
+  'atlas/model/Line',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter'
-], function (GeoEntity, Log, Setter) {
+], function (GeoEntity, Line, Log, Setter) {
   /**
    * @typedef atlas.model.LineNetwork
    * @ignore
@@ -26,33 +27,116 @@ define([
     _lineData: null,
 
     /**
+     * @typedef atlas.model.LineNetwork#LineData
+     * @property {String} [id] - The ID of the Line. A unique ID will be assigned.
+     * @property {vertexIds} - The IDs into the <code>vertexData</code> array of the vertices
+     *     constructing the line.
+     */
+
+    /**
+     * The array of Line objects constructing the LineNetwork.
+     * @type {Array.<atlas.model.Line>}
+     * @private
+     */
+    _lines: null,
+
+    /**
      * This is an array of all the vertices that are present in the LineNetwork.
      * @type {Array.<atlas.model.GeoPoint>}
      * @private
      */
     _vertexData: null,
 
-    _init: function (args) {
-      this._super(args);
+    /**
+     * The next unique ID used for a Line.
+     * @type {number}
+     * @private
+     */
+    _nextLineId: 100000,
 
-      args = Setter.mixin({
+    _init: function (id, networkData, args) {
+      this._super(id, args);
+
+      networkData = Setter.mixin({
         vertexData: [],
         lineData: []
-      }, args);
+      }, networkData);
 
-      this._vertexData = args.vertexData;
-      this._lineData = args.lineData;
+      this._vertexData = networkData.vertexData;
+      this._lineData = networkData.lineData.map(function (data) {
+        data.id = this._getNextLineId();
+        return data;
+      }, this);
     },
 
     // -------------------------------------------
     // Getters and Setters
     // -------------------------------------------
-    getLines: function () {
+    getLineData: function () {
       return this._lineData;
     },
 
-    getVertices: function () {
+    getVertexData: function () {
       return this._vertexData;
+    },
+
+    /**
+     * @returns {atlas.model.Line} A Line in the network based on it's index in the network.
+     * @param {number} i - The index of the Line.
+     */
+    getLine: function (i) {
+      return this._lines[i];
+    },
+
+    getLines: function () {
+      return this._lines;
+    },
+
+    _getNextLineId: function () {
+      return this._nextLineId++;
+    },
+
+    // -------------------------------------------
+    // Line Management
+    // -------------------------------------------
+
+    isConstructed: function () {
+      return this._lines && this._lines.length && this._lines.length > 0;
+    },
+
+    /**
+     * Constructs a new Line object. This should be overridden in any Atlas implementations to
+     * construct a renderable Line object.
+     * @param args Parameters as per @link{atlas.model.Line}
+     * @private
+     */
+    _createLine: function (id, lineData, args) {
+      return new Line(id, lineData, args);
+    },
+
+    /**
+     * Constructs all of the lines making up the LineNetwork
+     */
+    constructNetwork: function () {
+      var vertices = this.getVertexData(),
+          createLine = this._createLine,
+          networkId = this.getId();
+
+      // Die if the network is already constructed.
+      if (this.isConstructed()) {
+        Log.warn('Tried to construct existing line network, use update instead.');
+        return;
+      }
+
+      // Construct the Line objects.
+      this._lines = this._lineData.map(function(lineData) {
+        // Retrieve the GeoPoints constructing the line.
+        var lineGeoPoints = lineData.vertexIds.map(function(id) {
+          return vertices[id];
+        });
+        // Construct the line object.
+        return createLine(networkId + '_' + lineData.id, {vertices: lineGeoPoints});
+      });
     }
   });
 

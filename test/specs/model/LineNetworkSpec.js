@@ -5,6 +5,7 @@ define([
 ], function (GeoPoint, LineNetwork) {
   var lineNw,
       id = 'lineNw',
+      nwData,
       args,
       vertices = [
         new GeoPoint(0, 0),
@@ -15,6 +16,10 @@ define([
       lines = [
         {vertexIds: [0, 2, 3]},
         {vertexIds: [0, 1]}
+      ],
+      actualLineVertices = [
+        [vertices[0], vertices[2], vertices[3]],
+        [vertices[0], vertices[1]]
       ];
 
   describe('A LineNetwork', function () {
@@ -33,15 +38,20 @@ define([
     });
 
     it('should construct lines if given appropriate structures using GeoPoints', function () {
-      args = {
-        id: id,
+      nwData = {
         vertexData: vertices,
         lineData: lines
       };
-      lineNw = new LineNetwork(args);
+      lineNw = new LineNetwork(id, nwData);
       expect(lineNw).not.toBeNull();
-      expect(lineNw.getVertices()).toEqual(vertices);
-      expect(lineNw.getLines()).toEqual(lines);
+      expect(lineNw.getVertexData()).toEqual(vertices);
+      expect(lineNw.getLineData()).toEqual(lines);
+      var f = lineNw.constructNetwork.bind(lineNw);
+      expect(f).not.toThrow();
+      lineNw.constructNetwork();
+      [0,1].forEach(function (id) {
+        expect(lineNw.getLine(id).getVertices()).toEqual(actualLineVertices[id]);
+      });
     });
   });
 });
