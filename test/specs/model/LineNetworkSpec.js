@@ -37,7 +37,7 @@ define([
       expect(lineNw.getId()).toEqual(id);
     });
 
-    it('should construct lines if given appropriate structures using GeoPoints', function () {
+    it('should be able to construct lines if given appropriate structures using GeoPoints', function () {
       nwData = {
         vertexData: vertices,
         lineData: lines

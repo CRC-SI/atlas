@@ -137,6 +137,24 @@ define([
         // Construct the line object.
         return createLine(networkId + '_' + lineData.id, {vertices: lineGeoPoints});
       });
+    },
+
+    // -------------------------------------------
+    // Rendering
+    // -------------------------------------------
+    /**
+     * Shows the line network.
+     */
+    show: function () {
+      this._lines.forEach(function (line) {
+        line.show();
+      });
+    },
+
+    hide: function () {
+      this._lines.forEach(function (line) {
+        line.hide();
+      });
     }
   });
 
