@@ -100,6 +100,9 @@ define([
     // Line Management
     // -------------------------------------------
 
+    /**
+     * @returns {boolean} Whether the LineNetwork has been constructed.
+     */
     isConstructed: function () {
       return this._lines && this._lines.length && this._lines.length > 0;
     },
@@ -119,11 +122,13 @@ define([
      */
     constructNetwork: function () {
       var vertices = this.getVertexData(),
+          renderManager = this._renderManager;
           createLine = this._createLine,
           networkId = this.getId();
 
       // Die if the network is already constructed.
       if (this.isConstructed()) {
+        // TODO(bpstudds): Be able to update/edit a LineNetwork
         Log.warn('Tried to construct existing line network, use update instead.');
         return;
       }
@@ -135,7 +140,10 @@ define([
           return vertices[id];
         });
         // Construct the line object.
-        return createLine(networkId + '_' + lineData.id, {vertices: lineGeoPoints});
+        return createLine(
+            networkId + '_' + lineData.id,
+            {width: '10px', vertices: lineGeoPoints},
+            {renderManager: renderManager});
       });
     },
 
