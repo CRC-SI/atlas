@@ -1,12 +1,13 @@
 define([
   'atlas/model/GeoEntity',
+  'atlas/model/GeoPoint',
   'atlas/model/Style',
   'atlas/model/Colour',
   'atlas/lib/utility/Setter',
   'atlas/util/DeveloperError',
   'atlas/util/default',
   'atlas/util/WKT'
-], function(GeoEntity, Style, Colour, Setter, DeveloperError, defaultValue, WKT) {
+], function(GeoEntity, GeoPoint, Style, Colour, Setter, DeveloperError, defaultValue, WKT) {
 
   /**
    * @typedef atlas.model.Line
@@ -16,6 +17,14 @@ define([
 
   /**
    * @classdesc Represents a 2D line segment.
+   * @param {string} id - The ID of the Line object
+   * @param {object} lineData - Properties of the Line
+   * @param {Array.<atlas.model.GeoPoint>|string} vertices - Either a WKT string or array of
+   *     GeoPoints describing the geometry of the Line.
+   * @param {number|string} [lineData.width=10] - The width of the line. Assumed to be meters if a
+   *     argument type is number, or pixels if the argument is a string with the format "[0-9]+px".
+   * @param {atlas.model.Colour} [lineData.color] - The color of the Line.
+   * @param {atlas.model.Style} [lineData.style] - The style of the Line.
    * @class atlas.model.Line
    * @extends atlas.model.GeoEntity
    */
@@ -23,7 +32,7 @@ define([
 
     /**
      * Counter-clockwise ordered array of vertices constructing polygon.
-     * @type {Array.<atlas.model.Vertex>}
+     * @type {Array.<atlas.model.GeoPoint>}
      * @private
      */
     _vertices: null,
@@ -44,7 +53,9 @@ define([
       this._super(id, args);
       if (typeof lineData.vertices === 'string') {
         var wkt = WKT.getInstance(),
-            vertices = wkt.verticesFromWKT(lineData.vertices);
+            vertices = wkt.verticesFromWKT(lineData.vertices).map(function (vertex) {
+              return GeoPoint.fromVertex(vertex);
+            });
         if (vertices instanceof Array) {
           this._vertices = vertices;
         } else {
@@ -76,7 +87,7 @@ define([
      * @abstract
      */
     edit: function() {
-      throw new DeveloperError('Can not call methods on abstract Polygon.');
+      throw new DeveloperError('Can not call methods on abstract Line.');
     }
 
   }), {
