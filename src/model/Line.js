@@ -1,12 +1,14 @@
 define([
   'atlas/model/GeoEntity',
+  'atlas/model/GeoPoint',
   'atlas/model/Style',
   'atlas/model/Colour',
   'atlas/lib/utility/Setter',
+  'atlas/lib/utility/Type',
   'atlas/util/DeveloperError',
   'atlas/util/default',
   'atlas/util/WKT'
-], function(GeoEntity, Style, Colour, Setter, DeveloperError, defaultValue, WKT) {
+], function(GeoEntity, GeoPoint, Style, Colour, Setter, Type, DeveloperError, defaultValue, WKT) {
 
   /**
    * @typedef atlas.model.Line
@@ -16,6 +18,14 @@ define([
 
   /**
    * @classdesc Represents a 2D line segment.
+   * @param {string} id - The ID of the Line object
+   * @param {object} lineData - Properties of the Line
+   * @param {Array.<atlas.model.GeoPoint>|string} vertices - Either a WKT string or array of
+   *     GeoPoints describing the geometry of the Line.
+   * @param {number|string} [lineData.width=10] - The width of the line. Assumed to be meters if a
+   *     argument type is number, or pixels if the argument is a string with the format "[0-9]+px".
+   * @param {atlas.model.Colour} [lineData.color] - The color of the Line.
+   * @param {atlas.model.Style} [lineData.style] - The style of the Line.
    * @class atlas.model.Line
    * @extends atlas.model.GeoEntity
    */
@@ -23,7 +33,7 @@ define([
 
     /**
      * Counter-clockwise ordered array of vertices constructing polygon.
-     * @type {Array.<atlas.model.Vertex>}
+     * @type {Array.<atlas.model.GeoPoint>}
      * @private
      */
     _vertices: null,
@@ -42,10 +52,10 @@ define([
      */
     _init: function(id, lineData, args) {
       this._super(id, args);
-      if (typeof lineData.vertices === 'string') {
+      if (Type.isString(lineData.vertices)) {
         var wkt = WKT.getInstance(),
-            vertices = wkt.verticesFromWKT(lineData.vertices);
-        if (vertices instanceof Array) {
+            vertices = wkt.verticesFromWKT(lineData.vertices).map(GeoPoint.fromVertex, GeoPoint);
+        if (Type.isArray(vertices)) {
           this._vertices = vertices;
         } else {
           throw new Error('Invalid vertices for Line ' + id);
@@ -71,12 +81,16 @@ define([
       return this._vertices;
     },
 
+    getWidth: function () {
+      return this._width;
+    },
+
     /**
      * Function to enable interactive editing of the polygon.
      * @abstract
      */
     edit: function() {
-      throw new DeveloperError('Can not call methods on abstract Polygon.');
+      throw new DeveloperError('Can not call methods on abstract Line.');
     }
 
   }), {
