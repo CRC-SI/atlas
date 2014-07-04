@@ -82,6 +82,10 @@ define([
       return this._vertices;
     },
 
+    getWidth: function () {
+      return this._width;
+    },
+
     /**
      * Function to enable interactive editing of the polygon.
      * @abstract

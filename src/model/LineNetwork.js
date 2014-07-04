@@ -41,6 +41,13 @@ define([
     _lines: null,
 
     /**
+     * The default width of each line in the network if one is not explicitly set for it.
+     * @type {number|string}
+     * @private
+     */
+    _lineDefaultWidth: '3px',
+
+    /**
      * This is an array of all the vertices that are present in the LineNetwork.
      * @type {Array.<atlas.model.GeoPoint>}
      * @private
@@ -67,11 +74,19 @@ define([
         data.id = this._getNextLineId();
         return data;
       }, this);
+      this._lineDefaultWidth = networkData.lineWidth || this._lineDefaultWidth;
+
+      // Construct the line network
+      this.constructNetwork();
     },
 
     // -------------------------------------------
     // Getters and Setters
     // -------------------------------------------
+    getDefaultLineWidth: function () {
+      return this._lineDefaultWidth;
+    },
+
     getLineData: function () {
       return this._lineData;
     },
@@ -104,6 +119,7 @@ define([
      * @returns {boolean} Whether the LineNetwork has been constructed.
      */
     isConstructed: function () {
+      // TODO(bpstudds): Should this account for modified lines?
       return this._lines && this._lines.length && this._lines.length > 0;
     },
 
@@ -122,8 +138,9 @@ define([
      */
     constructNetwork: function () {
       var vertices = this.getVertexData(),
-          renderManager = this._renderManager;
+          renderManager = this._renderManager,
           createLine = this._createLine,
+          defaultLineWidth = this.getDefaultLineWidth(),
           networkId = this.getId();
 
       // Die if the network is already constructed.
@@ -137,12 +154,16 @@ define([
       this._lines = this._lineData.map(function(lineData) {
         // Retrieve the GeoPoints constructing the line.
         var lineGeoPoints = lineData.vertexIds.map(function(id) {
-          return vertices[id];
-        });
+              return vertices[id];
+            }),
+            width = lineData.width || defaultLineWidth,
+            color = lineData.color,
+            style = lineData.style;
+
         // Construct the line object.
         return createLine(
-            networkId + '_' + lineData.id,
-            {width: '10px', vertices: lineGeoPoints},
+            networkId + '_line' + lineData.id,
+            {vertices: lineGeoPoints, width: width, color: color, style: style},
             {renderManager: renderManager});
       });
     },
