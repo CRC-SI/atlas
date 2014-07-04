@@ -52,8 +52,6 @@ define([
       expect(lineNw).not.toBeNull();
       expect(lineNw.getVertexData()).toEqual(vertices);
       expect(lineNw.getLineData()).toEqual(lines);
-      var f = lineNw.constructNetwork.bind(lineNw);
-      expect(f).not.toThrow();
       [0,1].forEach(function (id) {
         expect(lineNw.getLine(id).getVertices()).toEqual(actualLineVertices[id]);
       });

@@ -77,7 +77,7 @@ define([
       this._lineDefaultWidth = networkData.lineWidth || this._lineDefaultWidth;
 
       // Construct the line network
-      this.constructNetwork();
+      this._build();
     },
 
     // -------------------------------------------
@@ -120,7 +120,7 @@ define([
      */
     isConstructed: function () {
       // TODO(bpstudds): Should this account for modified lines?
-      return this._lines && this._lines.length && this._lines.length > 0;
+      return this._lines && this._lines.length > 0;
     },
 
     /**
@@ -136,7 +136,7 @@ define([
     /**
      * Constructs all of the lines making up the LineNetwork
      */
-    constructNetwork: function () {
+    _build: function () {
       var vertices = this.getVertexData(),
           renderManager = this._renderManager,
           createLine = this._createLine,

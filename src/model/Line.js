@@ -4,10 +4,11 @@ define([
   'atlas/model/Style',
   'atlas/model/Colour',
   'atlas/lib/utility/Setter',
+  'atlas/lib/utility/Type',
   'atlas/util/DeveloperError',
   'atlas/util/default',
   'atlas/util/WKT'
-], function(GeoEntity, GeoPoint, Style, Colour, Setter, DeveloperError, defaultValue, WKT) {
+], function(GeoEntity, GeoPoint, Style, Colour, Setter, Type, DeveloperError, defaultValue, WKT) {
 
   /**
    * @typedef atlas.model.Line
@@ -51,12 +52,10 @@ define([
      */
     _init: function(id, lineData, args) {
       this._super(id, args);
-      if (typeof lineData.vertices === 'string') {
+      if (Type.isString(lineData.vertices)) {
         var wkt = WKT.getInstance(),
-            vertices = wkt.verticesFromWKT(lineData.vertices).map(function (vertex) {
-              return GeoPoint.fromVertex(vertex);
-            });
-        if (vertices instanceof Array) {
+            vertices = wkt.verticesFromWKT(lineData.vertices).map(GeoPoint.fromVertex, GeoPoint);
+        if (Type.isArray(vertices)) {
           this._vertices = vertices;
         } else {
           throw new Error('Invalid vertices for Line ' + id);
