@@ -20,7 +20,7 @@ define([
     /**
      * An ItemStore containing data required to construct and rendering the lines of the line
      * network.
-     * @type {atlas.core.ItemStore.<atlas.model.LineNetwork#LineData>}
+     * @type {atlas.core.ItemStore}
      * @private
      */
     _lineData: null,
@@ -33,8 +33,8 @@ define([
      */
 
     /**
-     * An ItemStore containing the @{link atlas.model.Line|Lines} constructing the LineNetwork.
-     * @type {atlas.model.ItemStore.<atlas.model.Line>}
+     * An ItemStore of the @{link atlas.model.Line|Lines} constructing the LineNetwork.
+     * @type {atlas.model.ItemStore}
      * @private
      */
     _lines: null,
@@ -83,6 +83,40 @@ define([
 
       // Construct the line network
       this._build();
+    },
+
+    /**
+     * Constructs all of the lines making up the LineNetwork
+     */
+    _build: function () {
+      var nodes = this.getNodeData(),
+          bindDependencies = this._bindDependencies,
+          defaultLineWidth = this.getDefaultLineWidth();
+
+      // Die if the network is already constructed.
+      if (this.isConstructed()) {
+        // TODO(bpstudds): Be able to update/edit a LineNetwork
+        Log.warn('Tried to construct existing line network, use update instead.');
+        return;
+      }
+
+      // Construct the Line objects.
+      this._lineData.forEach(function(lineData) {
+        // Retrieve the GeoPoints constructing the line.
+        var lineGeoPoints = lineData.nodeIds.map(function(id) {
+              return nodes[id];
+            }),
+            width = lineData.width || defaultLineWidth,
+            color = lineData.color,
+            style = lineData.style;
+
+        // Construct the line object.
+        var line = this._createLine(
+          lineData.id,
+          {vertices: lineGeoPoints, width: width, color: color, style: style},
+          bindDependencies({parent: this}));
+        this._lines.add(line);
+      }, this);
     },
 
     // -------------------------------------------
@@ -156,41 +190,6 @@ define([
     _createLine: function (id, lineData, args) {
       return new Line(id, lineData, args);
     },
-
-    /**
-     * Constructs all of the lines making up the LineNetwork
-     */
-    _build: function () {
-      var nodes = this.getNodeData(),
-          bindDependencies = this._bindDependencies,
-          defaultLineWidth = this.getDefaultLineWidth();
-
-      // Die if the network is already constructed.
-      if (this.isConstructed()) {
-        // TODO(bpstudds): Be able to update/edit a LineNetwork
-        Log.warn('Tried to construct existing line network, use update instead.');
-        return;
-      }
-
-      // Construct the Line objects.
-      this._lineData.forEach(function(lineData) {
-        // Retrieve the GeoPoints constructing the line.
-        var lineGeoPoints = lineData.nodeIds.map(function(id) {
-              return nodes[id];
-            }),
-            width = lineData.width || defaultLineWidth,
-            color = lineData.color,
-            style = lineData.style;
-
-        // Construct the line object.
-        var line = this._createLine(
-            lineData.id,
-            {vertices: lineGeoPoints, width: width, color: color, style: style},
-            bindDependencies({parent: this}));
-        this._lines.add(line);
-      }, this);
-    },
-
 
     // -------------------------------------------
     // Rendering
