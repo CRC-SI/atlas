@@ -121,12 +121,26 @@ define([
         var point = new GeoPoint(-1,-1),
             expectedId = nodes.length,
             actualId = lineNw.addNode(point);
-        expect(lineNw.getNodeData()).not.toBe(nodes);
         expect(actualId).toEqual(expectedId);
+        //expect(lineNw.getNodeData()[expectedId]).not.toBe(point);
         expect(lineNw.getNodeData()[expectedId]).toEqual(point);
       });
 
-      it('should be able to insert a vertex into a specific line at a specific index', function () {
+      it('should be able to insert a node at the start of a specific line', function () {
+        var point = new GeoPoint(-1,-1),
+            nodeId = lineNw.addNode(point);
+
+        // Insert node 'nodeId' into line 'network_line_100000'.
+        lineNw.insertNodeIntoLine('network_line_100000', nodeId);
+        var lineData = lineNw.getLineData('network_line_100000');
+        //var line = lineNw.getLine('network_line_100000');
+        //expect(line.getVertices()).toEqual([point].concat(actualLineVertices[0]))
+        expect(lineData.nodeIds).toEqual([nodeId].concat(lines[0].nodeIds));
+
+      });
+
+      it('should mark a line as being "dirty" when a node is added to it.', function () {
+
       });
 
     });

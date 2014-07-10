@@ -3,8 +3,10 @@ define([
   'atlas/model/GeoEntity',
   'atlas/model/Line',
   'atlas/lib/utility/Log',
-  'atlas/lib/utility/Setter'
-], function (ItemStore, GeoEntity, Line, Log, Setter) {
+  'atlas/lib/utility/Setter',
+  'atlas/lib/utility/Type',
+  'atlas/util/DeveloperError'
+], function (ItemStore, GeoEntity, Line, Log, Setter, Type, DeveloperError) {
   /**
    * @typedef atlas.model.LineNetwork
    * @ignore
@@ -126,8 +128,12 @@ define([
       return this._lineDefaultWidth;
     },
 
-    getLineData: function () {
-      return this._lineData.asArray();
+    getLineData: function (lineId) {
+      if (lineId !== undefined) {
+        return this._lineData.get(lineId);
+      } else {
+        return this._lineData.asArray();
+      }
     },
 
     getNodeData: function () {
@@ -171,6 +177,27 @@ define([
     addNode: function (node) {
       this._nodeData.push(node);
       return this._nodeData.length - 1;
+    },
+
+    /**
+     * Inserts the given node into the given line at a specific position.
+     * @param {string} lineId - The ID of the line to insert the node into.
+     * @param {number} nodeId - The ID of the node to insert.
+     * @param {number} [position=0] - The index to insert the node at, 0 being at the start of the
+     *     line.
+     */
+    insertNodeIntoLine: function (lineId, nodeId, position) {
+      position = Setter.def(position, 0);
+      var lineData = this._lineData.get(lineId),
+          node = this._nodeData[nodeId];
+      if (!lineData) {
+        throw new DeveloperError('Must specify line to insert node into');
+      }
+      if (!node) {
+        throw new DeveloperError('Must specify node to be inserted');
+      }
+
+      lineData.nodeIds.splice(position, nodeId);
     },
 
     /**
