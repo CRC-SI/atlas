@@ -71,7 +71,8 @@ define([
 
       this._vertexData = networkData.vertexData;
       this._lineData = networkData.lineData.map(function (data) {
-        data.id = this._getNextLineId();
+        // Assign an ID for the line if one was not supplied.
+        data.id = data.id || this._getNextLineId();
         return data;
       }, this);
       this._lineDefaultWidth = networkData.lineWidth || this._lineDefaultWidth;
@@ -108,13 +109,12 @@ define([
     },
 
     _getNextLineId: function () {
-      return this._nextLineId++;
+      return 'network_line_' + this._nextLineId++;
     },
 
     // -------------------------------------------
     // Line Management
     // -------------------------------------------
-
     /**
      * @returns {boolean} Whether the LineNetwork has been constructed.
      */
@@ -162,7 +162,7 @@ define([
 
         // Construct the line object.
         return createLine(
-            networkId + '_line' + lineData.id,
+            lineData.id,
             {vertices: lineGeoPoints, width: width, color: color, style: style},
             {renderManager: renderManager});
       });

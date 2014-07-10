@@ -52,8 +52,19 @@ define([
       expect(lineNw).not.toBeNull();
       expect(lineNw.getVertexData()).toEqual(vertices);
       expect(lineNw.getLineData()).toEqual(lines);
-      [0,1].forEach(function (id) {
-        expect(lineNw.getLine(id).getVertices()).toEqual(actualLineVertices[id]);
+      lineNw.getLines().forEach(function (line, i) {
+        expect(line.getVertices()).toEqual(actualLineVertices[i]);
+        expect(line.getId()).toEqual('network_line_10000' + i);
+      });
+    });
+
+    it('should be able to set IDS of specific lines', function () {
+      nwData.lineData.forEach(function (line, i) {
+        line.id = 'line_' + i;
+      });
+      lineNw = new LineNetwork(id, nwData);
+      lineNw.getLines().forEach(function (line, i) {
+        expect(line.getId()).toEqual('line_' + i);
       });
     });
 
