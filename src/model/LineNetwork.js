@@ -52,7 +52,7 @@ define([
      * @type {Array.<atlas.model.GeoPoint>}
      * @private
      */
-    _vertexData: null,
+    _nodeData: null,
 
     /**
      * The next unique ID used for a Line.
@@ -65,11 +65,11 @@ define([
       this._super(id, args);
 
       networkData = Setter.mixin({
-        vertexData: [],
+        nodeData: [],
         lineData: []
       }, networkData);
 
-      this._vertexData = networkData.vertexData;
+      this._nodeData = networkData.nodeData;
       this._lineData = networkData.lineData.map(function (data) {
         // Assign an ID for the line if one was not supplied.
         data.id = data.id || this._getNextLineId();
@@ -92,8 +92,8 @@ define([
       return this._lineData;
     },
 
-    getVertexData: function () {
-      return this._vertexData;
+    getNodeData: function () {
+      return this._nodeData;
     },
 
     /**
@@ -137,11 +137,10 @@ define([
      * Constructs all of the lines making up the LineNetwork
      */
     _build: function () {
-      var vertices = this.getVertexData(),
-          renderManager = this._renderManager,
+      var nodes = this.getNodeData(),
+          bindDependencies = this._bindDependencies,
           createLine = this._createLine,
-          defaultLineWidth = this.getDefaultLineWidth(),
-          networkId = this.getId();
+          defaultLineWidth = this.getDefaultLineWidth();
 
       // Die if the network is already constructed.
       if (this.isConstructed()) {
@@ -153,8 +152,8 @@ define([
       // Construct the Line objects.
       this._lines = this._lineData.map(function(lineData) {
         // Retrieve the GeoPoints constructing the line.
-        var lineGeoPoints = lineData.vertexIds.map(function(id) {
-              return vertices[id];
+        var lineGeoPoints = lineData.nodeIds.map(function(id) {
+              return nodes[id];
             }),
             width = lineData.width || defaultLineWidth,
             color = lineData.color,
@@ -164,9 +163,10 @@ define([
         return createLine(
             lineData.id,
             {vertices: lineGeoPoints, width: width, color: color, style: style},
-            {renderManager: renderManager});
+            bindDependencies({parent: this}));
       });
     },
+
 
     // -------------------------------------------
     // Rendering

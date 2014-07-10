@@ -20,11 +20,11 @@ define([
         new GeoPoint(1, 0)
       ];
       lines = [
-        {vertexIds: [0, 2, 3]},
-        {vertexIds: [0, 1]}
+        {nodeIds: [0, 2, 3]},
+        {nodeIds: [0, 1]}
       ];
       nwData = {
-        vertexData: vertices,
+        nodeData: vertices,
         lineData: lines
       };
       actualLineVertices = [
@@ -50,7 +50,10 @@ define([
     it('should be able to construct lines if given appropriate structures using GeoPoints', function () {
       lineNw = new LineNetwork(id, nwData);
       expect(lineNw).not.toBeNull();
-      expect(lineNw.getVertexData()).toEqual(vertices);
+      var nwNodes = lineNw.getNodeData();
+      nwNodes.forEach(function (node, i) {
+        expect(node).toEqual(vertices[i]);
+      });
       expect(lineNw.getLineData()).toEqual(lines);
       lineNw.getLines().forEach(function (line, i) {
         expect(line.getVertices()).toEqual(actualLineVertices[i]);
