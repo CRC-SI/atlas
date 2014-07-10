@@ -1,9 +1,10 @@
 define([
+  'atlas/core/ItemStore',
   'atlas/model/GeoEntity',
   'atlas/model/Line',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter'
-], function (GeoEntity, Line, Log, Setter) {
+], function (ItemStore, GeoEntity, Line, Log, Setter) {
   /**
    * @typedef atlas.model.LineNetwork
    * @ignore
@@ -17,11 +18,9 @@ define([
    */
   LineNetwork = GeoEntity.extend({
     /**
-     * This is an array of objects containing the data required to construct and render the lines
-     * making up the LineNetwork. The geometry of the line is determined by
-     * <code>lineData.vertexIds</code>. The <code>vertexId</code> refers to the index of the
-     * GeoPoints constructing the line in <code>vertexData</code>.
-     * @type {Array.<atlas.model.LineNetwork#LineData>}
+     * An ItemStore containing data required to construct and rendering the lines of the line
+     * network.
+     * @type {atlas.core.ItemStore.<atlas.model.LineNetwork#LineData>}
      * @private
      */
     _lineData: null,
@@ -29,13 +28,13 @@ define([
     /**
      * @typedef atlas.model.LineNetwork#LineData
      * @property {String} [id] - The ID of the Line. A unique ID will be assigned.
-     * @property {vertexIds} - The IDs into the <code>vertexData</code> array of the vertices
+     * @property {number} nodeIds - The IDs into the <code>nodeData</code> array of the points
      *     constructing the line.
      */
 
     /**
-     * The array of Line objects constructing the LineNetwork.
-     * @type {Array.<atlas.model.Line>}
+     * An ItemStore containing the @{link atlas.model.Line|Lines} constructing the LineNetwork.
+     * @type {atlas.model.ItemStore.<atlas.model.Line>}
      * @private
      */
     _lines: null,
@@ -63,6 +62,8 @@ define([
 
     _init: function (id, networkData, args) {
       this._super(id, args);
+      this._lineData = new ItemStore();
+      this._lines = new ItemStore();
 
       networkData = Setter.mixin({
         nodeData: [],
@@ -72,10 +73,11 @@ define([
       this._nodeData = networkData.nodeData.map(function(data) {
         return data;
       });
-      this._lineData = networkData.lineData.map(function (data) {
+      networkData.lineData.forEach(function (data) {
         // Assign an ID for the line if one was not supplied.
         data.id = data.id || this._getNextLineId();
-        return data;
+        data.getId = function () { return this.id; };
+        this._lineData.add(data);
       }, this);
       this._lineDefaultWidth = networkData.lineWidth || this._lineDefaultWidth;
 
@@ -91,7 +93,7 @@ define([
     },
 
     getLineData: function () {
-      return this._lineData;
+      return this._lineData.asArray();
     },
 
     getNodeData: function () {
@@ -99,17 +101,26 @@ define([
     },
 
     /**
-     * @returns {atlas.model.Line} A Line in the network based on it's index in the network.
-     * @param {number} i - The index of the Line.
+     * @returns {atlas.model.Line|null} A Line in the network with the given ID, null if no such
+     *     Line exists.
+     * @param {string} id - The index of the Line.
      */
-    getLine: function (i) {
-      return this._lines[i];
+    getLine: function (id) {
+      return this._lines.get(id);
     },
 
+    /**
+     * @returns {Array.<atlas.model.Line>} All of the lines in the LineNetwork as an array.
+     */
     getLines: function () {
-      return this._lines;
+      return this._lines.asArray();
     },
 
+    /**
+     * Returns the next available unique ID.
+     * @returns {string}
+     * @private
+     */
     _getNextLineId: function () {
       return 'network_line_' + this._nextLineId++;
     },
@@ -152,7 +163,6 @@ define([
     _build: function () {
       var nodes = this.getNodeData(),
           bindDependencies = this._bindDependencies,
-          createLine = this._createLine,
           defaultLineWidth = this.getDefaultLineWidth();
 
       // Die if the network is already constructed.
@@ -163,7 +173,7 @@ define([
       }
 
       // Construct the Line objects.
-      this._lines = this._lineData.map(function(lineData) {
+      this._lineData.forEach(function(lineData) {
         // Retrieve the GeoPoints constructing the line.
         var lineGeoPoints = lineData.nodeIds.map(function(id) {
               return nodes[id];
@@ -173,11 +183,12 @@ define([
             style = lineData.style;
 
         // Construct the line object.
-        return createLine(
+        var line = this._createLine(
             lineData.id,
             {vertices: lineGeoPoints, width: width, color: color, style: style},
             bindDependencies({parent: this}));
-      });
+        this._lines.add(line);
+      }, this);
     },
 
 

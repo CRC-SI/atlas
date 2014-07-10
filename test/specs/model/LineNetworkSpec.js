@@ -61,7 +61,7 @@ define([
       });
     });
 
-    it('should be able to set IDS of specific lines', function () {
+    it('should be able to set IDs of specific lines', function () {
       nwData.lineData.forEach(function (line, i) {
         line.id = 'line_' + i;
       });
@@ -77,6 +77,12 @@ define([
       lineNw.getLines().forEach(function (line) {
         expect(line.getWidth()).toEqual(defaultWidth);
       });
+    });
+
+    it('should allow getting individual lines by IDs', function () {
+      lineNw = new LineNetwork(id, nwData);
+      var aLine = lineNw.getLine('network_line_100000');
+      expect(aLine).toBeDefined();
     });
 
     it('should allow default line widths to be set', function () {
@@ -95,8 +101,8 @@ define([
       nwData.lineData[1].width = line2;
       lineNw = new LineNetwork(id, nwData);
 
-      expect(lineNw.getLine(0).getWidth()).toEqual(line1);
-      expect(lineNw.getLine(1).getWidth()).toEqual(line2);
+      expect(lineNw.getLine('network_line_100000').getWidth()).toEqual(line1);
+      expect(lineNw.getLine('network_line_100001').getWidth()).toEqual(line2);
     });
 
     describe('Can be modified', function () {
@@ -111,7 +117,7 @@ define([
         lineNw = null;
       });
 
-      it('should be able to add a new vertex', function () {
+      it('should be able to add a new node', function () {
         var point = new GeoPoint(-1,-1),
             expectedId = nodes.length,
             actualId = lineNw.addNode(point);
