@@ -6,14 +6,14 @@ define([
   var lineNw,
       id = 'lineNw',
       args,
-      vertices,
+      nodes,
       lines,
       nwData,
       actualLineVertices;
 
   describe('A LineNetwork', function () {
     beforeEach(function () {
-      vertices = [
+      nodes = [
         new GeoPoint(0, 0),
         new GeoPoint(0, 1),
         new GeoPoint(1, 1),
@@ -24,12 +24,12 @@ define([
         {nodeIds: [0, 1]}
       ];
       nwData = {
-        nodeData: vertices,
+        nodeData: nodes,
         lineData: lines
       };
       actualLineVertices = [
-        [vertices[0], vertices[2], vertices[3]],
-        [vertices[0], vertices[1]]
+        [nodes[0], nodes[2], nodes[3]],
+        [nodes[0], nodes[1]]
       ];
     });
 
@@ -52,7 +52,7 @@ define([
       expect(lineNw).not.toBeNull();
       var nwNodes = lineNw.getNodeData();
       nwNodes.forEach(function (node, i) {
-        expect(node).toEqual(vertices[i]);
+        expect(node).toEqual(nodes[i]);
       });
       expect(lineNw.getLineData()).toEqual(lines);
       lineNw.getLines().forEach(function (line, i) {
@@ -97,7 +97,33 @@ define([
 
       expect(lineNw.getLine(0).getWidth()).toEqual(line1);
       expect(lineNw.getLine(1).getWidth()).toEqual(line2);
-    })
+    });
+
+    describe('Can be modified', function () {
+      beforeEach(function () {
+        nwData.lineData.forEach(function (line, i) {
+          line.id = i;
+        });
+        lineNw = new LineNetwork(id, nwData);
+      });
+
+      afterEach(function() {
+        lineNw = null;
+      });
+
+      it('should be able to add a new vertex', function () {
+        var point = new GeoPoint(-1,-1),
+            expectedId = nodes.length,
+            actualId = lineNw.addNode(point);
+        expect(lineNw.getNodeData()).not.toBe(nodes);
+        expect(actualId).toEqual(expectedId);
+        expect(lineNw.getNodeData()[expectedId]).toEqual(point);
+      });
+
+      it('should be able to insert a vertex into a specific line at a specific index', function () {
+      });
+
+    });
 
   });
 });

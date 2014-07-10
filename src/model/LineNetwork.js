@@ -69,7 +69,9 @@ define([
         lineData: []
       }, networkData);
 
-      this._nodeData = networkData.nodeData;
+      this._nodeData = networkData.nodeData.map(function(data) {
+        return data;
+      });
       this._lineData = networkData.lineData.map(function (data) {
         // Assign an ID for the line if one was not supplied.
         data.id = data.id || this._getNextLineId();
@@ -113,8 +115,19 @@ define([
     },
 
     // -------------------------------------------
-    // Line Management
+    // Line and Node Management
     // -------------------------------------------
+
+    /**
+     * Adds a new node that can then be added to lines.
+     * @param {atlas.model.GeoPoint} node - The GeoPoint to add a node at.
+     * @returns {number} The ID of the new node.
+     */
+    addNode: function (node) {
+      this._nodeData.push(node);
+      return this._nodeData.length - 1;
+    },
+
     /**
      * @returns {boolean} Whether the LineNetwork has been constructed.
      */
