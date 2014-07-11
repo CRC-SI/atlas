@@ -56,8 +56,8 @@ define([
       });
       // Check that line data is cloned.
       lineNw.getLineData().forEach(function (lineData, i) {
-        expect(lineData != inputLines[i]).toBe(true);
-        expect(lineData.nodeIds != inputLines[i].nodeIds).toBe(true);
+        expect(lineData).not.toBe(inputLines[i]);
+        expect(lineData.nodeIds).not.toBe(inputLines[i].nodeIds);
       });
     });
 
@@ -148,12 +148,46 @@ define([
         // Insert node 'nodeId' into line 'network_line_100000'.
         lineNw.insertNodeIntoLine('network_line_100000', nodeId);
 
-        var lineData = lineNw.getLineData('network_line_100000');
-        //var line = lineNw.getLine('network_line_100000');
         // Check the appropriate line data has been updated
+        var lineData = lineNw.getLineData('network_line_100000');
         expect(lineData.nodeIds).toEqual([nodeId].concat(inputLines[0].nodeIds));
-        // Check that the line has been updated
-        //expect(line.getVertices()).toEqual([point].concat(actualLineVertices[0]))
+      });
+
+      it('should be able to insert a node at a specific index in a specific line', function () {
+        var point = new GeoPoint(-1,-1),
+            nodeId = lineNw.addNode(point);
+        // Insert node 'nodeId' into line 'network_line_100000'.
+        lineNw.insertNodeIntoLine('network_line_100000', nodeId, 2);
+
+        var lineData = lineNw.getLineData('network_line_100000'),
+            expectedNodeIds = [0, 2, 4, 3];
+        expect(lineData.nodeIds).toEqual(expectedNodeIds);
+      });
+
+      it('should be able to insert a node into a specific line, relative to the end of the line',
+          function () {
+        var point = new GeoPoint(-1,-1),
+            nodeId = lineNw.addNode(point);
+        // Insert node 'nodeId' into line 'network_line_100000' at the end.
+        lineNw.insertNodeIntoLine('network_line_100000', nodeId, -1);
+        var lineData = lineNw.getLineData('network_line_100000'),
+            expectedNodeIds = [0, 2, 3, 4];
+        expect(lineData.nodeIds).toEqual(expectedNodeIds);
+
+        // Insert node 'nodeId' into line 'network_line_100000' at the start.
+        lineNw.insertNodeIntoLine('network_line_100000', nodeId, -5);
+        lineData = lineNw.getLineData('network_line_100000');
+        expectedNodeIds = [4, 0, 2, 3, 4];
+        expect(lineData.nodeIds).toEqual(expectedNodeIds);
+      });
+
+      it('should do nothing a node is attempted to be inserted out of bounds', function () {
+        var tooLow = function () { lineNw.insertNodeIntoLine('network_line_100000', 0, -5); };
+            tooHigh = function () { lineNw.insertNodeIntoLine('network_line_100000', 0, 4); };
+        expect(tooHigh).not.toThrow();
+        expect(lineNw.getLineData('network_line_100000').nodeIds).toEqual(inputLines[0].nodeIds);
+        expect(tooLow).not.toThrow();
+        expect(lineNw.getLineData('network_line_100000').nodeIds).toEqual(inputLines[0].nodeIds);
       });
 
       it('should mark a line as being "dirty" when a node is added to it.', function () {

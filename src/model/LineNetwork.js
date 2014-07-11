@@ -82,7 +82,7 @@ define([
       });
       // Construct an ItemStore from the lineData.
       networkData.lineData.forEach(function (data) {
-        var clonedData = Setter.merge({}, data);
+        var clonedData = Setter.cloneDeep(data);
         // Assign an ID for the line if one was not supplied.
         clonedData.id = data.id || this._getNextLineId();
         clonedData.getId = function () { return this.id; };
@@ -105,7 +105,7 @@ define([
       // Die if the network is already constructed.
       if (this.isConstructed()) {
         // TODO(bpstudds): Be able to update/edit a LineNetwork
-        Log.warn('Tried to construct existing line network, use update instead.');
+        Log.warn('Tried to construct existing line network, use update() instead.');
         return;
       }
 
@@ -191,20 +191,26 @@ define([
      * @param {string} lineId - The ID of the line to insert the node into.
      * @param {number} nodeId - The ID of the node to insert.
      * @param {number} [position=0] - The index to insert the node at, 0 being at the start of the
-     *     line.
+     *     line. If <code>position</code> is negative, it is inserted relative to the end of the
+     *     line, with -1 being the last index, -2 being the second last etc.
      */
     insertNodeIntoLine: function (lineId, nodeId, position) {
       position = Setter.def(position, 0);
       var lineData = this._lineData.get(lineId),
+          nodeIds = lineData.nodeIds,
           node = this._nodeData[nodeId];
       if (!lineData) {
         throw new DeveloperError('Must specify line to insert node into');
       }
       if (!node) {
-        throw new DeveloperError('Must specify node to be inserted');
+        throw new DeveloperError('Given nodeId does not exist.');
       }
-
-      lineData.nodeIds.splice(position, nodeId);
+      if (position > nodeIds.length || position < (-1 - nodeIds.length)) {
+        Log.warn('Tried to insert a node outside of the line.');
+        return;
+      }
+      position = position < 0 ? nodeIds.length + 1 + position : position;
+      nodeIds.splice(position, 0, nodeId);
     },
 
     /**
