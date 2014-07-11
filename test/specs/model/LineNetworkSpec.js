@@ -5,31 +5,31 @@ define([
 ], function (GeoPoint, LineNetwork) {
   var lineNw,
       id = 'lineNw',
-      args,
-      nodes,
-      lines,
       nwData,
-      actualLineVertices;
+      args,
+      inputNodes,
+      inputLines,
+      expectedLineVertices;
 
   describe('A LineNetwork', function () {
     beforeEach(function () {
-      nodes = [
+      inputNodes = [
         new GeoPoint(0, 0),
         new GeoPoint(0, 1),
         new GeoPoint(1, 1),
         new GeoPoint(1, 0)
       ];
-      lines = [
+      inputLines = [
         {nodeIds: [0, 2, 3]},
         {nodeIds: [0, 1]}
       ];
       nwData = {
-        nodeData: nodes,
-        lineData: lines
+        nodeData: inputNodes,
+        lineData: inputLines
       };
-      actualLineVertices = [
-        [nodes[0], nodes[2], nodes[3]],
-        [nodes[0], nodes[1]]
+      expectedLineVertices = [
+        [inputNodes[0], inputNodes[2], inputNodes[3]],
+        [inputNodes[0], inputNodes[1]]
       ];
     });
 
@@ -50,13 +50,13 @@ define([
     it('should be able to construct lines if given appropriate structures using GeoPoints', function () {
       lineNw = new LineNetwork(id, nwData);
       expect(lineNw).not.toBeNull();
-      var nwNodes = lineNw.getNodeData();
-      nwNodes.forEach(function (node, i) {
-        expect(node).toEqual(nodes[i]);
+      var actualNodes = lineNw.getNodeData();
+      actualNodes.forEach(function (node, i) {
+        expect(node).toEqual(inputNodes[i]);
       });
-      expect(lineNw.getLineData()).toEqual(lines);
+      expect(lineNw.getLineData()).toEqual(inputLines);
       lineNw.getLines().forEach(function (line, i) {
-        expect(line.getVertices()).toEqual(actualLineVertices[i]);
+        expect(line.getVertices()).toEqual(expectedLineVertices[i]);
         expect(line.getId()).toEqual('network_line_10000' + i);
       });
     });
@@ -107,6 +107,7 @@ define([
 
     describe('Can be modified', function () {
       beforeEach(function () {
+        // Assign IDs to individual lines based on it's index.
         nwData.lineData.forEach(function (line, i) {
           line.id = i;
         });
@@ -119,24 +120,28 @@ define([
 
       it('should be able to add a new node', function () {
         var point = new GeoPoint(-1,-1),
-            expectedId = nodes.length,
-            actualId = lineNw.addNode(point);
-        expect(actualId).toEqual(expectedId);
+            expectedNodeId = inputNodes.length,
+            actualNodeId;
+        actualNodeId = lineNw.addNode(point);
+
+        expect(actualNodeId).toEqual(expectedNodeId);
+        // TODO(bpstudds): Should input data be cloned?
         //expect(lineNw.getNodeData()[expectedId]).not.toBe(point);
-        expect(lineNw.getNodeData()[expectedId]).toEqual(point);
+        expect(lineNw.getNodeData()[expectedNodeId]).toEqual(point);
       });
 
       it('should be able to insert a node at the start of a specific line', function () {
         var point = new GeoPoint(-1,-1),
             nodeId = lineNw.addNode(point);
-
         // Insert node 'nodeId' into line 'network_line_100000'.
         lineNw.insertNodeIntoLine('network_line_100000', nodeId);
+
         var lineData = lineNw.getLineData('network_line_100000');
         //var line = lineNw.getLine('network_line_100000');
+        // Check the appropriate line data has been updated
+        expect(lineData.nodeIds).toEqual([nodeId].concat(inputLines[0].nodeIds));
+        // Check that the line has been updated
         //expect(line.getVertices()).toEqual([point].concat(actualLineVertices[0]))
-        expect(lineData.nodeIds).toEqual([nodeId].concat(lines[0].nodeIds));
-
       });
 
       it('should mark a line as being "dirty" when a node is added to it.', function () {
