@@ -182,7 +182,7 @@ define([
      * @returns {number} The ID of the new node.
      */
     addNode: function (node) {
-      this._nodeData.push(node);
+      this._nodeData.push(Setter.clone(node));
       return this._nodeData.length - 1;
     },
 
