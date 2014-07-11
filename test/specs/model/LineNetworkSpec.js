@@ -191,6 +191,11 @@ define([
       });
 
       it('should mark a line as being "dirty" when a node is added to it.', function () {
+        var lineId = 'network_line_100000';
+        lineNw.insertNodeIntoLine(lineId, 0);
+        expect(lineNw.isDirty()).toBe(true);
+        expect(lineNw.isDirty(lineId)).toBe(true);
+      });
 
       });
 

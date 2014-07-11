@@ -209,6 +209,7 @@ define([
         Log.warn('Tried to insert a node outside of the line.');
         return;
       }
+      this.setDirty(lineId);
       position = position < 0 ? nodeIds.length + 1 + position : position;
       nodeIds.splice(position, 0, nodeId);
     },
