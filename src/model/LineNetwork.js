@@ -126,6 +126,8 @@ define([
           bindDependencies({parent: this}));
         this._lines.add(line);
       }, this);
+
+      this.clean();
     },
 
     // -------------------------------------------
@@ -219,7 +221,9 @@ define([
      */
     isConstructed: function () {
       // TODO(bpstudds): Should this account for modified lines?
-      return this._lines && this._lines.length > 0;
+      var isClean = !this.isDirty(),
+          allLinesBuilt = this._lines.getCount() === this._lineData.getCount();
+      return isClean && allLinesBuilt;
     },
 
     /**
@@ -239,6 +243,9 @@ define([
      * Shows the line network.
      */
     show: function () {
+      if (!this.isRenderable()) {
+        this._build();
+      }
       this._lines.forEach(function (line) {
         line.show();
       });

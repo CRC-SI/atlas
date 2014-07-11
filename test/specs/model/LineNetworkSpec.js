@@ -197,6 +197,14 @@ define([
         expect(lineNw.isDirty(lineId)).toBe(true);
       });
 
+      it('should clean itself and update line objects upon being shown', function () {
+        var lineId = 'network_line_100000';
+        lineNw.insertNodeIntoLine(lineId, 1);
+        lineNw.show();
+        expect(lineNw.isDirty).toBe(false);
+        expect(lineNw.isDirty(lineId)).toBe(false);
+        expect(lineNw.getLine(lineId).getVertices).
+            toEqual(inputNodes[0].concat(expectedLineVertices[0]))
       });
 
     });
