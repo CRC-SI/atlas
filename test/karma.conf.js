@@ -21,7 +21,6 @@ module.exports = function(config) {
 
     // list of files to exclude
     exclude: [
-      '../docs/*',
       '../docs/**/*'
     ],
 
@@ -67,6 +66,6 @@ module.exports = function(config) {
 
     // Continuous Integration mode
     // if true, it capture browsers, run tests and exit
-    singleRun: false
+    singleRun: true
   });
 };
