@@ -47,17 +47,28 @@ define([
       expect(lineNw.getId()).toEqual(id);
     });
 
-    it('should be able to construct lines if given appropriate structures using GeoPoints', function () {
+    it('should clone non-primitive construction data', function () {
       lineNw = new LineNetwork(id, nwData);
-      expect(lineNw).not.toBeNull();
+      // Check node data is cloned
       var actualNodes = lineNw.getNodeData();
       actualNodes.forEach(function (node, i) {
-        expect(node).toEqual(inputNodes[i]);
+        expect(node != inputNodes[i]).toBe(true);
       });
-      expect(lineNw.getLineData()).toEqual(inputLines);
+      // Check that line data is cloned.
+      lineNw.getLineData().forEach(function (lineData, i) {
+        expect(lineData != inputLines[i]).toBe(true);
+        expect(lineData.nodeIds != inputLines[i].nodeIds).toBe(true);
+      });
+    });
+
+    it('should be able to construct lines if given appropriate structures using GeoPoints', function () {
+      lineNw = new LineNetwork(id, nwData);
+      // Check lines have been correctly constructed.
       lineNw.getLines().forEach(function (line, i) {
-        expect(line.getVertices()).toEqual(expectedLineVertices[i]);
+        // Check that the constructed line has the correct (default) ID.
         expect(line.getId()).toEqual('network_line_10000' + i);
+        // Check that the constructed lines have the correct vertices.
+        expect(line.getVertices()).toEqual(expectedLineVertices[i]);
       });
     });
 
@@ -125,8 +136,9 @@ define([
         actualNodeId = lineNw.addNode(point);
 
         expect(actualNodeId).toEqual(expectedNodeId);
-        // TODO(bpstudds): Should input data be cloned?
-        //expect(lineNw.getNodeData()[expectedId]).not.toBe(point);
+        // Check that the added point is a new object.
+        expect(lineNw.getNodeData()[expectedNodeId]).not.toBe(point);
+        // Check that the added point is correct.
         expect(lineNw.getNodeData()[expectedNodeId]).toEqual(point);
       });
 

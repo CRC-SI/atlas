@@ -72,14 +72,21 @@ define([
         lineData: []
       }, networkData);
 
+      if (networkData.lineData.length > 0 && networkData.nodeData.length < 2) {
+        Log.warn('Tried to initialise a LineNetwork with lineData but insufficent nodeData.');
+      }
+
+      // Construct an array from the nodeData.
       this._nodeData = networkData.nodeData.map(function(data) {
-        return data;
+        return Setter.clone(data);
       });
+      // Construct an ItemStore from the lineData.
       networkData.lineData.forEach(function (data) {
+        var clonedData = Setter.merge({}, data);
         // Assign an ID for the line if one was not supplied.
-        data.id = data.id || this._getNextLineId();
-        data.getId = function () { return this.id; };
-        this._lineData.add(data);
+        clonedData.id = data.id || this._getNextLineId();
+        clonedData.getId = function () { return this.id; };
+        this._lineData.add(clonedData);
       }, this);
       this._lineDefaultWidth = networkData.lineWidth || this._lineDefaultWidth;
 
