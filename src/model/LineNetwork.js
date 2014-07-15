@@ -102,19 +102,15 @@ define([
           bindDependencies = this._bindDependencies,
           defaultLineWidth = this.getDefaultLineWidth();
 
-      // Die if the network is already constructed.
       if (this.isConstructed()) {
-        // TODO(bpstudds): Be able to update/edit a LineNetwork
-        Log.warn('Tried to construct existing line network, use update() instead.');
+        // Die if the network is already constructed.
         return;
       }
 
       // Construct the Line objects.
       this._lineData.forEach(function(lineData) {
         // Retrieve the GeoPoints constructing the line.
-        var lineGeoPoints = lineData.nodeIds.map(function(id) {
-              return nodes[id];
-            }),
+        var lineGeoPoints = this._getLineGeoPoints(lineData),
             width = lineData.width || defaultLineWidth,
             color = lineData.color,
             style = lineData.style;
@@ -126,8 +122,19 @@ define([
           bindDependencies({parent: this}));
         this._lines.add(line);
       }, this);
-
       this.clean();
+    },
+
+    /**
+     * @returns {Array.<atlas.model.GeoPoint>} The GeoPoints constructing a the given line.
+     * @param lineData - The line data containing the line definition.
+     * @protected
+     */
+    _getLineGeoPoints: function (lineData) {
+      var nodes = this.getNodeData();
+      return lineData.nodeIds.map(function (id) {
+        return nodes[id];
+      });
     },
 
     // -------------------------------------------
