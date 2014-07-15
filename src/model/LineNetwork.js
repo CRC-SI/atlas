@@ -84,7 +84,7 @@ define([
       networkData.lineData.forEach(function (data) {
         var clonedData = Setter.cloneDeep(data);
         // Assign an ID for the line if one was not supplied.
-        clonedData.id = data.id || this._getNextLineId();
+        clonedData.id = Setter.def(data.id, this._getNextLineId()).toString();
         clonedData.getId = function () { return this.id; };
         this._lineData.add(clonedData);
       }, this);
