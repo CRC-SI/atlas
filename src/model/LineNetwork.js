@@ -95,11 +95,11 @@ define([
     },
 
     /**
-     * Constructs all of the lines making up the LineNetwork
+     * Constructs all of the lines making up the LineNetwork. This should only be called once after
+     * initialisation. Otherwise, all lines are constructed on the fly as required.
      */
     _build: function () {
-      var nodes = this.getNodeData(),
-          bindDependencies = this._bindDependencies,
+      var bindDependencies = this._bindDependencies,
           defaultLineWidth = this.getDefaultLineWidth();
 
       if (this.isConstructed()) {
@@ -109,6 +109,9 @@ define([
 
       // Construct the Line objects.
       this._lineData.forEach(function(lineData) {
+        // Don't construct over an existing line.
+        if (this._lines.get(lineData)) { return; }
+
         // Retrieve the GeoPoints constructing the line.
         var lineGeoPoints = this._getLineGeoPoints(lineData),
             width = lineData.width || defaultLineWidth,
