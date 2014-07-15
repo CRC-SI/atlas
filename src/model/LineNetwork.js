@@ -283,18 +283,31 @@ define([
      * Shows the line network.
      */
     show: function () {
-      if (!this.isRenderable()) {
-        this._build();
+      // Re-build the LineNetwork if it can't be rendered immediately.
+      if (!this.isConstructed()) {
+        Log.error('LineNetwork ' + this.getId() + ' not properly constructed before show() called.'
+          + 'This should not occur.'
+        );
       }
+
+      // If a line is not shown, show it. Else if it is dirty, show it which will cause the
+      // LineObj to update itself as necessary.
       this._lines.forEach(function (line) {
-        line.show();
-      });
+        if (!line.isVisible()) {
+          line.show();
+        } else if (this.isDirty(line.getId())) {
+          line.show();
+          this.setClean(line.getId());
+        }
+      }, this);
+      this._visible = true;
     },
 
     hide: function () {
       this._lines.forEach(function (line) {
         line.hide();
       });
+      this._visible = false;
     }
   });
 

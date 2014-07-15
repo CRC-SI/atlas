@@ -70,6 +70,7 @@ define([
         // Check that the constructed lines have the correct vertices.
         expect(line.getVertices()).toEqual(expectedLineVertices[i]);
       });
+      expect(lineNw.isConstructed()).toBe(true);
     });
 
     it('should be able to set IDs of specific lines', function () {
@@ -118,10 +119,6 @@ define([
 
     describe('Can be modified', function () {
       beforeEach(function () {
-        // Assign IDs to individual lines based on it's index.
-        nwData.lineData.forEach(function (line, i) {
-          line.id = i;
-        });
         lineNw = new LineNetwork(id, nwData);
       });
 
@@ -197,17 +194,42 @@ define([
         expect(lineNw.isDirty(lineId)).toBe(true);
       });
 
-      it('should clean itself and update line objects upon being shown', function () {
+      it('should update line object vertices when line is modified', function () {
         var lineId = 'network_line_100000';
         lineNw.insertNodeIntoLine(lineId, 1);
-        lineNw.show();
-        expect(lineNw.isDirty).toBe(false);
-        expect(lineNw.isDirty(lineId)).toBe(false);
-        expect(lineNw.getLine(lineId).getVertices).
-            toEqual(inputNodes[0].concat(expectedLineVertices[0]))
+        expect(lineNw.getLine(lineId).getVertices()).
+            toEqual([inputNodes[1]].concat(expectedLineVertices[0]))
       });
 
-    });
+      it('should show lines that are not visible', function () {
+       var lineId0 = 'network_line_100000',
+           lineId1 = 'network_line_100001',
+           line0 = lineNw.getLine(lineId0),
+           line1 = lineNw.getLine(lineId1);
 
+       spyOn(line0, 'show');
+       spyOn(line1, 'show');
+       lineNw.show();
+       expect(line0.show).toHaveBeenCalled();
+       expect(line1.show).not.toHaveBeenCalled();
+      });
+
+      it('should only re-show lines that have been modified', function () {
+        var lineId0 = 'network_line_100000',
+            lineId1 = 'network_line_100001',
+            line0 = lineNw.getLine(lineId0),
+            line1 = lineNw.getLine(lineId1);
+        lineNw.insertNodeIntoLine(lineId0, 0);
+
+        // Fake that line1 is already visible.
+        line1.isVisible = function () { return true; };
+
+        spyOn(line0, 'show');
+        spyOn(line1, 'show');
+        lineNw.show();
+        expect(line0.show).toHaveBeenCalled();
+        expect(line1.show).not.toHaveBeenCalled();
+      })
+    });
   });
 });
