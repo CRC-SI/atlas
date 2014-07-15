@@ -77,6 +77,15 @@ define([
       }
     },
 
+    /**
+     * Sets the vertices of the line.
+     * @param {Array.<atlas.model.GeoPoint>} vertices
+     */
+    setVertices: function (vertices) {
+      this._vertices = vertices;
+      this.setDirty('vertices');
+    },
+
     getVertices: function() {
       return this._vertices;
     },
