@@ -116,7 +116,7 @@ define([
             style = lineData.style;
 
         // Construct the line object.
-        var line = this._createLine(
+        var line = this._createLineObj(
           lineData.id,
           {vertices: lineGeoPoints, width: width, color: color, style: style},
           bindDependencies({parent: this}));
@@ -208,6 +208,7 @@ define([
       var lineData = this._lineData.get(lineId),
           nodeIds = lineData.nodeIds,
           node = this._nodeData[nodeId];
+
       if (!lineData) {
         throw new DeveloperError('Must specify line to insert node into');
       }
@@ -215,22 +216,14 @@ define([
         throw new DeveloperError('Given nodeId does not exist.');
       }
       if (position > nodeIds.length || position < (-1 - nodeIds.length)) {
-        Log.warn('Tried to insert a node outside of the line.');
+        Log.warn('Tried to insert a node outside of a line.');
         return;
       }
-      this.setDirty(lineId);
+
       position = position < 0 ? nodeIds.length + 1 + position : position;
       nodeIds.splice(position, 0, nodeId);
-    },
 
-    /**
-     * @returns {boolean} Whether the LineNetwork has been constructed.
-     */
-    isConstructed: function () {
-      // TODO(bpstudds): Should this account for modified lines?
-      var isClean = !this.isDirty(),
-          allLinesBuilt = this._lines.getCount() === this._lineData.getCount();
-      return isClean && allLinesBuilt;
+      this._rebuildLine(lineId, 'vertices');
     },
 
     /**
@@ -239,8 +232,27 @@ define([
      * @param args Parameters as per @link{atlas.model.Line}
      * @private
      */
-    _createLine: function (id, lineData, args) {
+    _createLineObj: function (id, lineData, args) {
       return new Line(id, lineData, args);
+    },
+
+    /**
+     * Rebuilds a Line object after the corresponding Line Data has been modified.
+     * @param {string} lineId - The ID of the line modified.
+     * @param {string} modified - Specifies what has been modified and therefore what needs to be
+     *     done to rebuild the line object. Can be "entity" (rebuild entire line), "vertices" (only
+     *     vertices of line have changed), "style" (appearance of line changed).
+     * @private
+     */
+    _rebuildLine: function (lineId, modified) {
+      // TODO(bpstudds): Support changing colour, width, etc.
+      var lineObj = this._lines.get(lineId),
+          lineData = this._lineData.get(lineId);
+      if (modified === 'vertices' || modified === 'entity') {
+        lineObj.setVertices(this._getLineGeoPoints(lineData));
+      }
+      this.setDirty(lineId);
+      lineObj.isVisible() && lineObj.show() && this.setClean(lineId);
     },
 
     // -------------------------------------------
