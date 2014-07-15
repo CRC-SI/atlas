@@ -316,6 +316,18 @@ define([
     },
 
     /**
+     * Set a particular component to be clean.
+     * @param {string} component - The component to clean.
+     */
+    setClean: function(component) {
+      if (Type.isDefined(component) && this._dirty[component]) {
+        delete this._dirty[component];
+      } else {
+        this.clean();
+      }
+    },
+
+    /**
      * @param {String} [component] A specific component to check.
      * @returns {Boolean} Whether the given <code>component</code> is dirty, or if
      * <code>component</code> is not given, the GeoEntity as a whole.
