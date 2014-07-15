@@ -181,6 +181,24 @@ define([
       return 'network_line_' + this._nextLineId++;
     },
 
+    /**
+     * @returns {boolean} Whether the LineNetwork has been constructed. A <code>LineNetwork</code>
+     * is constructed if for all defined <code>lineData</code> there is a corresponding
+     * <code>Line</code> object, with no Line objects existing without a LineData object.
+     */
+    isConstructed: function () {
+      var allLinesBuilt = this._lines.getCount() == this._lineData.getCount();
+      return allLinesBuilt;
+    },
+
+    /**
+     * @returns {boolean} Whether the <code>LineNetwork</code> is ready to be rendered, ie. all
+     * component lines have be re-constructed and updated as necessary.
+     */
+    isRenderable: function () {
+      return !this.isDirty() && this.isConstructed();
+    },
+
     // -------------------------------------------
     // Line and Node Management
     // -------------------------------------------
