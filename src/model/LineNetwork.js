@@ -251,6 +251,7 @@ define([
       if (lineData) {
         lineData.nodeIds.splice(position, 1);
       }
+      this._rebuildLine(lineId, 'vertices');
     },
 
     /**
