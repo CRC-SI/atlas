@@ -9,9 +9,9 @@ define([
   'atlas/util/default',
   'atlas/util/WKT',
   // Base class
-  'atlas/model/GeoEntity'
+  'atlas/model/VertexedEntity'
 ], function(Setter, Colour, Material, Style, Vertex, GeoPoint, DeveloperError, defaultValue, WKT,
-            GeoEntity) {
+            VertexedEntity) {
 
   /**
    * @typedef atlas.model.Polygon
@@ -41,7 +41,7 @@ define([
    * @class atlas.model.Polygon
    * @extends atlas.model.GeoEntity
    */
-  Polygon = Setter.mixin(GeoEntity.extend(/** @lends atlas.model.Polygon# */ {
+  Polygon = Setter.mixin(VertexedEntity.extend(/** @lends atlas.model.Polygon# */ {
     // TODO(aramk) Either put docs on params and document the getters and setters which don't have
     // obvious usage/logic.
     // TODO(aramk) Units for height etc. are open to interpretation - define them as metres in docs.
@@ -293,71 +293,6 @@ define([
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------
-
-    // TODO(aramk) Can we move the vertices into a subclass which Polygon and Line can both use?
-
-    /**
-     * Adds a vertex to the polygon end of the list of vertices describing the polygon.
-     * @param {Vertex} vertex - vertex to add to the polygon.
-     * @returns {Number} The index at which the vertex was added.
-     */
-    addVertex: function(vertex) {
-      this._vertices.push(vertex);
-      // Invalidate any pre-calculated area and centroid.
-      this.setDirty('vertices');
-      this._area = null;
-      this._centroid = null;
-      return this._vertices.length;
-    },
-
-    /**
-     * Inserts a vertex at particular index of the polygon. If the index is larger
-     * than the number of vertices in the polygon, it is appended to the
-     * polygons vertices as per {@link atlas.model.Polygon#addVertex|addVertex}.
-     * The last element of _vertices is reserved for a duplicate of the first vertex.
-     * @param {number} index - The index to insert at.
-     * @param {Vertex} vertex - The vertex to be added. '-1' to insert at the end
-     * @returns {Number} The index at which vertex was inserted.
-     */
-    insertVertex: function(index, vertex) {
-      var insertAt = index;
-      if (index < -1) {
-        insertAt = 0;
-      } else if (index === -1 || index > this._vertices.length - 1) {
-        insertAt = this._vertices.length - 1;
-      }
-      this._vertices.splice(insertAt, 0, vertex);
-      // Maintain closed-ness
-      //this._vertices[this._vertices.length - 1] = this._vertices[0];
-      // Clear derived values.
-      this.setDirty('vertices');
-      this._area = null;
-      this._centroid = null;
-      return insertAt;
-    },
-
-    /**
-     * Removes a vertex from the Polygon.
-     * @param {Number} index - The index of the vertex to remove. '-1' for the last vertex.
-     * @returns {Vertex|undefined} The vertex removed, or undefined if <code>index</code> is out of bounds.
-     */
-    removeVertex: function(index) {
-      if (index === -1) {
-        index = this._vertices.length - 1;
-      }
-      if (index === this._vertices.length) {
-        index--;
-      }
-      if (0 <= index && index <= this._vertices.length - 1) {
-        var removed = this._vertices.splice(index, 1)[0];
-        // Clear derived values
-        this.setDirty('vertices');
-        this._area = null;
-        this._centroid = null;
-        return removed;
-      }
-      return undefined;
-    },
 
     /**
      * Function to enable interactive editing of the polygon.

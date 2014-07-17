@@ -1,14 +1,14 @@
 define([
-  'atlas/model/GeoEntity',
   'atlas/model/GeoPoint',
   'atlas/model/Style',
   'atlas/model/Colour',
+  'atlas/model/VertexedEntity',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Type',
   'atlas/util/DeveloperError',
   'atlas/util/default',
   'atlas/util/WKT'
-], function(GeoEntity, GeoPoint, Style, Colour, Setter, Type, DeveloperError, defaultValue, WKT) {
+], function(GeoPoint, Style, Colour, VertexedEntity, Setter, Type, DeveloperError, defaultValue, WKT) {
 
   /**
    * @typedef atlas.model.Line
@@ -29,7 +29,7 @@ define([
    * @class atlas.model.Line
    * @extends atlas.model.GeoEntity
    */
-  Line = Setter.mixin(GeoEntity.extend(/** @lends atlas.model.Line# */{
+  Line = Setter.mixin(VertexedEntity.extend(/** @lends atlas.model.Line# */{
 
     /**
      * Counter-clockwise ordered array of vertices constructing polygon.
