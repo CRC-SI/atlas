@@ -187,7 +187,7 @@ define([
     /**
      * @param args - Any object used for construction.
      * @returns {Object} - The given object with manager dependencies added.
-     * @private
+     * @protected
      */
     _bindDependencies: function(args) {
       return Setter.mixin(args, {
@@ -320,7 +320,7 @@ define([
      * @param {string} component - The component to clean.
      */
     setClean: function(component) {
-      if (Type.isDefined(component) && this._dirty[component]) {
+      if (component !== undefined && this._dirty[component]) {
         delete this._dirty[component];
       } else {
         this.clean();
