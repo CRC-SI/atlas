@@ -4,9 +4,8 @@ define([
   'atlas/model/Line',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
-  'atlas/lib/utility/Type',
   'atlas/util/DeveloperError'
-], function (ItemStore, GeoEntity, Line, Log, Setter, Type, DeveloperError) {
+], function (ItemStore, GeoEntity, Line, Log, Setter, DeveloperError) {
   /**
    * @typedef atlas.model.LineNetwork
    * @ignore
@@ -245,6 +244,13 @@ define([
       nodeIds.splice(position, 0, nodeId);
 
       this._rebuildLine(lineId, 'vertices');
+    },
+
+    removeNodeFromLine: function (lineId, position) {
+      var lineData = this._lineData.get(lineId);
+      if (lineData) {
+        lineData.nodeIds.splice(position, 1);
+      }
     },
 
     /**

@@ -117,17 +117,17 @@ define([
       expect(lineNw.getLine('network_line_100001').getWidth()).toEqual(line2);
     });
 
-    describe('Can be modified', function () {
+    describe('Modification;', function () {
       beforeEach(function () {
         lineNw = new LineNetwork(id, nwData);
       });
 
-      afterEach(function() {
+      afterEach(function () {
         lineNw = null;
       });
 
       it('should be able to add a new node', function () {
-        var point = new GeoPoint(-1,-1),
+        var point = new GeoPoint(-1, -1),
             expectedNodeId = inputNodes.length,
             actualNodeId;
         actualNodeId = lineNw.addNode(point);
@@ -140,7 +140,7 @@ define([
       });
 
       it('should be able to insert a node at the start of a specific line', function () {
-        var point = new GeoPoint(-1,-1),
+        var point = new GeoPoint(-1, -1),
             nodeId = lineNw.addNode(point);
         // Insert node 'nodeId' into line 'network_line_100000'.
         lineNw.insertNodeIntoLine('network_line_100000', nodeId);
@@ -151,7 +151,7 @@ define([
       });
 
       it('should be able to insert a node at a specific index in a specific line', function () {
-        var point = new GeoPoint(-1,-1),
+        var point = new GeoPoint(-1, -1),
             nodeId = lineNw.addNode(point);
         // Insert node 'nodeId' into line 'network_line_100000'.
         lineNw.insertNodeIntoLine('network_line_100000', nodeId, 2);
@@ -163,7 +163,7 @@ define([
 
       it('should be able to insert a node into a specific line, relative to the end of the line',
           function () {
-        var point = new GeoPoint(-1,-1),
+        var point = new GeoPoint(-1, -1),
             nodeId = lineNw.addNode(point);
         // Insert node 'nodeId' into line 'network_line_100000' at the end.
         lineNw.insertNodeIntoLine('network_line_100000', nodeId, -1);
@@ -178,13 +178,29 @@ define([
         expect(lineData.nodeIds).toEqual(expectedNodeIds);
       });
 
+      it('should be able to remove a particular node from a given line', function () {
+        lineNw.removeNodeFromLine('network_line_100000', 0);
+        var actual = lineNw.getLineData('network_line_100000').nodeIds;
+        expect(actual).toEqual([2,3]);
+      });
+
       it('should do nothing a node is attempted to be inserted out of bounds', function () {
-        var tooLow = function () { lineNw.insertNodeIntoLine('network_line_100000', 0, -5); };
+        var tooLow = function () { lineNw.insertNodeIntoLine('network_line_100000', 0, -5); },
             tooHigh = function () { lineNw.insertNodeIntoLine('network_line_100000', 0, 4); };
         expect(tooHigh).not.toThrow();
         expect(lineNw.getLineData('network_line_100000').nodeIds).toEqual(inputLines[0].nodeIds);
         expect(tooLow).not.toThrow();
         expect(lineNw.getLineData('network_line_100000').nodeIds).toEqual(inputLines[0].nodeIds);
+      });
+    });
+
+    describe('Rendering: ', function () {
+      beforeEach(function () {
+        lineNw = new LineNetwork(id, nwData);
+      });
+
+      afterEach(function () {
+        lineNw = null;
       });
 
       it('should mark a line as being "dirty" when a node is added to it.', function () {
@@ -211,7 +227,7 @@ define([
        spyOn(line1, 'show');
        lineNw.show();
        expect(line0.show).toHaveBeenCalled();
-       expect(line1.show).not.toHaveBeenCalled();
+       expect(line1.show).toHaveBeenCalled();
       });
 
       it('should only re-show lines that have been modified', function () {
@@ -221,7 +237,8 @@ define([
             line1 = lineNw.getLine(lineId1);
         lineNw.insertNodeIntoLine(lineId0, 0);
 
-        // Fake that line1 is already visible.
+        // Fake that both lines are already visible.
+        line0.isVisible = function () { return true; };
         line1.isVisible = function () { return true; };
 
         spyOn(line0, 'show');
