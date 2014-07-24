@@ -98,8 +98,7 @@ define([
      * initialisation. Otherwise, all lines are constructed on the fly as required.
      */
     _build: function () {
-      var bindDependencies = this._bindDependencies,
-          defaultLineWidth = this.getDefaultLineWidth();
+      var defaultLineWidth = this.getDefaultLineWidth();
 
       if (this.isConstructed()) {
         // Die if the network is already constructed.
@@ -116,12 +115,11 @@ define([
             width = lineData.width || defaultLineWidth,
             color = lineData.color,
             style = lineData.style;
-
         // Construct the line object.
         var line = this._createLineObj(
           lineData.id,
           {vertices: lineGeoPoints, width: width, color: color, style: style},
-          bindDependencies({parent: this}));
+          this._bindDependencies({parent: this}));
         this._lines.add(line);
       }, this);
       this.clean();
