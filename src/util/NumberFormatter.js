@@ -13,8 +13,8 @@ define([
     /**
      * @param {Number} x - Any given number, including one in exponential notation.
      * @param {Object} args
-     * @param {Number} args.minSigFigs - The minimum number of significant figures after the period.
-     * @param {Number} args.maxSigFigs - The maximum number of significant figures after the period.
+     * @param {Number} [args.minSigFigs = 1] - The minimum number of significant figures after the period.
+     * @param {Number} [args.maxSigFigs = 3] - The maximum number of significant figures after the period.
      * @returns {String} A rounded string of the given number.
      */
     round: function(x, args) {

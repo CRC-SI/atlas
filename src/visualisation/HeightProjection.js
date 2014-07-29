@@ -12,7 +12,7 @@ define([
    * @class atlas.visualisation.HeightProjection
    * @extends atlas.visualisation.AbstractProjection
    */
-  return AbstractProjection.extend(/** @lends atlas.visualisation.HeightProjection.prototype */ {
+  return AbstractProjection.extend(/** @lends atlas.visualisation.HeightProjection# */ {
 
     ARTIFACT: 'height',
     DEFAULT_CODOMAIN: {startProj: 50, endProj: 100},
