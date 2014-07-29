@@ -6,8 +6,9 @@ var tests = [];
       { name: 'dom/Overlay', run: true },
       { name: 'edit/EditManager', run: true },
       { name: 'entity/EntityManager', run: true },
-      { name: 'model/Handle', run: true },
       { name: 'model/Ellipse', run: true },
+      { name: 'model/Handle', run: true },
+      { name: 'model/LineNetwork', run: true },
       { name: 'visualisation/AbstractProjection', run: true },
       { name: 'visualisation/HeightProjection', run: true },
       { name: 'visualisation/ColourProjection', run: true },
@@ -44,5 +45,10 @@ requirejs.config({
   deps: tests,
 
   // Start tests running once requirejs is done.
-  callback: window.__karma__.start
+  callback: function () {
+    require(['atlas/lib/utility/Log'], function (Log) {
+      Log.setLevel('debug');
+      window.__karma__.start()
+    })
+  }
 });

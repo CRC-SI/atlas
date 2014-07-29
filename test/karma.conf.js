@@ -15,6 +15,7 @@ module.exports = function(config) {
       'atlas/test/test-main.js',
       {pattern: 'atlas/src/**/*.js', included: false},
       {pattern: 'atlas/lib/**/*.js', included: false},
+      {pattern: 'atlas/test/lib/**/*.js', included: false},
       {pattern: 'atlas/test/specs/**/*Spec.js', included: false}
     ],
 
