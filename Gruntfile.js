@@ -99,7 +99,8 @@ module.exports = function(grunt) {
           {src: libPath('Requirejs', 'require.js'), dest: libPath('require.js')},
           {src: libPath('Tinycolor', 'tinycolor.js'), dest: libPath('tinycolor.js')},
           {src: libPath('Keycode', 'keycode.js'), dest: libPath('keycode.js')},
-          {src: libPath('numeraljs', 'min', 'numeral.min.js'), dest: libPath('numeral.js')}
+          {src: libPath('numeraljs', 'min', 'numeral.min.js'), dest: libPath('numeral.js')},
+          {src: libPath('q', 'q.js'), dest: libPath('Q.js')}
         ]
       },
       openLayersBuildConfig: {

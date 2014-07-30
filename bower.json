@@ -20,6 +20,7 @@
     "Tinycolor": "tinycolor#~0.9.x",
     "utility": "https://bitbucket.org/mutopia/utility.git",
     "numeraljs": "~1.5.3",
-    "less": "~1.7.0"
+    "less": "~1.7.0",
+    "q": "~2.0.0"
   }
 }
