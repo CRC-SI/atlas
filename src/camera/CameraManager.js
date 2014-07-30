@@ -2,10 +2,11 @@ define([
   'atlas/camera/Camera',
   'atlas/model/GeoPoint',
   'atlas/lib/utility/Log',
+  'atlas/lib/utility/Type',
   'atlas/lib/utility/Setter',
   'atlas/util/Class',
   'atlas/util/DeveloperError'
-], function (Camera, GeoPoint, Log, Setter, Class, DeveloperError) {
+], function(Camera, GeoPoint, Log, Type, Setter, Class, DeveloperError) {
 
   /**
    * Constructs a new CameraManager object.
@@ -19,7 +20,7 @@ define([
    * @alias atlas.camera.CameraManager
    * @constructor
    */
-  var CameraManager = Class.extend( /** @lends atlas.camera.CameraManager# */ {
+  var CameraManager = Class.extend(/** @lends atlas.camera.CameraManager# */ {
     /**
      * The current Camera.
      * @type atlas.camera.Camera
@@ -32,7 +33,7 @@ define([
      */
     _bookmarks: null,
 
-    _init: function (atlasManagers, options) {
+    _init: function(atlasManagers, options) {
       this._options = Setter.mixin({
         forceCustomControl: true
       }, options);
@@ -45,30 +46,36 @@ define([
      * Used to set up parts of the CameraManager that require other Atlas managers to already
      * be created.
      */
-    setup: function () {
+    setup: function() {
       this._bindEvents();
       // TODO(bpstudds): Properly override (Cesium) camera controls.
       //this._options.forceCustomControl && this._bindControlEvents();
     },
 
     // Binds event handlers with the Event Manager
-    _bindEvents: function () {
+    _bindEvents: function() {
       var handlers = [
         {
           source: 'extern',
           name: 'camera/zoomTo',
-          callback: function (args) {
+          callback: function(args) {
             if (this._camera === null) {
               this._camera = new Camera();
             }
-            args.position = new GeoPoint(args.position);
-            this._camera.zoomTo(args);
+            if (args.position) {
+              args.position = new GeoPoint(args.position);
+              this._camera.zoomTo(args);
+            } else if (args.address) {
+              this._camera.zoomToAddress(args.address);
+            } else {
+              return new Error('Invalid arguments');
+            }
           }.bind(this)
         },
         {
           source: 'extern',
           name: 'camera/current',
-          callback: function (args) {
+          callback: function(args) {
             args.callback(this._camera);
           }.bind(this)
         }
@@ -76,7 +83,7 @@ define([
       this._atlasManagers.event.addEventHandlers(handlers);
     },
 
-    _bindControlEvents: function () {
+    _bindControlEvents: function() {
       var handlers = [
         {
           source: 'intern',
@@ -113,27 +120,30 @@ define([
     },
 
     // TODO(aramk) This might be superseded by getStats() on Camera.
-    getCameraMetrics: function () {
+    getCameraMetrics: function() {
       return {
         position: this._current._position,
         orientation: this._current._orientation
       };
     },
 
-    _updateControl: function (event) {
+    _updateControl: function(event) {
       var pos = event.pos
       this._control = this._control || {};
 
-      if (this._atlasManagers.entity.getAt(pos).length > 0) { return; }
+      if (this._atlasManagers.entity.getAt(pos).length > 0) {
+        return;
+      }
 
       this._control.inControl = true;
       this._control.action = event.button;
       Log.debug('CameraManager', 'updating control', this._control.action);
       this._control.curPos = pos;
-      this._camera.inputHandlers[this._control.action] && this._camera.inputHandlers[this._control.action](event);
+      this._camera.inputHandlers[this._control.action] &&
+      this._camera.inputHandlers[this._control.action](event);
     },
 
-    _stopControl: function (event) {
+    _stopControl: function(event) {
       if (this._control && this._control.inControl) {
         Log.debug('CameraManager', 'stop control', this._control.action);
         this._control.inControl = false;
@@ -141,7 +151,7 @@ define([
       }
     },
 
-    createBookmark: function () {
+    createBookmark: function() {
       var bookmark = {
         id: this._bookmarks.length,
         camera: this.getCameraMetrics
@@ -151,11 +161,11 @@ define([
       return bookmark;
     },
 
-    removeBookmark: function () {
+    removeBookmark: function() {
       throw new DeveloperError('CameraManager.removeBookmark not yet implemented.');
     },
 
-    gotoBookmark: function (id) {
+    gotoBookmark: function(id) {
       if (!this._bookmarks[id]) {
         Log.debug('Tried to go to non-existent bookmark ' + id);
         return;
@@ -163,9 +173,11 @@ define([
       this._current.zoomTo(Setter.mixin({duration: 0}, this._bookmarks[id]));
     },
 
-    lockCamera: function () {},
+    lockCamera: function() {
+    },
 
-    unlockCamera: function () {}
+    unlockCamera: function() {
+    }
   });
 
   return CameraManager;

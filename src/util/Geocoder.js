@@ -33,10 +33,17 @@ define([
 
     /**
      * Searches the given address for the coordinates.
-     * @param {String} address
+     * @param {Object} args
+     * @param {String} args.address
      * @param {Function} callback
+     * @see https://developers.google.com/maps/documentation/javascript/geocoding
      */
-    geocode: function(address) {
+    geocode: function(args) {
+      // TODO(aramk) Add support for "location" lat lng instead of "address"
+      var address = args.address;
+      if (!address) {
+        throw new Error('Address required');
+      }
       var df = Q.defer();
       this._geocoderPromise.then(function(geocoder) {
         geocoder.geocode({'address': address}, function(results, status) {
