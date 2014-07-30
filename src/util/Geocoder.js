@@ -1,9 +1,10 @@
 define([
   'atlas/lib/utility/Log',
   'atlas/lib/Q',
+  'atlas/model/GeoPoint',
   'atlas/util/Class',
   'atlas/util/GoogleAPI'
-], function(Log, Q, Class, GoogleAPI) {
+], function(Log, Q, GeoPoint, Class, GoogleAPI) {
   /**
    * Queries location names and finds their geospatial coordinates.
    * @class atlas.util.Geocoder
@@ -35,7 +36,6 @@ define([
      * Searches the given address for the coordinates.
      * @param {Object} args
      * @param {String} args.address
-     * @param {Function} callback
      * @see https://developers.google.com/maps/documentation/javascript/geocoding
      */
     geocode: function(args) {
@@ -46,7 +46,7 @@ define([
       }
       var df = Q.defer();
       this._geocoderPromise.then(function(geocoder) {
-        geocoder.geocode({'address': address}, function(results, status) {
+        geocoder.geocode({address: address}, function(results, status) {
           var result = {
             results: results,
             status: status
@@ -56,7 +56,26 @@ define([
         });
       }, df.reject);
       return df.promise;
+    },
+
+    /**
+     * @param {Object} args - The same as {@link #geocode}.
+     * @returns {Object} info
+     * @returns {Object} info.address - The resolved address of the location.
+     * @returns {atlas.model.GeoPoint} info.position - The resolved position of the location.
+     */
+    getInfo: function (args) {
+      return this.geocode(args).then(function (results) {
+        var result = results.results[0];
+        var loc = result.geometry.location;
+        return {
+          address: result.formatted_address,
+          position: new GeoPoint(loc.lng(), loc.lat())
+        }
+      });
     }
+
+    // TODO(aramk) Add convenience method to return the name and GeoPoint of the first result.
 
   });
 });

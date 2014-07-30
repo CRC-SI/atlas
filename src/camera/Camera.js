@@ -244,11 +244,9 @@ define([
      * @param {String} address
      */
     zoomToAddress: function(address) {
-      this._getGeocoder().geocode({address: address}).then(function(results) {
-        var result = results.results[0];
-        var loc = result.geometry.location;
+      this._getGeocoder().getInfo({address: address}).then(function(result) {
         var defaultPosition = Camera.getDefaultPosition();
-        var position = new GeoPoint(loc.lng(), loc.lat());
+        var position = result.position;
         position.elevation = defaultPosition.elevation;
         this.zoomTo({position: position});
       }.bind(this), function() {
