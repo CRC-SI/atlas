@@ -64,7 +64,7 @@ define([
      */
     setPosition: function(position) {
       this._setPosition(position);
-      this._animate({duration: 0});
+      this._animate({position: this._position, duration: 0});
     },
 
     /**
@@ -72,7 +72,8 @@ define([
      * @private
      */
     _setPosition: function(position) {
-      this._position = Setter.merge(this._position || Camera.getDefaultPosition(), position);
+      this._position =
+          new GeoPoint(Setter.merge(this._position || Camera.getDefaultPosition(), position));
     },
 
     /**
@@ -115,7 +116,7 @@ define([
      */
     setOrientation: function(orientation) {
       this._setOrientation(orientation);
-      this._animate({duration: 0});
+      this._animate({position: this._position, duration: 0});
     },
 
     /**
@@ -162,7 +163,7 @@ define([
       throw new DeveloperError('Can not call abstract method Camera._animate');
     },
 
-    _getGeocoder: function () {
+    _getGeocoder: function() {
       if (!this._geocoder) {
         this._geocoder = new Geocoder();
       }
