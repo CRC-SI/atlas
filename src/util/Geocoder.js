@@ -40,13 +40,12 @@ define([
       var df = Q.defer();
       this._geocoderPromise.then(function(geocoder) {
         geocoder.geocode({'address': address}, function(results, status) {
-          if (status != google.maps.GeocoderStatus.OK) {
-            Log.warn('Geocoder could not determine location', address, status);
-          }
-          df.resolve({
+          var result = {
             results: results,
             status: status
-          });
+          };
+          var hasFailed = status != google.maps.GeocoderStatus.OK;
+          df[hasFailed ? 'reject' : 'resolve'](result);
         });
       }, df.reject);
       return df.promise;
