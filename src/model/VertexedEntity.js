@@ -14,7 +14,7 @@ define([
    * @class atlas.model.VertexedEntity
    * @extends atlas.model.GeoEntity
    */
-  VertexedEntity = GeoEntity.extend({
+  VertexedEntity = GeoEntity.extend(/** @lends atlas.model.VertexedEntity# */ {
     _vertices: null,
 
     _init: function (id, args) {

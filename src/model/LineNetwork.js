@@ -21,7 +21,7 @@ define([
    * @class atlas.model.LineNetwork
    * @extends atlas.model.GeoEntity
    */
-  LineNetwork = GeoEntity.extend({
+  LineNetwork = GeoEntity.extend(/** @lends atlas.model.LineNetwork# */ {
     /**
      * An ItemStore containing data required to construct and render the lines of the line network.
      * @type {atlas.core.ItemStore}
