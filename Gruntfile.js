@@ -66,9 +66,7 @@ module.exports = function(grunt) {
         options: {
           stdout: true
         },
-        command: [
-              path.join('node_modules', '.bin', 'jsdoc') + ' -c jsdoc.conf.json -l'
-        ].join('&&')
+        command: path.join('node_modules', '.bin', 'jsdoc') + ' -c jsdoc.conf.json -l'
       },
 
       // Compile JS source files.
@@ -76,9 +74,7 @@ module.exports = function(grunt) {
         options: {
           stdout: false, stderr: true
         },
-        command: [
-              'node node_modules/requirejs/bin/r.js -o ' + BUILD_FILE
-        ].join('&&')
+        command: 'node node_modules/requirejs/bin/r.js -o ' + BUILD_FILE
       },
 
       buildOpenLayers: {
@@ -193,7 +189,7 @@ module.exports = function(grunt) {
   grunt.registerTask('fix-openlayers-build', 'Fixes the built OpenLayers file to be compatible' +
       'with AMD.', function() {
     writeFile(OPEN_LAYERS_BUILD_OUTPUT_PATH, function(data) {
-      // Remove "var" to always define in global, scope even if wrapped in closure).
+      // Remove "var" to always define in global scope even if wrapped in closure).
       data = data.replace(/^var\s*(OpenLayers\s*=)/m, '$1');
       // Add AMD module definition.
       data = wrapAmdDefine(data, 'OpenLayers');
@@ -201,16 +197,16 @@ module.exports = function(grunt) {
     });
   });
 
-  grunt.registerTask('build-openlayers', 'Builds OpenLayers.',
-      ['copy:openLayersBuildConfig', 'shell:buildOpenLayers', 'fix-openlayers-build',
-        'copy:openLayersBuildOutput']);
   grunt.registerTask('install', 'Installs dependencies.',
-      ['shell:installNpmDep', 'shell:installBowerDep', 'build-openlayers', 'copy:bowerDep']);
+      ['shell:installNpmDep', 'shell:installBowerDep', 'install-openlayers', 'copy:bowerDep']);
   grunt.registerTask('update', 'Updates dependencies.',
       ['shell:updateNpmDep', 'shell:updateBowerDep']);
   grunt.registerTask('build', 'Builds the app into a distributable package.',
       ['compile-imports', 'clean:dist', 'shell:build', 'less']);
   grunt.registerTask('doc', 'Generates documentation.', ['clean:doc', 'shell:jsDoc']);
+  grunt.registerTask('install-openlayers', 'Installs OpenLayers with a custom build.',
+      ['copy:openLayersBuildConfig', 'shell:buildOpenLayers', 'fix-openlayers-build',
+        'copy:openLayersBuildOutput']);
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // AUXILIARY
@@ -239,6 +235,11 @@ module.exports = function(grunt) {
     return RE_AMD_MODULE.test(data);
   }
 
+  /**
+   * Wraps an AMD definition around the given script.
+   * @param {String} script
+   * @param {String} returnStr
+   */
   function wrapAmdDefine(script, returnStr) {
     returnStr = returnStr ? ';return ' + returnStr + ';' : '';
     return 'define([],function(){' + script + returnStr + '});';
