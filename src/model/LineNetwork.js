@@ -13,22 +13,25 @@ define([
   var LineNetwork;
 
   /**
-   * @classdesc A LineNetwork represents a 2D graph of lines.
+   * @classdesc A LineNetwork represents a 2D network of lines. The network is described using a
+   * set of nodes and line data. The nodes are a set of {@link atlas.model.GeoPoint geographic points}.
+   * The line data describes an individual line in the network. It consists of an array of node
+   * indices which describe the geographic shape, and parameters which affect how the line is
+   * rendered (colour, texture, width, ...).
    * @class atlas.model.LineNetwork
    * @extends atlas.model.GeoEntity
    */
   LineNetwork = GeoEntity.extend({
     /**
-     * An ItemStore containing data required to construct and rendering the lines of the line
-     * network.
+     * An ItemStore containing data required to construct and render the lines of the line network.
      * @type {atlas.core.ItemStore}
      * @private
      */
     _lineData: null,
 
     /**
-     * @typedef atlas.model.LineNetwork#LineData
-     * @property {String} [id] - The ID of the Line. A unique ID will be assigned.
+     * @typedef {object} atlas.model.LineNetwork#LineData
+     * @property {string} [id] - The ID of the Line. A unique ID will be assigned.
      * @property {number} nodeIds - The IDs into the <code>nodeData</code> array of the points
      *     constructing the line.
      */
@@ -98,12 +101,11 @@ define([
      * initialisation. Otherwise, all lines are constructed on the fly as required.
      */
     _build: function () {
-      var defaultLineWidth = this.getDefaultLineWidth();
-
       if (this.isConstructed()) {
         // Die if the network is already constructed.
         return;
       }
+      var defaultLineWidth = this.getDefaultLineWidth();
 
       // Construct the Line objects.
       this._lineData.forEach(function(lineData) {
@@ -159,7 +161,7 @@ define([
     /**
      * @returns {atlas.model.Line|null} A Line in the network with the given ID, null if no such
      *     Line exists.
-     * @param {string} id - The index of the Line.
+     * @param {string} id - The ID of the Line.
      */
     getLine: function (id) {
       return this._lines.get(id);
@@ -187,8 +189,7 @@ define([
      * <code>Line</code> object, with no Line objects existing without a LineData object.
      */
     isConstructed: function () {
-      var allLinesBuilt = this._lines.getCount() == this._lineData.getCount();
-      return allLinesBuilt;
+      return this._lines.getCount() == this._lineData.getCount();
     },
 
     /**
@@ -290,7 +291,7 @@ define([
     show: function () {
       // Re-build the LineNetwork if it can't be rendered immediately.
       if (!this.isConstructed()) {
-        Log.error('LineNetwork ' + this.getId() + ' not properly constructed before show() called.'
+        throw new Error('LineNetwork ' + this.getId() + ' not properly constructed before show() called.'
           + 'This should not occur.'
         );
       }

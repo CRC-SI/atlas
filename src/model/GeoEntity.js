@@ -316,11 +316,12 @@ define([
     },
 
     /**
-     * Set a particular component to be clean.
-     * @param {string} component - The component to clean.
+     * Set a particular component to be clean, or cleans the GeoEntity entirely.
+     * @param {string} [component] - The component to clean, if absent or null the entire GeoEntity
+     *     is marked clean.
      */
     setClean: function(component) {
-      if (component !== undefined && this._dirty[component]) {
+      if (!component) {
         delete this._dirty[component];
       } else {
         this.clean();
