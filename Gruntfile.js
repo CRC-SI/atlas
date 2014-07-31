@@ -10,12 +10,19 @@ module.exports = function(grunt) {
   var SRC_DIR = 'src';
   var LIB_DIR = 'lib';
   var DIST_DIR = 'dist';
+  var DOCS_DIR = 'docs';
   var BUILD_DIR = 'build';
   var MAIN_FILE = srcPath('main.js');
   var BUILD_FILE = buildPath('build.js');
   var RE_AMD_MODULE = /\b(?:define|require)\s*\(/;
   var MODULE_NAME = 'atlas';
   var STYLE_BUILD_FILE = 'atlas.min.css';
+  var OPEN_LAYERS_CONFIG_FILE = 'atlas.openlayers.cfg';
+  var OPEN_LAYERS_PATH = libPath('Openlayers');
+  var OPEN_LAYERS_BUILD_PATH = path.join(OPEN_LAYERS_PATH, 'build');
+  var OPEN_LAYERS_BUILD_OUTPUT_FILE = 'OpenLayers.js';
+  var OPEN_LAYERS_BUILD_OUTPUT_PATH = path.join(OPEN_LAYERS_BUILD_PATH,
+      OPEN_LAYERS_BUILD_OUTPUT_FILE);
 
   require('logfile-grunt')(grunt, {filePath: buildPath('grunt.log'), clearLogFile: true});
   // Define the configuration for all the tasks.
@@ -59,10 +66,7 @@ module.exports = function(grunt) {
         options: {
           stdout: true
         },
-        command: [
-          'rm -rf docs',
-          path.join('node_modules', '.bin', 'jsdoc') + ' -c jsdoc.conf.json -l'
-        ].join('&&')
+        command: path.join('node_modules', '.bin', 'jsdoc') + ' -c jsdoc.conf.json -l'
       },
 
       // Compile JS source files.
@@ -70,8 +74,17 @@ module.exports = function(grunt) {
         options: {
           stdout: false, stderr: true
         },
+        command: 'node node_modules/requirejs/bin/r.js -o ' + BUILD_FILE
+      },
+
+      buildOpenLayers: {
+        options: {
+          stdout: true
+        },
         command: [
-              'node node_modules/requirejs/bin/r.js -o ' + BUILD_FILE
+              'cd ' + OPEN_LAYERS_BUILD_PATH,
+              'python build.py -c none ' + OPEN_LAYERS_CONFIG_FILE.replace(/\.cfg$/, '') + ' ' +
+              OPEN_LAYERS_BUILD_OUTPUT_FILE
         ].join('&&')
       }
     },
@@ -80,10 +93,20 @@ module.exports = function(grunt) {
       bowerDep: {
         files: [
           {src: libPath('Requirejs', 'require.js'), dest: libPath('require.js')},
-          {src: libPath('Openlayers', 'index.js'), dest: libPath('open-layers.js')},
           {src: libPath('Tinycolor', 'tinycolor.js'), dest: libPath('tinycolor.js')},
           {src: libPath('Keycode', 'keycode.js'), dest: libPath('keycode.js')},
-          {src: libPath('numeraljs','min','numeral.min.js'), dest: libPath('numeral.js')}
+          {src: libPath('numeraljs', 'min', 'numeral.min.js'), dest: libPath('numeral.js')}
+        ]
+      },
+      openLayersBuildConfig: {
+        files: [
+          {src: buildPath(OPEN_LAYERS_CONFIG_FILE), dest: path.join(OPEN_LAYERS_BUILD_PATH,
+              OPEN_LAYERS_CONFIG_FILE)}
+        ]
+      },
+      openLayersBuildOutput: {
+        files: [
+          {src: OPEN_LAYERS_BUILD_OUTPUT_PATH, dest: libPath(OPEN_LAYERS_BUILD_OUTPUT_FILE)}
         ]
       }
     },
@@ -104,6 +127,17 @@ module.exports = function(grunt) {
     },
 
     clean: {
+      doc: {
+        files: [
+          {
+            expand: true,
+            cwd: DOCS_DIR,
+            src: [
+              path.join('**', '*')
+            ]
+          }
+        ]
+      },
       dist: {
         files: [
           {
@@ -152,17 +186,33 @@ module.exports = function(grunt) {
     console.log('Compilation complete');
   });
 
+  grunt.registerTask('fix-openlayers-build', 'Fixes the built OpenLayers file to be compatible' +
+      'with AMD.', function() {
+    writeFile(OPEN_LAYERS_BUILD_OUTPUT_PATH, function(data) {
+      // Remove "var" to always define in global scope even if wrapped in closure).
+      data = data.replace(/^var\s*(OpenLayers\s*=)/m, '$1');
+      // Add AMD module definition.
+      data = wrapAmdDefine(data, 'OpenLayers');
+      return data;
+    });
+  });
+
   grunt.registerTask('install', 'Installs dependencies.',
-      ['shell:installNpmDep', 'shell:installBowerDep', 'copy:bowerDep']);
+      ['shell:installNpmDep', 'shell:installBowerDep', 'install-openlayers', 'copy:bowerDep']);
   grunt.registerTask('update', 'Updates dependencies.',
       ['shell:updateNpmDep', 'shell:updateBowerDep']);
   grunt.registerTask('build', 'Builds the app into a distributable package.',
       ['compile-imports', 'clean:dist', 'shell:build', 'less']);
-  grunt.registerTask('doc', 'Generates documentation.', ['shell:jsDoc']);
+  grunt.registerTask('doc', 'Generates documentation.', ['clean:doc', 'shell:jsDoc']);
+  grunt.registerTask('install-openlayers', 'Installs OpenLayers with a custom build.',
+      ['copy:openLayersBuildConfig', 'shell:buildOpenLayers', 'fix-openlayers-build',
+        'copy:openLayersBuildOutput']);
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // AUXILIARY
   //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // AMD MODULES
 
   function findAmdModules(dir) {
     var files = glob.sync('**/*.js', {cwd: dir});
@@ -185,8 +235,27 @@ module.exports = function(grunt) {
     return RE_AMD_MODULE.test(data);
   }
 
+  /**
+   * Wraps an AMD definition around the given script.
+   * @param {String} script
+   * @param {String} returnStr
+   */
+  function wrapAmdDefine(script, returnStr) {
+    returnStr = returnStr ? ';return ' + returnStr + ';' : '';
+    return 'define([],function(){' + script + returnStr + '});';
+  }
+
+  // FILES
+
   function readFile(file) {
     return fs.readFileSync(file, {encoding: 'utf-8'});
+  }
+
+  function writeFile(file, data) {
+    if (typeof data === 'function') {
+      data = data(readFile(file));
+    }
+    fs.writeFileSync(file, data);
   }
 
   function _prefixPath(dir, args) {

@@ -15,7 +15,7 @@ define([
    * @class atlas.events.EventManager
    */
   //var EventManager = function (atlasManagers) {
-  var EventManager = Class.extend(/** @lends atlas.events.EventManager */ {
+  var EventManager = Class.extend(/** @lends atlas.events.EventManager# */ {
 
     /**
      * Contains a map of manager types to manager objects. This object exists
