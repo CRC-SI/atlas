@@ -1,7 +1,8 @@
 define([
+  'atlas/lib/utility/Type',
   // Code under test.
   'atlas/core/ItemStore'
-], function (ItemStore) {
+], function (Type, ItemStore) {
 
   describe('A ItemStore', function () {
 
@@ -67,6 +68,14 @@ define([
         itemStore.add(items[1]);
         expect(itemStore.get('0')).toEqual(items[0]);
         expect(itemStore.get('1')).toEqual(items[1]);
+      });
+
+      it('can retrieve all items as an array', function () {
+        itemStore.addArray(items);
+        var asArray = itemStore.asArray();
+        expect(Type.isArrayLiteral(asArray)).toBe(true);
+        expect(asArray).not.toBe(items);
+        expect(asArray).toEqual(items);
       });
 
       it('can have items removed', function () {

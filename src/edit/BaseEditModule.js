@@ -8,7 +8,7 @@ define([
    * @class atlas.edit.BaseEditModule
    * @abstract
    */
-  return Class.extend(/** @class atlas.edit.BaseEditModule# */ {
+  return Class.extend(/** @lends atlas.edit.BaseEditModule# */ {
 
     /**
      * The name of the module set by the {@link atlas.edit.EditManager}.

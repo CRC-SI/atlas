@@ -187,7 +187,7 @@ define([
     /**
      * @param args - Any object used for construction.
      * @returns {Object} - The given object with manager dependencies added.
-     * @private
+     * @protected
      */
     _bindDependencies: function(args) {
       return Setter.mixin(args, {
@@ -312,6 +312,19 @@ define([
         components.forEach(function(key) {
           this._dirty[key] = true;
         }, this)
+      }
+    },
+
+    /**
+     * Set a particular component to be clean, or cleans the GeoEntity entirely.
+     * @param {string} [component] - The component to clean, if absent or null the entire GeoEntity
+     *     is marked clean.
+     */
+    setClean: function(component) {
+      if (!component) {
+        delete this._dirty[component];
+      } else {
+        this.clean();
       }
     },
 
