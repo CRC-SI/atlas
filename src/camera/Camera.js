@@ -40,6 +40,7 @@ define([
     _orientation: null,
 
     /**
+     * A geocoder used for resolving address names to coordinates.
      * @type {atlas.util.Geocoder}
      */
     _geocoder: null,
@@ -116,7 +117,7 @@ define([
      */
     setOrientation: function(orientation) {
       this._setOrientation(orientation);
-      this._animate({position: this._position, duration: 0});
+      this._animate({position: this._position, orientation: this._orientation, duration: 0});
     },
 
     /**
@@ -241,7 +242,7 @@ define([
     },
 
     /**
-     * Moves the camera to the given location address.
+     * Moves the camera to the given address.
      * @param {String} address
      */
     zoomToAddress: function(address) {

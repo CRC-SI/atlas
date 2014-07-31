@@ -68,7 +68,7 @@ define([
             } else if (args.address) {
               this._camera.zoomToAddress(args.address);
             } else {
-              return new Error('Invalid arguments');
+              return new Error('Invalid arguments for event "camera/zoomTo"');
             }
           }.bind(this)
         },
@@ -139,8 +139,8 @@ define([
       this._control.action = event.button;
       Log.debug('CameraManager', 'updating control', this._control.action);
       this._control.curPos = pos;
-      this._camera.inputHandlers[this._control.action] &&
-      this._camera.inputHandlers[this._control.action](event);
+      var handler = this._camera.inputHandlers[this._control.action];
+      handler && handler(event);
     },
 
     _stopControl: function(event) {
