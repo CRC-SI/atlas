@@ -1,9 +1,10 @@
 define([
   'atlas/edit/BaseEditModule',
   'atlas/lib/utility/Log',
+  'atlas/lib/utility/Setter',
   'atlas/model/Feature',
   'atlas/util/DeveloperError'
-], function (BaseEditModule, Log, Feature, DeveloperError) {
+], function (BaseEditModule, Log, Setter, Feature, DeveloperError) {
 
   // TODO(bpstudds): This is copied almost entirely from the existing DrawModule (for polygons).
   // TODO(bpstudds): Abstract common logic in DrawModule and LineDrawModule.
@@ -116,6 +117,7 @@ define([
      * @private
      */
     _draw: function(args) {
+      args = Setter.def(args, {});
       if (this.isDrawing()) {
         throw new DeveloperError('Already drawing - end the current session first.');
       }
