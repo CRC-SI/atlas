@@ -49,6 +49,12 @@ define([
     // GETTERS AND SETTERS
     // -------------------------------------------------
 
+    asArray: function () {
+      return this.map(function (item) {
+        return item;
+      });
+    },
+
     /**
      * @returns {number} The number of items in the store.
      */
