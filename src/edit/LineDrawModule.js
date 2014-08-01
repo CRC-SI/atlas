@@ -3,8 +3,9 @@ define([
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/model/Feature',
+  'atlas/model/GeoPoint',
   'atlas/util/DeveloperError'
-], function (BaseEditModule, Log, Setter, Feature, DeveloperError) {
+], function (BaseEditModule, Log, Setter, Feature, GeoPoint, DeveloperError) {
 
   // TODO(bpstudds): This is copied almost entirely from the existing DrawModule (for polygons).
   // TODO(bpstudds): Abstract common logic in DrawModule and LineDrawModule.
@@ -188,9 +189,20 @@ define([
 
       // Stop editing if clicking on the first handle, otherwise ignore.
       if (target) {
+        // TODO(bpstudds): Fix up translation of existing nodes.
         //translationModule.cancel();
         if (this._handles.length > 0 && target === this._handles[0]) {
-          // Ensure a translation doesn't exist if we clicked on a handle.
+          // Add last vertex if closing the line.
+          var centroid = target.getCentroid();
+          if (centroid) {
+            if (centroid.x) {
+              // TODO(bpstudds): Convert all getCentroid to return a GeoPoint.
+              centroid = new GeoPoint(centroid);
+            }
+            line.addVertex(centroid);
+            this._render();
+          }
+          // And stop drawing
           this._stop(args);
         }
         return;

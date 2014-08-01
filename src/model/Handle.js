@@ -64,6 +64,7 @@ define([
       if (!args.target && !args.owner) {
         throw new DeveloperError('Cannot create Handle without either a target or an owner.');
       }
+      this._centroid = args.target || args.owner.getCentroid();
       this._target = args.target;
       this._owner = args.owner;
       this._dotRadius = args.dotRadius || Handle.DOT_RADIUS;
