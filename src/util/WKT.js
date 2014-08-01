@@ -9,6 +9,8 @@ define([
 
   /**
    * Defines a set of utility methods for working with Well-Known-Text.
+   * NOTE: All vertices used in Atlas use "x" as longitude and "y" as latitude and these methods
+   * expect this format. WKT and OpenLayers uses the opposite.
    * @class {atlas.util.WKT}
    */
   var WKT = Setter.mixin(Class.extend({
@@ -78,7 +80,7 @@ define([
       var points = [];
       for (var i = 0; i < vertices.length; i++) {
         var vertex = vertices[i];
-        // NOTE: OpenLayers treats latitude as x, longitude as y.
+        // NOTE: OpenLayers treats latitude as x, longitude as y. Atlas uses the opposite.
         var point = new OpenLayers.Geometry.Point(vertex.y, vertex.x);
         points.push(point);
       }

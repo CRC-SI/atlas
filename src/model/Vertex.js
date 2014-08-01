@@ -176,7 +176,7 @@ define([
      * @param {Array.<atlas.model.Vertex>} vertices
      * @param {Object} [args]
      * @see #toArray
-     * @returns {Array.<Array<Number>>} An array of the given vertices converted to arrays.
+     * @returns {Array.<Array.<Number>>} An array of the given vertices converted to arrays.
      */
     toArrays: function(vertices, args) {
       return vertices.map(function(vertex) {
