@@ -152,6 +152,12 @@ define([
      * @private
      */
     _add: function(args) {
+      var clickedAt = this._atlasManagers.render.convertScreenCoordsToLatLng(args.position);
+      if (!clickedAt) {
+        // Click was not registered on the globe
+        return;
+      }
+
       var handles = this._atlasManagers.edit.getHandles();
       var targetId = this._atlasManagers.render.getAt(args.position)[0];
       var target = handles.get(targetId);
@@ -180,25 +186,22 @@ define([
       }
       this._lastClickTime = now;
 
+      // Stop editing if clicking on the first handle, otherwise ignore.
       if (target) {
-        translationModule.cancel();
-        // Stop editing if clicking on the first handle, otherwise ignore.
+        //translationModule.cancel();
         if (this._handles.length > 0 && target === this._handles[0]) {
           // Ensure a translation doesn't exist if we clicked on a handle.
           this._stop(args);
         }
         return;
       }
-
-      var point = this._atlasManagers.render.convertScreenCoordsToLatLng(args.position);
-      var vertex = point.toVertex();
-      line.getVertices().push(vertex);
-
-      var handle = line.addHandle(line.createHandle(vertex));
-      handle.render();
+      // Add new vertex and handles if a new line segment has been drawn.
+      line.addVertex(clickedAt);
+      this._render();
+      var handle = line.addHandle(line.createHandle(clickedAt.toVertex()));
+      handle.show();
       handles.add(handle);
       this._handles.push(handle);
-      this._render();
       this._executeHandlers(this._handlers.update);
     },
 
