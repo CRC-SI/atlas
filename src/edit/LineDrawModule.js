@@ -172,7 +172,7 @@ define([
         if (diff <= this._doubleClickDelta) {
           // Remove the point added on the first click of the double click.
           // NOTE: it will still invoke the update callback.
-          line.getVertices().pop();
+          line.removeVertex();
           var lastHandle = this._handles.pop();
           handles.remove(lastHandle.getId());
           lastHandle.remove();
