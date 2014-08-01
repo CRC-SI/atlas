@@ -1,15 +1,15 @@
 define([
   'atlas/model/GeoEntity',
-  'atlas/model/Vertex',
+  'atlas/model/GeoPoint',
   // Code under test
   'atlas/model/Handle'
-], function (GeoEntity, Vertex, Handle) {
+], function (GeoEntity, GeoPoint, Handle) {
   describe ('A Handle', function () {
     var handle,
         entity1,
         entity2,
-        vertex,
-        modifiers = ['translate', 'rotate', 'scale'];
+        geoPoint,
+        modifiers = ['translate']; // Only translate supported atm , 'rotate', 'scale'];
 
     // Override abstract render function.
     Handle.prototype.render = function () {};
@@ -18,7 +18,7 @@ define([
     beforeEach (function () {
       entity1 = new GeoEntity({id: '001'});
       entity2 = new GeoEntity({id: '002'});
-      vertex = new Vertex({x: 0, y: 0, z: 0});
+      geoPoint = new GeoPoint({longitude: 0, latitude: 0, elevation: 0});
       [entity1, entity2].forEach(function (entity) {
         spyOn(entity, 'show');
         modifiers.forEach(function (method) {
@@ -31,31 +31,30 @@ define([
       handle = null;
       entity1 = null;
       entity2 = null;
-      vertex = null;
+      geoPoint = null;
     });
 
     describe ('can be constructed', function () {
       it ('with a linked or target GeoEntity', function () {
         handle = new Handle({target: entity1});
         expect(handle).not.toBeNull();
-        expect(handle.getLinked()).toEqual(entity1);
-        expect(handle.getTarget()).toEqual(entity1);
-        expect(handle._id).toEqual('handle100000');
-        handle = new Handle({target: entity2, owner: entity1});
+        expect(handle.getTarget().getId()).toEqual(entity1.getId());
+        expect(handle.getId()).toEqual('handle100000');
+        handle = new Handle({target: geoPoint, owner: entity1});
         expect(handle).not.toBeNull();
-        expect(handle.getLinked()).toEqual(entity2);
-        expect(handle.getTarget()).toEqual(entity2);
-        expect(handle._id).toEqual('handle100001');
+        expect(handle.getOwner().getId()).toEqual(entity1.getId());
+        expect(handle.getTarget()).toEqual(geoPoint);
+        expect(handle.getId()).toEqual('handle100001');
       });
 
-      it ('with a Vertex', function () {
-        handle = new Handle({target: vertex, owner: entity1});
+      it ('with a target GeoPoint and owner', function () {
+        handle = new Handle({target: geoPoint, owner: entity1});
         expect(handle).not.toBeNull();
-        expect(handle.getLinked()).toEqual(vertex);
-        expect(handle.getTarget()).toEqual(entity1);
+        expect(handle.getOwner().getId()).toEqual(entity1.getId());
+        expect(handle.getTarget()).toEqual(geoPoint);
       });
 
-      it ('but fails without a link', function () {
+      it ('but fails without a an owner', function () {
         var noArg = function () {
           return new Handle();
         };
@@ -66,16 +65,16 @@ define([
         expect(noArg).toThrow();
       });
 
-      it ('but fails with a non-Vertex or GeoEntity link', function () {
+      it ('but fails with a non-Geopoint target', function () {
         var incorrectArg = function () {
-          return new Handle({target: 'string'});
+          return new Handle({target: 'string', owner: entity1});
         };
         expect(incorrectArg).toThrow();
       });
 
-      it ('but fails if a Vertex is linked without a target', function () {
+      xit ('but fails if a GeoPoint is linked without an owner', function () {
         var incorrectArg = function () {
-          return new Handle({target: vertex});
+          return new Handle({target: geoPoint});
         };
         expect(incorrectArg).toThrow();
       });
@@ -85,33 +84,32 @@ define([
       it ('when linked directly to a GeoEntity', function () {
         handle = new Handle({target: entity1});
         modifiers.forEach(function (method) {
-          spyOn(handle, method).andCallThrough();
+          spyOn(handle, method).and.callThrough();
           handle[method]();
-          expect(entity1[method].calls.length).toEqual(1);
+          expect(entity1[method].calls.count()).toEqual(1);
         });
-        expect(entity1.show.calls.length).toEqual(3);
+        //expect(entity1.show.calls.count()).toEqual(3);
       });
 
-      it ('when linked to a Vertex, which then updates the GeoEntity', function () {
-        handle = new Handle({target: vertex, owner: entity1});
+      it ('when linked to a GeoPoint, which then updates the GeoEntity', function () {
+        handle = new Handle({target: geoPoint, owner: entity1});
         spyOn(entity1, 'setDirty');
-        handle.translate({x: 0, y: 0, z: 0});
+        handle.translate({longitude: 1, latitude: 1, elevation: 1});
         expect(entity1.setDirty).toHaveBeenCalledWith('vertices');
-        expect(entity1.show.calls.length).toEqual(1);
+        //expect(entity1.show.calls.count()).toEqual(1);
       });
     });
 
     describe ('can be removed', function () {
-
       it ('from a single GeoEntity', function () {
         handle = new Handle({target: entity1});
         handle.remove();
 
-        expect(handle.getLinked()).toBeNull();
+        expect(handle.getOwner()).toBeNull();
         expect(handle.getTarget()).toBeNull();
         modifiers.forEach(function (method) {
           expect(handle[method]).toThrow();
-          expect(entity1[method].calls.length).toEqual(0);
+          expect(entity1[method].calls.count()).toEqual(0);
         });
       });
     })

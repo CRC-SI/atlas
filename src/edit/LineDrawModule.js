@@ -210,7 +210,7 @@ define([
       // Add new vertex and handles if a new line segment has been drawn.
       line.addVertex(clickedAt);
       this._render();
-      var handle = line.addHandle(line.createHandle(clickedAt.toVertex()));
+      var handle = line.addHandle(line.createHandle(clickedAt));
       handle.show();
       handles.add(handle);
       this._handles.push(handle);

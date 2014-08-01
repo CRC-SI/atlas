@@ -2,8 +2,9 @@ define([
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/model/GeoEntity',
-  'atlas/util/DeveloperError',
-], function(Log, Setter, GeoEntity, DeveloperError) {
+  'atlas/model/GeoPoint',
+  'atlas/util/DeveloperError'
+], function(Log, Setter, GeoEntity, GeoPoint, DeveloperError) {
 
   /**
    * @typedef atlas.model.Handle
@@ -12,14 +13,12 @@ define([
   var Handle;
 
   /**
-   * @classdesc The Handle class is an interactive {@link atlas.model.Vertex}.
+   * @classdesc The Handle class is an interactive {@link atlas.model.GeoPoint}.
    * The Handle provides an interface between the editing subsystem and GeoEntities.
-   * When a handle is modified, the Handle delegates these calls
-   * to the target GeoEntities.
-   * @param {atlas.model.Vertex} [args.target] - The Vertex that is target to the Handle. If no
+   * When a handle is modified, the Handle delegates these calls to the target GeoEntities.
+   * @param {atlas.model.GeoPoint} [args.target] - The GeoPoint that is target to the Handle. If no
    * target is provided, the owner is considered the target.
-   * @param {atlas.model.GeoEntity} args.owner - The owner of the target
-   * {@link atlas.model.Vertex}.
+   * @param {atlas.model.GeoEntity} args.owner - The owner of the target {@link atlas.model.GeoPoint}.
    * @param {Number} [args.dotRadius=1] - The diameter of the Handle's dot in metres.
    * @class atlas.model.Handle
    */
@@ -61,8 +60,14 @@ define([
 
     _init: function(args) {
       this._super(Handle._getNextId(), args);
-      if (!args.target && !args.owner) {
-        throw new DeveloperError('Cannot create Handle without either a target or an owner.');
+      if (!args.owner) {
+        if (!args.target) {
+          throw new DeveloperError('Cannot create Handle without either a target or an owner.');
+        }
+      }
+      if (args.owner && !(args.target instanceof GeoPoint)) {
+        // TODO(bpstudds): Remove this check when Vertex is removed.
+        throw new DeveloperError('Handle target must be GeoPoint');
       }
       this._centroid = args.target || args.owner.getCentroid();
       this._target = args.target;
@@ -130,7 +135,7 @@ define([
         // handle when its vertices change. This prevents an infinite loop arising.
         // TODO(aramk) Perhaps use an observer pattern so both owner and handle can change with
         // vertex.
-        if (!target.equals(result)) {
+        if (target.equals && !target.equals(result)) {
           // Since the Vertex methods produce new instances, set the result of the previous
           // call as the new value of the target instance.
           target.set(result);
@@ -169,7 +174,7 @@ define([
         delegate: true
       }, args);
       args.delegate && this._delegateToTarget('translate', arguments);
-      this._dot.translate.apply(this._dot, arguments);
+      this._dot && this._dot.translate.apply(this._dot, arguments);
     }
   });
 
