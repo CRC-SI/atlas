@@ -210,7 +210,9 @@ define([
      * @private
      */
     _render: function() {
-      this._feature.show();
+      if (this._getLine().getVertices().length >= 2) {
+        this._feature.show();
+      }
     },
 
     /**

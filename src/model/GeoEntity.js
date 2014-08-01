@@ -271,6 +271,7 @@ define([
      */
     addHandle: function(handle) {
       this._handles.add(handle);
+      return handle;
     },
 
     /**
