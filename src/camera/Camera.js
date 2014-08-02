@@ -220,7 +220,7 @@ define([
      * @param {Object} args
      * @param {atlas.model.GeoPoint} args.position - The new position of the Camera.
      * @param {atlas.camera.Camera.Orientation} [args.orientation] - The new orientation of the Camera.
-     * @param {Number} [args.duration=0] - The duration of the zoom animation in milliseconds.
+     * @param {Number} [args.duration=0] - The duration of the zoom animation in seconds.
      */
     zoomTo: function(args) {
       args = Setter.mixin({}, args);
