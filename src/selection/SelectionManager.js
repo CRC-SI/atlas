@@ -1,11 +1,10 @@
 define([
   'atlas/core/Manager',
-  'atlas/util/Class',
   'atlas/util/DeveloperError',
   'atlas/events/Event',
   'atlas/events/EventTarget',
   'atlas/lib/utility/Log'
-], function(Manager, Class, DeveloperError, Event, EventTarget, Log) {
+], function(Manager, DeveloperError, Event, EventTarget, Log) {
 
   /**
    * @typedef atlas.selection.SelectionManager

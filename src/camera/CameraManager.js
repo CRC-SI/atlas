@@ -8,6 +8,12 @@ define([
 ], function(Camera, Manager, GeoPoint, Log, Setter, DeveloperError) {
 
   /**
+   * @typedef atlas.camera.CameraManager
+   * @ignore
+   */
+  var CameraManager;
+
+  /**
    * @classdesc The CameraManager manages the current camera and exposes a API for creating
    * and removing 'Bookmarks' which contain a snapshot of a Camera position and orientation.
    * The Camera manager also links the current Camera object to the Atlas event system.
@@ -18,7 +24,7 @@ define([
    * @class atlas.camera.CameraManager
    * @extends atlas.core.Manager
    */
-  var CameraManager = Manager.extend(/** @lends atlas.camera.CameraManager# */ {
+  CameraManager = Manager.extend(/** @lends atlas.camera.CameraManager# */ {
 
     _id: 'camera',
 

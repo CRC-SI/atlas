@@ -1,7 +1,6 @@
 define([
   'atlas/core/Manager',
   'atlas/core/ItemStore',
-  'atlas/util/Class',
   'atlas/util/DeveloperError',
   'atlas/dom/Overlay',
   'atlas/visualisation/AbstractProjection',
@@ -9,8 +8,14 @@ define([
   'atlas/visualisation/DynamicProjection',
   'atlas/visualisation/HeightProjection',
   'atlas/lib/utility/Log'
-], function(Manager, ItemStore, Class, DeveloperError, Overlay, AbstractProjection,
-            ColourProjection, DynamicProjection, HeightProjection, Log) {
+], function(Manager, ItemStore, DeveloperError, Overlay, AbstractProjection, ColourProjection,
+            DynamicProjection, HeightProjection, Log) {
+
+  /**
+   * @typedef atlas.visualisation.VisualisationManager
+   * @ignore
+   */
+  var VisualisationManager;
 
   /**
    * @classdesc The VisualisationManager is responsible for tracking, applying
@@ -19,7 +24,7 @@ define([
    *      the current instance of that manager.
    * @class atlas.visualisation.VisualisationManager
    */
-  var VisualisationManager = Manager.extend(/** @lends atlas.visualisation.VisualisationManager# */{
+  VisualisationManager = Manager.extend(/** @lends atlas.visualisation.VisualisationManager# */{
 
     // TODO(bpstudds): Refactor this class to 'GeoChartFactory'? or 'ProjectionFactory'?
 

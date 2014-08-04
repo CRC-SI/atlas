@@ -8,6 +8,12 @@ define([
 ], function(Manager, Log, Setter, DeveloperError, DomClass, DomChild) {
 
   /**
+   * @typedef atlas.dom.DomManager
+   * @ignore
+   */
+  var DomManager;
+
+  /**
    * @classdesc Object to manage the DOM node that Atlas is rendered into.
    *
    * @param {Object} managers - A mapping of every manager type in Atlas to the manager instance.
@@ -15,7 +21,7 @@ define([
    *
    * @class atlas.dom.DomManager
    */
-  var DomManager = Setter.mixin(Manager.extend(/** @lends atlas.dom.DomManager# */ {
+  DomManager = Setter.mixin(Manager.extend(/** @lends atlas.dom.DomManager# */ {
 
     _id: 'dom',
 

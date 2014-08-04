@@ -1,10 +1,8 @@
 define([
   'atlas/core/Manager',
-  'atlas/util/Class',
   'atlas/util/DeveloperError',
-  'atlas/model/Feature',
   'atlas/model/GeoEntity'
-], function(Manager, Class, DeveloperError, Feature, GeoEntity) {
+], function(Manager, Class, DeveloperError, GeoEntity) {
 
   /**
    * @typedef atlas.render.RenderManager
@@ -21,7 +19,7 @@ define([
    *
    * @class atlas.render.RenderManager
    */
-  return Manager.extend({
+  RenderManager = Manager.extend({
 
     _id: 'render',
 

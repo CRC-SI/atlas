@@ -15,8 +15,17 @@ define([
 ], function(Manager, Log, Objects, Setter, Ellipse, Feature, GeoEntity, Mesh, Polygon, Line, Image,
             Vertex, DeveloperError) {
 
-  //noinspection JSUnusedGlobalSymbols
-  var EntityManager = Manager.extend({
+  /**
+   * @typedef atlas.entity.EntityManager
+   * @ignore
+   */
+  var EntityManager;
+
+  /**
+   * Manages {@link atlas.model.GeoEntity} objects.
+   * @class atlas.entity.EntityManager
+   */
+  EntityManager = Manager.extend({
 
     _id: 'entity',
 

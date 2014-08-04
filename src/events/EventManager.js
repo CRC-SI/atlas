@@ -1,9 +1,13 @@
 define([
   'atlas/core/Manager',
-  'atlas/util/Class',
   'atlas/util/DeveloperError'
-], function(Manager, Class, DeveloperError) {
-  "use strict";
+], function(Manager, DeveloperError) {
+
+  /**
+   * @typedef atlas.events.EventManager
+   * @ignore
+   */
+  var EventManager;
 
   /**
    * @classdesc EventManager is responsible for bubbling internal events up through the
@@ -15,7 +19,7 @@ define([
    *
    * @class atlas.events.EventManager
    */
-  var EventManager = Manager.extend(/** @lends atlas.events.EventManager# */ {
+  EventManager = Manager.extend(/** @lends atlas.events.EventManager# */ {
 
     _id: 'event',
 
