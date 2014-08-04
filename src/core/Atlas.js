@@ -59,16 +59,6 @@ define([
   };
 
   /**
-   * Used to set the DOM element Atlas renders into and to cause Atlas to
-   * do the initial render into that element (implementation defined).
-   * @param {string} domId - The ID of the DOM element to attach to.
-   */
-  Atlas.prototype.setup = function (domId) {
-    this._managers.dom.setDom(domId);
-    this._managers.dom.populateDom(domId);
-  };
-
-  /**
    * Sets the DOM element of Atlas to be visible.
    */
   Atlas.prototype.show = function () {
