@@ -1,9 +1,9 @@
 define([
   'atlas/lib/utility/Setter',
-  'atlas/lib/utility/Type',
+  'atlas/lib/utility/Types',
   'atlas/util/Class',
   'atlas/util/DeveloperError'
-], function(Setter, Type, Class, DeveloperError) {
+], function(Setter, Types, Class, DeveloperError) {
   
   /**
    * @typedef atlas.model.Vertex
@@ -42,9 +42,9 @@ define([
 
     _init: function() {
       var firstArg = arguments[0];
-      if (Type.isArrayLiteral(firstArg)) {
+      if (Types.isArrayLiteral(firstArg)) {
         this._setFromArgs.apply(this, firstArg);
-      } else if (Type.isObjectLiteral(firstArg)) {
+      } else if (Types.isObjectLiteral(firstArg)) {
         this._setFromObject(firstArg);
       } else {
         this._setFromArgs.apply(this, arguments);
@@ -141,7 +141,7 @@ define([
       if (dimension !== undefined && (dimension < 2 || dimension > 3)) {
         throw new DeveloperError('Invalid dimensions');
       }
-      var points = Type.isNullOrUndefined(this.z) || dimension === 2 ? [this.x, this.y] :
+      var points = Types.isNullOrUndefined(this.z) || dimension === 2 ? [this.x, this.y] :
           [this.x, this.y, this.z];
       if (round !== undefined) {
         for (var i = 0; i < points.length; i++) {

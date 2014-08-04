@@ -1,28 +1,23 @@
 define([
+  'atlas/core/Manager',
   'atlas/util/Class',
   'atlas/util/DeveloperError'
-], function(Class, DeveloperError) {
+], function(Manager, Class, DeveloperError) {
   "use strict";
 
   /**
    * @classdesc EventManager is responsible for bubbling internal events up through the
    * internal event hierarchy, as well as out to the host application.
    *
-   * @param {Object} atlasManagers - A map of manager types to actual manager objects.
+   * @param {Object} managers - A map of manager types to actual manager objects.
    *       The map is maintained on the main Atlas facade object, but the instances
    *       are created by each manager object upon creation.
    *
    * @class atlas.events.EventManager
    */
-  //var EventManager = function (atlasManagers) {
-  var EventManager = Class.extend(/** @lends atlas.events.EventManager# */ {
+  var EventManager = Manager.extend(/** @lends atlas.events.EventManager# */ {
 
-    /**
-     * Contains a map of manager types to manager objects. This object exists
-     * on the central Atlas instance.
-     * @type {Object}
-     */
-    _atlasManagers: null,
+    _id: 'event',
 
     /**
      * Mapping of listener object IDs to the host application callback. Hosts
@@ -51,10 +46,8 @@ define([
      */
     _nextHandlerId: null,
 
-    _init: function(atlasManagers) {
-      this._atlasManagers = atlasManagers;
-      this._atlasManagers.event = this;
-
+    _init: function(managers) {
+      this._super(managers);
       this._internalEventHandlers = {};
       this._externalEventHandlers = {};
     },

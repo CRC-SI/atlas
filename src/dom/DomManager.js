@@ -1,30 +1,23 @@
 define([
+  'atlas/core/Manager',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
-  'atlas/util/Class',
   'atlas/util/DeveloperError',
-  'atlas/util/default',
   'atlas/util/dom/DomClass',
   'atlas/util/dom/DomChild'
-], function(Log, Setter, Class, DeveloperError, defaultValue, DomClass, DomChild, mixin) {
-  "use strict";
+], function(Manager, Log, Setter, DeveloperError, DomClass, DomChild) {
 
   /**
    * @classdesc Object to manage the DOM node that Atlas is rendered into.
    *
-   * @param {Object} atlasManagers - A mapping of every manager type in Atlas to the manager instance.
+   * @param {Object} managers - A mapping of every manager type in Atlas to the manager instance.
    * @param {String} [domId] - The ID of the DOM element to attach Atlas to.
    *
    * @class atlas.dom.DomManager
    */
-  var DomManager = Setter.mixin(Class.extend(/** @lends atlas.dom.DomManager# */ {
-    /**
-     * A mapping of every manager type in Atlas to the manager instance. This
-     * object is created on Atlas, but the manager instances are set by each
-     * manager upon creation.
-     * @type {Object}
-     */
-    _atlasManagers: null,
+  var DomManager = Setter.mixin(Manager.extend(/** @lends atlas.dom.DomManager# */ {
+
+    _id: 'dom',
 
     _currentDomNode: null,
 
@@ -32,13 +25,10 @@ define([
 
     _visible: null,
 
-    _init: function(atlasManagers, domId) {
-      this._atlasManagers = atlasManagers;
-      this._atlasManagers.dom = this;
-
+    _init: function(managers, domId) {
+      this._super(managers);
       this._rendered = false;
       this._visible = false;
-
       if (this._currentDomNode !== null) {
         this.setDom(this._currentDomNode, true);
       }
@@ -57,7 +47,7 @@ define([
      * @param {Boolean} [show=true] - Whether the object should be displayed immediately in this new location.
      */
     setDom: function(elem, show) {
-      var showNow = defaultValue(show, true);
+      var showNow = Setter.def(show, true);
       var newDomNode = typeof elem === 'string' ? document.getElementById(elem) : elem;
       if (!newDomNode) {
         throw new DeveloperError('DOM node not found: ' + elem);

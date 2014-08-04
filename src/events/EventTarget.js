@@ -1,7 +1,7 @@
 define([
-  'atlas/util/Class',
-  'atlas/util/default'
-], function (Class, defaultValue) {
+  'atlas/lib/utility/Setter',
+  'atlas/util/Class'
+], function (Setter, Class) {
   "use strict";
 
   /**
@@ -51,8 +51,8 @@ define([
      * @ignore
      */
     _init: function (em, parent) {
-      this._eventManager = defaultValue(em, null);
-      this.parent = defaultValue(parent, null);
+      this._eventManager = Setter.def(em, null);
+      this.parent = Setter.def(parent, null);
     },
 
     /**

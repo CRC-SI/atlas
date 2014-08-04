@@ -1,8 +1,8 @@
 define([
-  'atlas/lib/utility/Type',
+  'atlas/lib/utility/Types',
   'atlas/util/Class',
   'atlas/util/DeveloperError'
-], function(Type, Class, DeveloperError) {
+], function(Types, Class, DeveloperError) {
 
   /**
    * Define the ItemStore constructor as type atlas.core.ItemStore
@@ -170,7 +170,7 @@ define([
       scope = scope || this;
       return Object.keys(this._items)[arrayMethod](function(id) {
         var item = this.get(id);
-        if (Type.isString(func)) {
+        if (Types.isString(func)) {
           return item[func]();
         } else {
           return func.call(scope, item, id);

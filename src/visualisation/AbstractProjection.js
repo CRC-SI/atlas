@@ -1,12 +1,12 @@
 define([
   'atlas/lib/utility/Setter',
-  'atlas/lib/utility/Type',
+  'atlas/lib/utility/Types',
   'atlas/model/Style',
   'atlas/model/Colour',
   'atlas/util/Class',
   'atlas/util/DeveloperError',
   'atlas/util/NumberFormatter'
-], function(Setter, Type, Style, Colour, Class, DeveloperError, NumberFormatter) {
+], function(Setter, Types, Style, Colour, Class, DeveloperError, NumberFormatter) {
 
   /**
    * @typedef atlas.visualisation.AbstractProjection
@@ -590,7 +590,7 @@ define([
     _constructIdList: function(id) {
       if (!id) {
         return Object.keys(this._entities);
-      } else if (Type.isArrayLiteral(id)) {
+      } else if (Types.isArrayLiteral(id)) {
         return id;
       } else {
         return [id];

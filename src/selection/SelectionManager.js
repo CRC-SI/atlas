@@ -1,10 +1,11 @@
 define([
+  'atlas/core/Manager',
   'atlas/util/Class',
   'atlas/util/DeveloperError',
   'atlas/events/Event',
   'atlas/events/EventTarget',
   'atlas/lib/utility/Log'
-], function(Class, DeveloperError, Event, EventTarget, Log) {
+], function(Manager, Class, DeveloperError, Event, EventTarget, Log) {
 
   /**
    * @typedef atlas.selection.SelectionManager
@@ -18,12 +19,14 @@ define([
    * individual GeoEntities or a set of entities either specified
    * explicitly or by specifying a geographic area to select from.
    *
-   * @param {Object} atlasManagers - A reference to the Atlas manager objects.
+   * @param {Object} managers - A reference to the Atlas manager objects.
    * @returns {atlas.selection.SelectionManager}
    *
    * @class atlas.selection.SelectionManager
    */
-  SelectionManager = Class.extend(/** @lends atlas.selection.SelectionManager# */ {
+  SelectionManager = Manager.extend(/** @lends atlas.selection.SelectionManager# */ {
+
+    _id: 'selection',
 
     /**
      * Whether the SelectionManager is enabled.
@@ -37,16 +40,8 @@ define([
      */
     _selection: null,
 
-    /**
-     * Contains references to all of the currently defined Atlas manager
-     * objects.
-     * @type {Object}
-     */
-    _atlasManagers: null,
-
-    _init: function(atlasManagers) {
-      this._atlasManagers = atlasManagers;
-      this._atlasManagers.selection = this;
+    _init: function(managers) {
+      this._super(managers);
       this._selection = {};
     },
 
@@ -103,9 +98,9 @@ define([
           callback: function(args) {
             if (!this.isEnabled()) { return; }
             if (!args.modifiers) args.modifiers = {};
-            // var worldPosition = this._atlasManagers.render.convertScreenCoordsToLatLng(args);
-            // var picked = this._atlasManagers.entity.getAt(worldPosition);
-            var selectedEntities = this._atlasManagers.entity.getAt(args.position),
+            // var worldPosition = this._managers.render.convertScreenCoordsToLatLng(args);
+            // var picked = this._managers.entity.getAt(worldPosition);
+            var selectedEntities = this._managers.entity.getAt(args.position),
                 keepSelection = 'shift' in args.modifiers,
                 changed;
             if (selectedEntities.length > 0) {
@@ -114,7 +109,7 @@ define([
               changed = this.clearSelection();
             }
             if (changed && changed.length > 0) {
-              this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(),
+              this._managers.event.dispatchEvent(new Event(new EventTarget(),
                   'entity/selection/change', {ids: changed}));
             }
           }.bind(this)
@@ -124,11 +119,11 @@ define([
           name: 'input/left/dblclick',
           callback: function(args) {
             // TODO(bpstudds): Move this handler to EntityManager.
-            var entities = this._atlasManagers.entity.getAt(args.position);
+            var entities = this._managers.entity.getAt(args.position);
             if (entities.length > 0) {
               // Only capture the double click on the first entity.
               var entity = entities[0];
-              this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(),
+              this._managers.event.dispatchEvent(new Event(new EventTarget(),
                   'entity/dblclick', {
                     id: entity.getId()
                   }));
@@ -145,7 +140,7 @@ define([
         }
       ];
       // Register event handlers with the EventManager.
-      this._atlasManagers.event.addEventHandlers(handlers);
+      this._managers.event.addEventHandlers(handlers);
     },
 
     // -------------------------------------------
@@ -226,7 +221,7 @@ define([
      */
     selectEntities: function(ids, keepSelection, mousePosition) {
       Log.debug('selecting entities', ids);
-      var entities = this._atlasManagers.entity.getByIds(ids),
+      var entities = this._managers.entity.getByIds(ids),
           toSelectIds = [],
           toSelectEntities = {};
       if (entities.length > 0) {
@@ -251,7 +246,7 @@ define([
             this._selection[id] = entity;
           }.bind(this));
 
-          this._atlasManagers.event.dispatchEvent(
+          this._managers.event.dispatchEvent(
             new Event(null, 'entity/select', {
               ids: toSelectIds,
               mousePosition: mousePosition
@@ -269,7 +264,7 @@ define([
      * @returns {Array.<atlas.model.GeoEntity>} The deselected GeoEntities.
      */
     deselectEntities: function(ids) {
-      var entities = this._atlasManagers.entity.getByIds(ids);
+      var entities = this._managers.entity.getByIds(ids);
       var deselected = [];
       if (entities.length > 0) {
         entities.forEach(function(entity) {
@@ -280,7 +275,7 @@ define([
             delete this._selection[id];
           }
         }.bind(this));
-        this._atlasManagers.event.dispatchEvent(new Event(new EventTarget(), 'entity/deselect',
+        this._managers.event.dispatchEvent(new Event(new EventTarget(), 'entity/deselect',
             {ids: deselected}));
         Log.debug('deselected entities', ids);
       }

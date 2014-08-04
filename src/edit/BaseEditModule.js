@@ -23,7 +23,7 @@ define([
      */
     _modes: null,
 
-    _atlasManagers: null,
+    _managers: null,
 
     /**
      * A mapping of event strings to handler arguments.
@@ -31,8 +31,8 @@ define([
      */
     _eventBindings: null,
 
-    _init: function(atlasManagers) {
-      this._atlasManagers = atlasManagers;
+    _init: function(managers) {
+      this._managers = managers;
       this._modes = {};
       this._eventBindings = {};
 //      this.bindEvents({
@@ -154,11 +154,11 @@ define([
 
     disable: function() {
       // TODO(aramk) Module should ideally not know about the manager.
-      this._atlasManagers.edit.disableModule(this._name);
+      this._managers.edit.disableModule(this._name);
     },
 
     enable: function() {
-      this._atlasManagers.edit.enableModule(this._name);
+      this._managers.edit.enableModule(this._name);
     }
 
     /**

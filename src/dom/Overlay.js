@@ -1,9 +1,9 @@
 define([
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
-  'atlas/lib/utility/Type',
+  'atlas/lib/utility/Types',
   'atlas/util/Class'
-], function (Log, Setter, Type, Class) {
+], function (Log, Setter, Types, Class) {
 
   /**
    * @typedef atlas.dom.Overlay
@@ -175,9 +175,9 @@ define([
       this._content = args.content;
       this._showMinimised = args.showMinimised;
 
-      this._onRemove = Type.isFunction(args.onRemove) ? args.onRemove : null;
+      this._onRemove = Types.isFunction(args.onRemove) ? args.onRemove : null;
       this._hasRemoveBtn = args.hasRemoveBtn || this._onRemove !== null;
-      this._onEnabledChange = Type.isFunction(args.onEnabledChange) ? args.onEnabledChange : null;
+      this._onEnabledChange = Types.isFunction(args.onEnabledChange) ? args.onEnabledChange : null;
       this._hasEnableCheckbox = args.hasEnableCheckbox || this._onEnabledChange !== null;
 
       // Construct element and append it to the parent.
