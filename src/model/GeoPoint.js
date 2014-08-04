@@ -3,7 +3,7 @@ define([
   'atlas/lib/utility/Setter',
   'atlas/model/Vertex',
   'atlas/util/AtlasMath',
-  'atlas/util/Class'
+  'atlas/lib/utility/Class'
 ], function(Types, Setter, Vertex, AtlasMath, Class) {
 
   /**

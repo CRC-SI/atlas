@@ -2,7 +2,7 @@ define([
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types',
-  'atlas/util/Class'
+  'atlas/lib/utility/Class'
 ], function (Log, Setter, Types, Class) {
 
   /**

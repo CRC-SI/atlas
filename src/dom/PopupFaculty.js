@@ -2,7 +2,7 @@ define([
   'atlas/core/ItemStore',
   'atlas/dom/Overlay',
   'atlas/lib/utility/Setter',
-  'atlas/util/Class',
+  'atlas/lib/utility/Class',
   'atlas/util/DeveloperError',
 ], function (ItemStore, Overlay, Setter, Class, DeveloperError) {
   /**

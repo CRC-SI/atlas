@@ -1,5 +1,5 @@
 define([
-  'atlas/util/Class',
+  'atlas/lib/utility/Class',
   'atlas/util/DeveloperError'
 ], function(Class, DeveloperError) {
   /**

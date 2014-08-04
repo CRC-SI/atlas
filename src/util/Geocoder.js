@@ -2,7 +2,7 @@ define([
   'atlas/lib/utility/Log',
   'atlas/lib/Q',
   'atlas/model/GeoPoint',
-  'atlas/util/Class',
+  'atlas/lib/utility/Class',
   'atlas/util/GoogleAPI'
 ], function(Log, Q, GeoPoint, Class, GoogleAPI) {
   /**

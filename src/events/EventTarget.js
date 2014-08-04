@@ -1,6 +1,6 @@
 define([
   'atlas/lib/utility/Setter',
-  'atlas/util/Class'
+  'atlas/lib/utility/Class'
 ], function (Setter, Class) {
   "use strict";
 

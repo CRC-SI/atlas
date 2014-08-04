@@ -3,7 +3,7 @@ define([
   'atlas/model/GeoPoint',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
-  'atlas/util/Class',
+  'atlas/lib/utility/Class',
   'atlas/util/DeveloperError',
   'atlas/util/Geocoder'
 ], function(GeoPoint, Log, Setter, Class, DeveloperError, Geocoder) {

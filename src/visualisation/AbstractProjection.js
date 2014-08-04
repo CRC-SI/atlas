@@ -3,7 +3,7 @@ define([
   'atlas/lib/utility/Types',
   'atlas/model/Style',
   'atlas/model/Colour',
-  'atlas/util/Class',
+  'atlas/lib/utility/Class',
   'atlas/util/DeveloperError',
   'atlas/util/NumberFormatter'
 ], function(Setter, Types, Style, Colour, Class, DeveloperError, NumberFormatter) {

@@ -1,7 +1,7 @@
 define([
   'atlas/dom/PopupFaculty',
   'atlas/util/DeveloperError',
-  'atlas/util/Class'
+  'atlas/lib/utility/Class'
 ], function(PopupFaculty, DeveloperError, Class) {
 
   /**

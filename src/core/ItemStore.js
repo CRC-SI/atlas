@@ -1,6 +1,6 @@
 define([
   'atlas/lib/utility/Types',
-  'atlas/util/Class',
+  'atlas/lib/utility/Class',
   'atlas/util/DeveloperError'
 ], function(Types, Class, DeveloperError) {
 

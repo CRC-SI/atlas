@@ -2,7 +2,7 @@ define([
   'atlas/lib/numeral',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Strings',
-  'atlas/util/Class'
+  'atlas/lib/utility/Class'
 ], function(numeral, Setter, Strings, Class) {
   /**
    * Formats values for presentation.

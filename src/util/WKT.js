@@ -3,7 +3,7 @@ define([
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/error/DevError',
   'atlas/model/Vertex',
-  'atlas/util/Class'
+  'atlas/lib/utility/Class'
 ], function(OpenLayers, Setter, DevError, Vertex, Class) {
   var _instance = null;
 
