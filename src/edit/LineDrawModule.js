@@ -128,7 +128,8 @@ define([
         handler && this._handlers[event].push(handler);
       }
       this.enable();
-      this._atlasManagers.edit.enableModule('translation');
+      // TODO(bpstudds): Discover why translation is broken.
+      this._atlasManagers.edit.disableModule('translation');
       this._isDrawing = true;
     },
 
