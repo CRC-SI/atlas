@@ -34,12 +34,12 @@ define([
      * @type {Object.<String,Function>}
      */
     _entityTypes: {
-      'Feature': Feature,
-      'Polygon': Polygon,
-      'Line': Line,
-      'Ellipse': Ellipse,
-      'Mesh': Mesh,
-      'Image': Image
+      Ellipse: Ellipse,
+      Feature: Feature,
+      Image: Image,
+      Line: Line,
+      Mesh: Mesh,
+      Polygon: Polygon
     },
 
     /**
@@ -60,9 +60,10 @@ define([
      * Performs any manager setup that requires the presence of other managers.
      * @param args
      */
-    setup: function(args) {
-      if (args && args.constructors) {
-        this.setGeoEntityTypes(args.constructors);
+    setup: function (args) {
+      var constructors = args && args.constructors;
+      if (constructors) {
+        this.setGeoEntityTypes(constructors);
       }
       this.bindEvents();
     },
