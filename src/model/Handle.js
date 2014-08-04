@@ -67,7 +67,10 @@ define([
       }
       if (args.owner && !(args.target instanceof GeoPoint)) {
         // TODO(bpstudds): Remove this check when Vertex is removed.
-        throw new DeveloperError('Handle target must be GeoPoint');
+        //throw new DeveloperError('Handle target must be GeoPoint');
+        // TODO(bpstudds): We need to make this not rely on reflection.
+        args.target = GeoPoint.fromVertex(args.target);
+        Log.warn('Created Handle using a Vertex');
       }
       this._centroid = args.target || args.owner.getCentroid();
       this._target = args.target;
