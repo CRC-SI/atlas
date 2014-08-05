@@ -5,7 +5,7 @@ define([
   '../SelectionManager'
 ], function (doh, TestCase, SelectionManager) {
 
-  var atlasManagers;
+  var managers;
   var selectionManager;
   
   var mockEntity = function(id) {
@@ -48,17 +48,17 @@ define([
 
     setUp: function () {
       // summary:
-      atlasManagers = {
+      managers = {
         dom: {},
         render: mockRenderManager(),
         event: {},
         selection: {}
       };
-      selectionManager = new SelectionManager(atlasManagers);
+      selectionManager = new SelectionManager(managers);
     },
 
     tearDown: function () {
-      atlasManagers = {
+      managers = {
         dom: {},
         event: {},
         render: {},
@@ -68,7 +68,7 @@ define([
 
     testCreate: function () {
       doh.t(selectionManager instanceof SelectionManager, 'Did not create a SelectionManager');
-      doh.is(selectionManager, atlasManagers.selection, 'Reference not stored correctly');
+      doh.is(selectionManager, managers.selection, 'Reference not stored correctly');
     },
     
     testSelectEntity: function () {

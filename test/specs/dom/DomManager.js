@@ -7,7 +7,7 @@ define([
   "use strict";
 
   var domManager;
-  var atlasManagers;
+  var managers;
 
   var createDomTestBed = function () {
     // Define some DOM elements to test with.
@@ -40,7 +40,7 @@ define([
       // Create DOM elements for testing.
       createDomTestBed();
       // Mock atlas managers as required.
-      atlasManagers = {
+      managers = {
         dom: {},
         render: {},
         event: {}
@@ -55,12 +55,12 @@ define([
         console.debug('  populated');
       };
       // Create DomManager objct.
-      domManager = new DomManager(atlasManagers);
+      domManager = new DomManager(managers);
     },
 
     tearDown: function () {
       domManager = {};
-      atlasManagers = {};
+      managers = {};
       // Remove test bed DOM elements.
       var testBed = document.getElementById('testBed');
       document.body.removeChild(testBed);
@@ -72,7 +72,7 @@ define([
      */
     testCreateDefault: function () {
       doh.assertTrue(domManager instanceof DomManager);
-      doh.assertTrue(atlasManagers.dom === domManager);
+      doh.assertTrue(managers.dom === domManager);
       doh.assertEqual(false, domManager._visible);
       doh.assertEqual(null, domManager._currentDomId);
     },
@@ -83,12 +83,12 @@ define([
      * and is visible.
      */
     testCreate: function() {
-      domManager = new DomManager(atlasManagers, 'cesium');
+      domManager = new DomManager(managers, 'cesium');
       var cesium = document.getElementById('cesium');
       var testDiv = document.getElementById('testDiv');
 
       doh.assertTrue(domManager instanceof DomManager);
-      doh.assertTrue(atlasManagers.dom === domManager);
+      doh.assertTrue(managers.dom === domManager);
       doh.assertEqual(true, domManager._visible);
       doh.assertEqual('cesium', domManager._currentDomId);
       // Check mock DOM element created.
@@ -102,7 +102,7 @@ define([
      */
     testShowHide: function() {
       var cesium = document.getElementById('cesium');
-      domManager = new DomManager(atlasManagers, 'cesium');
+      domManager = new DomManager(managers, 'cesium');
 
       doh.assertFalse(cesium.classList[0] == 'hidden', 'Div should be initially visible');
       domManager.hide();
@@ -116,7 +116,7 @@ define([
      */
     testToggleVisibility: function() {
       var cesium = document.getElementById('cesium');
-      domManager = new DomManager(atlasManagers, 'cesium');
+      domManager = new DomManager(managers, 'cesium');
       doh.assertFalse(cesium.classList[0] == 'hidden', 'Div should be initially visible');
       domManager.toggleVisibility();
       doh.assertTrue(cesium.classList[0] == 'hidden', 'Div should be hidden');

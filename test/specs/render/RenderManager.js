@@ -7,7 +7,7 @@ define([
 ], function (doh, TestCase, Feature, RenderManager) {
   "use strict";
 
-  var atlasManagers;
+  var managers;
   var renderManager;
   var args;
 
@@ -18,21 +18,21 @@ define([
 
     setUp: function () {
       // summary:
-      atlasManagers = {
+      managers = {
         dom: {},
         render: {},
         event: {}
       };
-      renderManager = new RenderManager(atlasManagers);
+      renderManager = new RenderManager(managers);
       args = {
         renderManager: renderManager,
-        eventManager: atlasManagers.event
+        eventManager: managers.event
       };
     },
 
     tearDown: function () {
       renderManager = {};
-      atlasManagers = {
+      managers = {
         dom: {},
         event: {
           test: "test"
@@ -43,7 +43,7 @@ define([
 
     testCreate: function () {
       doh.assertTrue(renderManager instanceof RenderManager);
-      doh.assertEqual(atlasManagers.render, renderManager);
+      doh.assertEqual(managers.render, renderManager);
       doh.assertEqual({}, renderManager._entities);
     },
 
@@ -53,7 +53,7 @@ define([
       renderManager.addFeature(0, args);
       doh.assertTrue(renderManager._entities[0] instanceof Feature);
       doh.assertEqual(renderManager, renderManager._entities[0]._renderManager);
-      doh.assertEqual(atlasManagers.event, renderManager._entities[0]._eventManager);
+      doh.assertEqual(managers.event, renderManager._entities[0]._eventManager);
     },
 
     testAddFeatureObjId: function () {
@@ -62,7 +62,7 @@ define([
       renderManager.addFeature(args); 
       doh.assertTrue(renderManager._entities[args.id] instanceof Feature);
       doh.assertEqual(renderManager, renderManager._entities[args.id]._renderManager);
-      doh.assertEqual(atlasManagers.event, renderManager._entities[args.id]._eventManager);
+      doh.assertEqual(managers.event, renderManager._entities[args.id]._eventManager);
     },
 
     testAddFeatureNoId: function () {

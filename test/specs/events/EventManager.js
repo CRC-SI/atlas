@@ -23,7 +23,7 @@ define([
   var entityRenderEvent;
   var entityRenderedEvent;
 
-  var atlasManagers;
+  var managers;
   var listener, listener0, listener1, listener2, listener3;
 
 
@@ -57,13 +57,13 @@ define([
       parent.callbackFired = 0;
       grandparent.callbackFired = 0;
 
-      atlasManagers = {
+      managers = {
         dom: {},
         event: {},
         render: {}
       };
 
-      eventManager = new EventManager(atlasManagers);
+      eventManager = new EventManager(managers);
 
       // Host would not be an EventTarget, merely a handy object to use to 
       // simulate the host application.

@@ -1,10 +1,10 @@
 define([
-  'atlas/lib/utility/Type',
+  'atlas/lib/utility/Types',
   'atlas/lib/utility/Setter',
   'atlas/model/Vertex',
   'atlas/util/AtlasMath',
-  'atlas/util/Class'
-], function(Type, Setter, Vertex, AtlasMath, Class) {
+  'atlas/lib/utility/Class'
+], function(Types, Setter, Vertex, AtlasMath, Class) {
 
   /**
    * @typedef atlas.model.GeoPoint
@@ -44,7 +44,7 @@ define([
      * Constructs a new GeoPoint object.
      */
     _init: function() {
-      if (Type.isObjectLiteral(arguments[0])) {
+      if (Types.isObjectLiteral(arguments[0])) {
         this._setFromObject.apply(this, arguments);
       } else {
         this._setFromArgs.apply(this, arguments);
@@ -127,6 +127,12 @@ define([
      */
     toDmsString: function() {
       throw 'GeoPoint.toDmsString not yet implemented.';
+    },
+
+    toString: function() {
+      var northSouth = this.latitude < 0 ? -1 * this.latitude + 'S' : this.latitude + 'N',
+          eastWest = this.longitude < 0 ? -1 * this.longitude + 'W' : this.longitude + 'E';
+      return northSouth + ' ' + eastWest;
     },
 
     /**

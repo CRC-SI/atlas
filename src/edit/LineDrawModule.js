@@ -96,13 +96,13 @@ define([
      */
     _setup: function() {
       if (!this._feature) {
-        this._feature = this._atlasManagers.entity.createFeature(this._getNextId(), {
+        this._feature = this._managers.entity.createFeature(this._getNextId(), {
           line: {vertices: [], width: '2px'},
           displayMode: Feature.DisplayMode.LINE
         });
         // We will be adding new handles ourselves, and the new feature doesn't have any to begin
         // with.
-        this._atlasManagers.edit.enable({
+        this._managers.edit.enable({
           entities: [this._feature], show: false, addHandles: false
         });
       }
@@ -129,7 +129,7 @@ define([
       }
       this.enable();
       // TODO(bpstudds): Discover why translation is broken.
-      this._atlasManagers.edit.disableModule('translation');
+      this._managers.edit.disableModule('translation');
       this._isDrawing = true;
     },
 
@@ -154,17 +154,17 @@ define([
      * @private
      */
     _add: function(args) {
-      var clickedAt = this._atlasManagers.render.convertScreenCoordsToLatLng(args.position);
+      var clickedAt = this._managers.render.convertScreenCoordsToLatLng(args.position);
       if (!clickedAt) {
         // Click was not registered on the globe
         return;
       }
 
-      var handles = this._atlasManagers.edit.getHandles();
-      var targetId = this._atlasManagers.render.getAt(args.position)[0];
+      var handles = this._managers.edit.getHandles();
+      var targetId = this._managers.render.getAt(args.position)[0];
       var target = handles.get(targetId);
       var now = Date.now();
-      var translationModule = this._atlasManagers.edit.getModule('translation');
+      var translationModule = this._managers.edit.getModule('translation');
       this._setup();
       var line = this._getLine();
 
@@ -255,7 +255,7 @@ define([
         throw new DeveloperError('Nothing is being drawn - cannot cancel.');
       }
       this._executeHandlers(this._handlers.cancel);
-      var handles = this._atlasManagers.edit.getHandles();
+      var handles = this._managers.edit.getHandles();
       this._handles.forEach(function(handle) {
         handles.remove(handle.getId());
         handle.remove();
@@ -276,7 +276,7 @@ define([
         cancel: []
       };
       this._lastClickTime = null;
-      this._atlasManagers.edit.disable();
+      this._managers.edit.disable();
       this.disable();
       this._isDrawing = false;
     },

@@ -1,7 +1,7 @@
 define([
   'atlas/lib/tinycolor',
   'atlas/util/AtlasMath',
-  'atlas/util/Class',
+  'atlas/lib/utility/Class',
   'atlas/util/FreezeObject'
 ], function(Tinycolor, AtlasMath, Class, freeze) {
   var __DEBUG__ = true;

@@ -2,10 +2,8 @@ define([
   'atlas/edit/BaseEditModule',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
-  'atlas/model/Vertex',
-  'atlas/util/Class',
-  'atlas/util/default'
-], function(BaseEditModule, Log, Setter, Vertex, Class, defaultValue) {
+  'atlas/model/Vertex'
+], function(BaseEditModule, Log, Setter, Vertex) {
 
   /**
    * @typedef atlas.edit.TranslationModule
@@ -32,17 +30,17 @@ define([
     _entities: null,
 
     /**
-     * @param {Object} atlasManagers - A map of Atlas manager types to the manager instance.
+     * @param {Object} managers - A map of Atlas manager types to the manager instance.
      * @param {Object} [args] - Arguments to creating the TranslationModule.
      * @param {Number} [args.moveSensitivity] - Minimum number of screen pixels to move so a drag is recognised.
      * @constructor
      * @private
      */
-    _init: function(atlasManagers, args) {
-      this._super(atlasManagers, args);
-      args = defaultValue(args, {});
-      this._MOVE_SENSITIVITY = defaultValue(args.moveSensitivity, 5);
-      this._atlasManagers = atlasManagers;
+    _init: function(managers, args) {
+      this._super(managers, args);
+      args = Setter.def(args, {});
+      this._MOVE_SENSITIVITY = Setter.def(args.moveSensitivity, 5);
+      this._managers = managers;
       this._reset();
       // TODO(aramk) Abstract this into a method in BaseEditModule.
       var provideTarget = function (callback) {
@@ -62,7 +60,7 @@ define([
     },
 
     _provideTarget: function (args) {
-      args.target = this._atlasManagers.entity.getAt(args.position)[0];
+      args.target = this._managers.entity.getAt(args.position)[0];
       return args;
     },
 
@@ -72,12 +70,12 @@ define([
      * translation, only the target entity is translated.
      */
     _start: function(args) {
-      if (!args.target || !this._atlasManagers.edit.entityCanBeEdited(args.target)) {
+      if (!args.target || !this._managers.edit.entityCanBeEdited(args.target)) {
         return;
       }
       this._target = args.target;
       // Lock up camera
-      this._atlasManagers.camera.lockCamera();
+      this._managers.camera.lockCamera();
       // Initialise the translation.
       this._lastScreenCoords = {x: args.position.x, y: args.position.y};
       this._originalLocation = this._lastLocation = this._cartographicLocation(args.position);
@@ -114,7 +112,7 @@ define([
       //var cartLocation = this._cartographicLocation(args);
       //this._translate(this._lastLocation, cartLocation);
       this._reset();
-      this._atlasManagers.camera.unlockCamera();
+      this._managers.camera.unlockCamera();
     },
 
     /**
@@ -124,7 +122,7 @@ define([
       if (!this._target) {
         Log.debug('No translation is taking place - cannot cancel', args);
       } else {
-        this._atlasManagers.camera.unlockCamera();
+        this._managers.camera.unlockCamera();
         this._translate(this._lastLocation, this._originalLocation);
         this._reset();
       }
@@ -150,7 +148,7 @@ define([
      * @private
      */
     _cartographicLocation: function(screenPos) {
-      return this._atlasManagers.render.convertScreenCoordsToLatLng(screenPos);
+      return this._managers.render.convertScreenCoordsToLatLng(screenPos);
     },
 
     /**

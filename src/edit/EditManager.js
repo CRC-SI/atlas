@@ -1,13 +1,13 @@
 define([
+  'atlas/core/Manager',
   'atlas/core/ItemStore',
   'atlas/edit/TranslationModule',
   'atlas/edit/DrawModule',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
-  'atlas/lib/utility/Type',
-  'atlas/util/Class',
+  'atlas/lib/utility/Types',
   'atlas/util/DeveloperError'
-], function(ItemStore, TranslationModule, DrawModule, Log, Setter, Type, Class, DeveloperError) {
+], function(Manager, ItemStore, TranslationModule, DrawModule, Log, Setter, Types, DeveloperError) {
 
   /**
    * @typedef atlas.edit.EditManager
@@ -20,17 +20,13 @@ define([
    * the placement and geometry of GeoEntities. <code>Modules</code> are defined to contain
    * the logic of particular modifications, for example translation, scaling, and rotation.
    *
-   * @param {Object} atlasManagers - Contains a mapping of Atlas manager names to manager instance.
+   * @param {Object} managers - Contains a mapping of Atlas manager names to manager instance.
    *
    * @class atlas.edit.EditManager
    */
-  EditManager = Class.extend(/** @lends atlas.edit.EditManager# */ {
+  EditManager = Manager.extend(/** @lends atlas.edit.EditManager# */ {
 
-    /**
-     * Contains a mapping of Atlas manager names to the manager instance.
-     * @type {Object.<String, Object.<String, Object>>}
-     */
-    _atlasManagers: null,
+    _id: 'edit',
 
     /**
      * Whether editing is currently enabled for <code>_entities</code>.
@@ -81,10 +77,8 @@ define([
      */
     _wasTranslationModuleEnabled: false,
 
-    _init: function(atlasManagers) {
-      this._atlasManagers = atlasManagers;
-      this._atlasManagers.edit = this;
-
+    _init: function(managers) {
+      this._super(managers);
       this._entities = new ItemStore();
       this._handles = new ItemStore();
       this._editing = false;
@@ -97,8 +91,8 @@ define([
      * Initialisation that needs to occur after all managers are created.
      */
     setup: function() {
-      this.addModule('translation', new TranslationModule(this._atlasManagers));
-      this.addModule('draw', new DrawModule(this._atlasManagers));
+      this.addModule('translation', new TranslationModule(this._managers));
+      this.addModule('draw', new DrawModule(this._managers));
       this.bindEvents();
     },
 
@@ -112,7 +106,7 @@ define([
             // Bind the event for enabling editing with the keyboard only when needed and allow
             // unbinding. By default the key is unbound to avoid issues when typing.
             if (state && !editButtonHandle) {
-              editButtonHandle = this._atlasManagers.event.addEventHandler('intern', 'input/keyup',
+              editButtonHandle = this._managers.event.addEventHandler('intern', 'input/keyup',
                   function(event) {
                     // TODO(bpstudds): Make an enum for the keyboard event key values.
                     if (event.key === 69 /* lowercase 'e' */) {
@@ -155,14 +149,14 @@ define([
             if (!this._editing) {
               return;
             }
-            var targets = this._atlasManagers.render.getAt(args.position);
+            var targets = this._managers.render.getAt(args.position);
             if (targets.length === 0) {
               this.disable();
             }
           }.bind(this)
         }
       ];
-      this._eventHandlers = this._atlasManagers.event.addEventHandlers(handlers);
+      this._eventHandlers = this._managers.event.addEventHandlers(handlers);
     },
 
     entityCanBeEdited: function(entity) {
@@ -191,9 +185,9 @@ define([
       }, args);
       if (!args.entities) {
         if (args.ids) {
-          args.entities = this._atlasManagers.entity.getByIds(args.ids);
+          args.entities = this._managers.entity.getByIds(args.ids);
         } else {
-          args.entities = this._atlasManagers.selection.getSelection();
+          args.entities = this._managers.selection.getSelection();
         }
       }
       Log.debug('EditManager enabled');
@@ -204,7 +198,7 @@ define([
       this.enableModule('translation');
 
       // Disable selection
-      this._atlasManagers.event.handleExternalEvent('selection/disable');
+      this._managers.event.handleExternalEvent('selection/disable');
 
       // Render the editing handles.
       this._entities.forEach(function(entity) {
@@ -236,7 +230,7 @@ define([
       this._handles.purge();
       this._entities.purge();
       this.setIsModuleEnabled('translation', this._wasTranslationModuleEnabled);
-      this._atlasManagers.event.handleExternalEvent('selection/enable');
+      this._managers.event.handleExternalEvent('selection/enable');
     },
 
     /**
@@ -312,7 +306,7 @@ define([
       var bindEvent = function(event, args) {
         var handler,
             source = 'intern';
-        if (Type.isFunction(args)) {
+        if (Types.isFunction(args)) {
           handler = args;
         } else {
           handler = args.callback;
@@ -321,7 +315,7 @@ define([
         var handle = this._listeners[name][event];
         if (!handle) {
           // Avoid adding a handle if it already exists.
-          handle = this._atlasManagers.event.addEventHandler(source, event, handler.bind(module));
+          handle = this._managers.event.addEventHandler(source, event, handler.bind(module));
           handle.persistent = !!args.persistent;
           this._listeners[name][event] = handle;
         }

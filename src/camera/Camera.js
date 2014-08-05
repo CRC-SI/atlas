@@ -1,10 +1,12 @@
 // Camera.js
 define([
   'atlas/model/GeoPoint',
+  'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
-  'atlas/util/Class',
-  'atlas/util/DeveloperError'
-], function(GeoPoint, Setter, Class, DeveloperError) {
+  'atlas/lib/utility/Class',
+  'atlas/util/DeveloperError',
+  'atlas/util/Geocoder'
+], function(GeoPoint, Log, Setter, Class, DeveloperError, Geocoder) {
 
   /**
    * @typedef atlas.camera.Camera
@@ -57,15 +59,16 @@ define([
      */
     setPosition: function(position) {
       this._setPosition(position);
-      this._animate({duration: 0});
+      this._animate({position: this._position, duration: 0});
     },
 
     /**
      * @param {atlas.model.GeoPoint} position
      * @private
      */
-    _setPosition: function (position) {
-      this._position = Setter.merge(this._position || Camera.getDefaultPosition(), position);
+    _setPosition: function(position) {
+      this._position =
+          new GeoPoint(Setter.merge(this._position || Camera.getDefaultPosition(), position));
     },
 
     /**
@@ -108,15 +111,16 @@ define([
      */
     setOrientation: function(orientation) {
       this._setOrientation(orientation);
-      this._animate({duration: 0});
+      this._animate({position: this._position, orientation: this._orientation, duration: 0});
     },
 
     /**
      * @param {atlas.camera.Camera.Orientation} orientation
      * @private
      */
-    _setOrientation: function (orientation) {
-      this._orientation = Setter.mixin(this._orientation || Camera.getDefaultOrientation(), orientation);
+    _setOrientation: function(orientation) {
+      this._orientation =
+          Setter.mixin(this._orientation || Camera.getDefaultOrientation(), orientation);
     },
 
     /**
@@ -126,7 +130,7 @@ define([
      * @returns {atlas.model.Vertex} stats.direction
      * @returns {atlas.model.Vertex} stats.up
      */
-    getStats: function () {
+    getStats: function() {
       return {
         position: this.getPosition(),
         orientation: this.getOrientation(),
@@ -203,7 +207,7 @@ define([
      * @param {Object} args
      * @param {atlas.model.GeoPoint} args.position - The new position of the Camera.
      * @param {atlas.camera.Camera.Orientation} [args.orientation] - The new orientation of the Camera.
-     * @param {Number} [args.duration=0] - The duration of the zoom animation in milliseconds.
+     * @param {Number} [args.duration=0] - The duration of the zoom animation in seconds.
      */
     zoomTo: function(args) {
       args = Setter.mixin({}, args);
@@ -222,6 +226,18 @@ define([
         args.position = this._position;
       }
       this._animate(args);
+    },
+
+    /**
+     * Moves the camera to the given address.
+     * @param {String} address
+     */
+    zoomToAddress: function(address) {
+      Geocoder.getInstance().getInfo({address: address}).then(function(result) {
+        this.zoomTo({position: result.position});
+      }.bind(this), function() {
+        Log.warn('Could not zoom to address - no results', address);
+      });
     },
 
     /**
@@ -257,11 +273,11 @@ define([
     // STATICS
     // -------------------------------------------
 
-    getDefaultPosition: function () {
+    getDefaultPosition: function() {
       return new GeoPoint({longitude: 144, latitude: -37, elevation: 20000});
     },
 
-    getDefaultOrientation: function () {
+    getDefaultOrientation: function() {
       return {tilt: 90, bearing: 0, rotation: 0};
     },
 
