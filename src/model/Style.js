@@ -1,7 +1,7 @@
 // Style.js
 define([
   'atlas/lib/utility/Setter',
-  'atlas/util/Class',
+  'atlas/lib/utility/Class',
   'atlas/util/DeveloperError',
   './Colour'
 ], function (Setter, Class, DeveloperError, Colour) {
@@ -48,12 +48,9 @@ define([
     _borderWidth: null,
 
     _init: function(args) {
-      args = Setter.mixin({
-        fillColour: Colour.GREEN,
-        borderWidth: 1
-      }, args);
+      args = args || {};
       this._fillColour = args.fillColour;
-      this._borderColour = args.borderColour || args.fillColour;
+      this._borderColour = args.borderColour;
       this._borderWidth = args.borderWidth;
     },
 
@@ -128,7 +125,7 @@ define([
   // -------------------------------------------
 
   Style.getDefault = function () {
-    return new Style({fillColour: Colour.GREEN, borderColour: Colour.GREEN, borderWidth: 1});
+    return new Style({fillColour: Colour.GREEN, borderColour: null, borderWidth: 0});
   };
 
   return Style;

@@ -1,14 +1,16 @@
 define([
+  'atlas/lib/OpenLayers',
   'atlas/lib/utility/Setter',
+  'atlas/lib/utility/error/DevError',
   'atlas/model/Vertex',
-  'atlas/util/Class',
-  // Required
-  'atlas/lib/open-layers'
-], function(Setter, Vertex, Class) {
-  var _instance = null;
+  'atlas/lib/utility/Class'
+], function(OpenLayers, Setter, DevError, Vertex, Class) {
+  var _instance;
 
   /**
    * Defines a set of utility methods for working with Well-Known-Text.
+   * NOTE: All vertices used in Atlas use "x" as longitude and "y" as latitude and these methods
+   * expect this format. WKT and OpenLayers uses the opposite.
    * @class {atlas.util.WKT}
    */
   var WKT = Setter.mixin(Class.extend({
@@ -18,8 +20,7 @@ define([
     },
 
     /**
-     * Converts a WKT polygon string to an array of
-     * {@see atlas.model.Vertex|Vertices}.
+     * Converts a WKT polygon string to an array of {@link atlas.model.Vertex} objects.
      * @param {String} wktStr - The WKT string to convert
      * @returns {Array.<Array.<atlas.model.Vertex>> | Array.<atlas.model.Vertex>} The convert polygon.
      */
@@ -73,13 +74,13 @@ define([
     /**
      * Converts an array of coordinates into an array of Points.
      * @param {Array.<atlas.model.Vertex>} vertices - The coordinates to convert.
-     * @returns {Array.<OpenLayers.Geometry.Points>}
+     * @returns {Array.<OpenLayers.Geometry.Point>}
      */
     openLayersPointsFromVertices: function(vertices) {
       var points = [];
       for (var i = 0; i < vertices.length; i++) {
         var vertex = vertices[i];
-        // NOTE: OpenLayers treats latitude as x, longitude as y.
+        // NOTE: OpenLayers treats latitude as x, longitude as y. Atlas uses the opposite.
         var point = new OpenLayers.Geometry.Point(vertex.y, vertex.x);
         points.push(point);
       }
@@ -132,17 +133,25 @@ define([
     },
 
     /**
-     * @param {Array.<Array<Number>>} coords - An array of coordinates.
-     * @returns A new array with the first 2 indices switched.
+     * @param {Array} coords - An array of coordinates as either 2 elements in an array, or an
+     * object with x and y coordinate keys.
+     * @returns {Array} A new array with the coordinate points swapped in-place.
      */
-    switchLatLng: function(coords) {
-      return coords.map(function(coord) {
-        var switched = Array.prototype.slice.apply(coord);
-        var tmp = switched[0];
-        switched[0] = switched[1];
-        switched[1] = tmp;
-        return switched;
+    swapCoords: function(coords) {
+      coords.forEach(function(coord) {
+        if (coord.x !== undefined) {
+          var x = coord.x;
+          coord.x = coord.y;
+          coord.y = x;
+        } else if (coord.length === 2) {
+          var tmp = coords[0];
+          coords[0] = coords[1];
+          coords[1] = tmp;
+        } else {
+          throw new DevError('Invalid arguments', coords);
+        }
       });
+      return coords;
     },
 
     _isType: function(wktStr, type) {

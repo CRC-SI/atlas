@@ -57,8 +57,8 @@ define([
      */
     _isDrawing: false,
 
-    _init: function(atlasManagers) {
-      this._super(atlasManagers);
+    _init: function(managers) {
+      this._super(managers);
       this._reset();
       this.bindEvents({
         'input/leftclick': this._add,
@@ -95,14 +95,14 @@ define([
      */
     _setup: function() {
       if (!this._feature) {
-        this._feature = this._atlasManagers.entity.createFeature(this._getNextId(), {
+        this._feature = this._managers.entity.createFeature(this._getNextId(), {
           polygon: {vertices: []},
           line: {vertices: [], width: '2px'},
           displayMode: Feature.DisplayMode.FOOTPRINT
         });
         // We will be adding new handles ourselves, and the new feature doesn't have any to begin
         // with.
-        this._atlasManagers.edit.enable({
+        this._managers.edit.enable({
           entities: [this._feature], show: false, addHandles: false});
       }
     },
@@ -126,7 +126,7 @@ define([
         handler && this._handlers[event].push(handler);
       }
       this.enable();
-      this._atlasManagers.edit.enableModule('translation');
+      this._managers.edit.enableModule('translation');
       this._isDrawing = true;
     },
 
@@ -151,11 +151,11 @@ define([
      * @private
      */
     _add: function(args) {
-      var handles = this._atlasManagers.edit.getHandles();
-      var targetId = this._atlasManagers.render.getAt(args.position)[0];
+      var handles = this._managers.edit.getHandles();
+      var targetId = this._managers.render.getAt(args.position)[0];
       var target = handles.get(targetId);
       var now = Date.now();
-      var translationModule = this._atlasManagers.edit.getModule('translation');
+      var translationModule = this._managers.edit.getModule('translation');
       this._setup();
       var polygon = this._getPolygon(),
           line = this._getLine();
@@ -191,7 +191,7 @@ define([
         return;
       }
 
-      var point = this._atlasManagers.render.convertScreenCoordsToLatLng(args.position);
+      var point = this._managers.render.convertScreenCoordsToLatLng(args.position);
       var vertex = point.toVertex();
       polygon.getVertices().push(vertex);
       if (polygon.getVertices().length <= 2) {
@@ -249,7 +249,7 @@ define([
         throw new DeveloperError('Nothing is being drawn - cannot cancel.');
       }
       this._executeHandlers(this._handlers.cancel);
-      var handles = this._atlasManagers.edit.getHandles();
+      var handles = this._managers.edit.getHandles();
       this._handles.forEach(function(handle) {
         handles.remove(handle.getId());
         handle.remove();
@@ -270,7 +270,7 @@ define([
         cancel: []
       };
       this._lastClickTime = null;
-      this._atlasManagers.edit.disable();
+      this._managers.edit.disable();
       this.disable();
       this._isDrawing = false;
     },

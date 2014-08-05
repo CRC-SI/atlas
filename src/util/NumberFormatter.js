@@ -1,9 +1,9 @@
 define([
   'atlas/lib/numeral',
   'atlas/lib/utility/Setter',
-  'atlas/lib/utility/String',
-  'atlas/util/Class'
-], function(numeral, Setter, String, Class) {
+  'atlas/lib/utility/Strings',
+  'atlas/lib/utility/Class'
+], function(numeral, Setter, Strings, Class) {
   /**
    * Formats values for presentation.
    * @class atlas.util.Formatter
@@ -13,8 +13,8 @@ define([
     /**
      * @param {Number} x - Any given number, including one in exponential notation.
      * @param {Object} args
-     * @param {Number} args.minSigFigs - The minimum number of significant figures after the period.
-     * @param {Number} args.maxSigFigs - The maximum number of significant figures after the period.
+     * @param {Number} [args.minSigFigs = 1] - The minimum number of significant figures after the period.
+     * @param {Number} [args.maxSigFigs = 3] - The maximum number of significant figures after the period.
      * @returns {String} A rounded string of the given number.
      */
     round: function(x, args) {
@@ -30,8 +30,8 @@ define([
       // Use commas, with taking into account the minimum and maximum number of significant figures
       // after the period.
       var diffSigFigs = args.maxSigFigs - args.minSigFigs;
-      return numeral(x).format('0,0.' + String.repeat('0', args.minSigFigs) + '[' +
-          String.repeat('0', diffSigFigs));
+      return numeral(x).format('0,0.' + Strings.repeat('0', args.minSigFigs) + '[' +
+          Strings.repeat('0', diffSigFigs));
     },
 
     /**
