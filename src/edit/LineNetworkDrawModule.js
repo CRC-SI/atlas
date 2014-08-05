@@ -38,7 +38,38 @@ define([
      * @type {atlas.model.LineNetwork}
      * @private
      */
-    _lineNetwork: null
+    _lineNetwork: null,
+
+    _init: function(args) {
+      // TODO(bpstudds): 'create' event should only happen when actually done
+      this._super(args);
+    },
+
+    _add: function(args) {
+      // TODO(bpstudds): Check if clicked on pre-existing node.
+      // TODO(bpstudds): Add (new|pre-existing) node to current line in the network.
+      // TODO(bpstudds): Add de-bouncing to the BaseEditModule?
+
+      // Delegate to LineDrawModule to draw a line.
+      this._super(args);
+    },
+
+    _render: function() {
+      // TODO(bpstudds): Make sure the LineNetwork is only re-rendering changed lines.
+      this._super();
+    },
+
+    _stop: function() {
+      this._super();
+    },
+
+    _cancel: function() {
+      this._super();
+    },
+
+    _reset: function() {
+      this._super();
+    }
 
   });
 
