@@ -39,12 +39,6 @@ define([
      */
     _orientation: null,
 
-    /**
-     * A geocoder used for resolving address names to coordinates.
-     * @type {atlas.util.Geocoder}
-     */
-    _geocoder: null,
-
     _init: function(args) {
       args = Setter.mixin({}, args);
       this._setPosition(args.position);
@@ -164,13 +158,6 @@ define([
       throw new DeveloperError('Can not call abstract method Camera._animate');
     },
 
-    _getGeocoder: function() {
-      if (!this._geocoder) {
-        this._geocoder = new Geocoder();
-      }
-      return this._geocoder;
-    },
-
     // -------------------------------------------
     // GENERAL MOVEMENT
     // -------------------------------------------
@@ -246,11 +233,8 @@ define([
      * @param {String} address
      */
     zoomToAddress: function(address) {
-      this._getGeocoder().getInfo({address: address}).then(function(result) {
-        var defaultPosition = Camera.getDefaultPosition();
-        var position = result.position;
-        position.elevation = defaultPosition.elevation;
-        this.zoomTo({position: position});
+      Geocoder.getInstance().getInfo({address: address}).then(function(result) {
+        this.zoomTo({position: result.position});
       }.bind(this), function() {
         Log.warn('Could not zoom to address - no results', address);
       });

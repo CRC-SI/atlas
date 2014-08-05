@@ -5,7 +5,7 @@ define([
   'atlas/model/Vertex',
   'atlas/lib/utility/Class'
 ], function(OpenLayers, Setter, DevError, Vertex, Class) {
-  var _instance = null;
+  var _instance;
 
   /**
    * Defines a set of utility methods for working with Well-Known-Text.
