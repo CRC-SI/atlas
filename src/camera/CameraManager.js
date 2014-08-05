@@ -1,26 +1,33 @@
 define([
   'atlas/camera/Camera',
+  'atlas/core/Manager',
   'atlas/model/GeoPoint',
   'atlas/lib/utility/Log',
-  'atlas/lib/utility/Type',
   'atlas/lib/utility/Setter',
-  'atlas/util/Class',
   'atlas/util/DeveloperError'
-], function(Camera, GeoPoint, Log, Type, Setter, Class, DeveloperError) {
+], function(Camera, Manager, GeoPoint, Log, Setter, DeveloperError) {
 
   /**
-   * Constructs a new CameraManager object.
-   * @class The CameraManager manages the current camera and exposes a API for creating
+   * @typedef atlas.camera.CameraManager
+   * @ignore
+   */
+  var CameraManager;
+
+  /**
+   * @classdesc The CameraManager manages the current camera and exposes a API for creating
    * and removing 'Bookmarks' which contain a snapshot of a Camera position and orientation.
    * The Camera manager also links the current Camera object to the Atlas event system.
    *
-   * @param {Object} atlasManagers - A mapping of Atlas manager types to the Manager instance.
+   * @param {Object} managers - A mapping of Atlas manager types to the Manager instance.
    * @param {Object} [options] - Options to control the CameraManager's behaviour.
    *
-   * @alias atlas.camera.CameraManager
-   * @constructor
+   * @class atlas.camera.CameraManager
+   * @extends atlas.core.Manager
    */
-  var CameraManager = Class.extend(/** @lends atlas.camera.CameraManager# */ {
+  CameraManager = Manager.extend(/** @lends atlas.camera.CameraManager# */ {
+
+    _id: 'camera',
+
     /**
      * The current Camera.
      * @type atlas.camera.Camera
@@ -33,13 +40,11 @@ define([
      */
     _bookmarks: null,
 
-    _init: function(atlasManagers, options) {
+    _init: function(managers, options) {
+      this._super(managers);
       this._options = Setter.mixin({
         forceCustomControl: true
       }, options);
-
-      this._atlasManagers = atlasManagers;
-      this._atlasManagers.camera = this;
     },
 
     /**
@@ -47,6 +52,7 @@ define([
      * be created.
      */
     setup: function() {
+      this._current = new Camera({renderManager: this._managers.render});
       this._bindEvents();
       // TODO(bpstudds): Properly override (Cesium) camera controls.
       //this._options.forceCustomControl && this._bindControlEvents();
@@ -59,14 +65,11 @@ define([
           source: 'extern',
           name: 'camera/zoomTo',
           callback: function(args) {
-            if (this._camera === null) {
-              this._camera = new Camera();
-            }
             if (args.position) {
               args.position = new GeoPoint(args.position);
-              this._camera.zoomTo(args);
+              this._current.zoomTo(args);
             } else if (args.address) {
-              this._camera.zoomToAddress(args.address);
+              this._current.zoomToAddress(args.address);
             } else {
               return new Error('Invalid arguments for event "camera/zoomTo"');
             }
@@ -76,11 +79,11 @@ define([
           source: 'extern',
           name: 'camera/current',
           callback: function(args) {
-            args.callback(this._camera);
+            args.callback(this._current);
           }.bind(this)
         }
       ];
-      this._atlasManagers.event.addEventHandlers(handlers);
+      this._managers.event.addEventHandlers(handlers);
     },
 
     _bindControlEvents: function() {
@@ -116,7 +119,7 @@ define([
           callback: this._stopControl.bind(this)
         }
       ];
-      this._atlasManagers.event.addEventHandlers(handlers);
+      this._managers.event.addEventHandlers(handlers);
     },
 
     // TODO(aramk) This might be superseded by getStats() on Camera.
@@ -131,7 +134,7 @@ define([
       var pos = event.pos
       this._control = this._control || {};
 
-      if (this._atlasManagers.entity.getAt(pos).length > 0) {
+      if (this._managers.entity.getAt(pos).length > 0) {
         return;
       }
 
@@ -139,7 +142,7 @@ define([
       this._control.action = event.button;
       Log.debug('CameraManager', 'updating control', this._control.action);
       this._control.curPos = pos;
-      var handler = this._camera.inputHandlers[this._control.action];
+      var handler = this._current.inputHandlers[this._control.action];
       handler && handler(event);
     },
 
@@ -147,7 +150,7 @@ define([
       if (this._control && this._control.inControl) {
         Log.debug('CameraManager', 'stop control', this._control.action);
         this._control.inControl = false;
-        this._camera.inputHandlers[this._control.action](event);
+        this._current.inputHandlers[this._control.action](event);
       }
     },
 

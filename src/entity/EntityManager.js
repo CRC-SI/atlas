@@ -1,4 +1,5 @@
 define([
+  'atlas/core/Manager',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Objects',
   'atlas/lib/utility/Setter',
@@ -10,16 +11,23 @@ define([
   'atlas/model/Line',
   'atlas/model/Image',
   'atlas/model/Vertex',
-  'atlas/util/DeveloperError',
-  // Base class.
-  'atlas/util/Class'
-], function(Log, Objects, Setter, Ellipse, Feature, GeoEntity, Mesh, Polygon, Line, Image, Vertex,
-            DeveloperError, Class) {
+  'atlas/util/DeveloperError'
+], function(Manager, Log, Objects, Setter, Ellipse, Feature, GeoEntity, Mesh, Polygon, Line, Image,
+            Vertex, DeveloperError) {
 
-  //noinspection JSUnusedGlobalSymbols
-  var EntityManager = Class.extend({
+  /**
+   * @typedef atlas.entity.EntityManager
+   * @ignore
+   */
+  var EntityManager;
 
-    _atlasManagers: null,
+  /**
+   * Manages {@link atlas.model.GeoEntity} objects.
+   * @class atlas.entity.EntityManager
+   */
+  EntityManager = Manager.extend({
+
+    _id: 'entity',
 
     /**
      * Contains a mapping of ID to GeoEntity of all GeoEntities in atlas.
@@ -49,9 +57,8 @@ define([
      */
     _origDisplayModes: null,
 
-    _init: function(atlasManagers) {
-      this._atlasManagers = atlasManagers;
-      this._atlasManagers.entity = this;
+    _init: function(managers) {
+      this._super(managers);
       this._origDisplayModes = {};
       this._entities = {};
     },
@@ -60,7 +67,7 @@ define([
      * Performs any manager setup that requires the presence of other managers.
      * @param args
      */
-    setup: function (args) {
+    setup: function(args) {
       var constructors = args && args.constructors;
       if (constructors) {
         this.setGeoEntityTypes(constructors);
@@ -201,7 +208,7 @@ define([
 //          }.bind(this)
 //        }
       ];
-      this._atlasManagers.event.addEventHandlers(handlers);
+      this._managers.event.addEventHandlers(handlers);
     },
 
     /**
@@ -251,9 +258,9 @@ define([
         // TODO(aramk) Use dependency injection to ensure all entities that are created have these
         // if they need them.
         // Add EventManger to the args for the feature.
-        args.eventManager = this._atlasManagers.event;
+        args.eventManager = this._managers.event;
         // Add the RenderManager to the args for the feature.
-        args.renderManager = this._atlasManagers.render;
+        args.renderManager = this._managers.render;
         // Add the EntityManager to the args for the feature.
         args.entityManager = this;
         Log.debug('Creating entity', id);
@@ -473,7 +480,7 @@ define([
      * @returns {Object.<String, atlas.model.GeoEntity>} A map of IDs to visible features.
      */
     getVisibleFeatures: function() {
-      return this.getVisibleEntities({filter: function (entity) {
+      return this.getVisibleEntities({filter: function(entity) {
         return entity instanceof Feature;
       }});
     },

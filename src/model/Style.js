@@ -1,7 +1,7 @@
 // Style.js
 define([
   'atlas/lib/utility/Setter',
-  'atlas/util/Class',
+  'atlas/lib/utility/Class',
   'atlas/util/DeveloperError',
   './Colour'
 ], function (Setter, Class, DeveloperError, Colour) {

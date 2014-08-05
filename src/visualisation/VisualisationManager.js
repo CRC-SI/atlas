@@ -1,6 +1,6 @@
 define([
+  'atlas/core/Manager',
   'atlas/core/ItemStore',
-  'atlas/util/Class',
   'atlas/util/DeveloperError',
   'atlas/dom/Overlay',
   'atlas/visualisation/AbstractProjection',
@@ -8,20 +8,27 @@ define([
   'atlas/visualisation/DynamicProjection',
   'atlas/visualisation/HeightProjection',
   'atlas/lib/utility/Log'
-], function (ItemStore, Class, DeveloperError, Overlay, AbstractProjection, ColourProjection,
-             DynamicProjection, HeightProjection, Log) {
+], function(Manager, ItemStore, DeveloperError, Overlay, AbstractProjection, ColourProjection,
+            DynamicProjection, HeightProjection, Log) {
+
+  /**
+   * @typedef atlas.visualisation.VisualisationManager
+   * @ignore
+   */
+  var VisualisationManager;
 
   /**
    * @classdesc The VisualisationManager is responsible for tracking, applying
    * and removing Projections.
-   * @param {Object.<String, Object>} atlasManagers - A map of Atlas manager names to
+   * @param {Object.<String, Object>} managers - A map of Atlas manager names to
    *      the current instance of that manager.
    * @class atlas.visualisation.VisualisationManager
    */
-  var VisualisationManager = Class.extend( /** @lends atlas.visualisation.VisualisationManager# */{
+  VisualisationManager = Manager.extend(/** @lends atlas.visualisation.VisualisationManager# */{
 
     // TODO(bpstudds): Refactor this class to 'GeoChartFactory'? or 'ProjectionFactory'?
-    _atlasManagers: null,
+
+    _id: 'visualisation',
 
     /**
      * The an ItemStore of all static projections.
@@ -49,9 +56,8 @@ define([
      */
     _legendStore: null,
 
-    _init: function (atlasManagers) {
-      this._atlasManagers = atlasManagers;
-      this._atlasManagers.visualisation = this;
+    _init: function(managers) {
+      this._super(managers);
       this._staticProjections = new ItemStore();
       this._legendStore = new ItemStore();
       this._overlays = {};
@@ -60,14 +66,14 @@ define([
     /**
      * Performs any setup for the Manager that requires other Atlas managers to exist.
      */
-    setup: function () {
+    setup: function() {
       this._bindEvents();
     },
 
     /**
      * Binds functionality of the VisualisationManager to specific events.
      */
-    _bindEvents: function () {
+    _bindEvents: function() {
       this._eventHandlers = [
         {
           source: 'extern',
@@ -78,7 +84,7 @@ define([
            * @param {Object} args.config - Constructor arguments as required by the type of projection. Refer to @{link atlas.visualisation.AbstractProjection}, @{link atlas.visualisation.ColourProjection}, and @{link atlas.visualisation.HeightProjection}.
            * @returns {atlas.visualisation.AbstractProjection} The new projection as <code>args.projection</code>.
            */
-          callback: function (args) {
+          callback: function(args) {
             args.projection = this.createProjection(args);
             this.addProjection(args.projection);
           }.bind(this)
@@ -90,7 +96,7 @@ define([
            * @param {Object} args
            * @param {String} args.id - The ID of the projection to render.
            */
-          callback: function (args) {
+          callback: function(args) {
             this.render(args.id);
           }.bind(this)
         },
@@ -101,7 +107,7 @@ define([
            * @param {Object} args
            * @param {String} args.id - The id of the projection to unrender.
            */
-          callback: function (args) {
+          callback: function(args) {
             this.unrender(args.id);
           }.bind(this)
         },
@@ -111,14 +117,14 @@ define([
           /*
            * @param {String} args - The artifact of the projection to remove.
            */
-          callback: function (args) {
+          callback: function(args) {
             this.remove(args.id);
           }.bind(this)
         },
         {
           source: 'extern',
           name: 'projection/remove/all',
-          callback: function () {
+          callback: function() {
             this.removeAll();
           }.bind(this)
         },
@@ -134,7 +140,7 @@ define([
            * @param {Object} args.config - Constructor arguments as required by the type of projection. Refer to @{link atlas.visualisation.AbstractProjection}, @{link atlas.visualisation.ColourProjection}, and @{link atlas.visualisation.HeightProjection}.
            * @returns {atlas.visualisation.DynamicProjection} The new dynamic projection as <code>args.projection</code>.
            */
-          callback: function (args) {
+          callback: function(args) {
             args.projection = this.createDynamicProjection(args);
             this.addDynamicProjection(args.projection);
           }.bind(this)
@@ -145,11 +151,11 @@ define([
           /*
            * @param {String} args - The artifact of the dynamic projection to remove.
            */
-          callback: function (args) {
+          callback: function(args) {
             throw new DeveloperError("Dynamic projection not yet supported.");
             // TODO(aramk) This was incomplete so I threw an exception.
-            this._projections['dynamic-'+args].stop();
-            delete this._projections['dynamic-'+args];
+            this._projections['dynamic-' + args].stop();
+            delete this._projections['dynamic-' + args];
           }.bind(this)
         },
         {
@@ -158,10 +164,10 @@ define([
           /*
            * @param {String} args - The artifact of the dynamic projection to start.
            */
-          callback: function (args) {
+          callback: function(args) {
             throw new DeveloperError("Dynamic projection not yet supported.");
             // TODO(aramk) This was incomplete so I threw an exception.
-            this._projections['dynamic-'+args].start();
+            this._projections['dynamic-' + args].start();
           }.bind(this)
         },
         {
@@ -170,10 +176,10 @@ define([
           /*
            * @param {String} args - The artifact of the dynamic projection to pause.
            */
-          callback: function (args) {
+          callback: function(args) {
             throw new DeveloperError("Dynamic projection not yet supported.");
             // TODO(aramk) This was incomplete so I threw an exception.
-            this._projections['dynamic-'+args].pause();
+            this._projections['dynamic-' + args].pause();
           }.bind(this)
         },
         {
@@ -182,25 +188,25 @@ define([
           /*
            * @param {String} args - The artifact of the dynamic projection to stop.
            */
-          callback: function (args) {
+          callback: function(args) {
             throw new DeveloperError("Dynamic projection not yet supported.");
             // TODO(aramk) This was incomplete so I threw an exception.
-            this._projections['dynamic-'+args].stop();
+            this._projections['dynamic-' + args].stop();
           }.bind(this)
         }
       ];
-      this._atlasManagers.event.addEventHandlers(this._eventHandlers);
+      this._managers.event.addEventHandlers(this._eventHandlers);
     },
 
     // -------------------------------------------
     // Getters and Setters
     // -------------------------------------------
 
-    getLegendContainer: function () {
+    getLegendContainer: function() {
       if (!this._legendContainer) {
         this._legendContainer = new Overlay({
           id: 'visman-projection-container',
-          parent: this._atlasManagers.dom.getDom(),
+          parent: this._managers.dom.getDom(),
           title: 'Projections',
           position: {top: 300, left: 0}
         })
@@ -220,12 +226,12 @@ define([
      * @param {Object} args.config - Constructor arguments as required by the type of projection. Refer to @{link atlas.visualisation.AbstractProjection}, @{link atlas.visualisation.ColourProjection}, and @{link atlas.visualisation.HeightProjection}.
      * @returns {atlas.visualisation.AbstractProjection} The new projection object.
      */
-    createProjection: function (args) {
+    createProjection: function(args) {
       var Projection = args.type === 'colour' ? ColourProjection : HeightProjection;
 
       args.config.entities = {};
-      args.ids.forEach(function (id) {
-        args.config.entities[id] = this._atlasManagers.entity.getById(id);
+      args.ids.forEach(function(id) {
+        args.config.entities[id] = this._managers.entity.getById(id);
       }, this);
 
       return new Projection(args.config);
@@ -240,20 +246,20 @@ define([
      * @param {Object} args.config - Constructor arguments as required by the type of projection. Refer to @{link atlas.visualisation.AbstractProjection}, @{link atlas.visualisation.ColourProjection}, and @{link atlas.visualisation.HeightProjection}.
      * @returns {atlas.visualisation.DynamicProjection} The new dynamic projection object.
      */
-    createDynamicProjection: function (args) {
+    createDynamicProjection: function(args) {
       var Projection = args.type === 'colour' ? ColourProjection : HeightProjection;
       // Set up the config for projection construction.
       args.config.values = {};
       args.config.entities = {};
-      args.ids.forEach(function (id) {
-        args.config.entities[id] = this._atlasManagers.entity.getById(id);
+      args.ids.forEach(function(id) {
+        args.config.entities[id] = this._managers.entity.getById(id);
       }, this);
       var staticPrj = new Projection(args.config);
 
       return new DynamicProjection(staticPrj, args.data, args);
     },
 
-    _addLegend: function (projection) {
+    _addLegend: function(projection) {
       var id = projection.getId(),
           legendData = projection.getLegendData(),
           keyHtml = Overlay.generateTable(legendData.key),
@@ -268,8 +274,12 @@ define([
             parent: contentNode,
             title: legendData.title,
             cssClass: 'legend',
-            onRemove: function (e) { this.remove(id); }.bind(this),
-            onEnabledChange: function (e) { this.toggleRender(id); }.bind(this),
+            onRemove: function(e) {
+              this.remove(id);
+            }.bind(this),
+            onEnabledChange: function(e) {
+              this.toggleRender(id);
+            }.bind(this),
             showMinimised: true,
             cssPosition: 'relative',
             content: legendHtml
@@ -289,7 +299,7 @@ define([
 //      html += legendHtml;
 //
 //      this._legends = new Overlay({
-//        parent: this._atlasManagers.dom.getDom(),
+//        parent: this._managers.dom.getDom(),
 //        title: legendData.title,
 //        'class': 'legend',
 //        // TODO(bpstudds): Add IDs to projections, use the ID rather than artifact to store.
@@ -315,7 +325,7 @@ define([
      * Adds a Projection to be managed by the VisualisationManager.
      * @param {atlas.visualisation.AbstractProjection} projection - The New Projection instance to add.
      */
-    addProjection: function (projection) {
+    addProjection: function(projection) {
       if (!(projection instanceof AbstractProjection)) {
         throw new DeveloperError('Tried to add an object to the VisualisationManager which is not a subclass of atlas.visualisation.AbstractProjection');
       }
@@ -329,39 +339,41 @@ define([
       this._addLegend(projection);
     },
 
-    addDynamicProjection: function (dynamic) {
+    addDynamicProjection: function(dynamic) {
       // TODO(aramk) This was incomplete so I threw an exception.
       throw new DeveloperError("Dynamic projection not yet supported.");
-      var target = 'dynamic-'+dynamic._projector.ARTIFACT,
+      var target = 'dynamic-' + dynamic._projector.ARTIFACT,
           BUTTON = 'visual-btn',
           SLIDER = 'visual-slider';
 
       this._projections[target] = dynamic;
       this._overlays[target] = new Overlay({
-        parent: this._atlasManagers.dom.getDom(),
+        parent: this._managers.dom.getDom(),
         position: {top: 0, left: 0},
-        content:
-          '<p>'+target+'</p>' +
-          '<input type="range" id="' + SLIDER + '-fps-' + target + '" min="1" max="30"> </br> ' +
-          '<button id="' + BUTTON + '-play-' + target + '">&gt</button>' +
-          '<button id="' + BUTTON + '-pause-' + target + '">||&gt</button>' +
-          '<button id="' + BUTTON + '-stop-' + target + '">!</button>'
+        content: '<p>' + target + '</p>' +
+            '<input type="range" id="' + SLIDER + '-fps-' + target + '" min="1" max="30"> </br> ' +
+            '<button id="' + BUTTON + '-play-' + target + '">&gt</button>' +
+            '<button id="' + BUTTON + '-pause-' + target + '">||&gt</button>' +
+            '<button id="' + BUTTON + '-stop-' + target + '">!</button>'
       });
-      var getFpsFromForm = function (target) {
+      var getFpsFromForm = function(target) {
         return document.getElementById(SLIDER + '-fps-' + target).value;
       };
-      document.getElementById(BUTTON + '-play-' + target).addEventListener('click', function (event) {
-        this.setFps(getFpsFromForm(target));
-        event.button === 0 && this.start();
-      }.bind(this._projections[target]));
+      document.getElementById(BUTTON + '-play-' + target).addEventListener('click',
+          function(event) {
+            this.setFps(getFpsFromForm(target));
+            event.button === 0 && this.start();
+          }.bind(this._projections[target]));
 
-      document.getElementById(BUTTON + '-pause-' + target).addEventListener('click', function (event) {
-        event.button === 0 && this.pause();
-      }.bind(this._projections[target]));
+      document.getElementById(BUTTON + '-pause-' + target).addEventListener('click',
+          function(event) {
+            event.button === 0 && this.pause();
+          }.bind(this._projections[target]));
 
-      document.getElementById(BUTTON + '-stop-' + target).addEventListener('click', function (event) {
-        event.button === 0 && this.stop();
-      }.bind(this._projections[target]));
+      document.getElementById(BUTTON + '-stop-' + target).addEventListener('click',
+          function(event) {
+            event.button === 0 && this.stop();
+          }.bind(this._projections[target]));
     },
 
     /**
@@ -370,7 +382,7 @@ define([
      * @returns {atlas.visualisation.AbstractProjection|null} The Projection removed, or null
      *    if a projection does not existing for the given artifact.
      */
-    remove: function (id) {
+    remove: function(id) {
       var prj = this._staticProjections.get(id),
           legend = this._legendStore.get(id);
       if (!prj) {
@@ -395,8 +407,8 @@ define([
      * Removes projections on all artifacts.
      * @returns {Object.<String, atlas.visualisation.AbstractProjection>} The removed projections.
      */
-    removeAll: function () {
-      return this._staticProjections.map(function (projection, id) {
+    removeAll: function() {
+      return this._staticProjections.map(function(projection, id) {
         return this.remove(id);
       }.bind(this));
     },
@@ -409,7 +421,7 @@ define([
      * Renders the effects of the Projection currently affecting the given artifact.
      * @param {Object} id - The ID of the projection to render.
      */
-    render: function (id) {
+    render: function(id) {
       // Unrender all other projections
       var projection = this._staticProjections.get(id),
           legend = this._legendStore.get(id),
@@ -425,7 +437,7 @@ define([
         projection.render();
         legend.maximise();
         this._currentProjection = id;
-        this._atlasManagers.event.handleInternalEvent('projection/render/complete',
+        this._managers.event.handleInternalEvent('projection/render/complete',
             {id: projection.getId(), name: artifact});
       }
     },
@@ -434,7 +446,7 @@ define([
      * Unrenders the effects of the Projection currently affecting the given artifact.
      * @param {String} id - The ID of the projection to unrender.
      */
-    unrender: function (id) {
+    unrender: function(id) {
       // TODO(bpstudds): Add support for un-rendering a subset of entities.
       var projection = this._staticProjections.get(id),
           legend = this._legendStore.get(id),
@@ -447,7 +459,7 @@ define([
         projection.unrender();
         legend.minimise();
         this._currentProjection = null;
-        this._atlasManagers.event.handleInternalEvent('projection/unrender/complete',
+        this._managers.event.handleInternalEvent('projection/unrender/complete',
             {id: projection.getId(), name: artifact});
       }
     },
@@ -456,7 +468,7 @@ define([
      * Toggles a static projection between having its effects rendered and not rendered.
      * @param {String} id - The artifact of the projection to toggle.
      */
-    toggleRender: function (id) {
+    toggleRender: function(id) {
       var projection = this._staticProjections.get(id);
 
       if (projection.isRendered()) {

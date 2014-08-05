@@ -1,9 +1,9 @@
 define([
   'atlas/lib/numeral',
   'atlas/lib/utility/Setter',
-  'atlas/lib/utility/String',
-  'atlas/util/Class'
-], function(numeral, Setter, String, Class) {
+  'atlas/lib/utility/Strings',
+  'atlas/lib/utility/Class'
+], function(numeral, Setter, Strings, Class) {
   /**
    * Formats values for presentation.
    * @class atlas.util.Formatter
@@ -30,8 +30,8 @@ define([
       // Use commas, with taking into account the minimum and maximum number of significant figures
       // after the period.
       var diffSigFigs = args.maxSigFigs - args.minSigFigs;
-      return numeral(x).format('0,0.' + String.repeat('0', args.minSigFigs) + '[' +
-          String.repeat('0', diffSigFigs));
+      return numeral(x).format('0,0.' + Strings.repeat('0', args.minSigFigs) + '[' +
+          Strings.repeat('0', diffSigFigs));
     },
 
     /**

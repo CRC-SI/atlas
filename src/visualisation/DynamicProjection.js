@@ -1,7 +1,7 @@
 define([
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Log',
-  'atlas/util/Class',
+  'atlas/lib/utility/Class',
   'atlas/util/DeveloperError'
 ], function (Setter, Log, Class, DeveloperError) {
 

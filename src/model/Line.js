@@ -4,11 +4,10 @@ define([
   'atlas/model/Colour',
   'atlas/model/VertexedEntity',
   'atlas/lib/utility/Setter',
-  'atlas/lib/utility/Type',
+  'atlas/lib/utility/Types',
   'atlas/util/DeveloperError',
-  'atlas/util/default',
   'atlas/util/WKT'
-], function(GeoPoint, Style, Colour, VertexedEntity, Setter, Type, DeveloperError, defaultValue, WKT) {
+], function(GeoPoint, Style, Colour, VertexedEntity, Setter, Types, DeveloperError, WKT) {
 
   /**
    * @typedef atlas.model.Line
@@ -52,16 +51,16 @@ define([
      */
     _init: function(id, lineData, args) {
       this._super(id, args);
-      if (Type.isString(lineData.vertices)) {
+      if (Types.isString(lineData.vertices)) {
         var wkt = WKT.getInstance(),
             vertices = wkt.verticesFromWKT(lineData.vertices).map(GeoPoint.fromVertex, GeoPoint);
-        if (Type.isArray(vertices)) {
+        if (Types.isArray(vertices)) {
           this._vertices = vertices;
         } else {
           throw new Error('Invalid vertices for Line ' + id);
         }
       } else {
-        this._vertices = defaultValue(lineData.vertices, []);
+        this._vertices = Setter.def(lineData.vertices, []);
       }
       this._width = lineData.width || this._width;
       if (lineData.color) {

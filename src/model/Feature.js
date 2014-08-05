@@ -1,12 +1,11 @@
 define([
-  'atlas/util/default',
-  'atlas/util/DeveloperError',
   'atlas/lib/utility/Setter',
+  'atlas/util/DeveloperError',
   'atlas/model/Mesh',
   'atlas/model/Polygon',
   // Base class.
   'atlas/model/GeoEntity'
-], function(defaultValue, DeveloperError, Setter, Mesh, Polygon, GeoEntity) {
+], function(Setter, DeveloperError, Mesh, Polygon, GeoEntity) {
 
   /**
    * @typedef atlas.model.Feature
@@ -97,18 +96,18 @@ define([
 
     _init: function(id, args) {
       this._super(id, args);
-      this._visible = defaultValue(args.show, false);
+      this._visible = Setter.def(args.show, false);
       var displayMode;
       if (args.mesh) {
-        displayMode = defaultValue(args.displayMode, Feature.DisplayMode.MESH);
+        displayMode = Setter.def(args.displayMode, Feature.DisplayMode.MESH);
       } else if (args.ellipse) {
-        displayMode = defaultValue(args.displayMode, Feature.DisplayMode.EXTRUSION);
+        displayMode = Setter.def(args.displayMode, Feature.DisplayMode.EXTRUSION);
       } else if (args.polygon) {
-        displayMode = defaultValue(args.displayMode, Feature.DisplayMode.EXTRUSION);
+        displayMode = Setter.def(args.displayMode, Feature.DisplayMode.EXTRUSION);
       } else if (args.line) {
-        displayMode = defaultValue(args.displayMode, Feature.DisplayMode.LINE);
+        displayMode = Setter.def(args.displayMode, Feature.DisplayMode.LINE);
       } else if (args.image) {
-        displayMode = defaultValue(args.displayMode, Feature.DisplayMode.IMAGE);
+        displayMode = Setter.def(args.displayMode, Feature.DisplayMode.IMAGE);
       }
       this.setDisplayMode(displayMode);
       this._height = parseFloat(args.height) || 0.0;

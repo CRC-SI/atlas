@@ -6,11 +6,10 @@ define([
   'atlas/model/Vertex',
   'atlas/model/GeoPoint',
   'atlas/util/DeveloperError',
-  'atlas/util/default',
   'atlas/util/WKT',
   // Base class
   'atlas/model/VertexedEntity'
-], function(Setter, Colour, Material, Style, Vertex, GeoPoint, DeveloperError, defaultValue, WKT,
+], function(Setter, Colour, Material, Style, Vertex, GeoPoint, DeveloperError, WKT,
             VertexedEntity) {
 
   /**
@@ -121,7 +120,7 @@ define([
           throw new Error('Invalid vertices for Polygon ' + id);
         }
       } else {
-        this._vertices = defaultValue(polygonData.vertices, []);
+        this._vertices = Setter.def(polygonData.vertices, []);
       }
       // Don't have closed polygons.
       var len = this._vertices.length;

@@ -1,7 +1,7 @@
 define([
-  'atlas/util/Class',
+  'atlas/core/Manager',
   'atlas/lib/keycode'
-], function(Class, Keycode) {
+], function(Manager, Keycode) {
 
   /**
    * @typedef atlas.input.InputManager
@@ -12,10 +12,12 @@ define([
   /**
    * @classdesc The InputManager is used to link user input events to the
    * Atlas event system.
-   * @param {Object} atlasManagers - The map of all atlas manager objects.
+   * @param {Object} managers - The map of all atlas manager objects.
    * @class atlas.input.InputManager
    */
-  InputManager = Class.extend(/** @lends atlas.input.InputManager# */ {
+  InputManager = Manager.extend(/** @lends atlas.input.InputManager# */ {
+
+    _id: 'input',
 
     /**
      * The current DOM element the InputManager is bound to.
@@ -23,13 +25,6 @@ define([
      * @protected
      */
     _element: null,
-
-    /**
-     * The map of Atlas manager name to the current manager instance.
-     * @{Object}
-     * @protected
-     */
-    _atlasManagers: null,
 
     /**
      * An array of event handlers attached to Atlas' dom element.
@@ -51,9 +46,8 @@ define([
      */
     __lastY: 0,
 
-    _init: function(atlasManagers) {
-      this._atlasManagers = atlasManagers;
-      this._atlasManagers.input = this;
+    _init: function(managers) {
+      this._super(managers);
       this.__lastX = this.__lastY = 0;
 
       this._mouseHandlers = [];
@@ -78,7 +72,7 @@ define([
       // Helper function to construct the arguments for Atlas mouse events
       var makeMouseEventArgs = function(name, e) {
         var absPosition = { x: e.clientX, y: e.clientY };
-        var relPosition = this._atlasManagers.dom.translateEventCoords(absPosition),
+        var relPosition = this._managers.dom.translateEventCoords(absPosition),
             x = relPosition.x,
             y = relPosition.y;
         var args = {
@@ -108,8 +102,8 @@ define([
           args = makeMouseEventArgs(buttonIds[e.button] + 'down', e);
           this.__lastX = args.position.x;
           this.__lastY = args.position.y;
-          this._atlasManagers.event.handleInternalEvent(args.name, args);
-        }.bind(this._atlasManagers.input)
+          this._managers.event.handleInternalEvent(args.name, args);
+        }.bind(this._managers.input)
       });
 
       // Mouse button up
@@ -119,11 +113,11 @@ define([
           args = makeMouseEventArgs(buttonIds[e.button] + 'up', e);
           if (Math.abs(args.movement.cx + args.movement.cy) < InputManager.CLICK_SENSITIVITY) {
             // If mouse moved less than the sensitivity, also emit a click event.
-            this._atlasManagers.event.handleInternalEvent('input/' + buttonIds[e.button] + 'click',
+            this._managers.event.handleInternalEvent('input/' + buttonIds[e.button] + 'click',
                 args);
           }
-          this._atlasManagers.event.handleInternalEvent(args.name, args);
-        }.bind(this._atlasManagers.input)
+          this._managers.event.handleInternalEvent(args.name, args);
+        }.bind(this._managers.input)
       });
 
       // Mouse move handler
@@ -131,8 +125,8 @@ define([
         name: 'mousemove',
         cback: function(e) {
           args = makeMouseEventArgs('mousemove', e);
-          this._atlasManagers.event.handleInternalEvent(args.name, args);
-        }.bind(this._atlasManagers.input)
+          this._managers.event.handleInternalEvent(args.name, args);
+        }.bind(this._managers.input)
       });
 
       // Double click handler
@@ -141,8 +135,8 @@ define([
         cback: function(e) {
           // TODO(bpstudds): This will convert all double click events to left dbl click.
           args = makeMouseEventArgs('left/dblclick', e);
-          this._atlasManagers.event.handleInternalEvent(args.name, args);
-        }.bind(this._atlasManagers.input)
+          this._managers.event.handleInternalEvent(args.name, args);
+        }.bind(this._managers.input)
       });
 
       // Add the event listeners to the current DOM element.
@@ -172,7 +166,7 @@ define([
           e.altKey && (args.modifiers.alt = true);
           e.ctrlKey && (args.modifiers.ctrl = true);
           this.handleInternalEvent(args.name, args);
-        }.bind(this._atlasManagers.event), false);
+        }.bind(this._managers.event), false);
       }, this);
     }
   });

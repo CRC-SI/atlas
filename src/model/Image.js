@@ -5,11 +5,10 @@ define([
   'atlas/model/Style',
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
-  'atlas/util/default',
   'atlas/util/WKT',
   // Base class
   'atlas/model/GeoEntity'
-], function(Setter, Colour, Material, Style, Vertex, DeveloperError, defaultValue, WKT, GeoEntity) {
+], function(Setter, Colour, Material, Style, Vertex, DeveloperError, WKT, GeoEntity) {
 
   /**
    * @typedef atlas.model.Image
@@ -138,7 +137,7 @@ define([
           throw new Error('Invalid vertices for Image ' + id);
         }
       } else {
-        this._vertices = defaultValue(imageData.vertices, []);
+        this._vertices = Setter.def(imageData.vertices, []);
       }
       // Don't have closed images.
       if (this._vertices.first === this._vertices.last) {
