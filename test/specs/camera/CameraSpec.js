@@ -47,7 +47,7 @@ define([
       });
 
       it ('to a specific location and orientation with flight animation', function () {
-        var flightTime = 1;
+        var flightTime = 100;
         camera.zoomTo(aPosition, anOrientation, flightTime);
         expect(camera._animate).toHaveBeenCalledWith({
           position: aPosition,
@@ -57,7 +57,6 @@ define([
       });
 
       it ('to a specific location instantly', function () {
-        var flightTime = 1;
         camera.zoomTo(aPosition);
         expect(camera._animate).toHaveBeenCalledWith({
           position: aPosition,
