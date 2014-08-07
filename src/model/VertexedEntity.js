@@ -15,6 +15,10 @@ define([
    * @extends atlas.model.GeoEntity
    */
   VertexedEntity = GeoEntity.extend(/** @lends atlas.model.VertexedEntity# */ {
+
+    /**
+     * @type {Array.<atlas.model.Vertex>}
+     */
     _vertices: null,
 
     _init: function (id, args) {

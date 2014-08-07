@@ -249,8 +249,8 @@ define([
     },
 
     /**
-     * @param {atlas.model.Vertex} vertex
-     * @returns {atlas.model.Handle}
+     * @param {atlas.model.GeoPoint} vertex
+     * @returns {atlas.model.GeoPoint}
      */
     createHandle: function(vertex) {
       throw new DeveloperError('Can not call abstract method "createHandle" of GeoEntity');

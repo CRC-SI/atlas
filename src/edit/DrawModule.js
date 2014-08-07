@@ -192,19 +192,24 @@ define([
       }
 
       var point = this._managers.render.convertScreenCoordsToLatLng(args.position);
-      var vertex = point.toVertex();
-      polygon.getVertices().push(vertex);
-      if (polygon.getVertices().length <= 2) {
-        line.getVertices().push(vertex.clone());
-      }
+      this._doAdd(point);
+      this._executeHandlers(this._handlers.update);
+    },
 
+    _doAdd: function(point) {
+      var polygon = this._getPolygon(),
+          line = this._getLine();
+      // TODO(aramk) Use GeoPoint in Polygon vertices.
+      var vertex = point.toVertex();
+      polygon.addVertex(vertex);
+      if (polygon.getVertices().length <= 2) {
+        line.addVertex(point);
+      }
       // Use the polygon handle constructor for consistency.
-      var handle = polygon.addHandle(polygon.createHandle(vertex));
-      handle.render();
-      handles.add(handle);
+      var handle = polygon.addHandle(polygon.createHandle(point));
+      handle.show();
       this._handles.push(handle);
       this._render();
-      this._executeHandlers(this._handlers.update);
     },
 
     /**
