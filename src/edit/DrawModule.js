@@ -241,6 +241,7 @@ define([
         return false;
       }
       this._executeHandlers(this._handlers.create);
+      this._removeHandles();
       this._reset();
       return true;
     },
@@ -254,13 +255,17 @@ define([
         throw new DeveloperError('Nothing is being drawn - cannot cancel.');
       }
       this._executeHandlers(this._handlers.cancel);
+      this._removeHandles();
+      this._feature.remove();
+      this._reset();
+    },
+
+    _removeHandles: function () {
       var handles = this._managers.edit.getHandles();
       this._handles.forEach(function(handle) {
         handles.remove(handle.getId());
         handle.remove();
       }, this);
-      this._feature.remove();
-      this._reset();
     },
 
     /**
