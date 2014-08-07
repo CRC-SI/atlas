@@ -137,7 +137,7 @@ define([
     _translate: function(oldPos, newPos) {
       var diff = newPos.subtract(oldPos);
       // GeoEntity.translate expects a Vertex, not a GeoPoint.
-      // Translation should be using a GeoPoint
+      // TODO(bpstudds): Translation should be using a GeoPoint.
       this._target.translate(diff.toVertex());
     },
 
