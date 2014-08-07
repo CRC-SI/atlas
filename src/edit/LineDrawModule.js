@@ -96,13 +96,13 @@ define([
      */
     _setup: function() {
       if (!this._feature) {
-        this._feature = this._atlasManagers.entity.createFeature(this._getNextId(), {
+        this._feature = this._managers.entity.createFeature(this._getNextId(), {
           line: {vertices: [], width: '2px'},
           displayMode: Feature.DisplayMode.LINE
         });
         // We will be adding new handles ourselves, and the new feature doesn't have any to begin
         // with.
-        this._atlasManagers.edit.enable({
+        this._managers.edit.enable({
           entities: [this._feature], show: false, addHandles: false
         });
       }
@@ -129,7 +129,7 @@ define([
       }
       this.enable();
       // TODO(bpstudds): Discover why translation is broken.
-      this._atlasManagers.edit.disableModule('translation');
+      this._managers.edit.disableModule('translation');
       this._isDrawing = true;
     },
 
@@ -146,6 +146,57 @@ define([
       }, this);
     },
 
+    _debounceAdd: function(diff, target) {
+      // Remove the point added on the first click of the double click.
+      // NOTE: it will still invoke the update callback.
+      var handles = this._managers.edit.getHandles(),
+          line = this._getLine(),
+          lastHandle = this._handles.pop(),
+          translationModule = this._managers.edit.getModule('translation');
+
+      line.removeVertex();
+      handles.remove(lastHandle.getId());
+      lastHandle.remove();
+      if (target) {
+        // Ensure a translation doesn't exist if we clicked on a handle.
+        translationModule && translationModule.cancel();
+      }
+      return true;
+    },
+
+    _addHandleOnTarget: function(line, target, args) {
+      if (this._handles && target === this._handles[0]) {
+        // Add last vertex if closing the line
+        var centroid = target.getCentroid();
+        if (centroid) {
+          if (centroid.x) {
+            // TODO(bpstudds): Convert all getCentroid to return a GeoPoint.
+            centroid = new GeoPoint(centroid);
+          }
+          line.addVertex(centroid);
+          this._render();
+        }
+        this._stop(args);
+        return true;
+      }
+      return false;
+    },
+
+    _doAdd: function(line, point) {
+      // Add point to the current line and redraw.
+      line.addVertex(point);
+      this._render();
+      // Create and show a handle for that point.
+      var handle = line.addHandle(line.createHandle(point));
+      handle.show();
+
+      // Add the new handle to the edit manager and the local store.
+      this._managers.edit.getHandles().add(handle);
+      this._handles.push(handle);
+
+      return true;
+    },
+
     /**
      * Called when a vertex should be added during drawing. Creates a handle for the new vertex.
      * If two consecutive calls are made within {@link #_doubleClickDelta} it is considered a double
@@ -154,34 +205,29 @@ define([
      * @private
      */
     _add: function(args) {
-      var clickedAt = this._atlasManagers.render.convertScreenCoordsToLatLng(args.position);
+      var clickedAt = this._managers.render.convertScreenCoordsToLatLng(args.position);
       if (!clickedAt) {
         // Click was not registered on the globe
         return;
       }
 
-      var handles = this._atlasManagers.edit.getHandles();
-      var targetId = this._atlasManagers.render.getAt(args.position)[0];
+      var handles = this._managers.edit.getHandles();
+      var targetId = this._managers.render.getAt(args.position)[0];
       var target = handles.get(targetId);
       var now = Date.now();
-      var translationModule = this._atlasManagers.edit.getModule('translation');
+      var translationModule = this._managers.edit.getModule('translation');
       this._setup();
       var line = this._getLine();
 
       if (this._lastClickTime) {
         var diff = now - this._lastClickTime;
         if (diff <= this._doubleClickDelta) {
-          // Remove the point added on the first click of the double click.
-          // NOTE: it will still invoke the update callback.
-          line.removeVertex();
-          var lastHandle = this._handles.pop();
-          handles.remove(lastHandle.getId());
-          lastHandle.remove();
-          this._render();
-          if (target) {
-            // Ensure a translation doesn't exist if we clicked on a handle.
-            translationModule.cancel();
+          // Remove node added on first click of double click
+          if (this._debounceAdd(diff, target)) {
+            // Render after removing erroneously added point.
+            this._render();
           }
+          // And finish drawing.
           this._stop(args);
           return;
         }
@@ -192,29 +238,13 @@ define([
       if (target) {
         // TODO(bpstudds): Fix up translation of existing nodes.
         //translationModule.cancel();
-        if (this._handles.length > 0 && target === this._handles[0]) {
-          // Add last vertex if closing the line.
-          var centroid = target.getCentroid();
-          if (centroid) {
-            if (centroid.x) {
-              // TODO(bpstudds): Convert all getCentroid to return a GeoPoint.
-              centroid = new GeoPoint(centroid);
-            }
-            line.addVertex(centroid);
-            this._render();
-          }
-          // And stop drawing
-          this._stop(args);
+        if (this._addHandleOnTarget(line, target, args)) {
+          return;
         }
-        return;
       }
-      // Add new vertex and handles if a new line segment has been drawn.
-      line.addVertex(clickedAt);
-      this._render();
-      var handle = line.addHandle(line.createHandle(clickedAt));
-      handle.show();
-      handles.add(handle);
-      this._handles.push(handle);
+      // Actually add the new point to the line.
+      this._doAdd(line, clickedAt);
+      // Call the update handler.
       this._executeHandlers(this._handlers.update);
     },
 
@@ -255,7 +285,7 @@ define([
         throw new DeveloperError('Nothing is being drawn - cannot cancel.');
       }
       this._executeHandlers(this._handlers.cancel);
-      var handles = this._atlasManagers.edit.getHandles();
+      var handles = this._managers.edit.getHandles();
       this._handles.forEach(function(handle) {
         handles.remove(handle.getId());
         handle.remove();
@@ -276,7 +306,7 @@ define([
         cancel: []
       };
       this._lastClickTime = null;
-      this._atlasManagers.edit.disable();
+      this._managers.edit.disable();
       this.disable();
       this._isDrawing = false;
     },
