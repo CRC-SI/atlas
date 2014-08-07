@@ -3,10 +3,9 @@ define([
   'atlas/lib/utility/Setter',
   'atlas/lib/Q',
   'atlas/model/GeoPoint',
-  'atlas/camera/Camera',
   'atlas/lib/utility/Class',
   'atlas/util/GoogleAPI'
-], function(Log, Setter, Q, GeoPoint, Camera, Class, GoogleAPI) {
+], function(Log, Setter, Q, GeoPoint, Class, GoogleAPI) {
   var _instance;
 
   /**
@@ -75,15 +74,20 @@ define([
      * @returns {atlas.model.GeoPoint} info.position - The resolved position of the location.
      */
     getInfo: function(args) {
-      return this.geocode(args).then(function(results) {
-        var result = results.results[0];
-        var loc = result.geometry.location;
-        return {
-          address: result.formatted_address,
-          // TODO(aramk) Resolve appropriate elevation.
-          position: new GeoPoint(loc.lng(), loc.lat(), Camera.getDefaultPosition().elevation)
-        }
-      });
+      var df = Q.defer();
+      // To avoid an AMD cyclic dependency, we must load Camera at runtime.
+      require(['atlas/camera/Camera'], function (Camera) {
+        this.geocode(args).then(function(results) {
+          var result = results.results[0];
+          var loc = result.geometry.location;
+          df.resolve({
+            address: result.formatted_address,
+            // TODO(aramk) Resolve appropriate elevation.
+            position: new GeoPoint(loc.lng(), loc.lat(), Camera.getDefaultPosition().elevation)
+          });
+        }, df.reject);
+      }.bind(this));
+      return df.promise;
     }
 
   }), {

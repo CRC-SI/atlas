@@ -149,7 +149,8 @@ define([
      * @param {atlas.model.Vertex} [args.direction] - Either orientation or both direction and up
      * vertices must be provided.
      * @param {atlas.model.Vertex} [args.up]
-     * @param {Object} [args.duration=0] - The amount of time to take for the animation.
+     * @param {Object} [args.duration=0] - The amount of time in milliseconds to take for the
+     * animation.
      * @param {atlas.camera.PathType} [args.path] - The type of path to follow if
      * animating.
      * @abstract
@@ -207,7 +208,7 @@ define([
      * @param {Object} args
      * @param {atlas.model.GeoPoint} args.position - The new position of the Camera.
      * @param {atlas.camera.Camera.Orientation} [args.orientation] - The new orientation of the Camera.
-     * @param {Number} [args.duration=0] - The duration of the zoom animation in seconds.
+     * @param {Number} [args.duration=0] - The duration of the zoom animation in milliseconds.
      */
     zoomTo: function(args) {
       args = Setter.mixin({}, args);

@@ -9,7 +9,7 @@ define([
         entity1,
         entity2,
         geoPoint,
-        modifiers = ['translate']; // Only translate supported atm , 'rotate', 'scale'];
+        modifiers = ['translate']; // Only translation of Handles is supported currently.
 
     // Override abstract render function.
     Handle.prototype.render = function () {};
