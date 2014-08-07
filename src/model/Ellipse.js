@@ -40,6 +40,28 @@ define([
     _height: 0,
 
     /**
+     * The elevation of the base of the Ellipse.
+     * @type {Number}
+     * @private
+     */
+    _elevation: 0,
+
+    /**
+     * The z-axis order as an integer in the range [0, Infinity]. Ellipses with higher zIndex will
+     * appear on top.
+     * @type {Number}
+     * @private
+     */
+    _zIndex: 0,
+
+    /**
+     * The z-axis offset for z-index used to separate different indices.
+     * @type {Number}
+     * @private
+     */
+    _zIndexOffset: 0.1,
+
+    /**
      * The semi major axis of the ellipse in metres.
      * @type {Number}
      */

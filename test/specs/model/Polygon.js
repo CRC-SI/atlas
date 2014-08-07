@@ -3,10 +3,9 @@ define([
   'dam/TestCase',
   '../Vertex',
   '../Style',
-  '../Material',
   /* Code under test */
   '../Polygon'
-], function (doh, TestCase, Vertex, Style, Material, Polygon) {
+], function (doh, TestCase, Vertex, Style, Polygon) {
 
   /* Test globals go here */
   var polygon;
