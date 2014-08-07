@@ -129,6 +129,12 @@ define([
       throw 'GeoPoint.toDmsString not yet implemented.';
     },
 
+    toString: function() {
+      var northSouth = this.latitude < 0 ? -1 * this.latitude + 'S' : this.latitude + 'N',
+          eastWest = this.longitude < 0 ? -1 * this.longitude + 'W' : this.longitude + 'E';
+      return northSouth + ' ' + eastWest;
+    },
+
     /**
      * @returns {atlas.model.GeoPoint} A deep copy of this object.
      */

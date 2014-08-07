@@ -115,7 +115,7 @@ define([
       this._super(id, args);
 
       this._visible = false;
-      this._centroid = new GeoPoint(ellipseData.centroid);
+      this._centroid = ellipseData.centroid;
       this._semiMajor = parseFloat(ellipseData.semiMajor);
       this._semiMinor = parseFloat(ellipseData.semiMinor) || this._semiMajor;
       this._rotation = ellipseData.rotation;

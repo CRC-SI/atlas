@@ -271,6 +271,7 @@ define([
      */
     addHandle: function(handle) {
       this._handles.add(handle);
+      return handle;
     },
 
     /**
@@ -441,11 +442,8 @@ define([
 
     /**
      * Translates the GeoEntity by the given vector.
-     * @param {atlas.model.Vertex} translation - The vector to move the GeoEntity by.
-     * @param {Number} translation.x - The change in latitude in decimal degrees to apply.
-     * @param {Number} translation.y - The change in longitude in decimal degrees apply.
-     * @param {Number} translation.z - The change in elevation in metres to apply.
-     *
+     * @param {atlas.model.GeoPoint} translation - The amount to move the GeoEntity in latitude,
+     * longitude and elevation.
      * @abstract
      */
     translate: function(translation) {
