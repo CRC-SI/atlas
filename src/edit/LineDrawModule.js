@@ -169,10 +169,6 @@ define([
         // Add last vertex if closing the line
         var centroid = target.getCentroid();
         if (centroid) {
-          if (centroid.x) {
-            // TODO(bpstudds): Convert all getCentroid to return a GeoPoint.
-            centroid = new GeoPoint(centroid);
-          }
           line.addVertex(centroid);
           this._render();
         }

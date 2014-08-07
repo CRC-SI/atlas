@@ -408,7 +408,7 @@ define([
      * @protected
      */
     _coordinateAsVertex: function(coordinate) {
-      return new Vertex(coordinate.x, coordinate.y, coordinate.z);
+      return new Vertex(coordinate);
     },
 
     /**

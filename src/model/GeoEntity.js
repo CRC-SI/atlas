@@ -32,6 +32,7 @@ define([
    * @see {atlas.model.Polygon}
    * @see {atlas.model.Network}
    * @see {atlas.model.Line}
+   * @see {atlas.model.GeoPoint}
    * @see {atlas.model.Vertex}
    *
    * @abstract
@@ -100,14 +101,14 @@ define([
      * @type {Boolean}
      * @protected
      */
-    _visible: null,
+    _visible: false,
 
     /**
      * Whether the GeoEntity can be rendered.
      * @type {Boolean}
      * @protected
      */
-    _renderable: null,
+    _renderable: false,
 
     /**
      * Components of the GeoEntity which have been changed and need to be updated when
@@ -181,6 +182,7 @@ define([
       this._entityManager && this._entityManager.add(this.getId(), this);
       this.setStyle(args.style || GeoEntity.getDefaultStyle());
       this._handles = new ItemStore();
+      this._visible = Setter.def(args.show, false);
     },
 
     // TODO(aramk) Use better dependency injection.
@@ -214,14 +216,6 @@ define([
      */
     getCentroid: function() {
       return this._centroid && this._centroid.clone();
-    },
-
-    /**
-     * @returns {Array.<atlas.model.Vertex>}
-     * @abstract
-     */
-    getVertices: function() {
-      throw new DeveloperError('Can not call abstract method "getVertices" of GeoEntity');
     },
 
     getChildren: function() {
@@ -510,19 +504,17 @@ define([
     /**
      * Shows the GeoEntity in the current scene.
      * @returns {Boolean} Whether the GeoEntity is shown.
-     * @abstract
      */
     show: function() {
-      throw new DeveloperError('Can not call abstract method "show" of GeoEntity');
+      return this._visible = true;
     },
 
     /**
      * Hides the GeoEntity from the current scene.
      * @returns {Boolean} Whether the GeoEntity is hidden.
-     * @abstract
      */
     hide: function() {
-      throw new DeveloperError('Can not call abstract method "hide" of GeoEntity');
+      return this._visible = false;
     },
 
     /**

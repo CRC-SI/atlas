@@ -69,7 +69,7 @@ define([
     _scale: null,
 
     /**
-     * The rotation that is applied to the MEsh when transforming it from model space to world space.
+     * The rotation that is applied to the entity when transforming it from model space to world space.
      * @type {atlas.model.Vertex}
      * @protected
      */
@@ -147,10 +147,6 @@ define([
     // -------------------------------------------
     // GETTERS AND SETTERS
     // -------------------------------------------
-
-    getVertices: function() {
-      return [];
-    },
 
     // -------------------------------------------
     // MODIFIERS

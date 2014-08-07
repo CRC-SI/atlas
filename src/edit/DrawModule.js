@@ -199,9 +199,7 @@ define([
     _doAdd: function(point) {
       var polygon = this._getPolygon(),
           line = this._getLine();
-      // TODO(aramk) Use GeoPoint in Polygon vertices.
-      var vertex = point.toVertex();
-      polygon.addVertex(vertex);
+      polygon.addVertex(point);
       if (polygon.getVertices().length <= 2) {
         line.addVertex(point);
       }

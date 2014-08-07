@@ -33,7 +33,7 @@ define([
 
     /**
      * The target Vertex.
-     * @type {atlas.model.Vertex}
+     * @type {atlas.model.GeoPoint}
      * @protected
      */
     // TODO(aramk) Rename this to point or vertex since it's no longer a shared object between the
@@ -69,20 +69,10 @@ define([
 
     _init: function(args) {
       this._super(Handle._getNextId(), args);
-      if (!args.owner) {
-        if (!args.target) {
-          throw new DeveloperError('Cannot create Handle without either a target or an owner.');
-        }
+      if (!args.owner && !args.target) {
+        throw new DeveloperError('Cannot create Handle without either a target or an owner.');
       }
-      if (args.owner && !(args.target instanceof GeoPoint)) {
-        // TODO(bpstudds): Remove this check when Vertex is removed.
-        //throw new DeveloperError('Handle target must be GeoPoint');
-        // TODO(bpstudds): We need to make this not rely on reflection.
-        args.target = GeoPoint.fromVertex(args.target);
-        Log.warn('Created Handle using a Vertex');
-      }
-      this._centroid = args.target || args.owner.getCentroid();
-      this._target = args.target;
+      this._target = args.target || args.owner.getCentroid();
       this._index = args.index;
       this._owner = args.owner;
       this._dotRadius = args.dotRadius || Handle.DOT_RADIUS;
@@ -114,7 +104,7 @@ define([
     },
 
     /**
-     * @returns {atlas.model.Vertex} The Handle's target vertex.
+     * @returns {atlas.model.GeoPoint} The Handle's target vertex.
      */
     getTarget: function() {
       return this._target;
@@ -159,16 +149,8 @@ define([
         if (target.equals && !target.equals(result)) {
           // Since the Vertex methods produce new instances, set the result of the previous
           // call as the new value of the target instance.
-          // TODO(aramk) If the target vertex isn't shared between the polygon and the handle, use
-          // IDs instead.
-
-          // TODO(aramk) Type should be geopoint only.
           var ownerVertex = owner.getVertices()[index];
-          if (ownerVertex.x) {
-            ownerVertex.set(result.toVertex());
-          } else {
-            ownerVertex.set(result);
-          }
+          ownerVertex.set(result);
           // Modify the target to ensure the values are synchronised with the owner vertex for the
           // next update.
           target.set(result);
@@ -182,22 +164,6 @@ define([
         owner[method].apply(owner, args);
       }
     },
-
-//    /**
-//     * Rotate the target entity.
-//     * See {@link atlas.model.GeoEntity} for arguments format.
-//     */
-//    rotate: function() {
-//      this._delegateToTarget('rotate', arguments);
-//    },
-//
-//    /**
-//     * Scale the target entity.
-//     * See {@link atlas.model.GeoEntity} for arguments format.
-//     */
-//    scale: function() {
-//      this._delegateToTarget('scale', arguments);
-//    },
 
     translate: function(translation, args) {
       args = Setter.mixin({

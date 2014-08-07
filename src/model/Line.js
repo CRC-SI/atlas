@@ -17,6 +17,7 @@ define([
 
   /**
    * @classdesc Represents a 2D line segment.
+   *
    * @param {string} id - The ID of the Line object
    * @param {object} lineData - Properties of the Line
    * @param {Array.<atlas.model.GeoPoint>|string} vertices - Either a WKT string or array of
@@ -29,13 +30,6 @@ define([
    * @extends atlas.model.GeoEntity
    */
   Line = Setter.mixin(VertexedEntity.extend(/** @lends atlas.model.Line# */{
-
-    /**
-     * Counter-clockwise ordered array of vertices constructing polygon.
-     * @type {Array.<atlas.model.GeoPoint>}
-     * @private
-     */
-    _vertices: null,
 
     /**
      * The width of the line segment in metres (e.g. 10) or pixels (eg. '10px'). If in pixels, the
@@ -74,19 +68,6 @@ define([
       } else if (lineData.style) {
         this.setStyle(lineData.style);
       }
-    },
-
-    /**
-     * Sets the vertices of the line.
-     * @param {Array.<atlas.model.GeoPoint>} vertices
-     */
-    setVertices: function (vertices) {
-      this._vertices = vertices;
-      this.setDirty('vertices');
-    },
-
-    getVertices: function() {
-      return this._vertices;
     },
 
     getWidth: function () {

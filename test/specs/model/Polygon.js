@@ -49,7 +49,6 @@ define([
       doh.assertEqual(null, polygon._centroid);
       doh.assertEqual(null, polygon._area);
       doh.assertEqual(Style.getDefault(), polygon._style);
-      doh.assertEqual(Material.DEFAULT, polygon._material);
     },
 
     testSetHeight: function() {

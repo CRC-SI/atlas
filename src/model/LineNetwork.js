@@ -142,6 +142,7 @@ define([
     // -------------------------------------------
     // Getters and Setters
     // -------------------------------------------
+
     getDefaultLineWidth: function () {
       return this._lineDefaultWidth;
     },
@@ -306,14 +307,14 @@ define([
           this.setClean(line.getId());
         }
       }, this);
-      this._visible = true;
+      this._super();
     },
 
     hide: function () {
       this._lines.forEach(function (line) {
         line.hide();
       });
-      this._visible = false;
+      this._super();
     }
   });
 

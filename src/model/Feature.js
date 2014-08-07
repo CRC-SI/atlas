@@ -23,7 +23,7 @@ define([
    * for rendering the Feature.
    * @param {atlas.events.EventManager} args.eventManager - The EventManager object responsible for
    * the event system.
-   * @param {String|Array.<atlas.model.Vertex>} [args.footprint=null] - Either a WKT string or array
+   * @param {String|Array.<atlas.model.GeoPoint>} [args.footprint=null] - Either a WKT string or array
    * of Vertices describing the footprint polygon.
    * @param {atlas.model.Mesh} [args.mesh=null] - The Mesh object for the Feature.
    * @param {Number} [args.height=0] - The extruded height when displaying as a extruded polygon.
@@ -96,7 +96,6 @@ define([
 
     _init: function(id, args) {
       this._super(id, args);
-      this._visible = Setter.def(args.show, false);
       var displayMode;
       if (args.mesh) {
         displayMode = Setter.def(args.displayMode, Feature.DisplayMode.MESH);
@@ -271,7 +270,7 @@ define([
     /**
      * Translates the Feature.
      * @see {@link atlas.model.GeoEntity#translate}
-     * @param {atlas.model.Vertex} translation - The vector to translate the Feature by.
+     * @param {atlas.model.GeoPoint} translation - The vector to translate the Feature by.
      */
     translate: function(translation) {
       return this._delegateToForm('translate', arguments);
@@ -280,7 +279,7 @@ define([
     /**
      * Scales the Feature.
      * @see {@link atlas.model.GeoEntity#scale}
-     * @param {atlas.model.Vertex} scale - The vector to scale the Feature by.
+     * @param {atlas.model.GeoPoint} scale - The vector to scale the Feature by.
      */
     scale: function(scale) {
       return this._delegateToForm('scale', arguments);
@@ -289,7 +288,7 @@ define([
     /**
      * Rotates the Feature.
      * @see {@link atlas.model.GeoEntity#rotate}
-     * @param {atlas.model.Vertex} rotation - The vector to rotate the Feature by.
+     * @param {atlas.model.GeoPoint} rotation - The vector to rotate the Feature by.
      */
     rotate: function(rotation) {
       return this._delegateToForm('rotate', arguments);

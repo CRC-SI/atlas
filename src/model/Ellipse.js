@@ -2,19 +2,14 @@ define([
   'atlas/lib/utility/Setter',
   'atlas/model/Colour',
   'atlas/model/GeoPoint',
-  'atlas/model/Material',
   'atlas/model/Style',
   // Base class
   'atlas/model/GeoEntity',
   'atlas/util/DeveloperError'
-], function(Setter, Colour, GeoPoint, Material, Style, GeoEntity, DeveloperError) {
+], function(Setter, Colour, GeoPoint, Style, GeoEntity, DeveloperError) {
 
   /**
-   * @classdesc Represents a 2D ellipse that can be rendered within an
-   * Atlas scene. Ellipses are constructed by specifying the centre and the ellipse's
-   * semi major and semi minor axes. A {@link atlas.model.Material|Material}
-   * and {@link atlas.model.Style|Style} can also be defined when
-   * constructing a Ellipse.
+   * @classdesc Represents a 2D ellipse.
    *
    * @param {Number} id - The ID of this Ellipse.
    * @param {Object} ellipseData - Parameters regarding the Ellipse
@@ -25,7 +20,6 @@ define([
    * @param {Number} [ellipseData.elevation] - The elevation of the base of the Ellipse.
    * @param {atlas.model.Colour} [ellipseData.color] - The fill colour of the Ellipse.
    * @param {atlas.model.Style} [ellipseData.style=defaultStyle] - The Style to apply to the Ellipse.
-   * @param {atlas.model.Material} [ellipseData.material=defaultMaterial] - The Material to apply to the Ellipse.
    * @param {Object} [args] - Optional arguments describing the Ellipse.
    * @param {atlas.model.GeoEntity} [args.parent=null] - The parent entity of the Ellipse.
    * @returns {atlas.model.Ellipse}
@@ -44,36 +38,6 @@ define([
      * @private
      */
     _height: 0,
-
-    /**
-     * The elevation of the base of the Ellipse.
-     * @type {Number}
-     * @private
-     */
-    _elevation: 0,
-
-    /**
-     * The z-axis order as an integer in the range [0, Infinity]. Ellipses with higher zIndex will
-     * appear on top.
-     * @type {Number}
-     * @private
-     */
-    _zIndex: 0,
-
-    /**
-     * The z-axis offset for z-index used to separate different indices.
-     * @type {Number}
-     * @private
-     */
-    _zIndexOffset: 0.1,
-
-    /**
-     * The material used to render the Ellipse.
-     * @type {atlas.model.Material}
-     * @private
-     */
-    // TODO(bpstudds): Create a Ellipse specific default Material to use.
-    _material: null,
 
     /**
      * The semi major axis of the ellipse in metres.
@@ -114,7 +78,6 @@ define([
       }
       this._super(id, args);
 
-      this._visible = false;
       this._centroid = new GeoPoint(ellipseData.centroid);
       this._semiMajor = parseFloat(ellipseData.semiMajor);
       this._semiMinor = parseFloat(ellipseData.semiMinor) || this._semiMajor;
@@ -123,7 +86,6 @@ define([
       this._elevation = parseFloat(ellipseData.elevation) || this._elevation;
       this._zIndex = parseFloat(ellipseData.zIndex) || this._zIndex;
       this._zIndexOffset = parseFloat(ellipseData.zIndexOffset) || this._zIndexOffset;
-      this._material = (ellipseData.material || Material.DEFAULT);
       var style;
       if (ellipseData.color) {
         style = new Style({fillColour: ellipseData.color});
