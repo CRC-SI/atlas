@@ -11,7 +11,7 @@ define([
   var VertexedEntity;
 
   /**
-   * @classdesc A VertexedEntity is an entity that's rendered form can be expressed as an ordered
+   * @classdesc A VertexedEntity is an GeoEntity that's rendered form can be expressed as an ordered
    * list of points. This class abstracts the process of adding, removing, and inserting new
    * vertices into the GeoEntity.
    * @class atlas.model.VertexedEntity
@@ -26,14 +26,14 @@ define([
     _vertices: null,
 
     /**
-     * The elevation of the base of the entity.
+     * The elevation of the base of the GeoEntity.
      * @type {Number}
      * @private
      */
     _elevation: 0,
 
     /**
-     * The z-axis order as an integer in the range [0, Infinity]. Polygons with higher zIndex will
+     * The z-axis order as an integer in the range [0, Infinity]. Entities with higher zIndex will
      * appear on top.
      * @type {Number}
      * @private
@@ -58,7 +58,7 @@ define([
 
     createHandles: function() {
       var handles = [];
-      // Add a Handle for the Polygon itself.
+      // Add a Handle for the GeoEntity itself.
       handles.push(new Handle(this._bindDependencies({owner: this})));
       // Add Handles for each vertex.
       this._vertices.forEach(function(vertex, i) {
@@ -80,18 +80,16 @@ define([
     // -------------------------------------------
 
     /**
-     * Translates the Polygon.
-     * @param {atlas.model.Vertex} translation - The vector from the Polygon's current location to the desired location.
+     * Translates the GeoEntity.
+     * @param {atlas.model.Vertex} translation - The vector from the GeoEntity's current location to the desired location.
      * @param {Number} translation.x - The change in latitude, given in decimal degrees.
      * @param {Number} translation.y - The change in longitude, given in decimal degrees.
      * @param {Number} translation.z - The change in altitude, given in metres.
      */
     translate: function(translation) {
-      // TODO(aramk) This method should be abstracted and shared by Polygon, Mesh etc.
       this._vertices.forEach(function(vertex) {
         vertex.set(vertex.translate(translation));
       });
-      // TODO(aramk) Observer pattern would be best.
       this._handles.map(function(handle) {
         handle.translate(translation, {delegate: false});
       });
@@ -100,11 +98,11 @@ define([
     },
 
     /**
-     * Scales the Polygon by the given vector. This scaling can be uniform in all axis or non-uniform.
+     * Scales the GeoEntity by the given vector. This scaling can be uniform in all axis or non-uniform.
      * A scaling factor of <code>1</code> has no effect. Factors lower or higher than <code>1</code>
      * scale the GeoEntity down or up respectively. ie, <code>0.5</code> is half as big and
      * <code>2</code> is twice as big.
-     * @param {atlas.model.Vertex} scale - The vector to scale the Polygon by.
+     * @param {atlas.model.Vertex} scale - The vector to scale the GeoEntity by.
      * @param {Number} scale.x - The scale along the <code>latitude</code> axis.
      * @param {Number} scale.y - The scale along the <code>longitude</code> axis.
      */
@@ -188,10 +186,10 @@ define([
     },
 
     /**
-     * Gets the area of the Polygon, in <tt>unit**2</tt> where <tt>unit</tt> is the
-     * unit corresponding to the Vertices describing this Polygon.
+     * Gets the area of the GeoEntity, in <tt>unit**2</tt> where <tt>unit</tt> is the
+     * unit corresponding to the Vertices describing this GeoEntity.
      * @see {@link http://www.mathopenref.com/coordpolygonarea2.html}
-     * @returns {Number} The area of the polygon.
+     * @returns {Number} The area of the GeoEntity.
      */
     getArea: function() {
       if (this._area) {
@@ -210,9 +208,9 @@ define([
     },
 
     /**
-     * Gets the centroid of the Polygon. Assumes that the polygon is 2D surface, ie. Vertex.z is
+     * Gets the centroid of the GeoEntity. Assumes that the GeoEntity is a 2D surface, ie. Vertex.z is
      * constant across the polygon.
-     * @returns {atlas.model.GeoPoint} The Polygon's centroid.
+     * @returns {atlas.model.GeoPoint} The GeoEntity's centroid.
      * @see {@link http://stackoverflow.com/questions/9692448/how-can-you-find-the-centroid-of-a-concave-irregular-polygon-in-javascript/9939071#9939071}
      * @see  {@link http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon}
      */
@@ -241,8 +239,8 @@ define([
     },
 
     /**
-     * Set the elevation of the base of the polygon (or prism).
-     * @param {Number} elevation - The elevation of the base of the polygon.
+     * Set the elevation of the base of the GeoEntity.
+     * @param {Number} elevation - The elevation of the base of the GeoEntity.
      */
     setElevation: function(elevation) {
       if (typeof elevation === 'number' && this._elevation !== elevation) {
@@ -252,14 +250,14 @@ define([
     },
 
     /**
-     * @returns {Number} The elevation of the base of the polygon (or prism).
+     * @returns {Number} The elevation of the base of the GeoEntity.
      */
     getElevation: function() {
       return this._elevation;
     },
 
     /**
-     * Sets the z-axis order. Polygons with higher zIndex will appear on top.
+     * Sets the z-axis order. Entities with higher zIndex will appear on top.
      * @param {Number} index
      */
     setZIndex: function(index) {
