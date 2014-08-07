@@ -72,9 +72,9 @@ define([
       if (!args.owner && !args.target) {
         throw new DeveloperError('Cannot create Handle without either a target or an owner.');
       }
-      this._target = args.target || args.owner.getCentroid();
+      var owner = this._owner = args.owner;
+      this._target = args.target || owner.getCentroid();
       this._index = args.index;
-      this._owner = args.owner;
       this._dotRadius = args.dotRadius || Handle.DOT_RADIUS;
 
       // TODO(aramk) Use dependency injection eventually.
