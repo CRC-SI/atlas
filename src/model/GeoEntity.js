@@ -250,9 +250,10 @@ define([
 
     /**
      * @param {atlas.model.GeoPoint} vertex
+     * @param {Number} index - The index of the vertex in this object.
      * @returns {atlas.model.GeoPoint}
      */
-    createHandle: function(vertex) {
+    createHandle: function(vertex, index) {
       throw new DeveloperError('Can not call abstract method "createHandle" of GeoEntity');
     },
 

@@ -36,7 +36,16 @@ define([
      * @type {atlas.model.Vertex}
      * @protected
      */
+    // TODO(aramk) Rename this to point or vertex since it's no longer a shared object between the
+    // owner and the handle. Also, it should be GeoPoint.
     _target: null,
+
+    /**
+     * The target Vertex index in the owner
+     * @type {Number}
+     * @protected
+     */
+    _index: null,
 
     /**
      * The owner of a target Vertex.
@@ -74,6 +83,7 @@ define([
       }
       this._centroid = args.target || args.owner.getCentroid();
       this._target = args.target;
+      this._index = args.index;
       this._owner = args.owner;
       this._dotRadius = args.dotRadius || Handle.DOT_RADIUS;
     },
@@ -111,6 +121,13 @@ define([
     },
 
     /**
+     * @returns {Number} The target vertex index in the owner.
+     */
+    getIndex: function() {
+      return this._index;
+    },
+
+    /**
      * @returns {atlas.model.GeoEntity} The Handle's owner.
      */
     getOwner: function() {
@@ -131,6 +148,7 @@ define([
       // TODO(aramk) Still uncertain about how rotate and scale will work - for now only translate
       // is functioning.
       var target = this.getTarget(),
+          index = this.getIndex(),
           owner = this.getOwner();
       if (target) {
         var result = target[method].apply(target, args);
@@ -141,7 +159,20 @@ define([
         if (target.equals && !target.equals(result)) {
           // Since the Vertex methods produce new instances, set the result of the previous
           // call as the new value of the target instance.
+          // TODO(aramk) If the target vertex isn't shared between the polygon and the handle, use
+          // IDs instead.
+
+          // TODO(aramk) Type should be geopoint only.
+          var ownerVertex = owner.getVertices()[index];
+          if (ownerVertex.x) {
+            ownerVertex.set(result.toVertex());
+          } else {
+            ownerVertex.set(result);
+          }
+          // Modify the target to ensure the values are synchronised with the owner vertex for the
+          // next update.
           target.set(result);
+
           owner.setDirty('vertices');
           owner.show();
         }
