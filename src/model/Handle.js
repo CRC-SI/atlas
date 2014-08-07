@@ -55,13 +55,6 @@ define([
     _owner: null,
 
     /**
-     * The visual element of the Handle.
-     * @type {atlas.model.Ellipse}
-     * @protected
-     */
-    _dot: null,
-
-    /**
      * The radius of the dot visual element in metres.
      * @type {number}
      */
@@ -82,7 +75,7 @@ define([
       args.eventManager = owner._eventManager;
       // The dot should not be registered with the EntityManager, as the Handle already is.
       delete args.entityManager;
-      this._dot = this._createDot(args);
+      this._createDot(args);
     },
 
     /**
@@ -91,12 +84,22 @@ define([
     remove: function() {
       this._target = null;
       this._owner = null;
-      this._dot && this._dot.remove();
+      this._removeDot();
       this._delegateToTarget = function() {
         Log.warn('Tried to use a removed Handle');
         // TODO(aramk) Reinstate this once bugs are fixed with drawing.
 //        throw new Error('Tried to use a removed Handle');
       };
+    },
+
+    // TODO(aramk) docs
+
+    _createDot: function () {
+      throw new DeveloperError('Cannot call abstract method.');
+    },
+
+    _removeDot: function () {
+      throw new DeveloperError('Cannot call abstract method.');
     },
 
     // -------------------------------------------
@@ -134,15 +137,6 @@ define([
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------
-
-    /**
-     * Creates a new dot instance.
-     * @abstract
-     * @private
-     */
-    _createDot: function(args) {
-      throw new DeveloperError('Cannot call abstract function _createDot on Handle');
-    },
 
     /**
      * Delegates a given method to the Handle's target and target Entities as required.
@@ -186,8 +180,13 @@ define([
         delegate: true
       }, args);
       args.delegate && this._delegateToTarget('translate', arguments);
-      this._dot && this._dot.translate.apply(this._dot, arguments);
+      this._translateDot.apply(this._dot, arguments);
+    },
+    
+    _translateDot: function (translation, args) {
+      throw new DeveloperError('Cannot call abstract method.');
     }
+    
   });
 
   // -------------------------------------------
