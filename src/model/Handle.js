@@ -60,10 +60,8 @@ define([
 
     _init: function(args) {
       this._super(Handle._getNextId(), args);
-      if (!args.owner) {
-        if (!args.target) {
-          throw new DeveloperError('Cannot create Handle without either a target or an owner.');
-        }
+      if (!args.owner && !args.target) {
+        throw new DeveloperError('Cannot create Handle without either a target or an owner.');
       }
       if (args.owner && !(args.target instanceof GeoPoint)) {
         // TODO(bpstudds): Remove this check when Vertex is removed.
@@ -76,6 +74,13 @@ define([
       this._target = args.target;
       this._owner = args.owner;
       this._dotRadius = args.dotRadius || Handle.DOT_RADIUS;
+
+      // TODO(aramk) Use dependency injection eventually.
+      args.renderManager = owner._renderManager;
+      args.eventManager = owner._eventManager;
+      // The dot should not be registered with the EntityManager, as the Handle already is.
+      delete args.entityManager;
+      this._dot = this._createDot(args);
     },
 
     /**
@@ -120,6 +125,15 @@ define([
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------
+
+    /**
+     * Creates a new dot instance.
+     * @abstract
+     * @private
+     */
+    _createDot: function(args) {
+      throw new DeveloperError('Cannot call abstract function _createDot on Handle');
+    },
 
     /**
      * Delegates a given method to the Handle's target and target Entities as required.
