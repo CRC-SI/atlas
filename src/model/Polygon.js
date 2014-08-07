@@ -72,7 +72,7 @@ define([
         var wkt = WKT.getInstance(),
             vertices = wkt.verticesFromWKT(polygonData.vertices);
         if (vertices[0] instanceof Array) {
-          this._vertices = vertices[0].map(GeoPoint.fromVertex, GeoPoint);
+          this._vertices = vertices[0];
         } else {
           throw new Error('Invalid vertices for Polygon ' + id);
         }
@@ -84,6 +84,8 @@ define([
       if (this._vertices[0] === this._vertices[len - 1] && len > 1) {
         this._vertices.pop();
       }
+      // Convert vertices to GeoPoint.
+      this._vertices = this._vertices.map(GeoPoint.fromVertex, GeoPoint);
       if (polygonData.holes) {
         this._holes = polygonData.holes;
       }
