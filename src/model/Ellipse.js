@@ -115,7 +115,7 @@ define([
       this._super(id, args);
 
       this._visible = false;
-      this._centroid = ellipseData.centroid;
+      this._centroid = new GeoPoint(ellipseData.centroid);
       this._semiMajor = parseFloat(ellipseData.semiMajor);
       this._semiMinor = parseFloat(ellipseData.semiMinor) || this._semiMajor;
       this._rotation = ellipseData.rotation;
@@ -257,13 +257,10 @@ define([
 
     /**
      * Translates the Ellipse.
-     * @param {atlas.model.GeoPoint | {latitude, longitude}} translation - Translates the Ellipse by
+     * @param {atlas.model.GeoPoint} translation - Translates the Ellipse by
      * a given amount in latitude and longitude.
      */
     translate: function(translation) {
-      if (translation.x !== undefined) {
-        translation = GeoPoint.fromVertex(translation);
-      }
       this._centroid = this._centroid.translate(translation);
       this.setDirty('model');
       this.isVisible() && this.show();

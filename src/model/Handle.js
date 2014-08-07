@@ -168,10 +168,6 @@ define([
 //      this._delegateToTarget('scale', arguments);
 //    },
 
-    /**
-     * Translate the target entity.
-     * See {@link atlas.model.GeoEntity} for arguments format.
-     */
     translate: function(translation, args) {
       args = Setter.mixin({
         delegate: true

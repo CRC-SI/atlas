@@ -53,7 +53,7 @@ define([
         'input/mousemove': function (args) {
           this._target && this._update(args);
         }.bind(this),
-        'input/leftup': function () {
+        'input/leftup': function (args) {
           this._target && this._stop(args);
         }.bind(this)
       });
@@ -94,10 +94,7 @@ define([
       if (screenDiff.x < this._MOVE_SENSITIVITY && screenDiff.y < this._MOVE_SENSITIVITY) {
         return;
       }
-      this._lastScreenCoords = {x: args.position.x, y: args.position.y};
-      var cartLocation = this._cartographicLocation(args.position);
-      this._translate(this._lastLocation, cartLocation);
-      this._lastLocation = cartLocation;
+      this._translateFromEventArgs(args);
     },
 
     /**
@@ -108,11 +105,16 @@ define([
       if (!this._target) {
         return;
       }
-      this._lastScreenCoords = {x: args.x, y: args.y};
-      //var cartLocation = this._cartographicLocation(args);
-      //this._translate(this._lastLocation, cartLocation);
+      this._translateFromEventArgs(args);
       this._reset();
       this._managers.camera.unlockCamera();
+    },
+
+    _translateFromEventArgs: function (args) {
+      this._lastScreenCoords = {x: args.position.x, y: args.position.y};
+      var cartLocation = this._cartographicLocation(args.position);
+      this._translate(this._lastLocation, cartLocation);
+      this._lastLocation = cartLocation;
     },
 
     /**
@@ -138,7 +140,7 @@ define([
       var diff = newPos.subtract(oldPos);
       // GeoEntity.translate expects a Vertex, not a GeoPoint.
       // Translation should be using a GeoPoint
-      this._target.translate(diff.toVertex());
+      this._target.translate(diff);
     },
 
     /**
