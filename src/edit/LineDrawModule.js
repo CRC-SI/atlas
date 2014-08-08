@@ -201,7 +201,7 @@ define([
      * @private
      */
     _add: function(args) {
-      var clickedAt = this._managers.render.convertScreenCoordsToLatLng(args.position);
+      var clickedAt = this._managers.render.geoPointFromScreenCoords(args.position);
       if (!clickedAt) {
         // Click was not registered on the globe
         return;

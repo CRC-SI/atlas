@@ -97,7 +97,7 @@ define([
           callback: function(args) {
             if (!this.isEnabled()) { return; }
             if (!args.modifiers) args.modifiers = {};
-            // var worldPosition = this._managers.render.convertScreenCoordsToLatLng(args);
+            // var worldPosition = this._managers.render.geoPointFromScreenCoords(args);
             // var picked = this._managers.entity.getAt(worldPosition);
             var selectedEntities = this._managers.entity.getAt(args.position),
                 keepSelection = 'shift' in args.modifiers,

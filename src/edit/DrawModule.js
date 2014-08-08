@@ -191,7 +191,7 @@ define([
         return;
       }
 
-      var point = this._managers.render.convertScreenCoordsToLatLng(args.position);
+      var point = this._managers.render.geoPointFromScreenCoords(args.position);
       this._doAdd(point);
       this._executeHandlers(this._handlers.update);
     },

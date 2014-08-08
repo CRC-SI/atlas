@@ -149,7 +149,7 @@ define([
      * @private
      */
     _cartographicLocation: function(screenPos) {
-      return this._managers.render.convertScreenCoordsToLatLng(screenPos);
+      return this._managers.render.geoPointFromScreenCoords(screenPos);
     },
 
     /**
