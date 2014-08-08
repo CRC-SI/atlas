@@ -98,17 +98,17 @@ define([
       this._super(id, args);
       var displayMode;
       if (args.mesh) {
-        displayMode = Setter.def(args.displayMode, Feature.DisplayMode.MESH);
+        displayMode = Feature.DisplayMode.MESH;
       } else if (args.ellipse) {
-        displayMode = Setter.def(args.displayMode, Feature.DisplayMode.EXTRUSION);
+        displayMode = Feature.DisplayMode.EXTRUSION;
       } else if (args.polygon) {
-        displayMode = Setter.def(args.displayMode, Feature.DisplayMode.EXTRUSION);
+        displayMode = Feature.DisplayMode.EXTRUSION;
       } else if (args.line) {
-        displayMode = Setter.def(args.displayMode, Feature.DisplayMode.LINE);
+        displayMode = Feature.DisplayMode.LINE;
       } else if (args.image) {
-        displayMode = Setter.def(args.displayMode, Feature.DisplayMode.IMAGE);
+        displayMode = Feature.DisplayMode.IMAGE;
       }
-      this.setDisplayMode(displayMode);
+      this.setDisplayMode(args.displayMode || displayMode);
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
       this._initDelegation();
