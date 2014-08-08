@@ -2,8 +2,8 @@ define([
   'atlas/model/GeoEntity',
   'atlas/model/GeoPoint',
   'atlas/model/Vertex',
-  'atlas-cesium/model/Handle'
-], function (GeoEntity, GeoPoint, Vertex) {
+  'atlas/model/Handle'
+], function (GeoEntity, GeoPoint, Vertex, Handle) {
   /**
    * @typedef atlas.model.VertexedEntity
    * @ignore
