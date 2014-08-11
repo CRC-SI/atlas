@@ -1,14 +1,25 @@
 define([
   'atlas/dom/PopupFaculty',
   'atlas/util/DeveloperError',
-  'atlas/lib/utility/Class'
-], function(PopupFaculty, DeveloperError, Class) {
+  'atlas/lib/utility/Class',
+  'atlas/lib/utility/Setter'
+], function(PopupFaculty, DeveloperError, Class, Setter) {
 
   /**
    * @typedef atlas.core.Atlas
    * @ignore
    */
   var Atlas;
+
+  /**
+   * The type of execution environment. The build tool will set this to
+   * {@link Environment.PRODUCTION}.
+   * @typedef {Object} atlas.core.Environment
+   */
+  var Environment = {
+    DEVELOPMENT: 'development',
+    PRODUCTION: 'production'
+  };
 
   /**
    * @classdesc Facade class for the Atlas API. This class maintains references to all
@@ -18,7 +29,7 @@ define([
    * @abstract
    * @class atlas.core.Atlas
    */
-  Atlas = Class.extend({
+  Atlas = Setter.mixin(Class.extend({
 
     /**
      * A mapping of every manager type in Atlas to the manager instance. This
@@ -113,6 +124,24 @@ define([
      */
     hideEntity: function(id) {
       this._managers.render.hide(id);
+    }
+
+  }), {
+
+    // Statics
+
+    /**
+     * @type {atlas.core.Environment}
+     */
+    _environment: Environment.DEVELOPMENT,
+
+    Environment: Environment,
+
+    /**
+     * @type {atlas.core.Environment}
+     */
+    getEnvironment: function() {
+      return this._environment;
     }
 
   });

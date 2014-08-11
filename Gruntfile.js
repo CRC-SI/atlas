@@ -12,11 +12,15 @@ module.exports = function(grunt) {
   var DIST_DIR = 'dist';
   var DOCS_DIR = 'docs';
   var BUILD_DIR = 'build';
-  var MAIN_FILE = srcPath('main.js');
-  var BUILD_FILE = buildPath('build.js');
+  var RESOURCES_DIR = 'resources';
+  var RESOURCES_BUILD_PATH = distPath(RESOURCES_DIR);
   var RE_AMD_MODULE = /\b(?:define|require)\s*\(/;
   var MODULE_NAME = 'atlas';
-  var STYLE_BUILD_FILE = 'atlas.min.css';
+  var MAIN_FILE = srcPath('main.js');
+  var BUILD_FILE = buildPath('build.js');
+  var BUILD_OUTPUT_PATH = distPath(MODULE_NAME + '.min.js');
+  var STYLE_FILE = MODULE_NAME + '.less';
+  var STYLE_BUILD_FILE = MODULE_NAME + '.min.css';
   var OPEN_LAYERS_CONFIG_FILE = 'atlas.openlayers.cfg';
   var OPEN_LAYERS_PATH = libPath('Openlayers');
   var OPEN_LAYERS_BUILD_PATH = path.join(OPEN_LAYERS_PATH, 'build');
@@ -109,6 +113,16 @@ module.exports = function(grunt) {
         files: [
           {src: OPEN_LAYERS_BUILD_OUTPUT_PATH, dest: libPath(OPEN_LAYERS_BUILD_OUTPUT_FILE)}
         ]
+      },
+      resources: {
+        files: [
+          {
+            expand: true,
+            cwd: RESOURCES_DIR,
+            src: '**/*',
+            dest: RESOURCES_BUILD_PATH
+          }
+        ]
       }
     },
 
@@ -120,8 +134,8 @@ module.exports = function(grunt) {
         },
         files: [
           {
-            src: path.join('resources', 'atlas.less'),
-            dest: distPath(STYLE_BUILD_FILE)
+            src: path.join(RESOURCES_DIR, STYLE_FILE),
+            dest: path.join(RESOURCES_BUILD_PATH, STYLE_BUILD_FILE)
           }
         ]
       }
@@ -147,6 +161,16 @@ module.exports = function(grunt) {
             src: [
               distPath('**', '*')
             ]
+          }
+        ]
+      },
+      resourcesLess: {
+        // Remove the .less source file from the copied resources, leaving everything else.
+        files: [
+          {
+            expand: true,
+            cwd: RESOURCES_BUILD_PATH,
+            src: STYLE_FILE
           }
         ]
       }
@@ -198,12 +222,27 @@ module.exports = function(grunt) {
     });
   });
 
+  grunt.registerTask('set-build-env', 'Sets the build environment.', function() {
+    writeFile(BUILD_OUTPUT_PATH, function(data) {
+      // Replace the number of directory levels we need to move back to reach the Atlas directory.
+      // Since we don't have a "src" directory, we have one less level.
+//      if (data.indexOf('return Path.dirname(module.uri, 3);') === -1) {
+//        throw new Error('Could not replace Paths content.');
+//      }
+//      data.replace('return Path.dirname(module.uri, 3);', 'return Path.dirname(module.uri, 2);');
+      data = data.replace(/_environment\s*:\s*([^\r\n,.]+\.)\w+(,?)/,
+              '_environment:$1' + 'PRODUCTION' + '$2');
+      return data;
+    });
+  });
+
   grunt.registerTask('install', 'Installs dependencies.',
       ['shell:installNpmDep', 'shell:installBowerDep', 'install-openlayers', 'copy:bowerDep']);
   grunt.registerTask('update', 'Updates dependencies.',
       ['shell:updateNpmDep', 'shell:updateBowerDep']);
   grunt.registerTask('build', 'Builds the app into a distributable package.',
-      ['compile-imports', 'clean:dist', 'shell:build', 'less']);
+      ['compile-imports', 'clean:dist', 'shell:build', 'set-build-env', 'less', 'copy:resources',
+        'clean:resourcesLess']);
   grunt.registerTask('doc', 'Generates documentation.', ['clean:doc', 'shell:jsDoc']);
   grunt.registerTask('install-openlayers', 'Installs OpenLayers with a custom build.',
       ['copy:openLayersBuildConfig', 'shell:buildOpenLayers', 'fix-openlayers-build',

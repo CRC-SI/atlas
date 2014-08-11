@@ -1,19 +1,24 @@
 define([
-  'atlas/lib/OpenLayers',
-  'atlas/lib/utility/Setter',
-  'atlas/lib/utility/error/DevError',
   'atlas/model/Vertex',
-  'atlas/lib/utility/Class'
-], function(OpenLayers, Setter, DevError, Vertex, Class) {
-  var _instance;
+  'atlas/lib/OpenLayers',
+  'atlas/lib/utility/error/DevError',
+  'atlas/lib/utility/Class',
+  'atlas/util/Instances'
+], function(Vertex, OpenLayers, DevError, Class, Instances) {
+
+  /**
+   * @typedef atlas.util.WKT
+   * @ignore
+   */
+  var WKT;
 
   /**
    * Defines a set of utility methods for working with Well-Known-Text.
    * NOTE: All vertices used in Atlas use "x" as longitude and "y" as latitude and these methods
    * expect this format. WKT and OpenLayers uses the opposite.
-   * @class {atlas.util.WKT}
+   * @class atlas.util.WKT
    */
-  var WKT = Setter.mixin(Class.extend({
+  WKT = Instances.defineGlobal(Class.extend({
 
     _init: function() {
       this.parser = new OpenLayers.Format.WKT();
@@ -170,16 +175,7 @@ define([
       return this._isType(wktStr, 'POLYGON');
     }
 
-  }), {
-    // Static members
+  }));
 
-    /**
-     * @returns {atlas.util.WKT} An instance of {@link WKT}.
-     */
-    getInstance: function() {
-      return (_instance = (_instance || new WKT()));
-    }
-  });
   return WKT;
-
 });

@@ -1,18 +1,23 @@
 define([
   'atlas/lib/utility/Log',
-  'atlas/lib/utility/Setter',
   'atlas/lib/Q',
   'atlas/model/GeoPoint',
   'atlas/lib/utility/Class',
-  'atlas/util/GoogleAPI'
-], function(Log, Setter, Q, GeoPoint, Class, GoogleAPI) {
-  var _instance;
+  'atlas/util/GoogleAPI',
+  'atlas/util/Instances'
+], function(Log, Q, GeoPoint, Class, GoogleAPI, Instances) {
+
+  /**
+   * @typedef atlas.util.Geocoder
+   * @ignore
+   */
+  var Geocoder;
 
   /**
    * Queries location names and finds their geospatial coordinates.
    * @class atlas.util.Geocoder
    */
-  var Geocoder = Setter.mixin(Class.extend(/** @lends atlas.util.Geocoder# */{
+  Geocoder = Instances.defineGlobal(Class.extend(/** @lends atlas.util.Geocoder# */{
 
     /**
      * A promise containing a Google Maps API geocoder instance.
@@ -90,16 +95,7 @@ define([
       return df.promise;
     }
 
-  }), {
-    // Static members
-
-    /**
-     * @returns {atlas.util.Geocoder} An instance of {@link Geocoder}.
-     */
-    getInstance: function() {
-      return (_instance = (_instance || new Geocoder()));
-    }
-  });
+  }));
 
   return Geocoder;
 });
