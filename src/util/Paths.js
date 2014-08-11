@@ -28,10 +28,7 @@ define([
      * browser.
      */
     getRelative: function() {
-//      NOTE: This is modified in the build.
-//      return Path.dirname(module.uri).replace(/src[\s\S]*?$/, '');
-      // Remove "src/util" going 3 levels up. In the build, this is replaced with 2 levels, since
-      // there is no "src" directory.
+      // Since we don't have a "src" directory in production, we have one less level to move up.
       var levels = Atlas.getEnvironment() === Atlas.Environment.PRODUCTION ? 2 : 3;
       return Path.dirname(module.uri, levels);
     },

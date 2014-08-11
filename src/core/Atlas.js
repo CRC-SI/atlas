@@ -128,7 +128,7 @@ define([
 
   }), {
 
-    // Statics
+    // Static members
 
     /**
      * @type {atlas.core.Environment}

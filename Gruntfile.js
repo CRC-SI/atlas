@@ -224,12 +224,6 @@ module.exports = function(grunt) {
 
   grunt.registerTask('set-build-env', 'Sets the build environment.', function() {
     writeFile(BUILD_OUTPUT_PATH, function(data) {
-      // Replace the number of directory levels we need to move back to reach the Atlas directory.
-      // Since we don't have a "src" directory, we have one less level.
-//      if (data.indexOf('return Path.dirname(module.uri, 3);') === -1) {
-//        throw new Error('Could not replace Paths content.');
-//      }
-//      data.replace('return Path.dirname(module.uri, 3);', 'return Path.dirname(module.uri, 2);');
       data = data.replace(/_environment\s*:\s*([^\r\n,.]+\.)\w+(,?)/,
               '_environment:$1' + 'PRODUCTION' + '$2');
       return data;
