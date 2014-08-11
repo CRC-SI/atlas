@@ -75,43 +75,24 @@ define([
       args.eventManager = owner._eventManager;
       // The dot should not be registered with the EntityManager, as the Handle already is.
       delete args.entityManager;
-      this._createDot(args);
+      this._build();
     },
 
     /**
      * Removes the Handle from its target object.
      */
     remove: function() {
+      this._super();
       this._target = null;
       this._owner = null;
-      this._removeDot();
       this._delegateToTarget = function() {
         Log.warn('Tried to use a removed Handle');
-        // TODO(aramk) Reinstate this once bugs are fixed with drawing.
-//        throw new Error('Tried to use a removed Handle');
       };
-    },
-
-    // TODO(aramk) docs
-
-    _createDot: function () {
-      throw new DeveloperError('Cannot call abstract method.');
-    },
-
-    _removeDot: function () {
-      throw new DeveloperError('Cannot call abstract method.');
     },
 
     // -------------------------------------------
     // GETTERS AND SETTERS
     // -------------------------------------------
-
-    /**
-     * @returns {string} The ID of the Handle.
-     */
-    getId: function() {
-      return this._id;
-    },
 
     /**
      * @returns {atlas.model.GeoPoint} The Handle's target vertex.
@@ -180,13 +161,8 @@ define([
         delegate: true
       }, args);
       args.delegate && this._delegateToTarget('translate', arguments);
-      this._translateDot.apply(this._dot, arguments);
-    },
-    
-    _translateDot: function (translation, args) {
-      throw new DeveloperError('Cannot call abstract method.');
     }
-    
+
   });
 
   // -------------------------------------------
