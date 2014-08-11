@@ -7,8 +7,6 @@ define([
   'atlas/util/Instances'
 ], function(module, Atlas, Class, Path, Window, Instances) {
 
-  console.debug('module', module);
-
   /**
    * @typedef atlas.util.Paths
    * @ignore
