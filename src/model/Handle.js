@@ -1,10 +1,11 @@
 define([
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
+  'atlas/lib/utility/Types',
   'atlas/model/GeoEntity',
   'atlas/model/GeoPoint',
   'atlas/util/DeveloperError'
-], function(Log, Setter, GeoEntity, GeoPoint, DeveloperError) {
+], function(Log, Setter, Types, GeoEntity, GeoPoint, DeveloperError) {
 
   /**
    * @typedef atlas.model.Handle
@@ -41,8 +42,9 @@ define([
     _target: null,
 
     /**
-     * The target Vertex index in the owner
-     * @type {Number}
+     * The target Vertex index in the owner. If not defined, it is assumed the handle exists for the
+     * whole target.
+     * @type {Number|null}
      * @protected
      */
     _index: null,
@@ -66,10 +68,14 @@ define([
         throw new DeveloperError('Cannot create Handle without either a target or an owner.');
       }
       var owner = this._owner = args.owner;
-      this._target = args.target || owner.getCentroid();
-      this._index = args.index;
+      var index = this._index = args.index;
+      var target = this._target = args.target || owner.getCentroid();
       this._dotRadius = args.dotRadius || Handle.DOT_RADIUS;
-
+      if (!owner) {
+        throw new DeveloperError('Must provide owner.');
+      } else if (!target) {
+        throw new DeveloperError('Must provide target.');
+      }
       // TODO(aramk) Use dependency injection eventually.
       args.renderManager = owner._renderManager;
       args.eventManager = owner._eventManager;

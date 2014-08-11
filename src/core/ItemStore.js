@@ -69,6 +69,13 @@ define([
       return this.getCount() === 0;
     },
 
+    /**
+     * @returns {Array} The item IDs in the store.
+     */
+    getIds: function () {
+      return Object.keys(this._items);
+    },
+
     // -------------------------------------------------
     // ADDING AND REMOVING
     // -------------------------------------------------

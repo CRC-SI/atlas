@@ -173,7 +173,7 @@ define([
     },
 
     setFootprint: function(footprint) {
-      if (!footprint instanceof Polygon) {
+      if (!(footprint instanceof Polygon)) {
         throw new DeveloperError('Can only assign Polygon to footprint');
       }
       this._footprint = footprint;
@@ -198,7 +198,7 @@ define([
     },
 
     setMesh: function(mesh) {
-      if (!mesh instanceof Mesh) {
+      if (!(mesh instanceof Mesh)) {
         throw new DeveloperError('Can only assign Mesh to mesh.');
       }
       this._mesh = mesh;

@@ -183,7 +183,7 @@ define([
       line.addVertex(point);
       this._render();
       // Create and show a handle for that point.
-      var handle = line.addHandle(line.createHandle(point));
+      var handle = line.addHandle(line.createHandle(point, line.getVertices().length - 1));
       handle.show();
 
       // Add the new handle to the edit manager and the local store.

@@ -1,5 +1,6 @@
 define([
   'atlas/core/Manager',
+  'atlas/core/ItemStore',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Objects',
   'atlas/lib/utility/Setter',
@@ -12,8 +13,8 @@ define([
   'atlas/model/Image',
   'atlas/model/Vertex',
   'atlas/util/DeveloperError'
-], function(Manager, Log, Objects, Setter, Ellipse, Feature, GeoEntity, Mesh, Polygon, Line, Image,
-            Vertex, DeveloperError) {
+], function(Manager, ItemStore, Log, Objects, Setter, Ellipse, Feature, GeoEntity, Mesh, Polygon,
+            Line, Image, Vertex, DeveloperError) {
 
   /**
    * @typedef atlas.entity.EntityManager
@@ -30,8 +31,8 @@ define([
     _id: 'entity',
 
     /**
-     * Contains a mapping of ID to GeoEntity of all GeoEntities in atlas.
-     * @type {Object.<String,atlas.model.GeoEntity>}
+     * All added {@link atlas.model.GeoEntity} objects.
+     * @type {atlas.core.ItemStore}
      */
     _entities: null,
 
@@ -60,7 +61,7 @@ define([
     _init: function(managers) {
       this._super(managers);
       this._origDisplayModes = {};
-      this._entities = {};
+      this._entities = new ItemStore();
     },
 
     /**
@@ -252,7 +253,7 @@ define([
       }
       if (id === undefined) {
         throw new DeveloperError('Can not create Feature without specifying ID');
-      } else if (id in this._entities) {
+      } else if (this._entities.get(id)) {
         throw new DeveloperError('Can not create Feature with a duplicate ID');
       } else {
         // TODO(aramk) Use dependency injection to ensure all entities that are created have these
@@ -412,22 +413,21 @@ define([
     },
 
     /**
-     * @deprecated <code>EntityManager#createFeature</code> adds new Feature as it creates them.
      * Adds a new GeoEntity into the EntityManager.
      * @param {String} id - The ID of the new GeoEntity.
      * @param {atlas.model.GeoEntity} entity - The new GeoEntity;
      * @returns {Boolean} True if the GeoEntity was added, false otherwise.
      */
     add: function(id, entity) {
-      if (id in this._entities) {
+      if (this._entities.get(id)) {
         Log.warn('tried to add entity', id, 'which already exists.');
         return false;
       }
-      if (!entity instanceof GeoEntity) {
+      if (!(entity instanceof GeoEntity)) {
         throw new DeveloperError('Can not add entity which is not a subclass of atlas/model/GeoEntity.');
       }
       Log.debug('entityManager: added entity', id);
-      this._entities[id] = entity;
+      this._entities.add(entity);
       return true;
     },
 
@@ -436,12 +436,11 @@ define([
      * @param {String} id - The ID of the GeoEntity to remove.
      */
     remove: function(id) {
-      if (id in this._entities) {
+      if (this._entities.get(id)) {
         Log.debug('entityManager: deleted entity', id);
         // TODO(aramk) I couldn't find cleanUp method - not sure if it's called?
 //        this._entities[id].cleanUp();
-        var entity = this._entities[id];
-        delete this._entities[id];
+        var entity = this._entities.remove(id);
         // Call this last to prevent infinite loops if this method is called from within.
         entity.remove();
       }
@@ -458,7 +457,7 @@ define([
     getVisibleEntities: function(args) {
       args = Setter.mixin({}, args);
       if (!args.ids) {
-        args.ids = Object.keys(this._entities);
+        args.ids = this._entities.getIds();
       }
       var visible = {},
           ids = args.ids,
@@ -494,7 +493,7 @@ define([
     getById: function(id) {
       // TODO(bpstudds): Accept either a single id or an array of IDs and return an either a
       //      single entity or an array or Entities
-      return this._entities[id];
+      return this._entities.get(id);
     },
 
     /**
@@ -515,7 +514,7 @@ define([
      * @returns {Array.<atlas.model.GeoEntity>}
      */
     getEntities: function() {
-      return Objects.values(this._entities);
+      return this._entities.asArray();
     },
 
     /**
@@ -557,10 +556,7 @@ define([
      * @returns {Array.<atlas.model.GeoEntity>} The GeoEntities located at the given screen coordinates.
      */
     getAt: function(point) {
-      // TODO
-      // See mutopia-gui cesium extensions. Aram converted the target point and visible polygons
-      // to WKT and then used OpenLayers to find the intersecting entities.
-      throw 'EntityManager.getAt not yet implemented.'
+      throw new DeveloperError('EntityManager.getAt not yet implemented.');
     },
 
     /**
@@ -574,10 +570,7 @@ define([
      * @abstract
      */
     getInPoly: function(boundingPoly, intersects) {
-      // TODO
-      // See mutopia-gui cesium extensions. Aram converted the target point and visible polygons
-      // to WKT and then used OpenLayers to find the intersecting entities.
-      throw 'EntityManager.getInPoly not yet implemented.'
+      throw new DeveloperError('EntityManager.getInPoly not yet implemented.');
     },
 
     /**
@@ -589,10 +582,7 @@ define([
      * @abstract
      */
     getInRect: function(point1, point2) {
-      // TODO
-      // See mutopia-gui cesium extensions. Aram converted the target point and visible polygons
-      // to WKT and then used OpenLayers to find the intersecting entities.
-      throw 'EntityManager.getInRect not yet implemented.'
+      throw new DeveloperError('EntityManager.getInRect not yet implemented.');
     }
   });
 

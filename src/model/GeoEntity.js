@@ -243,8 +243,10 @@ define([
     },
 
     /**
-     * @param {atlas.model.GeoPoint} vertex
-     * @param {Number} index - The index of the vertex in this object.
+     * @param {atlas.model.GeoPoint} [vertex] - The vertex in the entity to associate with the
+     * {@link atlas.model.Handle}. If not provided, the centroid of the entity should be used.
+     * @param {Number} [index] - The index of the vertex in this object. Only necessary if a vertex
+     * is provided.
      * @returns {atlas.model.GeoPoint}
      */
     createHandle: function(vertex, index) {

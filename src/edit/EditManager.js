@@ -35,7 +35,7 @@ define([
     _editing: null,
 
     /**
-     * The GeoEntities that will be edited when editing is enabled.
+     * The {@link atlas.model.GeoEntity} objects that will be edited when editing is enabled.
      * @type {atlas.core.ItemStore}
      */
     _entities: null,
@@ -243,18 +243,6 @@ define([
     },
 
     // -------------------------------------------
-    // DRAWING
-    // -------------------------------------------
-
-    /**
-     * The store of Handles that are part of the current edit session.
-     * @type {atlas.core.ItemStore}
-     */
-    getHandles: function() {
-      return this._handles;
-    },
-
-    // -------------------------------------------
     // MODULE MANAGEMENT
     // -------------------------------------------
 
@@ -377,6 +365,22 @@ define([
      */
     toggleModule: function(name) {
       return this._enabledModules[name] ? this.disableModule(name) : this.enableModule(name);
+    },
+
+    // -------------------------------------------
+    // GETTERS AND SETTERS
+    // -------------------------------------------
+
+    getEntities: function () {
+      return this._entities;
+    },
+
+    /**
+     * The store of Handles that are part of the current edit session.
+     * @type {atlas.core.ItemStore}
+     */
+    getHandles: function() {
+      return this._handles;
     }
 
   });

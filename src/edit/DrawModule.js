@@ -168,8 +168,7 @@ define([
           polygon.getVertices().pop();
           line.getVertices().pop();
           var lastHandle = this._handles.pop();
-          handles.remove(lastHandle.getId());
-          lastHandle.remove();
+          this._removeHandle(lastHandle);
           this._render();
           if (target) {
             // Ensure a translation doesn't exist if we clicked on a handle.
@@ -197,16 +196,18 @@ define([
     },
 
     _doAdd: function(point) {
-      var polygon = this._getPolygon(),
+      var handles = this._managers.edit.getHandles(),
+          polygon = this._getPolygon(),
           line = this._getLine();
       polygon.addVertex(point);
       if (polygon.getVertices().length <= 2) {
         line.addVertex(point);
       }
       // Use the polygon handle constructor for consistency.
-      var handle = polygon.addHandle(polygon.createHandle(point));
+      var handle = polygon.addHandle(polygon.createHandle(point, polygon.getVertices().length - 1));
       handle.show();
       this._handles.push(handle);
+      handles.add(handle);
       this._render();
     },
 
@@ -258,12 +259,14 @@ define([
       this._reset();
     },
 
-    _removeHandles: function () {
+    _removeHandles: function() {
+      this._handles.forEach(this._removeHandle, this);
+    },
+
+    _removeHandle: function(handle) {
       var handles = this._managers.edit.getHandles();
-      this._handles.forEach(function(handle) {
-        handles.remove(handle.getId());
-        handle.remove();
-      }, this);
+      handles.remove(handle.getId());
+      handle.remove();
     },
 
     /**
