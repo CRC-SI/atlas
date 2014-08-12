@@ -72,6 +72,21 @@ define([
     _eventHandlers: null,
 
     /**
+     * Event handlers for the editing process.
+     * @type {Object.<String, Array.<Function>>}
+     * @property {String} update
+     * @property {String} complete
+     * @property {String} cancel
+     */
+//    _editHandlers: null,
+
+    /**
+     * The currently active editing sessions.
+     * @type {Array.<Object>}
+     */
+    _sessions: null,
+
+    /**
      * Whether the translation module was enabled when editing began.
      * @type {Boolean}
      */
@@ -85,6 +100,7 @@ define([
       this._enabledModules = {};
       this._listeners = {};
       this._modules = {};
+      this._sessions = [];
     },
 
     /**
@@ -177,12 +193,17 @@ define([
      * are used.
      * @param {Boolean} [args.show=true] Whether to show the entities as footprints.
      * @param {Boolean} [args.addHandles=true] Whether to add handles to entities.
+     * @param {Function} [args.update] - A callback invoked as the object is edited (vertices are
+     * modified).
+     * @param {Function} [args.complete] - A callback invoked when editing is complete.
+     * @param {Function} [args.cancel] - A callback invoked when editing is cancelled.
      */
     enable: function(args) {
       args = Setter.mixin({
         show: true,
         addHandles: true
       }, args);
+      this._sessions.push(args);
       if (!args.entities) {
         if (args.ids) {
           args.entities = this._managers.entity.getByIds(args.ids);
@@ -231,6 +252,12 @@ define([
       this._entities.purge();
       this.setIsModuleEnabled('translation', this._wasTranslationModuleEnabled);
       this._managers.event.handleExternalEvent('selection/enable');
+      this._sessions.forEach(function(session) {
+        // TODO(aramk) Add support for other kinds of callbacks.
+        var complete = session.complete;
+        complete && complete();
+      });
+      this._sessions = [];
     },
 
     /**
@@ -241,6 +268,10 @@ define([
     toggleEditing: function() {
       this._editing ? this.disable() : this.enable();
     },
+
+//    _reset: function () {
+//      this._editHandlers
+//    },
 
     // -------------------------------------------
     // MODULE MANAGEMENT
@@ -371,7 +402,7 @@ define([
     // GETTERS AND SETTERS
     // -------------------------------------------
 
-    getEntities: function () {
+    getEntities: function() {
       return this._entities;
     },
 
