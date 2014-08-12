@@ -64,9 +64,6 @@ define([
 
     _init: function(args) {
       this._super(Handle._getNextId(), args);
-      if (!args.owner && !args.target) {
-        throw new DeveloperError('Cannot create Handle without either a target or an owner.');
-      }
       var owner = this._owner = args.owner;
       var index = this._index = args.index;
       var target = this._target = args.target || owner.getCentroid();

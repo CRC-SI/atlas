@@ -14,7 +14,7 @@ define([
   var Paths;
 
   /**
-   * @classdesc A utility for loading file system resources.
+   * @classdesc A utility for manipulating paths related to Atlas.
    *
    * @abstract
    * @class atlas.util.Paths

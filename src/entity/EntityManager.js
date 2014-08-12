@@ -438,8 +438,6 @@ define([
     remove: function(id) {
       if (this._entities.get(id)) {
         Log.debug('entityManager: deleted entity', id);
-        // TODO(aramk) I couldn't find cleanUp method - not sure if it's called?
-//        this._entities[id].cleanUp();
         var entity = this._entities.remove(id);
         // Call this last to prevent infinite loops if this method is called from within.
         entity.remove();
