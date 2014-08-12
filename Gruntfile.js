@@ -78,6 +78,13 @@ module.exports = function(grunt) {
         options: {
           stdout: false, stderr: true, failOnError: true
         },
+        command: 'node node_modules/requirejs/bin/r.js -o ' + BUILD_FILE + ' optimize=none'
+      },
+
+      buildMinify: {
+        options: {
+          stdout: false, stderr: true, failOnError: true
+        },
         command: 'node node_modules/requirejs/bin/r.js -o ' + BUILD_FILE
       },
 
@@ -234,9 +241,28 @@ module.exports = function(grunt) {
       ['shell:installNpmDep', 'shell:installBowerDep', 'install-openlayers', 'copy:bowerDep']);
   grunt.registerTask('update', 'Updates dependencies.',
       ['shell:updateNpmDep', 'shell:updateBowerDep']);
-  grunt.registerTask('build', 'Builds the app into a distributable package.',
-      ['compile-imports', 'clean:dist', 'shell:build', 'set-build-env', 'less', 'copy:resources',
-        'clean:resourcesLess']);
+  grunt.registerTask('build', 'Builds the app into a distributable package.', function() {
+    var args = arguments,
+        tasks = [],
+        addTasks = function() {
+          Array.prototype.slice.apply(arguments).forEach(function(task) {
+            tasks.push(task);
+          });
+        },
+        hasArgs = function(arg) {
+          return Object.keys(args).some(function(argIndex) {
+            var value = args[argIndex];
+            return value === arg;
+          });
+        };
+    addTasks('compile-imports', 'clean:dist');
+    hasArgs('no-minify') ? addTasks('shell:build') : addTasks('shell:buildMinify');
+    addTasks('set-build-env', 'less', 'copy:resources', 'clean:resourcesLess');
+    console.log('Running tasks', tasks);
+    tasks.forEach(function(task) {
+      grunt.task.run(task);
+    })
+  });
   grunt.registerTask('doc', 'Generates documentation.', ['clean:doc', 'shell:jsDoc']);
   grunt.registerTask('install-openlayers', 'Installs OpenLayers with a custom build.',
       ['copy:openLayersBuildConfig', 'shell:buildOpenLayers', 'fix-openlayers-build',

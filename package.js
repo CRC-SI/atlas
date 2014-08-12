@@ -10,5 +10,9 @@ Package.on_use(function (api) {
   // TODO(aramk) Atlas cannot be used on the server due to conflicts with RequireJS related to
   // http://requirejs.org/docs/errors.html#mismatch. It would be useful to have access to the
   // models and utility classes.
-  api.add_files(['dist/atlas.min.js', 'dist/atlas.min.css'], ['client']);
+  api.add_files([
+    'dist/atlas.min.js',
+    'dist/resources/atlas.min.css',
+    'dist/resources/images/handle.png'
+  ], ['client']);
 });
