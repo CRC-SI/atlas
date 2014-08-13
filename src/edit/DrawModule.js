@@ -167,13 +167,14 @@ define([
           // NOTE: it will still invoke the update callback.
           polygon.getVertices().pop();
           line.getVertices().pop();
+          if (target) {
+            // Ensure a translation doesn't exist if we clicked on a handle. Perform the cancel
+            // before removing the handle to ensure translation doesn't fail.
+            translationModule.cancel();
+          }
           var lastHandle = this._handles.pop();
           this._removeHandle(lastHandle);
           this._render();
-          if (target) {
-            // Ensure a translation doesn't exist if we clicked on a handle.
-            translationModule.cancel();
-          }
           this._stop(args);
           return;
         }

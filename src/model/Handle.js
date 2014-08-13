@@ -3,9 +3,8 @@ define([
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types',
   'atlas/model/GeoEntity',
-  'atlas/model/GeoPoint',
   'atlas/util/DeveloperError'
-], function(Log, Setter, Types, GeoEntity, GeoPoint, DeveloperError) {
+], function(Log, Setter, Types, GeoEntity, DeveloperError) {
 
   /**
    * @typedef atlas.model.Handle
@@ -66,19 +65,26 @@ define([
       this._super(Handle._getNextId(), args);
       var owner = this._owner = args.owner;
       var index = this._index = args.index;
-      var target = this._target = args.target || owner.getCentroid();
+      var target = args.target || owner.getCentroid();
+      if (!target) {
+        throw new DeveloperError('Must provide target or owner with a centroid.');
+      }
+      target = this._target = target.clone();
       this._dotRadius = args.dotRadius || Handle.DOT_RADIUS;
       if (!owner) {
         throw new DeveloperError('Must provide owner.');
-      } else if (!target) {
-        throw new DeveloperError('Must provide target.');
       }
       // TODO(aramk) Use dependency injection eventually.
       args.renderManager = owner._renderManager;
       args.eventManager = owner._eventManager;
       // The dot should not be registered with the EntityManager, as the Handle already is.
       delete args.entityManager;
+      this.setDirty('model');
       this._build();
+    },
+
+    _build: function() {
+      this.clean();
     },
 
     /**
@@ -96,6 +102,15 @@ define([
     // -------------------------------------------
     // GETTERS AND SETTERS
     // -------------------------------------------
+
+    /**
+     * @params {atlas.model.GeoPoint} target
+     */
+    setTarget: function(target) {
+      this._target = target;
+      this.setDirty('model');
+      this._build();
+    },
 
     /**
      * @returns {atlas.model.GeoPoint} The Handle's target vertex.
@@ -124,46 +139,45 @@ define([
 
     /**
      * Delegates a given method to the Handle's target and target Entities as required.
-     * @param {String} method - The method to apply.
+     * @param {String} method - The method to apply. Must exist on both the target and the owner.
      * @param {Array} args - The arguments for the method.
      * @private
      */
     _delegateToTarget: function(method, args) {
-      // TODO(aramk) Still uncertain about how rotate and scale will work - for now only translate
-      // is functioning.
       var target = this.getTarget(),
           index = this.getIndex(),
           owner = this.getOwner();
-      if (target) {
-        var result = target[method].apply(target, args);
-        // Avoid updating the owner unless necessary to allow the owner to call methods on the
-        // handle when its vertices change. This prevents an infinite loop arising.
-        // TODO(aramk) Perhaps use an observer pattern so both owner and handle can change with
-        // vertex.
-        if (target.equals && !target.equals(result)) {
-          // Since the Vertex methods produce new instances, set the result of the previous
-          // call as the new value of the target instance.
-          var ownerVertex = owner.getVertices()[index];
-          ownerVertex.set(result);
-          // Modify the target to ensure the values are synchronised with the owner vertex for the
-          // next update.
-          target.set(result);
-
-          owner.setDirty('vertices');
-          owner.show();
-        }
+      // Apply the method on the underlying vertex.
+      if (!Types.isNullOrUndefined(index)) {
+        // Since the Vertex methods produce new instances, set the result of the previous
+        // call as the new value of the target instance.
+        var ownerVertex = owner.getVertices()[index];
+        ownerVertex.set(target);
       } else {
-        // Move the owner instead if we don't have a target vertex. Delegate updating vertices to
-        // the owner.
+        // Delegate updating vertices to the owner. This will translate handles and vertices, so
+        // avoid double counting in this method (e.g. translating a vertex twice).
         owner[method].apply(owner, args);
       }
+      // Modify the target to ensure the values are synchronised with the owner vertex for the
+      // next update.
+      owner.setDirty('vertices');
+      owner.show();
     },
 
     translate: function(translation, args) {
+      var target = this.getTarget();
+      var newTarget = target.translate(translation);
+      if (target.equals(newTarget)) {
+        // Avoid updating the owner unless necessary to allow the owner to call methods on the
+        // handle when its vertices change. This prevents an infinite loop arising.
+        return;
+      }
       args = Setter.mixin({
         delegate: true
       }, args);
       args.delegate && this._delegateToTarget('translate', arguments);
+      // Modify the target after delegation to avoid conflicting with changes from the owner.
+      this.setTarget(newTarget);
     }
 
   });

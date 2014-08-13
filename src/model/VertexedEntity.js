@@ -3,7 +3,7 @@ define([
   'atlas/model/GeoPoint',
   'atlas/model/Vertex',
   'atlas/model/Handle'
-], function (GeoEntity, GeoPoint, Vertex, Handle) {
+], function(GeoEntity, GeoPoint, Vertex, Handle) {
   /**
    * @typedef atlas.model.VertexedEntity
    * @ignore
@@ -47,7 +47,7 @@ define([
      */
     _zIndexOffset: 0.1,
 
-    _init: function (id, args) {
+    _init: function(id, args) {
       this._super(id, args);
       this._vertices = [];
     },
@@ -56,10 +56,28 @@ define([
     // CONSTRUCTION
     // -------------------------------------------
 
+    _build: function() {
+      if (this.isDirty('entity') || this.isDirty('vertices') || this.isDirty('model')) {
+        // Rebuild centroid. Assign it back in case subclasses change memoization logic.
+        var oldCentroid = this._centroid;
+        this._centroid = null;
+        this._centroid = this.getCentroid();
+        if (oldCentroid && !oldCentroid.equals(this._centroid)) {
+          // Update the entity handle (if any).
+          var entityHandle = this.getEntityHandle();
+          if (entityHandle) {
+            entityHandle.setTarget(this._centroid);
+          }
+        }
+      }
+      this.clean();
+    },
+
     createHandles: function() {
       var handles = [];
       // Add a Handle for the GeoEntity itself.
       var entityHandle = this._createEntityHandle();
+      this.setEntityHandle(entityHandle);
       entityHandle && handles.push(entityHandle);
       // Add Handles for each vertex.
       this._vertices.forEach(function(vertex, i) {
@@ -78,7 +96,7 @@ define([
      * behaviour.
      * @private
      */
-    _createEntityHandle: function () {
+    _createEntityHandle: function() {
       return this.createHandle();
     },
 
@@ -86,17 +104,13 @@ define([
     // MODIFIERS
     // -------------------------------------------
 
-    /**
-     * Translates the GeoEntity.
-     * @param {atlas.model.Vertex} translation - The vector from the GeoEntity's current location to the desired location.
-     * @param {Number} translation.x - The change in latitude, given in decimal degrees.
-     * @param {Number} translation.y - The change in longitude, given in decimal degrees.
-     * @param {Number} translation.z - The change in altitude, given in metres.
-     */
     translate: function(translation) {
+      // TODO(aramk) This centroid isn't the same instance as in the handle.
+      this.getCentroid().translate(translation);
       this._vertices.forEach(function(vertex) {
         vertex.set(vertex.translate(translation));
       });
+      // TODO(aramk) Why does this update the handle vertex?
       this._handles.map(function(handle) {
         handle.translate(translation, {delegate: false});
       });
@@ -104,15 +118,6 @@ define([
       this.isVisible() && this.show();
     },
 
-    /**
-     * Scales the GeoEntity by the given vector. This scaling can be uniform in all axis or non-uniform.
-     * A scaling factor of <code>1</code> has no effect. Factors lower or higher than <code>1</code>
-     * scale the GeoEntity down or up respectively. ie, <code>0.5</code> is half as big and
-     * <code>2</code> is twice as big.
-     * @param {atlas.model.Vertex} scale - The vector to scale the GeoEntity by.
-     * @param {Number} scale.x - The scale along the <code>latitude</code> axis.
-     * @param {Number} scale.y - The scale along the <code>longitude</code> axis.
-     */
     scale: function(scale) {
       var centroid = this.getCentroid();
       this._vertices.forEach(function(vertex, i) {
@@ -225,21 +230,22 @@ define([
       if (this._centroid) {
         return this._centroid.clone();
       }
+      var vertices = this._vertices;
       // Need a closed set of vertices for the algorithm to work. Temporarily add the first vertex
       // to the end of the list of vertices.
-      this._vertices.push(this._vertices[0]);
+      vertices.push(vertices[0]);
       var x, y, f, twiceArea, p1, p2;
       x = y = f = twiceArea = 0;
-      for (var i = 0; i < this._vertices.length - 1; i++) {
-        p1 = this._vertices[i];
-        p2 = this._vertices[i + 1];
-        f = (p1.x * p2.y) - p2.x * p1.y;
-        x += (p1.x + p2.x) * f;
-        y += (p1.y + p2.y) * f;
+      for (var i = 0; i < vertices.length - 1; i++) {
+        p1 = vertices[i];
+        p2 = vertices[i + 1];
+        f = (p1.longitude * p2.latitude) - p2.longitude * p1.latitude;
+        x += (p1.longitude + p2.longitude) * f;
+        y += (p1.latitude + p2.latitude) * f;
         twiceArea += f;
       }
-      // Remove vertex added to end
-      this._vertices.pop();
+      // Remove vertex added to end.
+      vertices.pop();
       f = 3 * twiceArea;
       this._centroid = GeoPoint.fromVertex(new Vertex(x / f, y / f, p1.z + this.getElevation()));
       return this._centroid.clone();
