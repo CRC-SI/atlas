@@ -616,7 +616,7 @@ define([
      * @returns {atlas.model.Style}
      */
     getDefaultStyle: function() {
-      return new Style({fillColour: Colour.GREEN});
+      return new Style({fillColour: Colour.GREEN, borderColour: Colour.BLACK});
     },
 
     /**
@@ -624,7 +624,7 @@ define([
      * @returns {atlas.model.Style}
      */
     getSelectedStyle: function() {
-      return new Style({fillColour: Colour.RED});
+      return new Style({fillColour: Colour.RED, borderColour: Colour.BLACK});
     }
 
   });
