@@ -59,8 +59,16 @@ define([
     _build: function() {
       if (this.isDirty('entity') || this.isDirty('vertices') || this.isDirty('model')) {
         // Rebuild centroid. Assign it back in case subclasses change memoization logic.
+        var oldCentroid = this._centroid;
         this._centroid = null;
         this._centroid = this.getCentroid();
+        if (oldCentroid && !oldCentroid.equals(this._centroid)) {
+          // Update the entity handle (if any).
+          var entityHandle = this.getEntityHandle();
+          if (entityHandle) {
+            entityHandle.setTarget(this._centroid);
+          }
+        }
       }
       this.clean();
     },
@@ -68,10 +76,8 @@ define([
     createHandles: function() {
       var handles = [];
       // Add a Handle for the GeoEntity itself.
-      // TODO(aramk) Ignored for now - translating the centroid handle is double-counted by the
-      // translate on the entity, which translates all handles. We should either reverse the
-      // translation first or set it afterwards.
       var entityHandle = this._createEntityHandle();
+      this.setEntityHandle(entityHandle);
       entityHandle && handles.push(entityHandle);
       // Add Handles for each vertex.
       this._vertices.forEach(function(vertex, i) {

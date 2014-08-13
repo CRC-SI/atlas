@@ -153,10 +153,15 @@ define([
     _selected: false,
 
     /**
-     * The editing {@link atlas.model.Handle}
+     * {@link atlas.model.Handle} objects used for editing.
      * @type {atlas.core.ItemStore}
      */
     _handles: null,
+
+    /**
+     * The {@link atlas.model.Handle} on the entity itself.
+     */
+    _entityHandle: null,
 
     _init: function(id, args) {
       if (typeof id === 'object') {
@@ -281,6 +286,14 @@ define([
 
     getHandles: function() {
       return this._handles;
+    },
+
+    getEntityHandle: function () {
+      return this._entityHandle;
+    },
+
+    setEntityHandle: function (entityHandle) {
+      this._entityHandle = entityHandle;
     },
 
     clearHandles: function() {

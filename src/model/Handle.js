@@ -79,7 +79,12 @@ define([
       args.eventManager = owner._eventManager;
       // The dot should not be registered with the EntityManager, as the Handle already is.
       delete args.entityManager;
+      this.setDirty('model');
       this._build();
+    },
+
+    _build: function() {
+      this.clean();
     },
 
     /**
@@ -97,6 +102,15 @@ define([
     // -------------------------------------------
     // GETTERS AND SETTERS
     // -------------------------------------------
+
+    /**
+     * @params {atlas.model.GeoPoint} target
+     */
+    setTarget: function(target) {
+      this._target = target;
+      this.setDirty('model');
+      this._build();
+    },
 
     /**
      * @returns {atlas.model.GeoPoint} The Handle's target vertex.
@@ -130,8 +144,6 @@ define([
      * @private
      */
     _delegateToTarget: function(method, args) {
-      // TODO(aramk) Still uncertain about how rotate and scale will work - for now only translate
-      // is functioning.
       var target = this.getTarget(),
           index = this.getIndex(),
           owner = this.getOwner();
@@ -145,8 +157,6 @@ define([
         // Delegate updating vertices to the owner. This will translate handles and vertices, so
         // avoid double counting in this method (e.g. translating a vertex twice).
         owner[method].apply(owner, args);
-        // If this is the centroid handle, reverse the translation applied to it form the owner.
-//        target.set(result);
       }
       // Modify the target to ensure the values are synchronised with the owner vertex for the
       // next update.
@@ -162,11 +172,12 @@ define([
         // handle when its vertices change. This prevents an infinite loop arising.
         return;
       }
-      target.set(newTarget);
       args = Setter.mixin({
         delegate: true
       }, args);
       args.delegate && this._delegateToTarget('translate', arguments);
+      // Modify the target after delegation to avoid conflicting with changes from the owner.
+      this.setTarget(newTarget);
     }
 
   });
