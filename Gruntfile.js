@@ -7,6 +7,7 @@ module.exports = function(grunt) {
   // Time how long tasks take. Can help when optimizing build times
   //require('time-grunt')(grunt); // Not installed
 
+  var MODULE_NAME = 'atlas';
   var SRC_DIR = 'src';
   var LIB_DIR = 'lib';
   var DIST_DIR = 'dist';
@@ -15,7 +16,6 @@ module.exports = function(grunt) {
   var RESOURCES_DIR = 'resources';
   var RESOURCES_BUILD_PATH = distPath(RESOURCES_DIR);
   var RE_AMD_MODULE = /\b(?:define|require)\s*\(/;
-  var MODULE_NAME = 'atlas';
   var MAIN_FILE = srcPath('main.js');
   var BUILD_FILE = buildPath('build.js');
   var BUILD_OUTPUT_PATH = distPath(MODULE_NAME + '.min.js');
