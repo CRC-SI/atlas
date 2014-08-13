@@ -227,8 +227,10 @@ define([
         if (args.addHandles) {
           // Put the Handles into the EntityManager and render them.
           var handles = entity.addHandles();
-          this._handles.addArray(handles);
-          this._handles.map('show');
+          if (handles) {
+            this._handles.addArray(handles);
+            this._handles.map('show');
+          }
         }
       }, this);
     },
