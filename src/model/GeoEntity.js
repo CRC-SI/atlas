@@ -356,10 +356,10 @@ define([
         return null;
       }
       this.setDirty('style');
-
       // Only change style if the new style is different so _previousStyle isn't clobbered.
       this._previousStyle = this._style;
       this._style = style;
+      this.isVisible() && this._build();
       return this._previousStyle;
     },
 
