@@ -3,8 +3,9 @@ define([
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/model/Feature',
+  'atlas/model/Vertex',
   'atlas/util/DeveloperError'
-], function(BaseEditModule, Log, Setter, Feature, DeveloperError) {
+], function(BaseEditModule, Log, Setter, Feature, Vertex, DeveloperError) {
 
   // TODO(aramk) Make this AbstractDrawModule and extend with PolygonDrawModule and LineDrawModule.
 
@@ -39,6 +40,12 @@ define([
      * @type {Number}
      */
     _lastClickTime: null,
+
+    /**
+     * The position of the last mouse click.
+     * @type {atlas.model.Vertex}
+     */
+    _lastClickPosition: null,
 
     /**
      * The maximum amount of time difference between clicks to detect as a double click.
@@ -152,6 +159,7 @@ define([
      */
     _add: function(args) {
       var handles = this._managers.edit.getHandles();
+      var position = new Vertex(args.position);
       var targetId = this._managers.render.getAt(args.position)[0];
       var target = handles.get(targetId);
       var now = Date.now();
@@ -161,18 +169,20 @@ define([
           line = this._getLine();
 
       if (this._lastClickTime) {
-        var diff = now - this._lastClickTime;
-        if (diff <= this._doubleClickDelta) {
-          // Remove the point added on the first click of the double click.
-          // NOTE: it will still invoke the update callback.
-          polygon.getVertices().pop();
-          line.getVertices().pop();
+        var timeDiff = now - this._lastClickTime;
+        var posDiff = position.subtract(this._lastClickPosition).absolute();
+        // Only register a double click if the mouse did not move between clicks.
+        if (timeDiff <= this._doubleClickDelta && posDiff.equals(new Vertex(0, 0))) {
           if (target) {
             // Ensure a translation doesn't exist if we clicked on a handle. Perform the cancel
             // before removing the handle to ensure translation doesn't fail.
             translationModule.cancel();
           }
           var lastHandle = this._handles.pop();
+          // Remove the point added on the first click of the double click.
+          // NOTE: it will still invoke the update callback.
+          polygon.removeVertex(polygon.getVertices().length - 1);
+          line.removeVertex(line.getVertices().length - 1);
           this._removeHandle(lastHandle);
           this._render();
           this._stop(args);
@@ -180,6 +190,7 @@ define([
         }
       }
       this._lastClickTime = now;
+      this._lastClickPosition = position;
 
       if (target) {
         translationModule.cancel();
