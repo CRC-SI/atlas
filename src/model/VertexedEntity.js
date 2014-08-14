@@ -1,11 +1,12 @@
 define([
   'atlas/lib/utility/Types',
+  'atlas/lib/utility/Setter',
   'atlas/model/GeoEntity',
   'atlas/model/GeoPoint',
   'atlas/model/Vertex',
   'atlas/model/Handle',
   'atlas/util/WKT'
-], function(Types, GeoEntity, GeoPoint, Vertex, Handle, WKT) {
+], function(Types, Setter, GeoEntity, GeoPoint, Vertex, Handle, WKT) {
   /**
    * @typedef atlas.model.VertexedEntity
    * @ignore
@@ -61,7 +62,7 @@ define([
         } else {
           throw new Error('Invalid vertices for entity ' + id);
         }
-      } else if (Types.isArray(vertices)) {
+      } else if (Types.isArrayLiteral(vertices)) {
         this._vertices = Setter.def(vertices, []).map(function (vertex) {
           return new GeoPoint(vertex);
         });
