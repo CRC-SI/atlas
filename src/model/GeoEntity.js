@@ -429,6 +429,7 @@ define([
      * @param {Number} [newStyle.borderWidth] - The new border width colour.
      * @returns {Object} A mapping of parameters that have been changed to their old value.
      */
+    // TODO(aramk) This is quite complicated - perhaps rely only on setStyle.
     modifyStyle: function(newStyle) {
       if (Object.keys(newStyle).length <= 0) {
         return {};
