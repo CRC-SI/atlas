@@ -30,7 +30,7 @@ define([
 
     /**
      * Whether editing is currently enabled for <code>_entities</code>.
-     * @type {boolean}
+     * @type {Boolean}
      */
     _editing: null,
 
@@ -39,6 +39,12 @@ define([
      * @type {atlas.core.ItemStore}
      */
     _entities: null,
+
+    /**
+     * Additional meta-data associated with set of entities currently being edited.
+     * @type {Object.<String, Object>}
+     */
+    _entitiesMeta: null,
 
     /**
      * The store of Handles that are part of the current editing session.
@@ -95,6 +101,7 @@ define([
     _init: function(managers) {
       this._super(managers);
       this._entities = new ItemStore();
+      this._entitiesMeta = {};
       this._handles = new ItemStore();
       this._editing = false;
       this._enabledModules = {};
@@ -223,6 +230,9 @@ define([
 
       // Render the editing handles.
       this._entities.forEach(function(entity) {
+        var meta = {};
+        meta.origDisplayMode = entity.getDisplayMode();
+        this._entitiesMeta[entity.getId()] = meta;
         args.show && entity.showAsFootprint();
         if (args.addHandles) {
           // Put the Handles into the EntityManager and render them.
@@ -245,13 +255,15 @@ define([
       this._editing = false;
       this._handles.map('remove');
       // Remove handles from entities before showing as extrusion to prevent re-build showing the
-      // handles again.
+      // handles again. Restore the original display mode.
       this._entities.forEach(function(entity) {
         entity.clearHandles();
-      });
-      this._entities.map('showAsExtrusion');
+        var meta = this._entitiesMeta[entity.getId()];
+        entity.setDisplayMode(meta.origDisplayMode);
+      }, this);
       this._handles.purge();
       this._entities.purge();
+      this._entitiesMeta = {};
       this.setIsModuleEnabled('translation', this._wasTranslationModuleEnabled);
       this._managers.event.handleExternalEvent('selection/enable');
       this._sessions.forEach(function(session) {

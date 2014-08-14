@@ -1,9 +1,11 @@
 define([
+  'atlas/lib/utility/Types',
   'atlas/model/GeoEntity',
   'atlas/model/GeoPoint',
   'atlas/model/Vertex',
-  'atlas/model/Handle'
-], function(GeoEntity, GeoPoint, Vertex, Handle) {
+  'atlas/model/Handle',
+  'atlas/util/WKT'
+], function(Types, GeoEntity, GeoPoint, Vertex, Handle, WKT) {
   /**
    * @typedef atlas.model.VertexedEntity
    * @ignore
@@ -47,9 +49,25 @@ define([
      */
     _zIndexOffset: 0.1,
 
-    _init: function(id, args) {
+    _init: function(id, data, args) {
       this._super(id, args);
       this._vertices = [];
+      var vertices = data.vertices;
+      if (Types.isString(vertices)) {
+        var wkt = WKT.getInstance(),
+            vertexArray = wkt.verticesFromWKT(vertices);
+        if (vertexArray[0] instanceof Array) {
+          this._vertices = vertexArray[0];
+        } else {
+          throw new Error('Invalid vertices for entity ' + id);
+        }
+      } else if (Types.isArray(vertices)) {
+        this._vertices = Setter.def(vertices, []).map(function (vertex) {
+          return new GeoPoint(vertex);
+        });
+      } else {
+        throw new Error('Invalid vertices for entity ' + id);
+      }
     },
 
     // -------------------------------------------

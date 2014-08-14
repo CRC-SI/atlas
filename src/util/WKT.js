@@ -1,10 +1,10 @@
 define([
-  'atlas/model/Vertex',
+  'atlas/model/GeoPoint',
   'atlas/lib/OpenLayers',
   'atlas/lib/utility/error/DevError',
   'atlas/lib/utility/Class',
   'atlas/util/Instances'
-], function(Vertex, OpenLayers, DevError, Class, Instances) {
+], function(GeoPoint, OpenLayers, DevError, Class, Instances) {
 
   /**
    * @typedef atlas.util.WKT
@@ -25,9 +25,9 @@ define([
     },
 
     /**
-     * Converts a WKT polygon string to an array of {@link atlas.model.Vertex} objects.
+     * Converts a WKT polygon string to an array of {@link atlas.model.GeoPoint} objects.
      * @param {String} wktStr - The WKT string to convert
-     * @returns {Array.<Array.<atlas.model.Vertex>> | Array.<atlas.model.Vertex>} The convert polygon.
+     * @returns {Array.<Array.<atlas.model.GeoPoint>> | Array.<atlas.model.GeoPoint>} The convert polygon.
      */
     verticesFromWKT: function(wktStr) {
       var geometry = this.openLayersGeometryFromWKT(wktStr).geometry;
@@ -50,7 +50,7 @@ define([
     /**
      * Returns an array of Vertices representing the given geometry object.
      * @param  {OpenLayers.Geometry.Collection|OpenLayers.Geometry.Point} geometry - The geometry to convert.
-     * @returns {Array.<atlas.model.Vertex>|atlas.model.Vertex} An array of Vertices forming a closed polygon.
+     * @returns {Array.<atlas.model.GeoPoint>|atlas.model.GeoPoint} An array of Vertices forming a closed polygon.
      */
     verticesFromOpenLayersGeometry: function(geometry) {
       var vertices = [];
@@ -67,18 +67,18 @@ define([
     },
 
     /**
-     * Converts an OpenLayers.Geometry.Point to a {@link atlas.model.Vertex|Vertex}.
+     * Converts an OpenLayers.Geometry.Point to a {@link atlas.model.GeoPoint}.
      * @param  {OpenLayers.Geometry.Point} point - The point to be converted.
-     * @returns {atlas.model.Vertex}
+     * @returns {atlas.model.GeoPoint}
      */
     vertexFromOpenLayersPoint: function(point) {
       // NOTE: OpenLayers treats latitude as x, longitude as y.
-      return new Vertex(point.y, point.x, 0);
+      return new GeoPoint({longitude: point.y, latitude: point.x});
     },
 
     /**
      * Converts an array of coordinates into an array of Points.
-     * @param {Array.<atlas.model.Vertex>} vertices - The coordinates to convert.
+     * @param {Array.<atlas.model.GeoPoint>} vertices - The coordinates to convert.
      * @returns {Array.<OpenLayers.Geometry.Point>}
      */
     openLayersPointsFromVertices: function(vertices) {
@@ -86,7 +86,7 @@ define([
       for (var i = 0; i < vertices.length; i++) {
         var vertex = vertices[i];
         // NOTE: OpenLayers treats latitude as x, longitude as y. Atlas uses the opposite.
-        var point = new OpenLayers.Geometry.Point(vertex.y, vertex.x);
+        var point = new OpenLayers.Geometry.Point(vertex.latitude, vertex.longitude);
         points.push(point);
       }
       return points;
@@ -94,7 +94,7 @@ define([
 
     /**
      * Returns an OpenLayers Polygon from an array of vertices.
-     * @param {Array.<atlas.model.Vertex>} vertices - The vertices to convert.
+     * @param {Array.<atlas.model.GeoPoint>} vertices - The vertices to convert.
      * @returns {OpenLayers.Geometry.Polygon}
      */
     openLayersPolygonFromVertices: function(vertices) {
@@ -111,7 +111,7 @@ define([
 
     /**
      * Returns a WKT string from an array of vertices.
-     * @param {Array.<Number>} vertices - The vertices to convert.
+     * @param {Array.<atlas.model.GeoPoint>} vertices - The vertices to convert.
      * @returns {String}
      */
     wktFromVertices: function(vertices) {
@@ -122,11 +122,11 @@ define([
 
     /**
      * Scales a polygon formed by a series of Vertices.
-     * @param {Array.<atlas.model.Vertex>} vertices - The vertices to scale.
-     * @param {atlas.model.Vertex} scaleBy - Defines the factors to scale by.
+     * @param {Array.<atlas.model.GeoPoint>} vertices - The vertices to scale.
+     * @param {atlas.model.GeoPoint} scaleBy - Defines the factors to scale by.
      * @param {Number} scaleBy.x - The factor to scale the x axis by.
      * @param {Number} scaleBy.y - The factor to scale the y axis by.
-     * @returns {Array.<atlas.model.Vertex>} The rescaled vertices.
+     * @returns {Array.<atlas.model.GeoPoint>} The rescaled vertices.
      */
     scaleVertices: function(vertices, scaleBy) {
       // TODO(aramk) WKT.scaleVertices does not work.
