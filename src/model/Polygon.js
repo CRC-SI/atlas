@@ -117,16 +117,18 @@ define([
      * Enables showing the polygon as an extruded polygon.
      */
     enableExtrusion: function() {
+      var oldValue = this._showAsExtrusion;
       this._showAsExtrusion = true;
-      this.setDirty('model');
+      oldValue !== true && this.setDirty('model');
     },
 
     /**
      * Disables showing the polygon as an extruded polygon.
      */
     disableExtrusion: function() {
+      var oldValue = this._showAsExtrusion;
       this._showAsExtrusion = false;
-      this.setDirty('model');
+      oldValue !== false && this.setDirty('model');
     },
 
     /**
