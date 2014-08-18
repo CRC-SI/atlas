@@ -31,6 +31,7 @@ define([
    * @class atlas.model.Colour
    */
   Colour = Class.extend(/** @lends atlas.model.Colour# */ {
+
     red: null,
     green: null,
     blue: null,
@@ -125,7 +126,17 @@ define([
           hsv2 = other.toHsv();
       hsv1.h = AtlasMath.lerp(hsv2.h, hsv1.h, lerpFactor);
       return Colour.fromHsv(hsv1);
+    },
+
+    /**
+     * @param {atlas.model.Colour} other
+     * @returns {Boolean} Whether the given object is equal to this object.
+     */
+    equals: function (other) {
+      return other && this.red === other.red && this.green === other.green &&
+          this.blue === other.blue && this.alpha === other.alpha;
     }
+
   });
 
   // ---------------------------------------------

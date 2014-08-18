@@ -117,7 +117,26 @@ define([
      */
     getBorderWidth: function () {
       return this._borderWidth;
+    },
+
+    /**
+     * @param {atlas.model.Style} other
+     * @returns {Boolean} Whether the given object is equal to this object.
+     */
+    equals: function (other) {
+      return other && this._colourEquals(this.getFillColour(), other.getFillColour()) &&
+          this._colourEquals(this.getBorderColour(), other.getBorderColour()) &&
+          this.getBorderWidth() === other.getBorderWidth();
+    },
+
+    // TODO(aramk) Abstract this.
+    _colourEquals: function (colourA, colourB) {
+      // Allow type coercion. If first condition fails, at least one of them is assumed to be an
+      // object, so if the second condition fails, either both are different objects, or colourA is
+      // falsey - both of which indicate they are not equal.
+      return (colourA == colourB) || (colourA && colourA.equals(colourB))
     }
+
   });
 
   // -------------------------------------------

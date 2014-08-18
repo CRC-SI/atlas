@@ -365,11 +365,11 @@ define([
      * @returns {atlas.model.Style} The old style, or null if it was not changed.
      */
     setStyle: function(style) {
-      if (this._style === style) {
+      // Only change style if the new style is different so _previousStyle isn't clobbered.
+      if (this._style && this._style.equals(style)) {
         return null;
       }
       this.setDirty('style');
-      // Only change style if the new style is different so _previousStyle isn't clobbered.
       this._previousStyle = this._style;
       this._style = style;
       this.isVisible() && this._build();

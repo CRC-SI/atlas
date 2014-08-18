@@ -78,16 +78,8 @@ define([
     _eventHandlers: null,
 
     /**
-     * Event handlers for the editing process.
-     * @type {Object.<String, Array.<Function>>}
-     * @property {String} update
-     * @property {String} complete
-     * @property {String} cancel
-     */
-//    _editHandlers: null,
-
-    /**
-     * The currently active editing sessions.
+     * The currently active editing sessions. This contains the argument objects passed to
+     * {@link #enable}.
      * @type {Array.<Object>}
      */
     _sessions: null,
@@ -282,10 +274,6 @@ define([
     toggleEditing: function() {
       this._editing ? this.disable() : this.enable();
     },
-
-//    _reset: function () {
-//      this._editHandlers
-//    },
 
     // -------------------------------------------
     // MODULE MANAGEMENT
