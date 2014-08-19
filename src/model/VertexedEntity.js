@@ -249,24 +249,9 @@ define([
       if (this._centroid) {
         return this._centroid.clone();
       }
-      var vertices = this._vertices;
-      // Need a closed set of vertices for the algorithm to work. Temporarily add the first vertex
-      // to the end of the list of vertices.
-      vertices.push(vertices[0]);
-      var x, y, f, twiceArea, p1, p2;
-      x = y = f = twiceArea = 0;
-      for (var i = 0; i < vertices.length - 1; i++) {
-        p1 = vertices[i];
-        p2 = vertices[i + 1];
-        f = (p1.longitude * p2.latitude) - p2.longitude * p1.latitude;
-        x += (p1.longitude + p2.longitude) * f;
-        y += (p1.latitude + p2.latitude) * f;
-        twiceArea += f;
-      }
-      // Remove vertex added to end.
-      vertices.pop();
-      f = 3 * twiceArea;
-      this._centroid = GeoPoint.fromVertex(new Vertex(x / f, y / f, p1.z + this.getElevation()));
+      var wkt = WKT.getInstance();
+      var geometry = wkt.openLayersPolygonFromVertices(this._vertices);
+      this._centroid = wkt.vertexFromOpenLayersPoint(geometry.getCentroid());
       return this._centroid.clone();
     },
 
