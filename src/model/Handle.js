@@ -172,11 +172,15 @@ define([
         // handle when its vertices change. This prevents an infinite loop arising.
         return;
       }
+      // Modify before the delegation to ensure we move the underlying vertex in the owner
+      // correctly.
+      this.setTarget(newTarget);
       args = Setter.mixin({
         delegate: true
       }, args);
       args.delegate && this._delegateToTarget('translate', arguments);
-      // Modify the target after delegation to avoid conflicting with changes from the owner.
+      // Modify the target after delegation to avoid conflicting with changes from the owner which
+      // may result in double-counting (if the target handle is translated here and in the owner).
       this.setTarget(newTarget);
     }
 

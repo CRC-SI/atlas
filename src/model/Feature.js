@@ -142,7 +142,8 @@ define([
     _initDelegation: function() {
       var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
         'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles',
-        'getCentroid', 'getArea', 'getVertices'];
+        'getCentroid', 'getArea', 'getVertices', 'isVisible', 'translate', 'scale', 'rotate',
+        'onSelect', 'onDeselect'];
       methods.forEach(function(method) {
         this[method] = function() {
           return this._delegateToForm(method, arguments);
@@ -263,37 +264,6 @@ define([
       this.setDisplayMode(Feature.DisplayMode.IMAGE);
     },
 
-    isVisible: function() {
-      return this._delegateToForm('isVisible');
-    },
-
-    /**
-     * Translates the Feature.
-     * @see {@link atlas.model.GeoEntity#translate}
-     * @param {atlas.model.GeoPoint} translation - The vector to translate the Feature by.
-     */
-    translate: function(translation) {
-      return this._delegateToForm('translate', arguments);
-    },
-
-    /**
-     * Scales the Feature.
-     * @see {@link atlas.model.GeoEntity#scale}
-     * @param {atlas.model.GeoPoint} scale - The vector to scale the Feature by.
-     */
-    scale: function(scale) {
-      return this._delegateToForm('scale', arguments);
-    },
-
-    /**
-     * Rotates the Feature.
-     * @see {@link atlas.model.GeoEntity#rotate}
-     * @param {atlas.model.GeoPoint} rotation - The vector to rotate the Feature by.
-     */
-    rotate: function(rotation) {
-      return this._delegateToForm('rotate', arguments);
-    },
-
     /**
      * Clean up the Feature so it can be deleted by the RenderManager.
      */
@@ -322,20 +292,6 @@ define([
     // -------------------------------------------
     // BEHAVIOUR
     // -------------------------------------------
-
-    /**
-     * Handles the behaviour of the Feature when it is selected.
-     */
-    onSelect: function() {
-      return this._delegateToForm('onSelect');
-    },
-
-    /**
-     * Handles the behaviour of the Feature when it is deselected.
-     */
-    onDeselect: function() {
-      return this._delegateToForm('onDeselect');
-    },
 
     /**
      * Shows the Feature depending on its current <code>_displayMode</code>.

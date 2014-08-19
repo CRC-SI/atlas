@@ -44,18 +44,7 @@ define([
      * @ignore
      */
     _init: function(id, lineData, args) {
-      this._super(id, args);
-      if (Types.isString(lineData.vertices)) {
-        var wkt = WKT.getInstance(),
-            vertices = wkt.verticesFromWKT(lineData.vertices).map(GeoPoint.fromVertex, GeoPoint);
-        if (Types.isArray(vertices)) {
-          this._vertices = vertices;
-        } else {
-          throw new Error('Invalid vertices for Line ' + id);
-        }
-      } else {
-        this._vertices = Setter.def(lineData.vertices, []);
-      }
+      this._super(id, lineData, args);
       this._width = lineData.width || this._width;
       if (lineData.color) {
         var style;

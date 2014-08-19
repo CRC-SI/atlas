@@ -28,7 +28,9 @@ define([
     getRelative: function() {
       // Since we don't have a "src" directory in production, we have one less level to move up.
       var levels = Atlas.getEnvironment() === Atlas.Environment.PRODUCTION ? 2 : 3;
-      return Path.dirname(module.uri, levels);
+      // Remove relative prefix if the script is loaded locally.
+      var uri = module.uri.replace(/^\.\//, '');
+      return Path.dirname(uri, levels);
     },
 
     /**

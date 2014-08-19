@@ -4,10 +4,11 @@ define([
   'atlas/model/Style',
   'atlas/model/GeoPoint',
   'atlas/util/DeveloperError',
+  'atlas/lib/utility/Types',
   'atlas/util/WKT',
   // Base class
   'atlas/model/VertexedEntity'
-], function(Setter, Colour, Style, GeoPoint, DeveloperError, WKT, VertexedEntity) {
+], function(Setter, Colour, Style, GeoPoint, DeveloperError, Types, WKT, VertexedEntity) {
 
   /**
    * @typedef atlas.model.Polygon
@@ -66,26 +67,12 @@ define([
     _init: function(id, polygonData, args) {
       polygonData = Setter.mixin({}, polygonData);
       args = Setter.mixin({}, args);
-      this._super(id, args);
-      if (typeof polygonData.vertices === 'string') {
-        // TODO(aramk) Add support for MULTIPOLYGON by not taking the first item.
-        var wkt = WKT.getInstance(),
-            vertices = wkt.verticesFromWKT(polygonData.vertices);
-        if (vertices[0] instanceof Array) {
-          this._vertices = vertices[0];
-        } else {
-          throw new Error('Invalid vertices for Polygon ' + id);
-        }
-      } else {
-        this._vertices = Setter.def(polygonData.vertices, []);
-      }
+      this._super(id, polygonData, args);
       // Don't have closed polygons.
       var len = this._vertices.length;
       if (this._vertices[0] === this._vertices[len - 1] && len > 1) {
         this._vertices.pop();
       }
-      // Convert vertices to GeoPoint.
-      this._vertices = this._vertices.map(GeoPoint.fromVertex, GeoPoint);
       if (polygonData.holes) {
         this._holes = polygonData.holes;
       }
@@ -117,16 +104,18 @@ define([
      * Enables showing the polygon as an extruded polygon.
      */
     enableExtrusion: function() {
+      var oldValue = this._showAsExtrusion;
       this._showAsExtrusion = true;
-      this.setDirty('model');
+      oldValue !== true && this.setDirty('model');
     },
 
     /**
      * Disables showing the polygon as an extruded polygon.
      */
     disableExtrusion: function() {
+      var oldValue = this._showAsExtrusion;
       this._showAsExtrusion = false;
-      this.setDirty('model');
+      oldValue !== false && this.setDirty('model');
     },
 
     /**

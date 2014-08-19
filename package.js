@@ -12,7 +12,6 @@ Package.on_use(function (api) {
   // models and utility classes.
   api.add_files([
     'dist/atlas.min.js',
-    'dist/resources/atlas.min.css',
-    'dist/resources/images/handle.png'
+    'dist/resources/atlas.min.css'
   ], ['client']);
 });

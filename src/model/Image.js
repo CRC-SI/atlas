@@ -56,19 +56,7 @@ define([
      */
     _init: function(id, imageData, args) {
       args = Setter.mixin({}, args);
-      this._super(id, args);
-      if (typeof imageData.vertices === 'string') {
-        // TODO(aramk) Add support for MULTIPOLYGON by not taking the first item.
-        var wkt = WKT.getInstance(),
-          vertices = wkt.verticesFromWKT(imageData.vertices).map(GeoPoint.fromVertex, GeoPoint);
-        if (vertices[0] instanceof Array) {
-          this._vertices = vertices[0];
-        } else {
-          throw new Error('Invalid vertices for Image ' + id);
-        }
-      } else {
-        this._vertices = Setter.def(imageData.vertices, []);
-      }
+      this._super(id, imageData, args);
       // Don't have closed images.
       if (this._vertices.first === this._vertices.last) {
         this._vertices.pop();

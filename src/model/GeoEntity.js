@@ -365,14 +365,14 @@ define([
      * @returns {atlas.model.Style} The old style, or null if it was not changed.
      */
     setStyle: function(style) {
-      if (this._style === style) {
+      // Only change style if the new style is different so _previousStyle isn't clobbered.
+      if (this._style && this._style.equals(style)) {
         return null;
       }
       this.setDirty('style');
-
-      // Only change style if the new style is different so _previousStyle isn't clobbered.
       this._previousStyle = this._style;
       this._style = style;
+      this.isVisible() && this._build();
       return this._previousStyle;
     },
 
@@ -429,6 +429,7 @@ define([
      * @param {Number} [newStyle.borderWidth] - The new border width colour.
      * @returns {Object} A mapping of parameters that have been changed to their old value.
      */
+    // TODO(aramk) This is quite complicated - perhaps rely only on setStyle.
     modifyStyle: function(newStyle) {
       if (Object.keys(newStyle).length <= 0) {
         return {};
@@ -616,7 +617,7 @@ define([
      * @returns {atlas.model.Style}
      */
     getDefaultStyle: function() {
-      return new Style({fillColour: Colour.GREEN});
+      return new Style({fillColour: Colour.GREEN, borderColour: Colour.BLACK});
     },
 
     /**
@@ -624,7 +625,7 @@ define([
      * @returns {atlas.model.Style}
      */
     getSelectedStyle: function() {
-      return new Style({fillColour: Colour.RED});
+      return new Style({fillColour: Colour.RED, borderColour: Colour.BLACK});
     }
 
   });
