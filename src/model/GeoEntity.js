@@ -233,7 +233,7 @@ define([
     },
 
     /**
-     * @returns {Number} The are of the GeoEntity's footprint, if applicable.
+     * @returns {Number} The area of the GeoEntity in metres squared, if applicable.
      * @abstract
      */
     getArea: function() {

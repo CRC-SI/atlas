@@ -88,6 +88,8 @@ define([
             entityHandle.setTarget(this._centroid);
           }
         }
+        // Invalidate the area.
+        this._area = null;
       }
       this.clean();
     },
@@ -216,43 +218,28 @@ define([
       return this._vertices;
     },
 
-    /**
-     * Gets the area of the GeoEntity, in <tt>unit**2</tt> where <tt>unit</tt> is the
-     * unit corresponding to the Vertices describing this GeoEntity.
-     * @see {@link http://www.mathopenref.com/coordpolygonarea2.html}
-     * @returns {Number} The area of the GeoEntity.
-     */
     getArea: function() {
       if (this._area) {
         return this._area;
       }
-      this._area = 0;
-      var j = this._vertices.length - 1;  // The last vertex is the 'previous' one to the first
-      for (var i = 0; i < this._vertices.length; i++) {
-        this._area = this._area +
-            (this._vertices[j].x + this._vertices[i].x) *
-            (this._vertices[j].y - this._vertices[i].y);
-        j = i;  //j is previous vertex to i
-      }
-      this._area /= 2;
+      var geometry = this._getOpenLayersGeometry();
+      this._area = geometry.getGeodesicArea();
       return this._area;
     },
 
-    /**
-     * Gets the centroid of the GeoEntity. Assumes that the GeoEntity is a 2D surface, ie. Vertex.z is
-     * constant across the polygon.
-     * @returns {atlas.model.GeoPoint} The GeoEntity's centroid.
-     * @see {@link http://stackoverflow.com/questions/9692448/how-can-you-find-the-centroid-of-a-concave-irregular-polygon-in-javascript/9939071#9939071}
-     * @see  {@link http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon}
-     */
     getCentroid: function() {
       if (this._centroid) {
         return this._centroid.clone();
       }
       var wkt = WKT.getInstance();
-      var geometry = wkt.openLayersPolygonFromVertices(this._vertices);
+      var geometry = this._getOpenLayersGeometry();
       this._centroid = wkt.vertexFromOpenLayersPoint(geometry.getCentroid());
       return this._centroid.clone();
+    },
+
+    _getOpenLayersGeometry: function () {
+      var wkt = WKT.getInstance();
+      return wkt.openLayersPolygonFromVertices(this._vertices);
     },
 
     /**
