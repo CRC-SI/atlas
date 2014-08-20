@@ -40,12 +40,12 @@ define([
      */
     elevation: null,
 
-    /*
-     * Constructs a new GeoPoint object.
-     */
     _init: function() {
-      if (Types.isObjectLiteral(arguments[0])) {
+      var firstArg = arguments[0];
+      if (Types.isObjectLiteral(firstArg)) {
         this._setFromObject.apply(this, arguments);
+      } else if (Types.isArrayLiteral(firstArg)) {
+        this._setFromArgs.apply(this, firstArg);
       } else {
         this._setFromArgs.apply(this, arguments);
       }
