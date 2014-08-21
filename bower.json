@@ -15,7 +15,7 @@
   ],
   "dependencies": {
     "Requirejs": "requirejs#2.1.x",
-    "Openlayers": "https://github.com/openlayers/openlayers.git#2.13.1",
+    "Openlayers": "https://github.com/openlayers/openlayers.git#release-2.13.1",
     "Keycode": "https://github.com/mantelpiece/keycode.js.git#master",
     "Tinycolor": "tinycolor#~0.9.x",
     "utility": "https://bitbucket.org/mutopia/utility.git",
