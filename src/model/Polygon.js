@@ -4,11 +4,10 @@ define([
   'atlas/model/Style',
   'atlas/model/GeoPoint',
   'atlas/util/DeveloperError',
-  'atlas/lib/utility/Types',
   'atlas/util/WKT',
   // Base class
   'atlas/model/VertexedEntity'
-], function(Setter, Colour, Style, GeoPoint, DeveloperError, Types, WKT, VertexedEntity) {
+], function(Setter, Colour, Style, GeoPoint, DeveloperError, WKT, VertexedEntity) {
 
   /**
    * @typedef atlas.model.Polygon

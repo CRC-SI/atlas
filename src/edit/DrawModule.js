@@ -181,8 +181,8 @@ define([
           var lastHandle = this._handles.pop();
           // Remove the point added on the first click of the double click.
           // NOTE: it will still invoke the update callback.
-          polygon.removeVertex(polygon.getVertices().length - 1);
-          line.removeVertex(line.getVertices().length - 1);
+          polygon.removeVertex();
+          line.removeVertex();
           this._removeHandle(lastHandle);
           this._render();
           this._stop(args);
