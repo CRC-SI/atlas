@@ -147,7 +147,7 @@ define([
       methods.forEach(function(method) {
         this[method] = function() {
           return this._delegateToForm(method, arguments);
-        }
+        };
       }, this);
     },
 

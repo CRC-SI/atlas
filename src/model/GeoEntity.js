@@ -55,20 +55,6 @@ define([
      */
 
     /**
-     * IDs of the child GeoEntities of the GeoEntity.
-     * @type {Array.<String>}
-     * @protected
-     */
-    _childrenIds: null,
-
-    /**
-     * Array of references to the child GeoEntities.
-     * @type {Array.<atlas.model.GeoEntity>}
-     * @protected
-     */
-    _children: null,
-
-    /**
      * The RenderManager object for the GeoEntity.
      * @type {atlas.render.RenderManager}
      * @protected
@@ -180,7 +166,6 @@ define([
         throw new DeveloperError('Can not create instance of GeoEntity without an ID');
       }
       this._id = id.toString();
-      this._childrenIds = args.childrenIds || [];
       this._renderManager = args.renderManager;
       this._eventManager = args.eventManager;
       this._entityManager = args.entityManager;
@@ -221,15 +206,6 @@ define([
      */
     getCentroid: function() {
       return this._centroid && this._centroid.clone();
-    },
-
-    getChildren: function() {
-      // TODO(bpstudds): Adding children and removing children needs support.
-      if (this._children !== null) {
-        return this._children;
-      }
-      this._children = this._entityManager.getByIds(this._childrenIds);
-      return this._children;
     },
 
     /**
@@ -507,9 +483,10 @@ define([
      * may be required.
      */
     remove: function() {
+      this.hide();
       // TODO(aramk) We should try to keep consistent with these - either all entities have
       // references to managers or none do - otherwise we could have discrepancies in the entity
-      // manger like a removed entity still being referenced.
+      // manager like a removed entity still being referenced.
       this._entityManager && this._entityManager.remove(this._id);
       this._eventManager && this._eventManager.dispatchEvent(new Event(new EventTarget(),
           'entity/remove', {

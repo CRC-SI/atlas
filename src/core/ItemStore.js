@@ -76,6 +76,15 @@ define([
       return Object.keys(this._items);
     },
 
+    /**
+     * @returns {atlas.core.ItemStore} A shallow copy of this object.
+     */
+    clone: function () {
+      var clone = new ItemStore();
+      clone.addArray(this.asArray());
+      return clone;
+    },
+
     // -------------------------------------------------
     // ADDING AND REMOVING
     // -------------------------------------------------

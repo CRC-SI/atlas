@@ -219,7 +219,7 @@ define([
     },
 
     getArea: function() {
-      if (this._area) {
+      if (!Types.isNullOrUndefined(this._area)) {
         return this._area;
       }
       var geometry = this._getOpenLayersGeometry();
