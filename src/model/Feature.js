@@ -119,27 +119,6 @@ define([
     // -------------------------------------------
 
     /**
-     * @param {atlas.model.Feature.DisplayMode} [displayMode]
-     * @returns {atlas.model.GeoEntity} The form for the given display mode, or the current
-     * display mode if none is given.
-     */
-    getForm: function(displayMode) {
-      displayMode = displayMode || this._displayMode;
-      var form;
-      if (displayMode === Feature.DisplayMode.FOOTPRINT ||
-          displayMode === Feature.DisplayMode.EXTRUSION) {
-        form = this._footprint;
-      } else if (displayMode === Feature.DisplayMode.MESH) {
-        form = this._mesh;
-      } else if (displayMode === Feature.DisplayMode.IMAGE) {
-        form = this._image;
-      } else if (displayMode === Feature.DisplayMode.LINE) {
-        form = this._line;
-      }
-      return form;
-    },
-
-    /**
      * Binds various methods in {@link atlas.model.GeoEntity} which should be entirely delegated to
      * the currently active form without any extra work.
      * @private
@@ -162,6 +141,48 @@ define([
     },
 
     /**
+     * @param {atlas.model.Feature.DisplayMode} displayMode
+     * @param {atlas.model.GeoEntity} entity
+     */
+    setForm: function(displayMode, entity) {
+      var property = this._getFormPropertyName(displayMode);
+      this[property] = entity;
+      this.isVisible() && this.show();
+    },
+
+    /**
+     * @param {atlas.model.Feature.DisplayMode} [displayMode]
+     * @returns {atlas.model.GeoEntity} The form for the given display mode, or the current
+     * display mode if none is given.
+     */
+    getForm: function(displayMode) {
+      displayMode = displayMode || this._displayMode;
+      if (displayMode) {
+        var property = this._getFormPropertyName(displayMode);
+        return this[property];
+      } else {
+        return null;
+      }
+    },
+
+    /**
+     * @param {atlas.model.Feature.DisplayMode} displayMode
+     * @returns {String} The name of the property used for storing the given display mode.
+     * @private
+     */
+    _getFormPropertyName: function(displayMode) {
+      // TODO(aramk) Extrusion is a special case. If there are more, create a map instead.
+      if (displayMode === Feature.DisplayMode.EXTRUSION) {
+        displayMode = Feature.DisplayMode.FOOTPRINT;
+      }
+      if (Feature.DisplayMode[displayMode.toUpperCase()]) {
+        return '_' + displayMode;
+      } else {
+        throw new DeveloperError('Invalid display mode ' + displayMode);
+      }
+    },
+
+    /**
      * Sets the elevation of the base of the feature.
      * @param {Number} elevation - The elevation of the feature.
      */
@@ -176,13 +197,6 @@ define([
      */
     getElevation: function() {
       return this._delegateToForm('getElevation') || this._elevation;
-    },
-
-    setFootprint: function(footprint) {
-      if (!(footprint instanceof Polygon)) {
-        throw new DeveloperError('Can only assign Polygon to footprint');
-      }
-      this._footprint = footprint;
     },
 
     /**
@@ -201,13 +215,6 @@ define([
      */
     getHeight: function() {
       return this._delegateToForm('getHeight') || this._height;
-    },
-
-    setMesh: function(mesh) {
-      if (!(mesh instanceof Mesh)) {
-        throw new DeveloperError('Can only assign Mesh to mesh.');
-      }
-      this._mesh = mesh;
     },
 
     setStyle: function(style) {

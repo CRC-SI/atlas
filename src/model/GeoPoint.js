@@ -144,10 +144,26 @@ define([
 
     /**
      * @param {atlas.model.GeoPoint} other
-     * @returns {Boolean} Whether the given object is equal to this one.
+     * @returns {Boolean} Whether the given object is exactly equal to this one.
      */
     equals: function(other) {
       return this.longitude === other.longitude && this.latitude === other.latitude &&
+          this.elevation === other.elevation;
+    },
+
+    /**
+     * @param {atlas.model.GeoPoint} other
+     * @param {Number} [sigFigures=6] - The number of significant figures. The default value of 6
+     * provides roughly 0.11m of precision.
+     * @returns {Boolean} Whether the given object is equal to this one within the given significant
+     * figures for decimal degrees of precision for latitude and longitude and with elevation
+     * exactly equal.
+     * @see http://gis.stackexchange.com/a/8674/12464
+     */
+    isCloseTo: function(other, sigFigures) {
+      var sigFigures = Setter.def(sigFigures, 6);
+      return this.longitude.toFixed(SIGFIG) === other.longitude.toFixed(SIGFIG) &&
+          this.latitude.toFixed(SIGFIG) === other.latitude.toFixed(SIGFIG) &&
           this.elevation === other.elevation;
     }
 

@@ -74,21 +74,22 @@ define([
     // CONSTRUCTION
     // -------------------------------------------
 
+    setDirty: function() {
+      this._super.apply(this, arguments);
+      if (this.isDirty('entity') || this.isDirty('vertices') || this.isDirty('model')) {
+        // Invalidate the centroid and area. They will be recalculated when requested.
+        this._centroid = null;
+        this._area = null;
+      }
+    },
+
     _build: function() {
       if (this.isDirty('entity') || this.isDirty('vertices') || this.isDirty('model')) {
-        // Rebuild centroid. Assign it back in case subclasses change memoization logic.
-        var oldCentroid = this._centroid;
-        this._centroid = null;
-        this._centroid = this.getCentroid();
-        if (oldCentroid && !oldCentroid.equals(this._centroid)) {
-          // Update the entity handle (if any).
-          var entityHandle = this.getEntityHandle();
-          if (entityHandle) {
-            entityHandle.setTarget(this._centroid);
-          }
+        // Update the entity handle (if any).
+        var entityHandle = this.getEntityHandle();
+        if (entityHandle) {
+          entityHandle.setTarget(this.getCentroid());
         }
-        // Invalidate the area.
-        this._area = null;
       }
       this.clean();
     },
@@ -125,12 +126,9 @@ define([
     // -------------------------------------------
 
     translate: function(translation) {
-      // TODO(aramk) This centroid isn't the same instance as in the handle.
-      this.getCentroid().translate(translation);
       this._vertices.forEach(function(vertex) {
         vertex.set(vertex.translate(translation));
       });
-      // TODO(aramk) Why does this update the handle vertex?
       this._handles.map(function(handle) {
         handle.translate(translation, {delegate: false});
       });
@@ -160,10 +158,7 @@ define([
      */
     addVertex: function(vertex) {
       this._vertices.push(vertex);
-      // Invalidate any pre-calculated area and centroid.
       this.setDirty('vertices');
-      this._area = null;
-      this._centroid = null;
       return this._vertices.length;
     },
 
@@ -181,14 +176,10 @@ define([
       if (index < 0) {
         insertAt = this._vertices.length + 1 + index;
       }
-
       // TODO(aramk) This will destroy the indices for the handles. Pass them IDs instead of
       // indices.
       this._vertices.splice(insertAt, 0, vertex);
-      // Clear derived values.
       this.setDirty('vertices');
-      this._area = null;
-      this._centroid = null;
       return insertAt;
     },
 
@@ -204,10 +195,7 @@ define([
       }
       if (-this._vertices.length <= index && index <= this._vertices.length - 1) {
         var removed = this._vertices.splice(index, 1)[0];
-        // Clear derived values
         this.setDirty('vertices');
-        this._area = null;
-        this._centroid = null;
         return removed;
       }
       return null;

@@ -126,13 +126,34 @@ define([
       });
     },
 
+    /**
+     * Calls the given method on each {@link atlas.model.GeoEntity} in this collection. Passes the
+     * returned value to the given callback.
+     * @param {String} method
+     * @param {Array} args
+     * @param {Function} callback
+     * @returns {Boolean} Whether the given callback succeeds for some entities.
+     * @private
+     */
+    _someEntity: function(method, args, callback) {
+      this._entities.some(function(item) {
+        var value = item[method].apply(item, args);
+        return callback(value);
+      });
+    },
+
     _initDelegation: function() {
-      var forMethods = ['createHandles', 'addHandles', 'modifyStyle', 'onSelect', 'onDeselect'];
+      // TODO(aramk) getHandles should create a new ItemStore and add all.
+
+      // Call on all entities.
+      var forMethods = ['createHandles', 'addHandles', 'clearHandles', 'setStyle', 'modifyStyle',
+        'onSelect', 'onDeselect', 'translate', 'scale', 'rotate'];
       forMethods.forEach(function(method) {
         this[method] = function() {
           return this._forEntities(method, arguments);
         };
       }, this);
+      // Call on all entities and the collection.
       var forSelfMethods = ['remove', 'show', 'hide'];
       forSelfMethods.forEach(function(method) {
         this[method] = function() {
@@ -140,10 +161,22 @@ define([
         };
         this[method].apply(this, arguments);
       }, this);
+      // All entities must return true.
       var everyMethods = ['isRenderable'];
       everyMethods.forEach(function(method) {
         this[method] = function() {
-          return this._everyEntity(method, arguments);
+          return this._everyEntity(method, arguments, function(value) {
+            return !!value;
+          });
+        };
+      }, this);
+      // Some entities must return true.
+      var someMethods = ['isVisible'];
+      someMethods.forEach(function(method) {
+        this[method] = function() {
+          return this._someEntity(method, arguments, function(value) {
+            return !!value;
+          });
         };
       }, this);
     },
@@ -154,7 +187,7 @@ define([
 
     getOpenLayersGeometry: function() {
       var components = [];
-      this._entities.forEach(function (entity) {
+      this._entities.forEach(function(entity) {
         components.push(entity.getOpenLayersGeometry());
       });
       return new OpenLayers.Geometry.Collection(components);
