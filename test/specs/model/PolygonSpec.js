@@ -48,5 +48,17 @@ define([
       expect(polygon.getArea()).toBeCloseTo(area);
     });
 
+    it('can set height', function() {
+      var value = 50;
+      polygon.setHeight(value);
+      expect(polygon.getHeight()).toEqual(value);
+    });
+
+    it('can set elevation', function() {
+      var value = 50;
+      polygon.setElevation(value);
+      expect(polygon.getElevation()).toEqual(value);
+    });
+
   });
 });

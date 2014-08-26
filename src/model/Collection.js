@@ -7,7 +7,7 @@ define([
   'atlas/model/GeoEntity',
   'atlas/model/Handle',
   'atlas/util/DeveloperError'
-], function(ItemStore, Types, Log, OpenLayers, GeoEntity, Handle, DeveloperError, WKT) {
+], function(ItemStore, Types, Log, OpenLayers, GeoEntity, Handle, DeveloperError) {
 
   /**
    * @typedef atlas.model.Collection
@@ -33,14 +33,15 @@ define([
 
     /**
      * @param id
+     * @param {Object} data
      * @param {Object} args
      * @param {Array.<String>} args.entities - A set of {@link GeoEntity} IDs.
      * @private
      */
-    _init: function(id, args) {
+    _init: function(id, data, args) {
       this._super(id, args);
-      var entities = this._entities = new ItemStore();
-      var entityIds = args.entities || [];
+      this._entities = new ItemStore();
+      var entityIds = data.entities || [];
       entityIds.forEach(this.addEntity, this);
       this._initDelegation();
     },
@@ -54,6 +55,9 @@ define([
      */
     addEntity: function(id) {
       var entity = this._entityManager.getById(id);
+      if (!entity) {
+        throw new Error('Entity with id "' + id + '" not found - cannot add to collection');
+      }
       if (this._entities.get(id)) {
         Log.warn('Entity with ID ' + id + ' already added to collection.');
       } else {
@@ -150,11 +154,10 @@ define([
 
     getOpenLayersGeometry: function() {
       var components = [];
-      for (var id in this._entities) {
-        var entity = this._entities[id];
+      this._entities.forEach(function (entity) {
         components.push(entity.getOpenLayersGeometry());
-      }
-      return new OpenLayers({components: components});
+      });
+      return new OpenLayers.Geometry.Collection(components);
     },
 
     createHandle: function(vertex, index) {

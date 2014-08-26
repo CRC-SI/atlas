@@ -229,6 +229,14 @@ define([
     },
 
     /**
+     * @returns {OpenLayers.Geometry}
+     * @abstract
+     */
+    getOpenLayersGeometry: function () {
+      throw new DeveloperError('Can not call abstract method "getOpenLayersGeometry" of GeoEntity');
+    },
+
+    /**
      * @returns {Array.<atlas.model.Handle>} An array of Handles used to edit the GeoEntity.
      */
     createHandles: function() {
@@ -403,14 +411,6 @@ define([
      */
     getAppearance: function() {
       return this._appearance;
-    },
-
-    /**
-     * @returns {OpenLayers.Geometry}
-     * @abstract
-     */
-    getOpenLayersGeometry: function () {
-      throw new DeveloperError('Can not call abstract method "getOpenLayersGeometry" of GeoEntity');
     },
 
     // -------------------------------------------

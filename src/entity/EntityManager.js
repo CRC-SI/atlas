@@ -2,7 +2,6 @@ define([
   'atlas/core/Manager',
   'atlas/core/ItemStore',
   'atlas/lib/utility/Log',
-  'atlas/lib/utility/Objects',
   'atlas/lib/utility/Setter',
   'atlas/model/Ellipse',
   'atlas/model/Feature',
@@ -13,7 +12,7 @@ define([
   'atlas/model/Image',
   'atlas/model/Vertex',
   'atlas/util/DeveloperError'
-], function(Manager, ItemStore, Log, Objects, Setter, Ellipse, Feature, GeoEntity, Mesh, Polygon,
+], function(Manager, ItemStore, Log, Setter, Ellipse, Feature, GeoEntity, Mesh, Polygon,
             Line, Image, Vertex, DeveloperError) {
 
   /**
