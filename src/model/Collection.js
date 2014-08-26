@@ -1,12 +1,13 @@
 define([
   'atlas/core/ItemStore',
+  'atlas/lib/utility/Types',
+  'atlas/lib/utility/Log',
+  'atlas/lib/OpenLayers',
   // Base class
   'atlas/model/GeoEntity',
   'atlas/model/Handle',
-  'atlas/lib/utility/Types',
-  'atlas/lib/utility/Log',
   'atlas/util/DeveloperError'
-], function(ItemStore, GeoEntity, Handle, Types, Log, DeveloperError) {
+], function(ItemStore, Types, Log, OpenLayers, GeoEntity, Handle, DeveloperError, WKT) {
 
   /**
    * @typedef atlas.model.Collection
@@ -147,18 +148,13 @@ define([
     // GETTERS AND SETTERS
     // -------------------------------------------
 
-    getCentroid: function() {
-      if (!this._centroid) {
-        // TODO(aramk)
+    getOpenLayersGeometry: function() {
+      var components = [];
+      for (var id in this._entities) {
+        var entity = this._entities[id];
+        components.push(entity.getOpenLayersGeometry());
       }
-      return this._centroid;
-    },
-
-    getArea: function() {
-      if (!Types.isNullOrUndefined(this._area)) {
-        // TODO(aramk)
-      }
-      return this._area;
+      return new OpenLayers({components: components});
     },
 
     createHandle: function(vertex, index) {

@@ -148,6 +148,11 @@ define([
     // GETTERS AND SETTERS
     // -------------------------------------------
 
+    getOpenLayersGeometry: function () {
+      // TODO(aramk) Find the footprint of the mesh.
+      throw 'incomplete method';
+    },
+
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------

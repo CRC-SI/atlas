@@ -3,10 +3,9 @@ define([
   'atlas/lib/utility/Setter',
   'atlas/model/GeoEntity',
   'atlas/model/GeoPoint',
-  'atlas/model/Vertex',
   'atlas/model/Handle',
   'atlas/util/WKT'
-], function(Types, Setter, GeoEntity, GeoPoint, Vertex, Handle, WKT) {
+], function(Types, Setter, GeoEntity, GeoPoint, Handle, WKT) {
   /**
    * @typedef atlas.model.VertexedEntity
    * @ignore
@@ -63,7 +62,7 @@ define([
           throw new Error('Invalid vertices for entity ' + id);
         }
       } else if (Types.isArrayLiteral(vertices)) {
-        this._vertices = Setter.def(vertices, []).map(function (vertex) {
+        this._vertices = Setter.def(vertices, []).map(function(vertex) {
           return new GeoPoint(vertex);
         });
       } else {
@@ -218,26 +217,7 @@ define([
       return this._vertices;
     },
 
-    getArea: function() {
-      if (!Types.isNullOrUndefined(this._area)) {
-        return this._area;
-      }
-      var geometry = this._getOpenLayersGeometry();
-      this._area = geometry.getGeodesicArea();
-      return this._area;
-    },
-
-    getCentroid: function() {
-      if (this._centroid) {
-        return this._centroid.clone();
-      }
-      var wkt = WKT.getInstance();
-      var geometry = this._getOpenLayersGeometry();
-      this._centroid = wkt.vertexFromOpenLayersPoint(geometry.getCentroid());
-      return this._centroid.clone();
-    },
-
-    _getOpenLayersGeometry: function () {
+    getOpenLayersGeometry: function() {
       var wkt = WKT.getInstance();
       return wkt.openLayersPolygonFromVertices(this._vertices);
     },

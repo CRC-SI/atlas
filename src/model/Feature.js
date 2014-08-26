@@ -118,6 +118,11 @@ define([
     // GETTERS AND SETTERS
     // -------------------------------------------
 
+    /**
+     * @param {atlas.model.Feature.DisplayMode} [displayMode]
+     * @returns {atlas.model.GeoEntity} The form for the given display mode, or the current
+     * display mode if none is given.
+     */
     getForm: function(displayMode) {
       displayMode = displayMode || this._displayMode;
       var form;
@@ -142,8 +147,8 @@ define([
     _initDelegation: function() {
       var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
         'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles',
-        'getCentroid', 'getArea', 'getVertices', 'isVisible', 'translate', 'scale', 'rotate',
-        'onSelect', 'onDeselect'];
+        'getCentroid', 'getArea', 'getVertices', 'getOpenLayersGeometry', 'isVisible', 'translate',
+        'scale', 'rotate', 'onSelect', 'onDeselect'];
       methods.forEach(function(method) {
         this[method] = function() {
           return this._delegateToForm(method, arguments);

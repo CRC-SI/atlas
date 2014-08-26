@@ -4,10 +4,12 @@ define([
   // Base class
   'atlas/events/EventTarget',
   'atlas/lib/utility/Setter',
+  'atlas/lib/utility/Types',
   'atlas/model/Colour',
   'atlas/model/Style',
-  'atlas/util/DeveloperError'
-], function(ItemStore, Event, EventTarget, Setter, Colour, Style, DeveloperError) {
+  'atlas/util/DeveloperError',
+  'atlas/util/WKT'
+], function(ItemStore, Event, EventTarget, Setter, Types, Colour, Style, DeveloperError, WKT) {
 
   /**
    * @typedef atlas.model.GeoEntity
@@ -200,20 +202,30 @@ define([
       return this._id;
     },
 
-    /**
-     * @returns {atlas.model.GeoPoint} The centroid of the GeoEntity.
-     * @abstract
-     */
     getCentroid: function() {
-      return this._centroid && this._centroid.clone();
+      if (!this._centroid) {
+        this._centroid = this._calcCentroid();
+      }
+      return this._centroid.clone();
+    },
+
+    _calcCentroid: function() {
+      var wkt = WKT.getInstance();
+      return wkt.vertexFromOpenLayersPoint(this.getOpenLayersGeometry().getCentroid());
     },
 
     /**
      * @returns {Number} The area of the GeoEntity in metres squared, if applicable.
-     * @abstract
      */
     getArea: function() {
-      throw new DeveloperError('Can not call abstract method "getArea" of GeoEntity');
+      if (!Types.isNullOrUndefined(this._area)) {
+        this._area = this._calcArea();
+      }
+      return this._area;
+    },
+
+    _calcArea: function() {
+      return this.getOpenLayersGeometry().getGeodesicArea();
     },
 
     /**
@@ -391,6 +403,14 @@ define([
      */
     getAppearance: function() {
       return this._appearance;
+    },
+
+    /**
+     * @returns {OpenLayers.Geometry}
+     * @abstract
+     */
+    getOpenLayersGeometry: function () {
+      throw new DeveloperError('Can not call abstract method "getOpenLayersGeometry" of GeoEntity');
     },
 
     // -------------------------------------------
