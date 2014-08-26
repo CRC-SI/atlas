@@ -1,11 +1,12 @@
 define([
   'atlas/lib/utility/Setter',
   'atlas/model/Colour',
+  'atlas/model/GeoPoint',
   'atlas/model/Style',
   'atlas/model/Vertex',
   // Base class
   'atlas/model/GeoEntity'
-], function(Setter, Colour, Style, Vertex, GeoEntity) {
+], function(Setter, Colour, GeoPoint, Style, Vertex, GeoEntity) {
 
   /**
    * @typedef atlas.model.Mesh
@@ -56,7 +57,7 @@ define([
 
     /**
      * The location of the mesh object, specified by longitude, latitude, and elevation.
-     * @type {atlas.model.Vertex}
+     * @type {atlas.model.GeoPoint}
      * @protected
      */
     _geoLocation: null,
@@ -118,7 +119,7 @@ define([
       }
 
       if (meshData.geoLocation) {
-        this._geoLocation = new Vertex(meshData.geoLocation);
+        this._geoLocation = new GeoPoint(meshData.geoLocation);
       }
 
       if (meshData.scale && meshData.scale.length > 0) {
@@ -148,9 +149,16 @@ define([
     // GETTERS AND SETTERS
     // -------------------------------------------
 
+    /**
+     * @returns {atlas.model.Vertex}
+     */
+    getGeoLocation: function () {
+      return this._geoLocation;
+    },
+
     getOpenLayersGeometry: function () {
       // TODO(aramk) Find the footprint of the mesh.
-      throw 'incomplete method';
+      throw new Error('Incomplete method');
     },
 
     // -------------------------------------------
