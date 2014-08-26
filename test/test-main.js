@@ -37,6 +37,7 @@ requirejs.config({
 
   packages: [
     { name: 'atlas/lib', location: 'atlas/lib'},
+    { name: 'atlas/lib/utility', location: 'atlas/lib/utility/src'},
     { name: 'atlas/assets', location: 'atlas/assets'}, // Only need this for testing
     { name: 'atlas', location: 'atlas/src'}
   ],
