@@ -124,12 +124,12 @@ define([
             } else {
               throw new Error('Either features or ids must be provided for bulk show.');
             }
-            if (args.callback) {
-              args.callback(ids);
-            }
             this.getByIds(ids).forEach(function(entity) {
               entity.show();
             }, this);
+            if (args.callback) {
+              args.callback(ids);
+            }
             Log.timeEnd('entity/show/bulk');
           }.bind(this)
         },

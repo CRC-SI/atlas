@@ -174,7 +174,7 @@ define([
      */
     translate: function(translation) {
       // Update the 'translation', ie change _geoLocation.
-      this._geoLocation = this._geoLocation.add(translation);
+      this._geoLocation = this._geoLocation.translate(translation);
       // And redraw the Mesh.
       this.setDirty('model');
       this.isVisible() && this.show();
