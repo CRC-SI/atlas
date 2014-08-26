@@ -218,7 +218,7 @@ define([
      * @returns {Number} The area of the GeoEntity in metres squared, if applicable.
      */
     getArea: function() {
-      if (!Types.isNullOrUndefined(this._area)) {
+      if (Types.isNullOrUndefined(this._area)) {
         this._area = this._calcArea();
       }
       return this._area;
