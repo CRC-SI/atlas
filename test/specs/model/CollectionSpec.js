@@ -55,5 +55,16 @@ define([
       expect(polygonB.getCentroid().isCloseTo(polyBOldCentroid.translate(amount))).toBe(true);
     });
 
+    it('is not initially visible', function() {
+      spyOn(polygonA, 'isVisible').and.callThrough();
+      spyOn(polygonB, 'isVisible').and.callThrough();
+      var isVisible = collection.isVisible();
+      expect(isVisible).toBe(false);
+      expect(polygonA.isVisible()).toBe(isVisible);
+      expect(polygonB.isVisible()).toBe(isVisible);
+      expect(polygonA.isVisible.calls.any()).toEqual(true);
+      expect(polygonB.isVisible.calls.any()).toEqual(true);
+    })
+
   });
 });

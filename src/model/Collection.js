@@ -105,7 +105,7 @@ define([
      * @private
      */
     _forEntities: function(method, args) {
-      this._entities.forEach(function(item) {
+      return this._entities.forEach(function(item) {
         item[method].apply(item, args);
       });
     },
@@ -120,7 +120,7 @@ define([
      * @private
      */
     _everyEntity: function(method, args, callback) {
-      this._entities.every(function(item) {
+      return this._entities.every(function(item) {
         var value = item[method].apply(item, args);
         return callback(value);
       });
@@ -136,7 +136,7 @@ define([
      * @private
      */
     _someEntity: function(method, args, callback) {
-      this._entities.some(function(item) {
+      return this._entities.some(function(item) {
         var value = item[method].apply(item, args);
         return callback(value);
       });

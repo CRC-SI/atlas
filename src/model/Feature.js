@@ -363,8 +363,10 @@ define([
      * @param {atlas.model.Feature.DisplayMode} displayMode
      */
     setDisplayMode: function(displayMode) {
+      // Apply the visibility based on the existing display mode.
+      var isVisible = this.isVisible();
       this._displayMode = displayMode;
-      this.isVisible() && this.show();
+      isVisible && this.show();
     },
 
     /**
