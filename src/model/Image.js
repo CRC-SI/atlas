@@ -30,7 +30,7 @@ define([
    * @returns {atlas.model.Image}
    *
    * @class atlas.model.Image
-   * @extends atlas.model.GeoEntity
+   * @extends atlas.model.VertexedEntity
    */
   Image = VertexedEntity.extend(/** @lends atlas.model.Image# */ {
     // TODO(aramk) Either put docs on params and document the getters and setters which don't have

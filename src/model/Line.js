@@ -27,7 +27,7 @@ define([
    * @param {atlas.model.Colour} [lineData.color] - The color of the Line.
    * @param {atlas.model.Style} [lineData.style] - The style of the Line.
    * @class atlas.model.Line
-   * @extends atlas.model.GeoEntity
+   * @extends atlas.model.VertexedEntity
    */
   Line = Setter.mixin(VertexedEntity.extend(/** @lends atlas.model.Line# */{
 
