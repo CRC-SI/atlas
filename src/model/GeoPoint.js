@@ -162,8 +162,8 @@ define([
      */
     isCloseTo: function(other, sigFigures) {
       var sigFigures = Setter.def(sigFigures, 6);
-      return this.longitude.toFixed(SIGFIG) === other.longitude.toFixed(SIGFIG) &&
-          this.latitude.toFixed(SIGFIG) === other.latitude.toFixed(SIGFIG) &&
+      return this.longitude.toFixed(sigFigures) === other.longitude.toFixed(sigFigures) &&
+          this.latitude.toFixed(sigFigures) === other.latitude.toFixed(sigFigures) &&
           this.elevation === other.elevation;
     }
 

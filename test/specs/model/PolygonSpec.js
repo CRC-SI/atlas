@@ -60,5 +60,12 @@ define([
       expect(polygon.getElevation()).toEqual(value);
     });
 
+    it('can be translated', function() {
+      var oldCentroid = polygon.getCentroid();
+      var value = new GeoPoint({latitude: 0.001, longitude: 0.001});
+      polygon.translate(value);
+      expect(polygon.getCentroid().isCloseTo(oldCentroid.translate(value))).toBe(true);
+    });
+
   });
 });
