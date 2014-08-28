@@ -241,7 +241,7 @@ define([
           }
           toSelectIds.forEach(function(id) {
             var entity = toSelectEntities[id];
-            entity.onSelect();
+            entity.setSelected(true);
             this._selection[id] = entity;
           }.bind(this));
 
@@ -269,7 +269,7 @@ define([
         entities.forEach(function(entity) {
           var id = entity.getId();
           if (this.isSelected(id)) {
-            entity.onDeselect();
+            entity.setSelected(false);
             deselected.push(id);
             delete this._selection[id];
           }

@@ -147,7 +147,7 @@ define([
 
       // Call on all entities.
       var forMethods = ['createHandles', 'addHandles', 'clearHandles', 'setStyle', 'modifyStyle',
-        'onSelect', 'onDeselect', 'translate', 'scale', 'rotate'];
+        'setSelected', 'isSelected', 'translate', 'scale', 'rotate'];
       forMethods.forEach(function(method) {
         this[method] = function() {
           return this._forEntities(method, arguments);

@@ -232,7 +232,7 @@ define([
      * @returns {OpenLayers.Geometry}
      * @abstract
      */
-    getOpenLayersGeometry: function () {
+    getOpenLayersGeometry: function() {
       throw new DeveloperError('Can not call abstract method "getOpenLayersGeometry" of GeoEntity');
     },
 
@@ -284,23 +284,16 @@ define([
       return this._handles;
     },
 
-    getEntityHandle: function () {
+    getEntityHandle: function() {
       return this._entityHandle;
     },
 
-    setEntityHandle: function (entityHandle) {
+    setEntityHandle: function(entityHandle) {
       this._entityHandle = entityHandle;
     },
 
     clearHandles: function() {
       this._handles.purge();
-    },
-
-    /**
-     * @returns {Boolean} Whether the GeoEntity is currently visible.
-     */
-    isVisible: function() {
-      return this._visible;
     },
 
     /**
@@ -368,7 +361,9 @@ define([
       this.setDirty('style');
       this._previousStyle = this._style;
       this._style = style;
-      this.isVisible() && this._build();
+      var isVisible = this.isVisible();
+      isVisible && this._build();
+      this._updateVisibility(isVisible);
       return this._previousStyle;
     },
 
@@ -516,29 +511,51 @@ define([
 
     /**
      * Shows the GeoEntity in the current scene.
-     * @returns {Boolean} Whether the GeoEntity is shown.
      */
     show: function() {
-      return this._visible = true;
+      this._visible = true;
+      !this.isRenderable() && this._build();
+      this._updateVisibility(true);
     },
 
     /**
      * Hides the GeoEntity from the current scene.
-     * @returns {Boolean} Whether the GeoEntity is hidden.
      */
     hide: function() {
-      return this._visible = false;
+      this._visible = false;
+      this._updateVisibility(false);
+    },
+
+    /**
+     * @returns {Boolean} Whether the GeoEntity is currently visible.
+     */
+    isVisible: function() {
+      return this._visible;
+    },
+
+    /**
+     * @param {Boolean} visible
+     */
+    setVisibility: function(visible) {
+      visible ? this.show() : this.hide();
     },
 
     /**
      * Toggles the visibility of the GeoEntity.
      */
     toggleVisibility: function() {
-      if (this.isVisible()) {
-        this.hide();
-      } else {
-        this.show();
-      }
+      this.setVisibility(!this.isVisible());
+    },
+
+    /**
+     * Overridable method to update the visibility of underlying geometries based on the given
+     * visibility.
+     * @param {Boolean} visible
+     * @abstract
+     * @private
+     */
+    _updateVisibility: function(visible) {
+      // Override in subclasses.
     },
 
     // -------------------------------------------
@@ -546,61 +563,34 @@ define([
     // -------------------------------------------
 
     /**
-     * Handles the GeoEntities behaviour when it is selected.
+     * Handles the behaviour when this entity is selected.
      */
-    onSelect: function() {
-      this._selected = true;
+    _onSelect: function() {
       this.setStyle(GeoEntity.getSelectedStyle());
     },
 
     /**
-     * Handles the GeoEntities behaviour when it is deselected.
+     * Handles the behaviour when this entity is selected.
      */
-    onDeselect: function() {
-      this._selected = false;
+    _onDeselect: function() {
       this.setStyle(this.getPreviousStyle());
     },
 
     /**
-     * Enables 'editing' of the GeoEntity using keyboard input.
+     * @returns {Boolean} Whether the entity is selected.
      */
-    onEnableEditing: function() {
-      // TODO(bpstudds): Move this functionality to an EditManager module.
-//      this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keydown',
-//          function(args) {
-//            // TODO(bpstudds): Replace 'magic numbers' with constants. Probably should update keycode.js library for this.
-//            if (!args.modifiers.shiftKey && !args.modifiers.metaKey && !args.modifiers.altKey &&
-//                !args.modifiers.ctrlKey) {
-//              switch (args.key) {
-//                case 95: // underscore/minus beside backspace key
-//                  this.scale({x: 0.95, y: 0.95, z: 0.95});
-//                  break;
-//                case 61: // equals/plus beside backspace key
-//                  this.scale({x: 1.05, y: 1.05, z: 1.05});
-//                  break;
-//                case 37: // left
-//                  this.rotate({x: 0, y: 0, z: 5});
-//                  break;
-//                case 39: // right
-//                  this.rotate({x: 0, y: 0, z: -5});
-//                  break;
-//              }
-//            }
-//          }.bind(this)
-//      );
-//      this._editingHandles = this.getEditingHandles();
+    isSelected: function() {
+      return this._visible;
     },
 
     /**
-     * Disables editing of the GeoEntity.
+     * Sets the selection state of the entity.
+     * @param {Boolean} selected
+     * @returns {Boolean} The original selection state of the entity.
      */
-    onDisableEditing: function() {
-      // TODO(bpstudds): Move this functionality to an EditManager module.
-//      this._editEventHandler && this._editEventHandler.cancel();
-//      this._editingHandles.forEach(function(handle) {
-//        handle.remove();
-//      })
-//      this._editingHandles = [];
+    setSelected: function(selected) {
+      this._selected = selected;
+      selected ? this._onSelect() : this._onDeselect();
     }
 
   }), {

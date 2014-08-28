@@ -127,7 +127,7 @@ define([
       var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
         'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles',
         'getCentroid', 'getArea', 'getVertices', 'getOpenLayersGeometry', 'isVisible', 'translate',
-        'scale', 'rotate', 'onSelect', 'onDeselect'];
+        'scale', 'rotate', 'setSelected', 'isSelected'];
       methods.forEach(function(method) {
         this[method] = function() {
           return this._delegateToForm(method, arguments);
@@ -366,6 +366,10 @@ define([
       // Apply the visibility based on the existing display mode.
       var isVisible = this.isVisible();
       this._displayMode = displayMode;
+//      var form = this.getForm();
+//      if (form) {
+//        form.setVisibility(isVisible);
+//      }
       isVisible && this.show();
     },
 
