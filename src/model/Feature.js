@@ -126,7 +126,7 @@ define([
     _initDelegation: function() {
       var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
         'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles',
-        'getCentroid', 'getArea', 'getVertices', 'getOpenLayersGeometry', 'isVisible', 'translate',
+        'getCentroid', 'getArea', 'getVertices', 'getOpenLayersGeometry', 'translate',
         'scale', 'rotate', 'setSelected', 'isSelected'];
       methods.forEach(function(method) {
         this[method] = function() {
@@ -309,13 +309,14 @@ define([
      * Shows the Feature depending on its current <code>_displayMode</code>.
      */
     show: function() {
+      this._super();
       // TODO(aramk) delegate this to the setHeight setElevation.
       if (this._displayMode === Feature.DisplayMode.LINE) {
         this._mesh && this._mesh.hide();
         this._footprint && this._footprint.hide();
         this._image && this._image.hide();
         if (this._line) {
-          this._visible = this._line.show();
+          this._line.show();
         }
       } else if (this._displayMode === Feature.DisplayMode.FOOTPRINT) {
         this._mesh && this._mesh.hide();
@@ -323,7 +324,7 @@ define([
         this._image && this._image.hide();
         if (this._footprint) {
           this._footprint.disableExtrusion();
-          this._visible = this._footprint.show();
+          this._footprint.show();
         }
       } else if (this._displayMode === Feature.DisplayMode.EXTRUSION) {
         this._mesh && this._mesh.hide();
@@ -331,46 +332,40 @@ define([
         this._image && this._image.hide();
         if (this._footprint) {
           this._footprint.enableExtrusion();
-          this._visible = this._footprint.show();
+          this._footprint.show();
         }
       } else if (this._displayMode === Feature.DisplayMode.MESH) {
         this._footprint && this._footprint.hide();
         this._line && this._line.hide();
         this._image && this._image.hide();
         if (this._mesh) {
-          this._visible = this._mesh.show();
+          this._mesh.show();
         }
       } else if (this._displayMode === Feature.DisplayMode.IMAGE) {
         this._footprint && this._footprint.hide();
         this._line && this._line.hide();
         this._image && this._image.hide();
         if (this._image) {
-          this._visible = this._image.show();
+          this._image.show();
         }
       }
-      return this._visible;
     },
 
     /**
      * Hides the Feature.
      */
     hide: function() {
-      this._visible = false;
-      return this._delegateToForm('hide') || this._visible;
+      this._super();
+      this._delegateToForm('hide');
     },
 
     /**
      * @param {atlas.model.Feature.DisplayMode} displayMode
      */
     setDisplayMode: function(displayMode) {
-      // Apply the visibility based on the existing display mode.
-      var isVisible = this.isVisible();
       this._displayMode = displayMode;
-//      var form = this.getForm();
-//      if (form) {
-//        form.setVisibility(isVisible);
-//      }
-      isVisible && this.show();
+      var isVisible = this.isVisible();
+      isVisible ? this.show() : this.hide();
     },
 
     /**
@@ -378,6 +373,10 @@ define([
      */
     getDisplayMode: function() {
       return this._displayMode;
+    },
+
+    _build: function () {
+      // Rendering is delegated to the form.
     }
 
   }), {
