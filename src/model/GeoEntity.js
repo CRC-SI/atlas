@@ -128,11 +128,11 @@ define([
     _style: null,
 
     /**
-     * The style of the GeoEntity when before a change in style (e.g. during selection).
+     * The style of the GeoEntity before it was selected.
      * @type {atlas.model.Style}
      * @protected
      */
-    _previousStyle: null,
+    _preSelectStyle: null,
 
     /**
      * Whether the GeoEntity is selected.
@@ -150,6 +150,12 @@ define([
      * The {@link atlas.model.Handle} on the entity itself.
      */
     _entityHandle: null,
+
+    /**
+     * Event handles which are bound to the entity and should be removed with it.
+     * @type {Array.<EventListener>}
+     */
+    _eventHandles: null,
 
     _init: function(id, args) {
       if (typeof id === 'object') {
@@ -174,6 +180,7 @@ define([
       this._entityManager && this._entityManager.add(this.getId(), this);
       this.setStyle(args.style || GeoEntity.getDefaultStyle());
       this._handles = new ItemStore();
+      this._eventHandles = [];
       // TODO(aramk) This doesn't actually show - should call setVisibility(), but that means all
       // subclass constructors should have completely set up their properties. We would need a
       // method called setUp() which we call here and subclasses override to ensure all properties
@@ -358,17 +365,16 @@ define([
      * @returns {atlas.model.Style} The old style, or null if it was not changed.
      */
     setStyle: function(style) {
-      // Only change style if the new style is different so _previousStyle isn't clobbered.
-      if (this._style && this._style.equals(style)) {
+      var previousStyle = this.getStyle();
+      if (previousStyle && previousStyle.equals(style)) {
         return null;
       }
       this.setDirty('style');
-      this._previousStyle = this._style;
       this._style = style;
       var isVisible = this.isVisible();
       isVisible && this._build();
       this._updateVisibility(isVisible);
-      return this._previousStyle;
+      return previousStyle;
     },
 
     /**
@@ -376,13 +382,6 @@ define([
      */
     getStyle: function() {
       return this._style;
-    },
-
-    /**
-     * @returns {atlas.model.Style}
-     */
-    getPreviousStyle: function() {
-      return this._previousStyle;
     },
 
     /**
@@ -502,7 +501,10 @@ define([
      * may be required.
      */
     remove: function() {
+      // TODO(aramk) Distinguish between this and destroying the entity, which should remove all
+      // contained objects.
       this.hide();
+      this._cancelEventHandles();
       // TODO(aramk) We should try to keep consistent with these - either all entities have
       // references to managers or none do - otherwise we could have discrepancies in the entity
       // manager like a removed entity still being referenced.
@@ -562,24 +564,6 @@ define([
       // Override in subclasses.
     },
 
-    // -------------------------------------------
-    // BEHAVIOUR
-    // -------------------------------------------
-
-    /**
-     * Handles the behaviour when this entity is selected.
-     */
-    _onSelect: function() {
-      this.setStyle(GeoEntity.getSelectedStyle());
-    },
-
-    /**
-     * Handles the behaviour when this entity is selected.
-     */
-    _onDeselect: function() {
-      this.setStyle(this.getPreviousStyle());
-    },
-
     /**
      * @returns {Boolean} Whether the entity is selected.
      */
@@ -593,8 +577,47 @@ define([
      * @returns {Boolean} The original selection state of the entity.
      */
     setSelected: function(selected) {
+      if (this._selected == selected) {
+        return;
+      }
       this._selected = selected;
       selected ? this._onSelect() : this._onDeselect();
+    },
+
+    // -------------------------------------------
+    // EVENTS
+    // -------------------------------------------
+
+    /**
+     * Handles the behaviour when this entity is selected.
+     */
+    _onSelect: function() {
+      this._preSelectStyle = this.getStyle();
+      this.setStyle(GeoEntity.getSelectedStyle());
+    },
+
+    /**
+     * Handles the behaviour when this entity is selected.
+     */
+    _onDeselect: function() {
+      this.setStyle(this._preSelectStyle);
+    },
+
+    /**
+     * Adds the given event handle to be managed by the entity.
+     * @param {EventListener} handle
+     */
+    _bindEventHandle: function(handle) {
+      this._eventHandles.push(handle);
+    },
+
+    /**
+     * Cancels all event handles on the entity.
+     */
+    _cancelEventHandles: function () {
+      this._eventHandles.forEach(function (handle) {
+        handle.cancel();
+      });
     }
 
   }), {

@@ -67,5 +67,18 @@ define([
       expect(polygon.getCentroid().isCloseTo(oldCentroid.translate(value))).toBe(true);
     });
 
+    it('can be selected and deselected', function() {
+      var oldStyle = polygon.getStyle();
+      polygon.setSelected(true);
+      expect(polygon.getStyle()).not.toEqual(oldStyle);
+      // Selecting again should not lose previous style info.
+      polygon.setSelected(true);
+      polygon.setSelected(false);
+      expect(polygon.getStyle()).toEqual(oldStyle);
+      // Deselecting again should have no effect.
+      polygon.setSelected(false);
+      expect(polygon.getStyle()).toEqual(oldStyle);
+    });
+
   });
 });

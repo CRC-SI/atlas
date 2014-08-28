@@ -1,13 +1,13 @@
 define([
   'atlas/core/ItemStore',
-  'atlas/lib/utility/Types',
-  'atlas/lib/utility/Log',
   'atlas/lib/OpenLayers',
+  'atlas/lib/utility/Log',
+  'atlas/lib/utility/Setter',
   // Base class
   'atlas/model/GeoEntity',
   'atlas/model/Handle',
   'atlas/util/DeveloperError'
-], function(ItemStore, Types, Log, OpenLayers, GeoEntity, Handle, DeveloperError) {
+], function(ItemStore, OpenLayers, Log, Setter, GeoEntity, Handle, DeveloperError) {
 
   /**
    * @typedef atlas.model.Collection
@@ -16,7 +16,9 @@ define([
   var Collection;
 
   /**
-   * @classdesc A collection of {@link GeoEntity} objects which are treated as a single entity.
+   * @classdesc A collection of {@link GeoEntity} objects which are treated as a single entity. In
+   * general, the entities are able to change independently unless the change is invoked on the
+   * collection, in which case in propagates to all entities.
    *
    * @abstract
    * @extends atlas.model.GeoEntity
@@ -34,8 +36,10 @@ define([
     /**
      * @param id
      * @param {Object} data
+     * @param {Array.<String>} data.entities - A set of {@link GeoEntity} IDs.
      * @param {Object} args
-     * @param {Array.<String>} args.entities - A set of {@link GeoEntity} IDs.
+     * @param {Boolean} [args.groupSelect=true] - Whether selecting an entity selects the entire
+     * collection.
      * @private
      */
     _init: function(id, data, args) {
@@ -44,6 +48,8 @@ define([
       var entityIds = data.entities || [];
       entityIds.forEach(this.addEntity, this);
       this._initDelegation();
+      args = Setter.mixin({groupSelect: true}, args);
+      args.groupSelect && this._initSelection();
     },
 
     // -------------------------------------------
@@ -62,7 +68,6 @@ define([
         Log.warn('Entity with ID ' + id + ' already added to collection.');
       } else {
         this._entities.add(entity);
-        // TODO(aramk) Update entity visibility based on collection.
       }
     },
 
@@ -75,7 +80,6 @@ define([
       var entity = this._entities.get(id);
       if (entity) {
         this._entities.remove(entity);
-        entity.remove();
       } else {
         Log.warn('Entity with ID ' + id + ' already added to collection.');
       }
@@ -157,9 +161,9 @@ define([
       var forSelfMethods = ['remove', 'show', 'hide'];
       forSelfMethods.forEach(function(method) {
         this[method] = function() {
-          return this._forEntities(method, arguments);
+          this._forEntities(method, arguments);
+          return this[method].apply(this, arguments);
         };
-        this[method].apply(this, arguments);
       }, this);
       // All entities must return true.
       var everyMethods = ['isRenderable'];
@@ -198,14 +202,6 @@ define([
       return new Handle(this._bindDependencies({target: vertex, index: index, owner: this}));
     },
 
-    getStyle: function() {
-      throw new DeveloperError('Collection does not have a style - request from each entity.');
-    },
-
-    getPreviousStyle: function() {
-      throw new DeveloperError('Collection does not have a style - request from each entity.');
-    },
-
     getGeometry: function() {
       throw new DeveloperError('Collection does not have a geometry - request from each entity.');
     },
@@ -220,6 +216,23 @@ define([
 
     _build: function() {
       throw new DeveloperError('Collection does not have geometry - cannot _build().');
+    },
+
+    _initSelection: function() {
+      var collection = this;
+      var actions = {'select': true, 'deselect': false};
+      Object.keys(actions).forEach(function(name) {
+        var state = actions[name];
+        var handle = this._eventManager.addEventHandler('intern', 'entity/' + name, function(args) {
+          var match = args.ids.some(function(id) {
+            return collection.getEntity(id);
+          });
+          if (match) {
+            collection.setSelected(state);
+          }
+        });
+        this._bindEventHandle(handle);
+      }, this);
     }
 
   });
