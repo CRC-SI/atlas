@@ -115,10 +115,7 @@ define([
             Log.time('entity/show/bulk');
             var ids;
             if (args.features) {
-              this.bulkCreate(args.features);
-              ids = args.features.map(function(item) {
-                return item.id
-              });
+              ids = this.bulkCreate(args.features);
             } else if (args.ids) {
               ids = args.ids;
             } else {
