@@ -124,7 +124,6 @@ define([
           this._bindDependencies({parent: this}));
         this._lines.add(line);
       }, this);
-      this.clean();
     },
 
     /**

@@ -91,7 +91,6 @@ define([
           entityHandle.setTarget(this.getCentroid());
         }
       }
-      this.clean();
     },
 
     createHandles: function() {

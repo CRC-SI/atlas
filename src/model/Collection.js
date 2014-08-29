@@ -160,9 +160,10 @@ define([
       // Call on all entities and the collection.
       var forSelfMethods = ['remove', 'show', 'hide'];
       forSelfMethods.forEach(function(method) {
+        var selfMethod = this[method];
         this[method] = function() {
           this._forEntities(method, arguments);
-          return this[method].apply(this, arguments);
+          return selfMethod.apply(this, arguments);
         };
       }, this);
       // All entities must return true.
@@ -215,7 +216,7 @@ define([
     // -------------------------------------------
 
     _build: function() {
-      throw new DeveloperError('Collection does not have geometry - cannot _build().');
+      // Collection does not have geometry to build.
     },
 
     _initSelection: function() {

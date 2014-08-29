@@ -372,7 +372,7 @@ define([
       this.setDirty('style');
       this._style = style;
       var isVisible = this.isVisible();
-      isVisible && this._build();
+      this._update();
       this._updateVisibility(isVisible);
       return previousStyle;
     },
@@ -456,6 +456,16 @@ define([
     },
 
     /**
+     * Translates the GeoEntity so that its centroid is the one given.
+     * @param {atlas.model.GeoPoint} centroid
+     */
+    setCentroid: function(centroid) {
+      var oldCentroid = this.getCentroid();
+      var diff = centroid.subtract(oldCentroid);
+      this.translate(diff);
+    },
+
+    /**
      * Scales the GeoEntity by the given vector. This scaling can be uniform in all axis or non-uniform.
      * A scaling factor of <code>1</code> has no effect. Factors lower or higher than <code>1</code>
      * scale the GeoEntity down or up respectively. ie, <code>0.5</code> is half as big and
@@ -488,7 +498,8 @@ define([
     },
 
     /**
-     * Function to build the GeoEntity so it can be rendered.
+     * Builds the GeoEntity so it can be rendered. Do not be call this directly from subclasses -
+     * use {@link #_update} instead.
      * @abstract
      */
     _build: function() {
@@ -520,8 +531,19 @@ define([
      */
     show: function() {
       this._visible = true;
-      !this.isRenderable() && this._build();
+      this._update();
       this._updateVisibility(true);
+    },
+
+    /**
+     * Updates the GeoEntity for rendering.
+     * @private
+     */
+    _update: function() {
+      if (this.isVisible() && !this.isRenderable()) {
+        this._build();
+        this.clean();
+      }
     },
 
     /**
@@ -614,8 +636,8 @@ define([
     /**
      * Cancels all event handles on the entity.
      */
-    _cancelEventHandles: function () {
-      this._eventHandles.forEach(function (handle) {
+    _cancelEventHandles: function() {
+      this._eventHandles.forEach(function(handle) {
         handle.cancel();
       });
     }

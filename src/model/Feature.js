@@ -363,9 +363,11 @@ define([
      * @param {atlas.model.Feature.DisplayMode} displayMode
      */
     setDisplayMode: function(displayMode) {
+      if (displayMode && !this._getFormPropertyName(displayMode)) {
+        throw new Error('Invalid display mode: ' + displayMode);
+      }
       this._displayMode = displayMode;
-      var isVisible = this.isVisible();
-      isVisible ? this.show() : this.hide();
+      this.isVisible() ? this.show() : this.hide();
     },
 
     /**
