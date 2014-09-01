@@ -40,7 +40,7 @@ define([
 
     /**
      * List of counter-clockwise ordered array of vertices constructing holes of this polygon.
-     * @type {Array.<Array.<atlas.model.Vertex>>}
+     * @type {Array.<Array.<atlas.model.GeoPoint>>}
      * @private
      */
     _holes: null,

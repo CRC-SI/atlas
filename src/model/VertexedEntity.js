@@ -64,7 +64,9 @@ define([
         }
       } else if (Types.isArrayLiteral(vertices)) {
         this._vertices = Setter.def(vertices, []).map(function (vertex) {
-          return new GeoPoint(vertex);
+          // TODO(aramk) Remove this check and don't sanitize - always expect GeoPoint. Sanitization
+          // takes place in EntityManager.
+          return vertex instanceof GeoPoint ? vertex : new GeoPoint(vertex);
         });
       } else {
         throw new Error('Invalid vertices for entity ' + id);
