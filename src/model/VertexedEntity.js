@@ -204,7 +204,28 @@ define([
       return this._vertices;
     },
 
-    getOpenLayersGeometry: function() {
+    getArea: function() {
+      if (this._area) {
+        return this._area;
+      }
+      var geometry = this.getOpenLayersGeometry();
+      this._area = geometry.getGeodesicArea();
+      return this._area;
+    },
+
+    getCentroid: function() {
+      if (this._centroid) {
+        return this._centroid.clone();
+      } else if (this._vertices.length === 0) {
+        return null;
+      }
+      var wkt = WKT.getInstance();
+      var geometry = this.getOpenLayersGeometry();
+      this._centroid = wkt.vertexFromOpenLayersPoint(geometry.getCentroid());
+      return this._centroid.clone();
+    },
+
+    getOpenLayersGeometry: function () {
       var wkt = WKT.getInstance();
       return wkt.openLayersPolygonFromVertices(this._vertices);
     },

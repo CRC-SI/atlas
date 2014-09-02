@@ -30,7 +30,7 @@ define([
    * @returns {atlas.model.Polygon}
    *
    * @class atlas.model.Polygon
-   * @extends atlas.model.GeoEntity
+   * @extends atlas.model.VertexedEntity
    */
   Polygon = Setter.mixin(VertexedEntity.extend(/** @lends atlas.model.Polygon# */ {
 
