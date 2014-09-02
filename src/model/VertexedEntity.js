@@ -230,6 +230,8 @@ define([
     getCentroid: function() {
       if (this._centroid) {
         return this._centroid.clone();
+      } else if (this._vertices.length === 0) {
+        return null;
       }
       var wkt = WKT.getInstance();
       var geometry = this._getOpenLayersGeometry();

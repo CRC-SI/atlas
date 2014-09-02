@@ -281,6 +281,8 @@ define([
         var id = c3ml.id;
         var entity = this.getById(id);
         if (!entity) {
+          // TODO(aramk) This is only performed for bulk requests and is inconsistent - clean up
+          // the API for consistency.
           var args = this._parseC3ML(c3ml);
           var feature = this.createFeature(id, args);
           args.show && feature.show();
