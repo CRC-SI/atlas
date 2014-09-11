@@ -1,6 +1,5 @@
 define([
   'atlas/core/ItemStore',
-  'atlas/lib/ConvexHullGrahamScan',
   'atlas/lib/OpenLayers',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
@@ -8,9 +7,10 @@ define([
   'atlas/model/GeoEntity',
   'atlas/model/GeoPoint',
   'atlas/model/Handle',
+  'atlas/util/ConvexHullFactory',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(ItemStore, ConvexHullGrahamScan, OpenLayers, Log, Setter, GeoEntity, GeoPoint, Handle,
+], function(ItemStore, OpenLayers, Log, Setter, GeoEntity, GeoPoint, Handle, ConvexHullFactory,
             DeveloperError, WKT) {
 
   /**
@@ -195,8 +195,8 @@ define([
     // -------------------------------------------
 
     getOpenLayersGeometry: function() {
-      var convexHull = new ConvexHullGrahamScan();
       var wkt = WKT.getInstance();
+      var vertices = [];
       this._entities.forEach(function(entity) {
         var geometry = entity.getOpenLayersGeometry();
         if (!geometry) {
@@ -208,22 +208,11 @@ define([
         }
         // If this is a multipolygon, only use the outer ring.
         geometryVertices[0].forEach(function(vertex) {
-//          vertices.push(vertex);
-          convexHull.addPoint(vertex.longitude, vertex.latitude);
+          vertices.push(vertex);
         });
       });
-
-//      this._calcVertices().forEach(function(vertex) {
-//        convexHull.addPoint(vertex.longitude, vertex.latitude);
-//      });
-      var hullPoints = convexHull.getHull();
-      var hullVertices = hullPoints.map(function(point) {
-        return GeoPoint.fromVertex(point);
-      });
-
+      var hullVertices = ConvexHullFactory.getInstance().fromVertices(vertices);
       return wkt.openLayersPolygonFromVertices(hullVertices);
-
-//      return new OpenLayers.Geometry.Collection(components);
     },
 
     createHandle: function(vertex, index) {
