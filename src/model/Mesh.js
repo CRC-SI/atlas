@@ -158,14 +158,9 @@ define([
     },
 
     getOpenLayersGeometry: function () {
-      // TODO(aramk) Find the footprint of the mesh.
+      // TODO(aramk) Currently only supported in Atlas-Cesium.
       throw new Error('Incomplete method');
     },
-
-//    _calcCentroid: function () {
-//      // TODO(aramk) Remove this once we have getOpenLayersGeometry() working.
-//      return this.getGeoLocation();
-//    },
 
     // -------------------------------------------
     // MODIFIERS

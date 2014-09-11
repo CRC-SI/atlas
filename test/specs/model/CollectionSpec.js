@@ -51,7 +51,6 @@ define([
       var polyBOldCentroid = polygonB.getCentroid();
       var amount = new GeoPoint({latitude: 0.001, longitude: 0.001});
       collection.translate(amount);
-      console.log('polyAOldCentroid', polyAOldCentroid);
       // Centroid is recalculated and floating point math causes it to vary slightly.
       expect(collection.getCentroid().isCloseTo(centroid.translate(amount))).toBe(true);
       expect(polygonA.getCentroid().isCloseTo(polyAOldCentroid.translate(amount))).toBe(true);

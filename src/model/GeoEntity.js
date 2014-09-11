@@ -332,11 +332,7 @@ define([
      *     is marked clean.
      */
     setClean: function(component) {
-      if (!component) {
-        delete this._dirty[component];
-      } else {
-        this.clean();
-      }
+      delete this._dirty[component];
     },
 
     /**

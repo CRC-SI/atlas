@@ -24,10 +24,6 @@ define([
       mesh = null;
     });
 
-    it('can be constructed', function() {
-      // TODO(aramk)
-    });
-
     it('has a location', function() {
       expect(mesh.getGeoLocation()).toEqual(new GeoPoint(testMesh.geoLocation));
     });
