@@ -21,6 +21,7 @@
     "utility": "https://bitbucket.org/mutopia/utility.git",
     "numeraljs": "~1.5.3",
     "less": "~1.7.0",
-    "q": "~1.0.0"
+    "q": "~1.0.0",
+    "graham_scan": "~1.0.2"
   }
 }

@@ -28,13 +28,6 @@ define([
     _vertices: null,
 
     /**
-     * The elevation of the base of the GeoEntity.
-     * @type {Number}
-     * @private
-     */
-    _elevation: 0,
-
-    /**
      * The z-axis order as an integer in the range [0, Infinity]. Entities with higher zIndex will
      * appear on top.
      * @type {Number}
@@ -225,7 +218,7 @@ define([
       return this._centroid.clone();
     },
 
-    getOpenLayersGeometry: function () {
+    getOpenLayersGeometry: function() {
       var wkt = WKT.getInstance();
       return wkt.openLayersPolygonFromVertices(this._vertices);
     },
@@ -235,17 +228,8 @@ define([
      * @param {Number} elevation - The elevation of the base of the GeoEntity.
      */
     setElevation: function(elevation) {
-      if (typeof elevation === 'number' && this._elevation !== elevation) {
-        this._elevation = elevation;
-        this.setDirty('vertices');
-      }
-    },
-
-    /**
-     * @returns {Number} The elevation of the base of the GeoEntity.
-     */
-    getElevation: function() {
-      return this._elevation;
+      this._super(elevation);
+      this.setDirty('vertices');
     },
 
     /**

@@ -162,6 +162,12 @@ define([
       throw new Error('Incomplete method');
     },
 
+    // TODO(aramk) Re-render mesh when changing height.
+    setElevation: function (elevation) {
+      this._super(elevation);
+      this._geoLocation.elevation = elevation;
+    },
+
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------

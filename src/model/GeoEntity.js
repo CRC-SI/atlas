@@ -85,6 +85,13 @@ define([
     _area: null,
 
     /**
+     * The elevation of the base of the GeoEntity.
+     * @type {Number}
+     * @private
+     */
+    _elevation: 0,
+
+    /**
      * Whether the GeoEntity is visible.
      * @type {Boolean}
      * @protected
@@ -245,6 +252,24 @@ define([
      */
     getOpenLayersGeometry: function() {
       throw new DeveloperError('Can not call abstract method "getOpenLayersGeometry" of GeoEntity');
+    },
+
+    /**
+     * Set the elevation of the base of the GeoEntity.
+     * @param {Number} elevation - The elevation of the base of the GeoEntity.
+     */
+    setElevation: function(elevation) {
+      if (typeof elevation === 'number' && this._elevation !== elevation) {
+        this._elevation = elevation;
+        this.setDirty('model');
+      }
+    },
+
+    /**
+     * @returns {Number} The elevation of the base of the GeoEntity.
+     */
+    getElevation: function() {
+      return this._elevation;
     },
 
     /**

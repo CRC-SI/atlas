@@ -76,19 +76,18 @@ define([
      * @returns {atlas.model.GeoPoint}
      */
     subtract: function(other) {
-      return new GeoPoint(this.longitude - other.longitude,
-              this.latitude - other.latitude,
+      return new GeoPoint(this.longitude - other.longitude, this.latitude - other.latitude,
               this.elevation - other.elevation);
     },
 
     /**
-     * Translates this GeoPoint by a given difference in latitude and longitude.
+     * Translates this GeoPoint by a given difference.
      * @param {atlas.model.GeoPoint | {latitude, longitude}} other
      * @returns {atlas.model.GeoPoint}
      */
     translate: function(other) {
       return new GeoPoint(this.longitude + other.longitude,
-              this.latitude + other.latitude, this.elevation);
+              this.latitude + other.latitude, this.elevation + other.elevation);
     },
 
     /**

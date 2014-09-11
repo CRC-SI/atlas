@@ -48,13 +48,14 @@ define([
     },
 
     /**
-     * Returns an array of Vertices representing the given geometry object.
      * @param  {OpenLayers.Geometry.Collection|OpenLayers.Geometry.Point} geometry - The geometry to convert.
-     * @returns {Array.<atlas.model.GeoPoint>|atlas.model.GeoPoint} An array of Vertices forming a closed polygon.
+     * @returns {Array.<Array.<atlas.model.GeoPoint>>|atlas.model.GeoPoint} An array of Vertices forming a closed polygon.
      */
     verticesFromOpenLayersGeometry: function(geometry) {
       var vertices = [];
       if (geometry instanceof OpenLayers.Geometry.Point) {
+        // TODO(aramk) This is inconsistent - prefer to return an array containing an array
+        // containing the GeoPoint.
         return this.vertexFromOpenLayersPoint(geometry);
       } else if (geometry instanceof OpenLayers.Geometry.Collection) {
         var components = geometry.components;

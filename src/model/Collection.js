@@ -1,13 +1,17 @@
 define([
   'atlas/core/ItemStore',
+  'atlas/lib/ConvexHullGrahamScan',
   'atlas/lib/OpenLayers',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   // Base class
   'atlas/model/GeoEntity',
+  'atlas/model/GeoPoint',
   'atlas/model/Handle',
-  'atlas/util/DeveloperError'
-], function(ItemStore, OpenLayers, Log, Setter, GeoEntity, Handle, DeveloperError) {
+  'atlas/util/DeveloperError',
+  'atlas/util/WKT'
+], function(ItemStore, ConvexHullGrahamScan, OpenLayers, Log, Setter, GeoEntity, GeoPoint, Handle,
+            DeveloperError, WKT) {
 
   /**
    * @typedef atlas.model.Collection
@@ -191,11 +195,35 @@ define([
     // -------------------------------------------
 
     getOpenLayersGeometry: function() {
-      var components = [];
+      var convexHull = new ConvexHullGrahamScan();
+      var wkt = WKT.getInstance();
       this._entities.forEach(function(entity) {
-        components.push(entity.getOpenLayersGeometry());
+        var geometry = entity.getOpenLayersGeometry();
+        if (!geometry) {
+          return;
+        }
+        var geometryVertices = wkt.verticesFromOpenLayersGeometry(geometry);
+        if (geometryVertices.length === 0) {
+          return;
+        }
+        // If this is a multipolygon, only use the outer ring.
+        geometryVertices[0].forEach(function(vertex) {
+//          vertices.push(vertex);
+          convexHull.addPoint(vertex.longitude, vertex.latitude);
+        });
       });
-      return new OpenLayers.Geometry.Collection(components);
+
+//      this._calcVertices().forEach(function(vertex) {
+//        convexHull.addPoint(vertex.longitude, vertex.latitude);
+//      });
+      var hullPoints = convexHull.getHull();
+      var hullVertices = hullPoints.map(function(point) {
+        return GeoPoint.fromVertex(point);
+      });
+
+      return wkt.openLayersPolygonFromVertices(hullVertices);
+
+//      return new OpenLayers.Geometry.Collection(components);
     },
 
     createHandle: function(vertex, index) {
@@ -209,6 +237,14 @@ define([
 
     getAppearance: function() {
       throw new DeveloperError('Collection does not have an appearance - request from each entity.');
+    },
+
+    setElevation: function(elevation) {
+      // Translate children by the change in elevation.
+      var oldElevation = this.getElevation();
+      this._super(elevation);
+      var diff = elevation - oldElevation;
+      this.translate(new GeoPoint(0, 0, diff));
     },
 
     // -------------------------------------------
