@@ -110,6 +110,16 @@ define([
     },
 
     /**
+     * Returns an OpenLayers Polygon from an array of vertices.
+     * @param {Array.<atlas.model.GeoPoint>} vertices - The vertices to convert.
+     * @returns {OpenLayers.Geometry.Polygon}
+     */
+    openLayersPolylineFromVertices: function(vertices) {
+      var points = this.openLayersPointsFromVertices(vertices);
+      return new OpenLayers.Geometry.LineString(points);
+    },
+
+    /**
      * Returns a WKT string from an array of vertices.
      * @param {Array.<atlas.model.GeoPoint>} vertices - The vertices to convert.
      * @returns {String}

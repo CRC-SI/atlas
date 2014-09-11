@@ -309,7 +309,6 @@ define([
      * Shows the Feature depending on its current <code>_displayMode</code>.
      */
     show: function() {
-      this._super();
       // TODO(aramk) delegate this to the setHeight setElevation.
       if (this._displayMode === Feature.DisplayMode.LINE) {
         this._mesh && this._mesh.hide();
@@ -349,6 +348,9 @@ define([
           this._image.show();
         }
       }
+      // Call this afterwards to avoid calling clean() on the form, which would prevent show()
+      // calling _build().
+      this._super();
     },
 
     /**
