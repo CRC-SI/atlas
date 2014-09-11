@@ -4,7 +4,7 @@ define([
   'atlas/model/Mesh',
   'atlas/model/GeoPoint'
 ], function(testMesh, Mesh, GeoPoint) {
-  describe('A Polygon', function() {
+  describe('A Mesh', function() {
 
     var mesh, centroid, area, constructArgs;
 

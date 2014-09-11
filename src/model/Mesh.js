@@ -111,6 +111,7 @@ define([
         }, this);
       }
 
+      // TODO(aramk) Normals not currently used.
       if (meshData.normals && meshData.normals.length) {
         this._normals = new Float64Array(meshData.normals.length);
         meshData.normals.forEach(function(normal, i) {
@@ -161,10 +162,10 @@ define([
       throw new Error('Incomplete method');
     },
 
-    _calcCentroid: function () {
-      // TODO(aramk) Remove this once we have getOpenLayersGeometry() working.
-      return this.getGeoLocation();
-    },
+//    _calcCentroid: function () {
+//      // TODO(aramk) Remove this once we have getOpenLayersGeometry() working.
+//      return this.getGeoLocation();
+//    },
 
     // -------------------------------------------
     // MODIFIERS

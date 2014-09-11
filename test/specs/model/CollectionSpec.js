@@ -1,11 +1,12 @@
 define([
   'atlas/entity/EntityManager',
+  'atlas/events/EventManager',
   // Code under test
   'atlas/model/Collection',
   'atlas/model/Polygon',
   'atlas/model/GeoPoint',
   'atlas/util/WKT'
-], function(EntityManager, Collection, Polygon, GeoPoint, WKT) {
+], function(EntityManager, EventManager, Collection, Polygon, GeoPoint, WKT) {
   describe('A Collection', function() {
 
     var collection, polygonA, polygonB, centroid;
@@ -13,8 +14,10 @@ define([
     beforeEach(function() {
       var managers = {};
       var entityManager = new EntityManager(managers);
+      var eventManager = new EventManager(managers);
       var args = {
-        entityManager: entityManager
+        entityManager: entityManager,
+        eventManager: eventManager
       };
       var footprintA =
           'POLYGON ((145.237709744708383 -37.826731495464358,145.237705952915746 -37.82679037235421,145.237562742764595 -37.826788424406047,145.237473553563689 -37.826747996976231,145.237482137149016 -37.826702438444919,145.237710588552915 -37.82670417818575,145.237709744708383 -37.826731495464358))';
