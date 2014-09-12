@@ -13,6 +13,7 @@ define([
    */
   var Feature;
 
+  // TODO(aramk) Docs about display mode arguments are outdated.
   /**
    * @classdesc A Feature represents an entity that can be visualised either
    * as a 2D line, 2D footprint, an 3D extrusion of said footprint, or a 3D mesh.
@@ -96,22 +97,31 @@ define([
 
     _init: function(id, args) {
       this._super(id, args);
-      var displayMode;
-      if (args.mesh) {
-        displayMode = Feature.DisplayMode.MESH;
-      } else if (args.ellipse) {
-        displayMode = Feature.DisplayMode.EXTRUSION;
-      } else if (args.polygon) {
-        displayMode = Feature.DisplayMode.EXTRUSION;
-      } else if (args.line) {
-        displayMode = Feature.DisplayMode.LINE;
-      } else if (args.image) {
-        displayMode = Feature.DisplayMode.IMAGE;
+      var displayMode,
+          form;
+      var propertyToDisplayMode = {
+        mesh: Feature.DisplayMode.MESH,
+        ellipse: Feature.DisplayMode.EXTRUSION,
+        polygon: Feature.DisplayMode.EXTRUSION,
+        line: Feature.DisplayMode.LINE,
+        image: Feature.DisplayMode.IMAGE
+      };
+      Object.keys(propertyToDisplayMode).forEach(function(prop) {
+        var mode = propertyToDisplayMode[prop];
+        var modeForm = args[prop];
+        if (modeForm) {
+          form = modeForm;
+          displayMode = mode;
+        }
+      });
+      if (form && displayMode) {
+        this.setForm(displayMode, form);
+        this.setDisplayMode(displayMode);
       }
-      this.setDisplayMode(args.displayMode || displayMode);
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
       this._initDelegation();
+      this._initSelection();
     },
 
     // -------------------------------------------
@@ -127,7 +137,7 @@ define([
       var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
         'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles',
         'getCentroid', 'getArea', 'getVertices', 'getOpenLayersGeometry', 'translate',
-        'scale', 'rotate', 'setSelected', 'setElevation', 'isSelected'];
+        'scale', 'rotate', 'setElevation', 'isSelected'];
       methods.forEach(function(method) {
         this[method] = function() {
           return this._delegateToForm(method, arguments);
@@ -180,6 +190,12 @@ define([
       } else {
         throw new DeveloperError('Invalid display mode ' + displayMode);
       }
+    },
+
+    setSelected: function(selected) {
+      // Ensure a selection event is fired for the feature as well.
+      this._super(selected);
+      this._delegateToForm('setSelected', arguments);
     },
 
     /**
@@ -379,8 +395,35 @@ define([
       return this._displayMode;
     },
 
-    _build: function () {
+    _build: function() {
       // Rendering is delegated to the form.
+    },
+
+    _initSelection: function() {
+      var feature = this;
+      var actions = {'select': true, 'deselect': false};
+      // TODO(aramk) Binding events to specific target GeoEntity objects would prevent the need to
+      // iterate through and check if each child is in the selected set.
+      Object.keys(actions).forEach(function(name) {
+        var state = actions[name];
+        var handle = this._eventManager.addEventHandler('intern', 'entity/' + name, function(args) {
+          var formsById = {};
+          Object.keys(Feature.DisplayMode).forEach(function(modeId) {
+            var modeValue = Feature.DisplayMode[modeId];
+            var form = feature.getForm(modeValue);
+            if (form) {
+              formsById[form.getId()] = form;
+            }
+          });
+          var match = args.ids.some(function(id) {
+            return formsById[id];
+          });
+          if (match) {
+            feature.setSelected(state);
+          }
+        });
+        this._bindEventHandle(handle);
+      }, this);
     }
 
   }), {

@@ -2,9 +2,6 @@ define([
   'atlas/util/DeveloperError'
 ], function (DeveloperError) {
   "use strict";
-  // summary:
-  //      Event, like a regular DOM event, is a simple object that
-  //      encapsulates the information relevant to the event that occurred
 
   /**
    * Event, like a regular DOM event, is a simple object that

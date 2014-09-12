@@ -543,10 +543,9 @@ define([
       // references to managers or none do - otherwise we could have discrepancies in the entity
       // manager like a removed entity still being referenced.
       this._entityManager && this._entityManager.remove(this._id);
-      this._eventManager && this._eventManager.dispatchEvent(new Event(new EventTarget(),
-          'entity/remove', {
-            id: this.getId()
-          }));
+      this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'entity/remove', {
+        id: this.getId()
+      }));
     },
 
     /**
@@ -613,17 +612,18 @@ define([
      * @returns {Boolean} Whether the entity is selected.
      */
     isSelected: function() {
-      return this._visible;
+      return this._selected;
     },
 
     /**
      * Sets the selection state of the entity.
      * @param {Boolean} selected
-     * @returns {Boolean} The original selection state of the entity.
+     * @returns {Boolean|null} The original selection state of the entity, or null if the state
+     * is unchanged.
      */
     setSelected: function(selected) {
       if (this._selected == selected) {
-        return;
+        return null;
       }
       this._selected = selected;
       selected ? this._onSelect() : this._onDeselect();
@@ -639,6 +639,9 @@ define([
     _onSelect: function() {
       this._preSelectStyle = this.getStyle();
       this.setStyle(GeoEntity.getSelectedStyle());
+      this._eventManager.dispatchEvent(new Event(this, 'entity/select', {
+        ids: [this.getId()]
+      }));
     },
 
     /**
@@ -646,6 +649,9 @@ define([
      */
     _onDeselect: function() {
       this.setStyle(this._preSelectStyle);
+      this._eventManager.dispatchEvent(new Event(this, 'entity/deselect', {
+        ids: [this.getId()]
+      }));
     },
 
     /**

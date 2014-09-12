@@ -1,12 +1,13 @@
 define([
+  'atlas/events/EventManager',
   // Code under test
   'atlas/model/Polygon',
   'atlas/model/GeoPoint',
   'atlas/util/WKT'
-], function(Polygon, GeoPoint, WKT) {
+], function(EventManager, Polygon, GeoPoint, WKT) {
   describe('A Polygon', function() {
 
-    var polygon, footprint, centroid, area, constructArgs, vertices;
+    var polygon, footprint, centroid, area, constructArgs, vertices, eventManager;
 
     beforeEach(function() {
       footprint =
@@ -18,16 +19,17 @@ define([
       var data = {
         vertices: footprint
       };
+      eventManager = new EventManager({dom: {}, event: {}, render: {}});
       constructArgs = {
         renderManager: {},
-        eventManager: {}
+        eventManager: eventManager
       };
       vertices = WKT.getInstance().verticesFromWKT(footprint);
       polygon = new Polygon(id, data, constructArgs);
     });
 
     afterEach(function() {
-      polygon = null;
+      polygon = eventManager = null;
     });
 
     describe('can be constructed', function() {
@@ -78,6 +80,13 @@ define([
       // Deselecting again should have no effect.
       polygon.setSelected(false);
       expect(polygon.getStyle()).toEqual(oldStyle);
+    });
+
+    it('can be selected', function() {
+      var spy = jasmine.createSpy();
+      eventManager.addEventHandler('intern', 'entity/select', spy);
+      polygon.setSelected(true);
+      expect(spy.calls.count()).toEqual(1);
     });
 
   });
