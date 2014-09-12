@@ -224,7 +224,7 @@ define([
       if (!this._centroid) {
         this._centroid = this._calcCentroid();
       }
-      return this._centroid.clone();
+      return this._centroid && this._centroid.clone();
     },
 
     /**
@@ -233,8 +233,10 @@ define([
      */
     setCentroid: function(centroid) {
       var oldCentroid = this.getCentroid();
-      var diff = centroid.subtract(oldCentroid);
-      this.translate(diff);
+      if (oldCentroid) {
+        var diff = centroid.subtract(oldCentroid);
+        this.translate(diff);
+      }
     },
 
     _calcCentroid: function() {
@@ -513,7 +515,7 @@ define([
       this._rebuildModel();
     },
 
-    _rebuildModel: function () {
+    _rebuildModel: function() {
       this.setDirty('model');
       this.isVisible() && this.show();
     },

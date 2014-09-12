@@ -198,7 +198,11 @@ define([
       var wkt = WKT.getInstance();
       // Use the footprint, since the centroid of the OpenLayers.Geometry.Collection does not
       // produce a valid estimate.
-      return wkt.vertexFromOpenLayersPoint(this.getOpenLayersFootprintGeometry().getCentroid());
+      if (this._entities.isEmpty()) {
+        return null;
+      } else {
+        return wkt.vertexFromOpenLayersPoint(this.getOpenLayersFootprintGeometry().getCentroid());
+      }
     },
 
     getOpenLayersFootprintGeometry: function() {
