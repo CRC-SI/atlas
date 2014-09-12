@@ -4,6 +4,10 @@ define([
   // Code under test
   'atlas/model/Handle'
 ], function (GeoEntity, GeoPoint, Handle) {
+
+  // TODO(aramk) Need to update test to use entities so centroid can be calculated when creating
+  // handles.
+
   describe ('A Handle', function () {
     var handle,
         entity1,
@@ -36,7 +40,7 @@ define([
 
     describe ('can be constructed', function () {
       it ('with a linked or target GeoEntity', function () {
-        handle = new Handle({target: entity1});
+        handle = new Handle({owner: entity1});
         expect(handle).not.toBeNull();
         expect(handle.getTarget().getId()).toEqual(entity1.getId());
         expect(handle.getId()).toEqual('handle100000');

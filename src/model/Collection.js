@@ -155,14 +155,14 @@ define([
 
       // Call on all entities.
       var forMethods = ['createHandles', 'addHandles', 'clearHandles', 'setStyle', 'modifyStyle',
-        'setSelected', 'isSelected', 'translate', 'scale', 'rotate'];
+        'setSelected', 'isSelected'];
       forMethods.forEach(function(method) {
         this[method] = function() {
           return this._forEntities(method, arguments);
         };
       }, this);
       // Call on all entities and the collection.
-      var forSelfMethods = ['remove', 'show', 'hide'];
+      var forSelfMethods = ['remove', 'show', 'hide', 'translate', 'scale', 'rotate'];
       forSelfMethods.forEach(function(method) {
         var selfMethod = this[method];
         this[method] = function() {
@@ -194,7 +194,14 @@ define([
     // GETTERS AND SETTERS
     // -------------------------------------------
 
-    getOpenLayersGeometry: function() {
+    _calcCentroid: function() {
+      var wkt = WKT.getInstance();
+      // Use the footprint, since the centroid of the OpenLayers.Geometry.Collection does not
+      // produce a valid estimate.
+      return wkt.vertexFromOpenLayersPoint(this.getOpenLayersFootprintGeometry().getCentroid());
+    },
+
+    getOpenLayersFootprintGeometry: function() {
       var wkt = WKT.getInstance();
       var vertices = [];
       this._entities.forEach(function(entity) {
@@ -213,6 +220,14 @@ define([
       });
       var hullVertices = ConvexHullFactory.getInstance().fromVertices(vertices);
       return wkt.openLayersPolygonFromVertices(hullVertices);
+    },
+
+    getOpenLayersGeometry: function() {
+      var components = [];
+      this._entities.forEach(function(entity) {
+        components.push(entity.getOpenLayersGeometry());
+      });
+      return new OpenLayers.Geometry.Collection(components);
     },
 
     createHandle: function(vertex, index) {

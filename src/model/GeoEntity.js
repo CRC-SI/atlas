@@ -227,6 +227,16 @@ define([
       return this._centroid.clone();
     },
 
+    /**
+     * Translates the GeoEntity so that its centroid is the one given.
+     * @param {atlas.model.GeoPoint} centroid
+     */
+    setCentroid: function(centroid) {
+      var oldCentroid = this.getCentroid();
+      var diff = centroid.subtract(oldCentroid);
+      this.translate(diff);
+    },
+
     _calcCentroid: function() {
       var wkt = WKT.getInstance();
       return wkt.vertexFromOpenLayersPoint(this.getOpenLayersGeometry().getCentroid());
@@ -470,20 +480,9 @@ define([
      * Translates the GeoEntity by the given vector.
      * @param {atlas.model.GeoPoint} translation - The amount to move the GeoEntity in latitude,
      * longitude and elevation.
-     * @abstract
      */
     translate: function(translation) {
-      throw new DeveloperError('Can not call abstract method "translate" of GeoEntity');
-    },
-
-    /**
-     * Translates the GeoEntity so that its centroid is the one given.
-     * @param {atlas.model.GeoPoint} centroid
-     */
-    setCentroid: function(centroid) {
-      var oldCentroid = this.getCentroid();
-      var diff = centroid.subtract(oldCentroid);
-      this.translate(diff);
+      this._rebuildModel();
     },
 
     /**
@@ -495,11 +494,9 @@ define([
      * @param {Number} scale.x - The scale along the <code>x</code> axis of the GeoEntity.
      * @param {Number} scale.y - The scale along the <code>y</code> axis of the GeoEntity.
      * @param {Number} scale.z - The scale along the <code>z</code> axis of the GeoEntity.
-     *
-     * @abstract
      */
     scale: function(scale) {
-      throw new DeveloperError('Can not call abstract method "scale" of GeoEntity');
+      this._rebuildModel();
     },
 
     /**
@@ -511,11 +508,14 @@ define([
      *        rotates clockwise, positive rotates counterclockwise.
      * @param {Number} rotation.z - The rotation about the <code>z</code> axis in degrees, negative
      *      rotates clockwise, positive rotates counterclockwise.
-     *
-     * @abstract
      */
     rotate: function(rotation) {
-      throw new DeveloperError('Can not call abstract method "rotate" of GeoEntity');
+      this._rebuildModel();
+    },
+
+    _rebuildModel: function () {
+      this.setDirty('model');
+      this.isVisible() && this.show();
     },
 
     /**

@@ -124,8 +124,7 @@ define([
       this._handles.map(function(handle) {
         handle.translate(translation, {delegate: false});
       });
-      this.setDirty('model');
-      this.isVisible() && this.show();
+      this._super(translation);
     },
 
     scale: function(scale) {
@@ -135,9 +134,10 @@ define([
         diff = diff.componentwiseMultiply(scale);
         this._vertices[i] = diff.add(centroid);
       }, this);
-      this.setDirty('model');
-      this.isVisible() && this.show();
+      this._super(scale);
     },
+
+    // TODO(aramk) Rotation.
 
     // -------------------------------------------
     // GETTERS AND SETTERS
@@ -204,18 +204,6 @@ define([
       var geometry = this.getOpenLayersGeometry();
       this._area = geometry.getGeodesicArea();
       return this._area;
-    },
-
-    getCentroid: function() {
-      if (this._centroid) {
-        return this._centroid.clone();
-      } else if (this._vertices.length === 0) {
-        return null;
-      }
-      var wkt = WKT.getInstance();
-      var geometry = this.getOpenLayersGeometry();
-      this._centroid = wkt.vertexFromOpenLayersPoint(geometry.getCentroid());
-      return this._centroid.clone();
     },
 
     getOpenLayersGeometry: function() {

@@ -182,9 +182,7 @@ define([
     translate: function(translation) {
       // Update the 'translation', ie change _geoLocation.
       this._geoLocation = this._geoLocation.translate(translation);
-      // And redraw the Mesh.
-      this.setDirty('model');
-      this.isVisible() && this.show();
+      this._super(translation);
     },
 
     /**
@@ -196,8 +194,7 @@ define([
      */
     scale: function(scale) {
       this._scale = this._scale.componentwiseMultiply(scale);
-      this.setDirty('model');
-      this.isVisible() && this.show();
+      this._super(scale);
     },
 
     /**
@@ -212,8 +209,7 @@ define([
      */
     rotate: function(rotation) {
       this._rotation = this._rotation.add(rotation);
-      this.setDirty('model');
-      this.isVisible() && this.show();
+      this._super(rotation);
     }
 
   }), {

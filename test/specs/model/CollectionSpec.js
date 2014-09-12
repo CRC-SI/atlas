@@ -25,7 +25,8 @@ define([
       polygonA = new Polygon('a', {vertices: footprintA}, args);
       polygonB = new Polygon('b', {vertices: footprintB}, args);
       collection = new Collection('c', {entities: ['a', 'b']}, args);
-      centroid = new GeoPoint({longitude: -37.82674343831081, latitude: 145.23760111918708, elevation: 0});
+      centroid =
+          new GeoPoint({longitude: -37.82672727508097, latitude: 145.2375987010568, elevation: 0});
     });
 
     afterEach(function() {
