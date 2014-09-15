@@ -35,12 +35,32 @@ define([
       feature = polygon = eventManager = null;
     });
 
-    it('can be selected', function() {
+    it('listens to selections on the form', function() {
       var spy = jasmine.createSpy();
       eventManager.addEventHandler('intern', 'entity/select', spy);
       polygon.setSelected(true);
+      // Ensure both the entity and the feature emit a select event.
       expect(spy.calls.count()).toEqual(2);
       expect(feature.isSelected()).toBe(true);
+    });
+
+    it('can be selected and deselected', function() {
+      var oldStyle = feature.getStyle();
+      expect(polygon.getStyle()).toEqual(oldStyle);
+      feature.setSelected(true);
+      expect(feature.getStyle()).not.toEqual(oldStyle);
+      expect(polygon.getStyle()).not.toEqual(oldStyle);
+      expect(feature.isSelected()).toBe(true);
+      expect(polygon.isSelected()).toBe(true);
+      // Selecting again should not lose previous style info.
+      feature.setSelected(true);
+      feature.setSelected(false);
+      expect(feature.getStyle()).toEqual(oldStyle);
+      expect(polygon.getStyle()).toEqual(oldStyle);
+      // Deselecting again should have no effect.
+      feature.setSelected(false);
+      expect(feature.getStyle()).toEqual(oldStyle);
+      expect(feature.getStyle()).toEqual(oldStyle);
     });
 
     // TODO(aramk) Add remaining tests from DOH spec.

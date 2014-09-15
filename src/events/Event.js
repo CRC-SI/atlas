@@ -5,7 +5,7 @@ define([
 
   /**
    * Event, like a regular DOM event, is a simple object that
-   * encapsulates the information relevatant to the event that occured.
+   * encapsulates the information relevant to the event that occurred.
    *
    * @param {atlas.events.EventTarget} target - The target of the Event.
    * @param {string} type - The type of the Event.

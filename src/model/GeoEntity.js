@@ -622,7 +622,7 @@ define([
      * is unchanged.
      */
     setSelected: function(selected) {
-      if (this._selected == selected) {
+      if (this._selected === selected) {
         return null;
       }
       this._selected = selected;
