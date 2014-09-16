@@ -138,9 +138,9 @@ define([
     scale: function(scale) {
       var centroid = this.getCentroid();
       this._vertices.forEach(function(vertex, i) {
-        var diff = vertex.subtract(centroid);
+        var diff = vertex.subtract(centroid).toVertex();
         diff = diff.componentwiseMultiply(scale);
-        this._vertices[i] = centroid.add(diff);
+        this._vertices[i] = centroid.translate(GeoPoint.fromVertex(diff));
       }, this);
       this._super(scale);
     },

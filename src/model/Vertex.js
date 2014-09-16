@@ -115,6 +115,15 @@ define([
     },
 
     /**
+     * Componentwise divides this Vertex with another Vertex.
+     * @param {atlas.model.Vertex} other
+     * @returns {atlas.model.Vertex}
+     */
+    componentwiseDivide: function(other) {
+      return new Vertex(this.x / other.x, this.y / other.y, this.z / other.z);
+    },
+
+    /**
      * Returns the Euclidean distance squared between this Vertex and another Vertex.
      * @param {atlas.model.Vertex} other
      * @returns {Number}
