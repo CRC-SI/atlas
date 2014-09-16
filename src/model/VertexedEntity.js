@@ -70,9 +70,7 @@ define([
     setDirty: function() {
       this._super.apply(this, arguments);
       if (this.isDirty('entity') || this.isDirty('vertices') || this.isDirty('model')) {
-        // Invalidate the centroid and area. They will be recalculated when requested.
-        this._centroid = null;
-        this._area = null;
+        this._invalidateVertices();
       }
     },
 
@@ -84,6 +82,16 @@ define([
           entityHandle.setTarget(this.getCentroid());
         }
       }
+    },
+
+    /**
+     * Invalidates values that are calculated using the vertices.
+     * @protected
+     */
+    _invalidateVertices: function() {
+      // Invalidate the centroid and area. They will be recalculated when requested.
+      this._centroid = null;
+      this._area = null;
     },
 
     createHandles: function() {
@@ -132,12 +140,15 @@ define([
       this._vertices.forEach(function(vertex, i) {
         var diff = vertex.subtract(centroid);
         diff = diff.componentwiseMultiply(scale);
-        this._vertices[i] = diff.add(centroid);
+        this._vertices[i] = centroid.add(diff);
       }, this);
       this._super(scale);
     },
 
-    // TODO(aramk) Rotation.
+    // TODO(aramk) Rotation of vertices needs matrix math functions in Atlas.
+//    rotate: function(rotation) {
+//      this._super(rotation);
+//    },
 
     // -------------------------------------------
     // GETTERS AND SETTERS

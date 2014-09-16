@@ -484,7 +484,7 @@ define([
      * longitude and elevation.
      */
     translate: function(translation) {
-      this._rebuildModel();
+      this._onTransform();
     },
 
     /**
@@ -498,7 +498,7 @@ define([
      * @param {Number} scale.z - The scale along the <code>z</code> axis of the GeoEntity.
      */
     scale: function(scale) {
-      this._rebuildModel();
+      this._onTransform();
     },
 
     /**
@@ -512,9 +512,21 @@ define([
      *      rotates clockwise, positive rotates counterclockwise.
      */
     rotate: function(rotation) {
+      this._onTransform();
+    },
+
+    /**
+     * Called by transform methods. Override to prevent default behaviour of rebuilding the model.
+     * @protected
+     */
+    _onTransform: function () {
       this._rebuildModel();
     },
 
+    /**
+     * Marks the model as being dirty and rebuilds it if the entity is visible.
+     * @protected
+     */
     _rebuildModel: function() {
       this.setDirty('model');
       this.isVisible() && this.show();
