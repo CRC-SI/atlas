@@ -502,6 +502,20 @@ define([
     },
 
     /**
+     * @param {atlas.model.Vertex} scale
+     */
+    setScale: function(scale) {
+      this.rotate(scale.componentwiseDivide(this.getScale()));
+    },
+
+    /**
+     * @returns {atlas.model.Vertex}
+     */
+    getScale: function() {
+      return this._scale;
+    },
+
+    /**
      * Rotates the GeoEntity by the given vector.
      * @param {atlas.model.Vertex} rotation - The vector to rotate the GeoEntity by.
      * @param {Number} rotation.x - The rotation about the <code>x</code> axis in degrees, negative
@@ -513,6 +527,21 @@ define([
      */
     rotate: function(rotation) {
       this._onTransform();
+    },
+
+    /**
+     * @param {atlas.model.Vertex} rotation
+     */
+    setRotation: function(rotation) {
+      var diff = rotation.subtract(this.getRotation());
+      this.rotate(diff);
+    },
+
+    /**
+     * @returns {atlas.model.Vertex}
+     */
+    getRotation: function() {
+      return this._rotation;
     },
 
     /**
@@ -678,7 +707,7 @@ define([
   }), {
 
     // -------------------------------------------------
-    // Statics
+    // STATICS
     // -------------------------------------------------
 
     /**
