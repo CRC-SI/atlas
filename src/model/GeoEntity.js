@@ -520,16 +520,8 @@ define([
      * @protected
      */
     _onTransform: function () {
-      this._rebuildModel();
-    },
-
-    /**
-     * Marks the model as being dirty and rebuilds it if the entity is visible.
-     * @protected
-     */
-    _rebuildModel: function() {
       this.setDirty('model');
-      this.isVisible() && this.show();
+      this._update();
     },
 
     /**
