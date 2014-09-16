@@ -505,7 +505,7 @@ define([
      * @param {atlas.model.Vertex} scale
      */
     setScale: function(scale) {
-      this.rotate(scale.componentwiseDivide(this.getScale()));
+      this.scale(scale.componentwiseDivide(this.getScale()));
     },
 
     /**
