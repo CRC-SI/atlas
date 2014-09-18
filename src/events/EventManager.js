@@ -164,13 +164,20 @@ define([
       }
       // Create new handler object
       var id = this._nextHandlerId++;
+      var isCancelled = false;
       var newHandler = {
         id: id,
         name: name,
         callback: callback,
         cancel: function() {
-          this._removeEventHandler(source, name, id);
-        }.bind(this)
+          if (!isCancelled) {
+            this._removeEventHandler(source, name, id);
+            isCancelled = true;
+          }
+        }.bind(this),
+        isCancelled: function() {
+          return isCancelled;
+        }
       };
       // Add name of handlers dictionary if it doesn't exist.
       if (!(name in allHandlers)) {
