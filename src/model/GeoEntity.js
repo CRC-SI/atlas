@@ -87,9 +87,24 @@ define([
     /**
      * The elevation of the base of the GeoEntity.
      * @type {Number}
-     * @private
+     * @protected
      */
     _elevation: 0,
+
+    /**
+     * The scale of the GeoEntity with each component in the range [0,1] and 1 by default.
+     * @type {atlas.model.Vertex}
+     * @protected
+     */
+    _scale: null,
+
+    /**
+     * The counter-clockwise rotation of the GeoEntity in degrees. By default all components are
+     * 0.
+     * @type {atlas.model.Vertex}
+     * @protected
+     */
+    _rotation: null,
 
     /**
      * Whether the GeoEntity is visible.
@@ -193,6 +208,8 @@ define([
       // method called setUp() which we call here and subclasses override to ensure all properties
       // (e.g. vertices) are set and _build() can safely be called from here.
       this._visible = Setter.def(args.show, false);
+      this._rotation = new Vertex(0, 0, 0);
+      this._scale = new Vertex(1, 1, 1);
     },
 
     // TODO(aramk) Use better dependency injection.

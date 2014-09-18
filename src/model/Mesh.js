@@ -63,20 +63,6 @@ define([
     _geoLocation: null,
 
     /**
-     * The scale that is applied to the Mesh when transforming it from model space to world space.
-     * @type {atlas.model.Vertex}
-     * @protected
-     */
-    _scale: null,
-
-    /**
-     * The rotation that is applied to the entity when transforming it from model space to world space.
-     * @type {atlas.model.Vertex}
-     * @protected
-     */
-    _rotation: null,
-
-    /**
      * Defines a transformation from model space to world space. This is derived from <code>Mesh._geoLocation</code>,
      * <code>Mesh._scale</code>, and <code>Mesh._rotation</code>.
      * @type {Object}
