@@ -142,10 +142,18 @@ define([
         diff = diff.componentwiseMultiply(scale);
         this._vertices[i] = centroid.translate(GeoPoint.fromVertex(diff));
       }, this);
+      this._height *= scale.z;
       this._super(scale);
     },
 
     // TODO(aramk) Rotation of vertices needs matrix math functions in Atlas.
+    // TODO(aramk) Perhaps a better strategy than transforming the original vertices would
+    // be to keep the transformation entirely separate and apply it conditionally after building
+    // the primitive. At the moment, we're relying on reproducing the transformation to vertices
+    // that affect the primitives in atlas-cesium. At the same time, atlas should perform all the
+    // calculations the provider (atlas-cesium) should only be visualising, so we likely need
+    // matrix transformations in Atlas, which is more work for now.
+
 //    rotate: function(rotation) {
 //      this._super(rotation);
 //    },
