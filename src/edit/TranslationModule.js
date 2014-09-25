@@ -59,9 +59,9 @@ define([
       });
     },
 
-    _provideTarget: function (args) {
-      args.target = this._managers.entity.getAt(args.position)[0];
-      return args;
+    _provideTarget: function (event) {
+      event.setTarget(this._managers.entity.getAt(event.position)[0]);
+      return event;
     },
 
     /**

@@ -1,7 +1,7 @@
 define([
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Class'
-], function (Setter, Class) {
+], function(Setter, Class) {
   "use strict";
 
   /**
@@ -50,7 +50,7 @@ define([
      * @see {@link atlas.events.EventTarget}
      * @ignore
      */
-    _init: function (em, parent) {
+    _init: function(em, parent) {
       this._eventManager = Setter.def(em, null);
       this.parent = Setter.def(parent, null);
     },
@@ -60,7 +60,7 @@ define([
      * @param {atlas.events.EventManager} em - The EventManager object managing the event system.
      * @param {atlas.events.EventTarget} parent - The parent EventTarget of the EventTarget.
      */
-    initEventTarget: function (em, parent) {
+    initEventTarget: function(em, parent) {
       this._eventManager = em;
       this.parent = parent;
     },
@@ -118,7 +118,8 @@ define([
      */
     handleEvent: function(event) {
       for (var id in this._eventHandlers) {
-        if (this._eventHandlers.hasOwnProperty(id) && this._eventHandlers[id].type === event.type) {
+        if (this._eventHandlers.hasOwnProperty(id) &&
+            this._eventHandlers[id].type === event.getType()) {
           event = this._eventHandlers[id].callback(event) || event;
         }
       }

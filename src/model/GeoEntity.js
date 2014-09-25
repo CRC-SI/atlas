@@ -7,9 +7,10 @@ define([
   'atlas/lib/utility/Types',
   'atlas/model/Colour',
   'atlas/model/Style',
+  'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(ItemStore, Event, EventTarget, Setter, Types, Colour, Style, DeveloperError, WKT) {
+], function(ItemStore, Event, EventTarget, Setter, Types, Colour, Style, Vertex, DeveloperError, WKT) {
 
   /**
    * @typedef atlas.model.GeoEntity

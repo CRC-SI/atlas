@@ -1,7 +1,8 @@
 define([
   'atlas/core/Manager',
+  'atlas/lib/utility/Types',
   'atlas/util/DeveloperError'
-], function(Manager, DeveloperError) {
+], function(Manager, Types, DeveloperError) {
 
   /**
    * @typedef atlas.events.EventManager
@@ -62,19 +63,24 @@ define([
      */
     dispatchEvent: function(event) {
       // Propagate the event up the target hierarchy.
-      while (event.target) {
+      while (event.getTarget()) {
         var nextEvent,
             parent;
-        if (event.cancelled) {
+        if (event.isCancelled()) {
           break;
         }
         // Handling the event returns a new Event object that is exactly the same
         // except for the .target and .cancelled parameters, which may
         // possibly be changed when the target handles the event.
-        nextEvent = event.target.handleEvent(event);
-        parent = event.target.parent;
+        nextEvent = event.getTarget().handleEvent(event);
+        parent = event.getTarget().parent;
         event = nextEvent;
-        event.target = parent;
+        // Parent may be given as a string if it was not resolved at the time the entity was
+        // created.
+        if (Types.isString(parent)) {
+          parent = this._managers.entity.getById(parent);
+        }
+        event.setTarget(parent);
       }
 
       if (!event.cancelHost) {
@@ -85,7 +91,7 @@ define([
           }
         }
         // 'Publish' the event to any handlers.
-        this.handleInternalEvent(event.type, event.args);
+        this.handleInternalEvent(event.getType(), event.getArgs());
       }
     },
 
