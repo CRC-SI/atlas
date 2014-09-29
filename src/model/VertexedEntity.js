@@ -67,13 +67,6 @@ define([
     // CONSTRUCTION
     // -------------------------------------------
 
-    setDirty: function() {
-      this._super.apply(this, arguments);
-      if (this.isDirty('entity') || this.isDirty('vertices') || this.isDirty('model')) {
-        this._invalidateVertices();
-      }
-    },
-
     _build: function() {
       if (this.isDirty('entity') || this.isDirty('vertices') || this.isDirty('model')) {
         // Update the entity handle (if any).
@@ -82,16 +75,6 @@ define([
           entityHandle.setTarget(this.getCentroid());
         }
       }
-    },
-
-    /**
-     * Invalidates values that are calculated using the vertices.
-     * @protected
-     */
-    _invalidateVertices: function() {
-      // Invalidate the centroid and area. They will be recalculated when requested.
-      this._centroid = null;
-      this._area = null;
     },
 
     createHandles: function() {

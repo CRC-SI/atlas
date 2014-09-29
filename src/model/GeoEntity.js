@@ -10,7 +10,8 @@ define([
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(ItemStore, Event, EventTarget, Setter, Types, Colour, Style, Vertex, DeveloperError, WKT) {
+], function(ItemStore, Event, EventTarget, Setter, Types, Colour, Style, Vertex, DeveloperError,
+            WKT) {
 
   /**
    * @typedef atlas.model.GeoEntity
@@ -379,6 +380,19 @@ define([
           this._dirty[key] = true;
         }, this)
       }
+      if (this.isDirty('entity') || this.isDirty('vertices') || this.isDirty('model')) {
+        this._invalidateGeometry();
+      }
+    },
+
+    /**
+     * Invalidates values that are calculated using the geometry of this GeoEntity.
+     * @protected
+     */
+    _invalidateGeometry: function() {
+      // Invalidate the centroid and area. They will be recalculated when requested.
+      this._centroid = null;
+      this._area = null;
     },
 
     /**
@@ -566,7 +580,7 @@ define([
      * Called by transform methods. Override to prevent default behaviour of rebuilding the model.
      * @protected
      */
-    _onTransform: function () {
+    _onTransform: function() {
       this.setDirty('model');
       this._update();
     },
