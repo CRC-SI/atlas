@@ -4,9 +4,10 @@ define([
   // Code under test
   'atlas/model/Feature',
   'atlas/model/Polygon',
+  'atlas/model/Mesh',
   'atlas/model/GeoPoint',
   'atlas/util/WKT'
-], function(EventManager, Setter, Feature, Polygon, GeoPoint, WKT) {
+], function(EventManager, Setter, Feature, Polygon, Mesh, GeoPoint, WKT) {
   describe('A Feature', function() {
 
     var feature, polygon, footprint, centroid, area, constructArgs, vertices, eventManager;
@@ -61,6 +62,19 @@ define([
       feature.setSelected(false);
       expect(feature.getStyle()).toEqual(oldStyle);
       expect(feature.getStyle()).toEqual(oldStyle);
+    });
+
+    it('can have display modes', function() {
+      var mesh = new Mesh('mesh-1', {}, constructArgs);
+      var multiFeature = new Feature(123, Setter.merge({
+        polygon: polygon,
+        mesh: mesh
+      }, constructArgs));
+      expect(multiFeature.getDisplayMode()).toEqual(Feature.DisplayMode.MESH);
+      expect(multiFeature.getForm(Feature.DisplayMode.MESH)).toEqual(mesh);
+      expect(multiFeature.getForm(Feature.DisplayMode.EXTRUSION)).toEqual(polygon);
+      multiFeature.setDisplayMode(Feature.DisplayMode.EXTRUSION);
+      expect(multiFeature.getDisplayMode()).toEqual(Feature.DisplayMode.EXTRUSION);
     });
 
     // TODO(aramk) Add remaining tests from DOH spec.

@@ -97,8 +97,7 @@ define([
 
     _init: function(id, args) {
       this._super(id, args);
-      var displayMode,
-          form;
+      var displayMode = args.displayMode;
       var propertyToDisplayMode = {
         mesh: Feature.DisplayMode.MESH,
         ellipse: Feature.DisplayMode.EXTRUSION,
@@ -108,16 +107,13 @@ define([
       };
       Object.keys(propertyToDisplayMode).forEach(function(prop) {
         var mode = propertyToDisplayMode[prop];
-        var modeForm = args[prop];
-        if (modeForm) {
-          form = modeForm;
-          displayMode = mode;
+        var form = args[prop];
+        if (form) {
+          this.setForm(mode, form);
+          displayMode = displayMode || mode;
         }
-      });
-      if (form && displayMode) {
-        this.setForm(displayMode, form);
-        this.setDisplayMode(displayMode);
-      }
+      }, this);
+      this.setDisplayMode(displayMode);
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
       this._initDelegation();

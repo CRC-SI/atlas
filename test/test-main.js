@@ -8,6 +8,7 @@ specsConfig = [
   { name: 'entity/EntityManager', run: true },
   { name: 'model/Collection', run: true },
   { name: 'model/Ellipse', run: true },
+  { name: 'model/Feature', run: true },
   { name: 'model/Handle', run: true },
   { name: 'model/LineNetwork', run: true },
   { name: 'model/Mesh', run: true },
