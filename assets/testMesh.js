@@ -16,8 +16,8 @@ define([
     /* red, green, blue, alpha */
     color: [255,255,255,0],
 
-    /* lat, lng, elevation */
-    geoLocation: [-37.9, 144.5, 0],
+    /* lng, lat, elevation */
+    geoLocation: [144.5, -37.9, 0],
 
     /* Every vertex position in the mesh, every 3 elements form an (x,y,z) tuple */
     positions: [
@@ -39,6 +39,8 @@ define([
     triangles: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
 
     /* Normals per triangle vertex, ie 1-1 with indices, but not necessarily with positions. */
-    normals: [1,2,3]
+    normals: [1,2,3],
+
+    type: 'mesh'
   };
 });
