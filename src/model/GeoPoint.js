@@ -49,6 +49,7 @@ define([
       } else {
         this._setFromArgs.apply(this, arguments);
       }
+      this._validate();
     },
 
     _setFromObject: function(args) {
@@ -64,6 +65,14 @@ define([
       this.longitude = parseFloat(longitude) || 0.0;
       this.latitude = parseFloat(latitude) || 0.0;
       this.elevation = parseFloat(elevation) || 0.0;
+    },
+
+    _validate: function () {
+      if (this.longitude < -180 || this.longitude > 180) {
+        throw new Error('Longitude is out of range [-180,180]: ' + this.longitude);
+      } else if (this.latitude < -90 || this.latitude > 90) {
+        throw new Error('Latitude is out of range [-90,90]: ' + this.latitude);
+      }
     },
 
     // -------------------------------------------------

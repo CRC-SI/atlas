@@ -240,6 +240,9 @@ define([
       return this._id;
     },
 
+    /**
+     * @returns {atlas.model.GeoPoint} The centre-point of this GeoEntity.
+     */
     getCentroid: function() {
       if (!this._centroid) {
         this._centroid = this._calcCentroid();
@@ -292,7 +295,8 @@ define([
     getBoundingBox: function() {
       var geometry = this.getOpenLayersGeometry();
       var box = geometry.getBounds();
-      return new Rectangle(box.top, box.bottom, box.right, box.left);
+      // OpenLayers points are (x,y) = (lat,lng) so the rectangle is in cartesian space.
+      return new Rectangle(box.right, box.left, box.top, box.bottom);
     },
 
     /**

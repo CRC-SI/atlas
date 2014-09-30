@@ -1,10 +1,8 @@
 define([
   'atlas/lib/utility/Types',
-  'atlas/lib/utility/Setter',
-  'atlas/model/Vertex',
-  'atlas/util/AtlasMath',
-  'atlas/lib/utility/Class'
-], function(Types, Setter, Vertex, AtlasMath, Class) {
+  'atlas/lib/utility/Class',
+  'atlas/model/GeoPoint'
+], function(Types, Class, GeoPoint) {
 
   /**
    * @typedef atlas.model.Rectangle
@@ -111,6 +109,32 @@ define([
         south: this.south + other.south,
         east: this.east + other.east,
         west: this.west + other.west
+      });
+    },
+
+    /**
+     * Scales this Rectangle from the centroid.
+     * @param {Number} scale - A scale of 1 has no effect. 0.5 is half the size. 2 is
+     * twice the size.
+     * @returns {atlas.model.Rectangle}
+     */
+    scale: function(scale) {
+      var centroid = this.getCentroid();
+      return new Rectangle({
+        north: centroid.latitude + scale * (this.north - centroid.latitude),
+        south: centroid.latitude + scale * (this.south - centroid.latitude),
+        east: centroid.longitude + scale * (this.east - centroid.longitude),
+        west: centroid.longitude + scale * (this.west - centroid.longitude)
+      });
+    },
+
+    /**
+     * @returns {atlas.model.GeoPoint} The centre-point of this Rectangle.
+     */
+    getCentroid: function() {
+      return new GeoPoint({
+        longitude: (this.east + this.west) / 2,
+        latitude: (this.north + this.south) / 2
       });
     },
 

@@ -9,10 +9,11 @@ define([
     var mesh, centroid, area, constructArgs;
 
     beforeEach(function() {
-      // TODO(aramk) This isn't the actual centroid.
+      // TODO(aramk) This isn't the actual centroid - calculate the value below and replace if it's
+      // reasonable.
       centroid =
-          new GeoPoint({longitude: -37.82674343831081, latitude: 145.23760111918708, elevation: 0});
-      area = 177.754;
+          new GeoPoint({longitude: 145.2376011191871, latitude: -37.82674343831081, elevation: 0});
+      area = 184.8778;
       constructArgs = {
         renderManager: {},
         eventManager: {}

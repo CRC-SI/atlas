@@ -206,13 +206,14 @@ define([
     /**
      * Moves the camera to the given location and sets the Camera's direction.
      * @param {Object} args
-     * @param {atlas.model.GeoPoint} args.position - The new position of the Camera.
+     * @param {atlas.model.GeoPoint} [args.position] - The new position of the Camera.
+     * @param {atlas.model.Rectangle} [args.rectangle] - The bounding box of the Camera.
      * @param {atlas.camera.Camera.Orientation} [args.orientation] - The new orientation of the Camera.
      * @param {Number} [args.duration=0] - The duration of the zoom animation in milliseconds.
      */
     zoomTo: function(args) {
       args = Setter.mixin({}, args);
-      if (args.position === undefined) {
+      if (args.position === undefined && args.rectangle === undefined) {
         throw new DeveloperError('Can not move camera without specifying position');
       }
       // Use the setters which don't apply the animation to also sanitize inputs.
@@ -233,6 +234,8 @@ define([
      * Moves the camera to the given address.
      * @param {String} address
      */
+    // TODO(aramk) Add "address" as a possible input to zoomTo() and delegate it to this method.
+    // Make this method private.
     zoomToAddress: function(address) {
       Geocoder.getInstance().getInfo({address: address}).then(function(result) {
         this.zoomTo({position: result.position});
