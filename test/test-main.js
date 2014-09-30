@@ -13,6 +13,7 @@ specsConfig = [
   { name: 'model/LineNetwork', run: true },
   { name: 'model/Mesh', run: true },
   { name: 'model/Polygon', run: true },
+  { name: 'model/Rectangle', run: true },
   { name: 'visualisation/AbstractProjection', run: true },
   { name: 'visualisation/HeightProjection', run: true },
   { name: 'visualisation/ColourProjection', run: true },

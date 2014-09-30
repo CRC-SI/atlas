@@ -3,10 +3,11 @@ define([
   'atlas/events/EventManager',
   // Code under test
   'atlas/model/Collection',
-  'atlas/model/Polygon',
   'atlas/model/GeoPoint',
+  'atlas/model/Polygon',
+  'atlas/model/Rectangle',
   'atlas/util/WKT'
-], function(EntityManager, EventManager, Collection, Polygon, GeoPoint, WKT) {
+], function(EntityManager, EventManager, Collection, GeoPoint, Polygon, Rectangle, WKT) {
   describe('A Collection', function() {
 
     var collection, polygonA, polygonB, centroid, constructArgs;
@@ -78,7 +79,18 @@ define([
       expect(polygonB.isVisible()).toBe(isVisible);
       expect(polygonA.isVisible.calls.any()).toEqual(true);
       expect(polygonB.isVisible.calls.any()).toEqual(true);
-    })
+    });
+
+    it('can calculate bounding box', function() {
+      var boundingBox = collection.getBoundingBox();
+      var expectedBoundingBox = new Rectangle({
+        west: 145.23747355356,
+        south: -37.826790372354,
+        east: 145.23771058855,
+        north: -37.826664658962
+      });
+      expect(boundingBox).toEqual(expectedBoundingBox);
+    });
 
   });
 });

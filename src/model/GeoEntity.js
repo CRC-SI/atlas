@@ -6,12 +6,13 @@ define([
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types',
   'atlas/model/Colour',
+  'atlas/model/Rectangle',
   'atlas/model/Style',
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(ItemStore, Event, EventTarget, Setter, Types, Colour, Style, Vertex, DeveloperError,
-            WKT) {
+], function(ItemStore, Event, EventTarget, Setter, Types, Colour, Rectangle, Style, Vertex,
+            DeveloperError, WKT) {
 
   /**
    * @typedef atlas.model.GeoEntity
@@ -283,6 +284,15 @@ define([
      */
     getOpenLayersGeometry: function() {
       throw new DeveloperError('Can not call abstract method "getOpenLayersGeometry" of GeoEntity');
+    },
+
+    /**
+     * @returns {atlas.model.Rectangle}
+     */
+    getBoundingBox: function() {
+      var geometry = this.getOpenLayersGeometry();
+      var box = geometry.getBounds();
+      return new Rectangle(box.top, box.bottom, box.right, box.left);
     },
 
     /**
