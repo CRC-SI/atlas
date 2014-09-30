@@ -83,7 +83,7 @@ define([
     removeEntity: function(id) {
       var entity = this._entities.get(id);
       if (entity) {
-        this._entities.remove(entity);
+        this._entities.remove(id);
       } else {
         Log.warn('Entity with ID ' + id + ' already added to collection.');
       }
