@@ -83,7 +83,11 @@ define([
           callback: function(args) {
             Log.time('entity/show');
             var entity = this.getById(args.id);
-            (!entity) && (entity = this.createFeature(args.id, args));
+            if (!entity) {
+              entity = this.createFeature(args.id, args)
+            } else {
+              entity.show();
+            }
             Log.timeEnd('entity/show');
           }.bind(this)
         },
@@ -468,9 +472,11 @@ define([
      * @returns {Object.<String, atlas.model.GeoEntity>} A map of IDs to visible features.
      */
     getVisibleFeatures: function() {
-      return this.getVisibleEntities({filter: function(entity) {
-        return entity instanceof Feature;
-      }});
+      return this.getVisibleEntities({
+        filter: function(entity) {
+          return entity instanceof Feature;
+        }
+      });
     },
 
     /**
