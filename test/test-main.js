@@ -18,7 +18,7 @@ specsConfig = [
   {name: 'visualisation/AbstractProjection', run: true},
   {name: 'visualisation/HeightProjection', run: true},
   {name: 'visualisation/ColourProjection', run: true},
-  {name: 'visualisation/DynamicProjection', run: true},
+  {name: 'visualisation/DynamicProjection', run: true}
 ];
 
 specsConfig.forEach(function(config) {
