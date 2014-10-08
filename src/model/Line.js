@@ -46,20 +46,22 @@ define([
     _init: function(id, lineData, args) {
       this._super(id, lineData, args);
       this._width = lineData.width || this._width;
+      var style;
       if (lineData.color) {
-        var style;
         if (lineData.color instanceof Colour) {
           style = new Style({fillColour: lineData.color});
         } else {
           style = new Style({fillColour: Colour.fromRGBA(lineData.color)});
         }
-        this.setStyle(style);
       } else if (lineData.style) {
-        this.setStyle(lineData.style);
+        style = lineData.style;
+      } else {
+        style = Line.getDefaultStyle();
       }
+      this.setStyle(style);
     },
 
-    getWidth: function () {
+    getWidth: function() {
       return this._width;
     },
 

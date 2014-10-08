@@ -10,6 +10,7 @@ specsConfig = [
   {name: 'model/Ellipse', run: true},
   {name: 'model/Feature', run: true},
   {name: 'model/Handle', run: true},
+  {name: 'model/Line', run: true},
   {name: 'model/LineNetwork', run: true},
   {name: 'model/Mesh', run: true},
   {name: 'model/Polygon', run: true},

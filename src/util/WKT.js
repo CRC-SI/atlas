@@ -125,8 +125,9 @@ define([
      * @param {Array.<atlas.model.GeoPoint>} vertices - The vertices to convert.
      * @returns {String}
      */
+    // TODO(aramk) Rename this to indicate that it creates polygons.
+    // TODO(aramk) Also support LINESTRING and POINT.
     wktFromVertices: function(vertices) {
-      // TODO(aramk) Also support LINESTRING and POINT.
       var polygon = this.openLayersPolygonFromVertices(vertices);
       return this.parser.extractGeometry(polygon);
     },

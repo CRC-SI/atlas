@@ -50,7 +50,11 @@ define([
         var wkt = WKT.getInstance(),
             vertexArray = wkt.verticesFromWKT(vertices);
         if (vertexArray[0] instanceof Array) {
+          // Polygon
           this._vertices = vertexArray[0];
+        } else if (vertexArray[0] instanceof GeoPoint) {
+          // Line
+          this._vertices = vertexArray;
         } else {
           throw new Error('Invalid vertices for entity ' + id);
         }
