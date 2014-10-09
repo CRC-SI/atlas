@@ -1,11 +1,10 @@
 define([
-  'atlas/lib/tinycolor',
   'atlas/lib/utility/Setter',
   'atlas/model/Feature',
   'atlas/model/Colour',
   // Code under test.
   'atlas/visualisation/ColourProjection'
-], function (tinycolor, Setter, Feature, Colour, ColourProjection) {
+], function(Setter, Feature, Colour, ColourProjection) {
   var colourProj,
       someValues = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4},
       someEntities,
@@ -13,8 +12,8 @@ define([
       newColour = Colour.RED,
       args;
 
-  describe('A ColourProjection', function () {
-    beforeEach(function () {
+  describe('A ColourProjection', function() {
+    beforeEach(function() {
       someEntities = {
         0: new Feature(0, {}),
         1: new Feature(1, {}),
@@ -30,15 +29,15 @@ define([
       args = {values: someValues, entities: someEntities};
     });
 
-    afterEach(function () {
+    afterEach(function() {
       colourProj = null;
       someEntities = {0: null, 1: null, 2: null};
     });
 
-    describe('can be constructed', function () {
+    describe('can be constructed', function() {
 
-      describe('for a discrete projection', function () {
-        it('with a fixed codomain', function () {
+      describe('for a discrete projection', function() {
+        it('with a fixed codomain', function() {
           var codomain = {fixedProj: Colour.RED};
           args = Setter.mixin({type: 'discrete', bins: 3, codomain: codomain}, args);
           colourProj = new ColourProjection(args);
@@ -48,7 +47,7 @@ define([
           expect(colourProj._entities[4].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.RED});
         });
 
-        it('with a single codomain', function () {
+        it('with a single codomain', function() {
           // This test _will_ fail if Colour.BLUE and Colour.RED are frozen.
           var codomain = {regressBy: 'hue', startProj: Colour.RED, endProj: Colour.BLUE};
           args = Setter.mixin({type: 'discrete', bins: 3, codomain: codomain}, args);
@@ -71,8 +70,8 @@ define([
         });
       }); // End 'for a discrete projection'.
 
-      describe('for a continuous projection', function () {
-        it('with a single codomain', function () {
+      describe('for a continuous projection', function() {
+        it('with a single codomain', function() {
           // This test _will_ fail if Colour.BLUE and Colour.GREEN are frozen.
           var codomain = {regressBy: 'hue', startProj: Colour.BLUE, endProj: Colour.GREEN};
           args = Setter.mixin({type: 'continuous', codomain: codomain}, args);
@@ -90,15 +89,15 @@ define([
         })
       });
 
-      describe('by default', function () {
+      describe('by default', function() {
         // TODO(bpstudds): Modify tests so the expected values are not hardcoded.
 
-        beforeEach(function () {
+        beforeEach(function() {
           colourProj = new ColourProjection({values: someValues, entities: someEntities});
         });
 
-        describe('and render effects', function () {
-          it('to all it\'s GeoEntities', function () {
+        describe('and render effects', function() {
+          it('to all it\'s GeoEntities', function() {
             var ids = Object.keys(someEntities);
             colourProj.render();
             for (var i = 0; i < ids.length; i++) {
@@ -109,7 +108,7 @@ define([
             }
           });
 
-          it('to a subset of it\'s GeoEntities', function () {
+          it('to a subset of it\'s GeoEntities', function() {
             var ids = [0, 2];
             colourProj.render(ids);
             for (var i = 0; i < ids.length; i++) {
@@ -120,7 +119,7 @@ define([
             }
           });
 
-          it('to one of it\'s GeoEntities', function () {
+          it('to one of it\'s GeoEntities', function() {
             var id = 1;
             colourProj.render(id);
             expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: newColour});
@@ -131,13 +130,13 @@ define([
       }); // End 'by default'.
     }); // End 'can be constructed'.
 
-    describe('when constructed can unrender effects', function () {
-      beforeEach(function () {
+    describe('when constructed can unrender effects', function() {
+      beforeEach(function() {
         colourProj = new ColourProjection({values: someValues, entities: someEntities});
         colourProj.render();
       });
 
-      it('to all it\'s GeoEntities', function () {
+      it('to all it\'s GeoEntities', function() {
         var ids = Object.keys(someEntities);
         colourProj.unrender();
         // Expect to be changed
@@ -149,7 +148,7 @@ define([
         }
       });
 
-      it('to a subset of it\'s GeoEntities', function () {
+      it('to a subset of it\'s GeoEntities', function() {
         var ids = [0, 2];
         colourProj.unrender(ids);
         // Expect to be changed
@@ -163,21 +162,21 @@ define([
         expect(someEntities[1].modifyStyle.calls.length).toEqual(1);
       });
 
-      it('to one of it\'s GeoEntities', function () {
+      it('to one of it\'s GeoEntities', function() {
         var id = 1;
         colourProj.unrender(id);
         expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: initialColour});
         expect(someEntities[id].modifyStyle.calls.length).toEqual(2);
         expect(someEntities[id]._style._fillColour).toEqual(initialColour);
         // Expect to be unchanged
-        [0, 2].forEach(function (id) {
+        [0, 2].forEach(function(id) {
           expect(someEntities[id].modifyStyle.calls.length).toEqual(1);
         });
       });
     }); // End 'can unrender effects'
 
-    describe ('can generate a legend', function () {
-      beforeEach (function () {
+    describe('can generate a legend', function() {
+      beforeEach(function() {
         var legend;
         args = {
           values: someValues,
@@ -186,18 +185,30 @@ define([
         };
       });
 
-      describe ('for a continuous projection', function () {
-        beforeEach (function () {
+      describe('for a continuous projection', function() {
+        beforeEach(function() {
           args.type = 'continuous';
           delete args.bins;
         });
 
-        it ('with 1 legend (=== 1 bin)', function () {
+        it('with 1 legend (=== 1 bin)', function() {
           var expected = [
-            { cells: [ { bgColour : 'linear-gradient(to bottom,#ff0000,#ff0000)', width : '1em' }, {value: '0.000&ndash;1.000'} ] },
-            { cells: [ { bgColour : 'linear-gradient(to bottom,#ff0000,#ff0000)', width : '1em' }, {value: '1.000&ndash;2.000'} ] },
-            { cells: [ { bgColour : 'linear-gradient(to bottom,#ff0000,#ff0000)', width : '1em' }, {value: '2.000&ndash;3.000'} ] },
-            { cells: [ { bgColour : 'linear-gradient(to bottom,#ff0000,#ff0000)', width : '1em' }, {value: '3.000&ndash;4.000'} ] }
+            { cells: [
+              { bgColour: 'linear-gradient(to bottom,#ff0000,#ff0000)', width: '1em' },
+              {value: '0.000&ndash;1.000'}
+            ] },
+            { cells: [
+              { bgColour: 'linear-gradient(to bottom,#ff0000,#ff0000)', width: '1em' },
+              {value: '1.000&ndash;2.000'}
+            ] },
+            { cells: [
+              { bgColour: 'linear-gradient(to bottom,#ff0000,#ff0000)', width: '1em' },
+              {value: '2.000&ndash;3.000'}
+            ] },
+            { cells: [
+              { bgColour: 'linear-gradient(to bottom,#ff0000,#ff0000)', width: '1em' },
+              {value: '3.000&ndash;4.000'}
+            ] }
           ];
           colourProj = new ColourProjection(args);
           colourProj.render();
@@ -207,16 +218,16 @@ define([
         });
       });
 
-      describe ('for a discrete projection', function () {
-        beforeEach (function () {
+      describe('for a discrete projection', function() {
+        beforeEach(function() {
           args.type = 'discrete'
         });
 
-        it ('with 1 bin and 1 legend', function () {
+        it('with 1 bin and 1 legend', function() {
           var expected = [
-                { bgColour : Colour.RED, width : '1em' },
-                { value : '0.000&ndash;4.000' }
-              ];
+            { bgColour: Colour.RED, width: '1em' },
+            { value: '0.000&ndash;4.000' }
+          ];
           args.bins = 1;
           colourProj = new ColourProjection(args);
           colourProj.render();
@@ -226,11 +237,20 @@ define([
           expect(legend.rows[0].cells).toEqual(expected);
         });
 
-        it ('with 3 bins and 1 legend', function () {
+        it('with 3 bins and 1 legend', function() {
           var expected = [
-            { cells: [ { bgColour : Colour.RED, width : '1em' }, {value: '0.000&ndash;1.333'} ] },
-            { cells: [ { bgColour : Colour.RED, width : '1em' }, {value: '1.333&ndash;2.667'} ] },
-            { cells: [ { bgColour : Colour.RED, width : '1em' }, {value: '2.667&ndash;4.000'} ] }
+            { cells: [
+              { bgColour: Colour.RED, width: '1em' },
+              {value: '0.000&ndash;1.333'}
+            ] },
+            { cells: [
+              { bgColour: Colour.RED, width: '1em' },
+              {value: '1.333&ndash;2.667'}
+            ] },
+            { cells: [
+              { bgColour: Colour.RED, width: '1em' },
+              {value: '2.667&ndash;4.000'}
+            ] }
           ];
           args.bins = 3;
           colourProj = new ColourProjection(args);

@@ -17,7 +17,7 @@
     "Requirejs": "requirejs#2.1.x",
     "Openlayers": "https://github.com/openlayers/openlayers.git#release-2.13.1",
     "Keycode": "https://github.com/mantelpiece/keycode.js.git#master",
-    "Tinycolor": "tinycolor#~0.9.x",
+    "tinycolor": "~1.0.0",
     "utility": "https://bitbucket.org/mutopia/utility.git",
     "numeraljs": "~1.5.3",
     "less": "~1.7.0",
