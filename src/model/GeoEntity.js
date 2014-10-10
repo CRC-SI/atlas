@@ -264,7 +264,7 @@ define([
 
     _calcCentroid: function() {
       var wkt = WKT.getInstance();
-      return wkt.vertexFromOpenLayersPoint(this.getOpenLayersGeometry().getCentroid());
+      return wkt.geoPointFromOpenLayersPoint(this.getOpenLayersGeometry().getCentroid());
     },
 
     /**

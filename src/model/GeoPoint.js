@@ -223,6 +223,16 @@ define([
      */
     fromLatLngHeight: function(other) {
       return new GeoPoint(other.lng, other.lat, other.height);
+    },
+
+    /**
+     * @param {Array.<atlas.model.GeoPoint>} points
+     * @returns {Array.<atlas.model.Vertex>}
+     */
+    arrayToVertices: function (points) {
+      return points.map(function(point) {
+        return point.toVertex();
+      });
     }
 
   });

@@ -201,7 +201,7 @@ define([
       if (this._entities.isEmpty()) {
         return null;
       } else {
-        return wkt.vertexFromOpenLayersPoint(this.getOpenLayersFootprintGeometry().getCentroid());
+        return wkt.geoPointFromOpenLayersPoint(this.getOpenLayersFootprintGeometry().getCentroid());
       }
     },
 
@@ -213,7 +213,7 @@ define([
         if (!geometry) {
           return;
         }
-        var geometryVertices = wkt.verticesFromOpenLayersGeometry(geometry);
+        var geometryVertices = wkt.geoPointsFromOpenLayersGeometry(geometry);
         if (geometryVertices.length === 0) {
           return;
         }
@@ -223,7 +223,7 @@ define([
         });
       });
       var hullVertices = ConvexHullFactory.getInstance().fromVertices(vertices);
-      return wkt.openLayersPolygonFromVertices(hullVertices);
+      return wkt.openLayersPolygonFromGeoPoints(hullVertices);
     },
 
     getOpenLayersGeometry: function() {

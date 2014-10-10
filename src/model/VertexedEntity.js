@@ -214,7 +214,7 @@ define([
 
     getOpenLayersGeometry: function() {
       var wkt = WKT.getInstance();
-      return wkt.openLayersPolygonFromVertices(this._vertices);
+      return wkt.openLayersPolygonFromGeoPoints(this._vertices);
     },
 
     /**
