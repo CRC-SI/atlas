@@ -21,7 +21,7 @@ define([
         renderManager: {},
         eventManager: eventManager
       };
-      vertices = WKT.getInstance().verticesFromWKT(wktLine);
+      vertices = WKT.getInstance().geoPointsFromWKT(wktLine);
       line = new Line(id, data, constructArgs);
     });
 

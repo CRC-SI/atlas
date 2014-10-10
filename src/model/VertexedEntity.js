@@ -48,7 +48,7 @@ define([
       var vertices = data.vertices;
       if (Types.isString(vertices)) {
         var wkt = WKT.getInstance(),
-            vertexArray = wkt.verticesFromWKT(vertices);
+            vertexArray = wkt.geoPointsFromWKT(vertices);
         if (vertexArray[0] instanceof Array) {
           // Polygon
           this._vertices = vertexArray[0];

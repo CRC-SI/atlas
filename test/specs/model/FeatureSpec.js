@@ -24,7 +24,7 @@ define([
         renderManager: {},
         eventManager: eventManager
       };
-      vertices = WKT.getInstance().verticesFromWKT(footprint);
+      vertices = WKT.getInstance().geoPointsFromWKT(footprint);
       polygon = new Polygon(id + '-poly', data, constructArgs);
       feature = new Feature(id, Setter.mixin({polygon: polygon}, constructArgs));
     });

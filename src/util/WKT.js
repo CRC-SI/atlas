@@ -1,10 +1,12 @@
 define([
   'atlas/model/Vertex',
+  'atlas/model/GeoPoint',
   'atlas/lib/OpenLayers',
   'atlas/lib/utility/error/DevError',
   'atlas/lib/utility/Class',
+  'atlas/lib/utility/Types',
   'atlas/util/Instances'
-], function(Vertex, OpenLayers, DevError, Class, Instances) {
+], function(Vertex, GeoPoint, OpenLayers, DevError, Class, Types, Instances) {
 
   /**
    * @typedef atlas.util.WKT
@@ -27,11 +29,28 @@ define([
     /**
      * Converts a WKT polygon string to an array of {@link atlas.model.Vertex} objects.
      * @param {String} wktStr - The WKT string to convert
-     * @returns {Array.<Array.<atlas.model.Vertex>> | Array.<atlas.model.Vertex>} The convert polygon.
+     * @returns {Array.<Array.<atlas.model.Vertex>> | Array.<atlas.model.Vertex>} The converted
+     * polygon.
      */
     verticesFromWKT: function(wktStr) {
       var geometry = this.openLayersGeometryFromWKT(wktStr).geometry;
       return this.verticesFromOpenLayersGeometry(geometry);
+    },
+
+    /**
+     * Converts a WKT polygon string to an array of {@link atlas.model.GeoPoint} objects.
+     * @param {String} wktStr - The WKT string to convert
+     * @returns {Array.<Array.<atlas.model.GeoPoint>> | Array.<atlas.model.GeoPoint>} The converted
+     * polygon.
+     */
+    geoPointsFromWKT: function(wktStr) {
+      var vertices = this.verticesFromWKT(wktStr);
+      var isMultiPolygon = Types.isArrayLiteral(vertices[0]);
+      var innerArray = isMultiPolygon ? vertices[0] : vertices;
+      innerArray = innerArray.map(function(vertex) {
+        return GeoPoint.fromVertex(vertex);
+      });
+      return isMultiPolygon ? [innerArray] : innerArray ;
     },
 
     /**
@@ -130,6 +149,17 @@ define([
     wktFromVertices: function(vertices) {
       var polygon = this.openLayersPolygonFromVertices(vertices);
       return this.parser.extractGeometry(polygon);
+    },
+
+    /**
+     * Returns a WKT string from an array of points.
+     * @param {Array.<atlas.model.GeoPoint>} points - The points to convert.
+     * @returns {String}
+     */
+    wktFromGeoPoints: function(points) {
+      return this.wktFromVertices(points.map(function(point) {
+        return point.toVertex();
+      }));
     },
 
     /**
