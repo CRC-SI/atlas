@@ -295,8 +295,12 @@ define([
     getBoundingBox: function() {
       var geometry = this.getOpenLayersGeometry();
       var box = geometry.getBounds();
-      // OpenLayers points are (x,y) = (lat,lng) so the rectangle is in cartesian space.
-      return new Rectangle(box.right, box.left, box.top, box.bottom);
+      if (box) {
+        // OpenLayers points are (x,y) = (lat,lng) so the rectangle is in cartesian space.
+        return new Rectangle(box.right, box.left, box.top, box.bottom);
+      } else {
+        return null;
+      }
     },
 
     /**
