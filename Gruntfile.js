@@ -260,15 +260,26 @@ module.exports = function(grunt) {
     addTasks('compile-imports', 'clean:dist');
     hasArgs('no-minify') ? addTasks('shell:build') : addTasks('shell:buildMinify');
     addTasks('set-build-env', 'less', 'copy:resources', 'clean:resourcesLess');
+    hasArgs('meteor') && addTasks('fix-build-meteor');
     console.log('Running tasks', tasks);
     tasks.forEach(function(task) {
       grunt.task.run(task);
     })
   });
+
   grunt.registerTask('doc', 'Generates documentation.', ['clean:doc', 'shell:jsDoc']);
+
   grunt.registerTask('install-openlayers', 'Installs OpenLayers with a custom build.',
       ['copy:openLayersBuildConfig', 'shell:buildOpenLayers', 'fix-openlayers-build',
         'copy:openLayersBuildOutput']);
+
+  grunt.registerTask('fix-build-meteor', 'Fixes build to work with Meteor.', function() {
+    // Create a closure around the build and shim client-side variables.
+    var fixes = readFile(path.join(BUILD_DIR, 'meteorFixes.js'));
+    writeFile(BUILD_OUTPUT_PATH, function(data) {
+      return fixes.replace('// EXISTING CODE GOES HERE', data);
+    });
+  });
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // AUXILIARY
