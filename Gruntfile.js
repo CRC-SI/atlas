@@ -90,7 +90,7 @@ module.exports = function(grunt) {
 
       buildOpenLayers: {
         options: {
-          stdout: true
+          stdout: false, stderr: true, failOnError: true
         },
         command: [
               'cd ' + OPEN_LAYERS_BUILD_PATH,
