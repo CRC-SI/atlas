@@ -90,11 +90,11 @@ module.exports = function(grunt) {
 
       buildOpenLayers: {
         options: {
-          stdout: false, stderr: true, failOnError: true
+          stdout: true, stderr: true, failOnError: true
         },
         command: [
-              'cd ' + OPEN_LAYERS_BUILD_PATH,
-              'python build.py -c none ' + OPEN_LAYERS_CONFIG_FILE.replace(/\.cfg$/, '') + ' ' +
+              'cd ' + OPEN_LAYERS_BUILD_PATH, 'pwd', 'ls -l',
+              'python ./build.py -c none ' + OPEN_LAYERS_CONFIG_FILE.replace(/\.cfg$/, '') + ' ' +
               OPEN_LAYERS_BUILD_OUTPUT_FILE
         ].join('&&')
       }
