@@ -1,14 +1,14 @@
 (function(global) {
 
   // Used to construct a closure around the Atlas build and add shims to prevent failure on the
-  // Meteor server due to missing client-side variables. Most of these are needed due to OpenLayers,
+  // NodeJS server due to missing client-side variables. Most of these are needed due to OpenLayers,
   // which expects them on startup (not just at runtime).
 
   // Re-declaring variables retains existing values on client while creating new ones on the server.
   // Avoid adding/changing global definitions by using local variables in this closure.
   var document = global.document, navigator = global.navigator, window = global.window;
 
-  if (typeof Meteor !== 'undefined' && Meteor.isServer) {
+  if (typeof window === 'undefined') {
     document = {
       getElementsByTagName: function() {
         return [];
@@ -20,7 +20,7 @@
     window = {
       location: {
         search: ''
-      },
+      }
     };
     navigator = {
       userAgent: ''
