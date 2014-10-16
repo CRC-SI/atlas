@@ -49,6 +49,7 @@ define([
       } else {
         this._setFromArgs.apply(this, arguments);
       }
+      this._validate();
     },
 
     _setFromObject: function(args) {
@@ -66,6 +67,14 @@ define([
       this.elevation = parseFloat(elevation) || 0.0;
     },
 
+    _validate: function () {
+      if (this.longitude < -180 || this.longitude > 180) {
+        throw new Error('Longitude is out of range [-180,180]: ' + this.longitude);
+      } else if (this.latitude < -90 || this.latitude > 90) {
+        throw new Error('Latitude is out of range [-90,90]: ' + this.latitude);
+      }
+    },
+
     // -------------------------------------------------
     // OPERATIONS
     // -------------------------------------------------
@@ -76,19 +85,18 @@ define([
      * @returns {atlas.model.GeoPoint}
      */
     subtract: function(other) {
-      return new GeoPoint(this.longitude - other.longitude,
-              this.latitude - other.latitude,
+      return new GeoPoint(this.longitude - other.longitude, this.latitude - other.latitude,
               this.elevation - other.elevation);
     },
 
     /**
-     * Translates this GeoPoint by a given difference in latitude and longitude.
+     * Translates this GeoPoint by a given difference.
      * @param {atlas.model.GeoPoint | {latitude, longitude}} other
      * @returns {atlas.model.GeoPoint}
      */
     translate: function(other) {
       return new GeoPoint(this.longitude + other.longitude,
-              this.latitude + other.latitude, this.elevation);
+              this.latitude + other.latitude, this.elevation + other.elevation);
     },
 
     /**
@@ -144,10 +152,26 @@ define([
 
     /**
      * @param {atlas.model.GeoPoint} other
-     * @returns {Boolean} Whether the given object is equal to this one.
+     * @returns {Boolean} Whether the given object is exactly equal to this one.
      */
     equals: function(other) {
       return this.longitude === other.longitude && this.latitude === other.latitude &&
+          this.elevation === other.elevation;
+    },
+
+    /**
+     * @param {atlas.model.GeoPoint} other
+     * @param {Number} [sigFigures=6] - The number of significant figures. The default value of 6
+     * provides roughly 0.11m of precision.
+     * @returns {Boolean} Whether the given object is equal to this one within the given significant
+     * figures for decimal degrees of precision for latitude and longitude and with elevation
+     * exactly equal.
+     * @see http://gis.stackexchange.com/a/8674/12464
+     */
+    isCloseTo: function(other, sigFigures) {
+      var sigFigures = Setter.def(sigFigures, 6);
+      return this.longitude.toFixed(sigFigures) === other.longitude.toFixed(sigFigures) &&
+          this.latitude.toFixed(sigFigures) === other.latitude.toFixed(sigFigures) &&
           this.elevation === other.elevation;
     }
 
@@ -199,6 +223,16 @@ define([
      */
     fromLatLngHeight: function(other) {
       return new GeoPoint(other.lng, other.lat, other.height);
+    },
+
+    /**
+     * @param {Array.<atlas.model.GeoPoint>} points
+     * @returns {Array.<atlas.model.Vertex>}
+     */
+    arrayToVertices: function (points) {
+      return points.map(function(point) {
+        return point.toVertex();
+      });
     }
 
   });

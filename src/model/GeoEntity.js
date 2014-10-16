@@ -4,10 +4,15 @@ define([
   // Base class
   'atlas/events/EventTarget',
   'atlas/lib/utility/Setter',
+  'atlas/lib/utility/Types',
   'atlas/model/Colour',
+  'atlas/model/Rectangle',
   'atlas/model/Style',
-  'atlas/util/DeveloperError'
-], function(ItemStore, Event, EventTarget, Setter, Colour, Style, DeveloperError) {
+  'atlas/model/Vertex',
+  'atlas/util/DeveloperError',
+  'atlas/util/WKT'
+], function(ItemStore, Event, EventTarget, Setter, Types, Colour, Rectangle, Style, Vertex,
+            DeveloperError, WKT) {
 
   /**
    * @typedef atlas.model.GeoEntity
@@ -55,20 +60,6 @@ define([
      */
 
     /**
-     * IDs of the child GeoEntities of the GeoEntity.
-     * @type {Array.<String>}
-     * @protected
-     */
-    _childrenIds: null,
-
-    /**
-     * Array of references to the child GeoEntities.
-     * @type {Array.<atlas.model.GeoEntity>}
-     * @protected
-     */
-    _children: null,
-
-    /**
      * The RenderManager object for the GeoEntity.
      * @type {atlas.render.RenderManager}
      * @protected
@@ -95,6 +86,28 @@ define([
      * @protected
      */
     _area: null,
+
+    /**
+     * The elevation of the base of the GeoEntity.
+     * @type {Number}
+     * @protected
+     */
+    _elevation: 0,
+
+    /**
+     * The scale of the GeoEntity with each component in the range [0,1] and 1 by default.
+     * @type {atlas.model.Vertex}
+     * @protected
+     */
+    _scale: null,
+
+    /**
+     * The counter-clockwise rotation of the GeoEntity in degrees. By default all components are
+     * 0.
+     * @type {atlas.model.Vertex}
+     * @protected
+     */
+    _rotation: null,
 
     /**
      * Whether the GeoEntity is visible.
@@ -140,11 +153,11 @@ define([
     _style: null,
 
     /**
-     * The style of the GeoEntity when before a change in style (e.g. during selection).
+     * The style of the GeoEntity before it was selected.
      * @type {atlas.model.Style}
      * @protected
      */
-    _previousStyle: null,
+    _preSelectStyle: null,
 
     /**
      * Whether the GeoEntity is selected.
@@ -163,6 +176,12 @@ define([
      */
     _entityHandle: null,
 
+    /**
+     * Event handles which are bound to the entity and should be removed with it.
+     * @type {Array.<EventListener>}
+     */
+    _eventHandles: null,
+
     _init: function(id, args) {
       if (typeof id === 'object') {
         args = id;
@@ -180,14 +199,20 @@ define([
         throw new DeveloperError('Can not create instance of GeoEntity without an ID');
       }
       this._id = id.toString();
-      this._childrenIds = args.childrenIds || [];
       this._renderManager = args.renderManager;
       this._eventManager = args.eventManager;
       this._entityManager = args.entityManager;
       this._entityManager && this._entityManager.add(this.getId(), this);
       this.setStyle(args.style || GeoEntity.getDefaultStyle());
       this._handles = new ItemStore();
+      this._eventHandles = [];
+      // TODO(aramk) This doesn't actually show - should call setVisibility(), but that means all
+      // subclass constructors should have completely set up their properties. We would need a
+      // method called setUp() which we call here and subclasses override to ensure all properties
+      // (e.g. vertices) are set and _build() can safely be called from here.
       this._visible = Setter.def(args.show, false);
+      this._rotation = new Vertex(0, 0, 0);
+      this._scale = new Vertex(1, 1, 1);
     },
 
     // TODO(aramk) Use better dependency injection.
@@ -216,28 +241,84 @@ define([
     },
 
     /**
-     * @returns {atlas.model.GeoPoint} The centroid of the GeoEntity.
-     * @abstract
+     * @returns {atlas.model.GeoPoint} The centre-point of this GeoEntity.
      */
     getCentroid: function() {
+      if (!this._centroid) {
+        this._centroid = this._calcCentroid();
+      }
       return this._centroid && this._centroid.clone();
     },
 
-    getChildren: function() {
-      // TODO(bpstudds): Adding children and removing children needs support.
-      if (this._children !== null) {
-        return this._children;
+    /**
+     * Translates the GeoEntity so that its centroid is the one given.
+     * @param {atlas.model.GeoPoint} centroid
+     */
+    setCentroid: function(centroid) {
+      var oldCentroid = this.getCentroid();
+      if (oldCentroid) {
+        var diff = centroid.subtract(oldCentroid);
+        this.translate(diff);
       }
-      this._children = this._entityManager.getByIds(this._childrenIds);
-      return this._children;
+    },
+
+    _calcCentroid: function() {
+      var wkt = WKT.getInstance();
+      return wkt.geoPointFromOpenLayersPoint(this.getOpenLayersGeometry().getCentroid());
     },
 
     /**
      * @returns {Number} The area of the GeoEntity in metres squared, if applicable.
-     * @abstract
      */
     getArea: function() {
-      throw new DeveloperError('Can not call abstract method "getArea" of GeoEntity');
+      if (Types.isNullOrUndefined(this._area)) {
+        this._area = this._calcArea();
+      }
+      return this._area;
+    },
+
+    _calcArea: function() {
+      return this.getOpenLayersGeometry().getGeodesicArea();
+    },
+
+    /**
+     * @returns {OpenLayers.Geometry}
+     * @abstract
+     */
+    getOpenLayersGeometry: function() {
+      throw new DeveloperError('Can not call abstract method "getOpenLayersGeometry" of GeoEntity');
+    },
+
+    /**
+     * @returns {atlas.model.Rectangle}
+     */
+    getBoundingBox: function() {
+      var geometry = this.getOpenLayersGeometry();
+      var box = geometry.getBounds();
+      if (box) {
+        // OpenLayers points are (x,y) = (lat,lng) so the rectangle is in cartesian space.
+        return new Rectangle(box.right, box.left, box.top, box.bottom);
+      } else {
+        return null;
+      }
+    },
+
+    /**
+     * Set the elevation of the base of the GeoEntity.
+     * @param {Number} elevation - The elevation of the base of the GeoEntity.
+     */
+    setElevation: function(elevation) {
+      if (typeof elevation === 'number' && this._elevation !== elevation) {
+        this._elevation = elevation;
+        this.setDirty('model');
+      }
+    },
+
+    /**
+     * @returns {Number} The elevation of the base of the GeoEntity.
+     */
+    getElevation: function() {
+      return this._elevation;
     },
 
     /**
@@ -288,23 +369,16 @@ define([
       return this._handles;
     },
 
-    getEntityHandle: function () {
+    getEntityHandle: function() {
       return this._entityHandle;
     },
 
-    setEntityHandle: function (entityHandle) {
+    setEntityHandle: function(entityHandle) {
       this._entityHandle = entityHandle;
     },
 
     clearHandles: function() {
       this._handles.purge();
-    },
-
-    /**
-     * @returns {Boolean} Whether the GeoEntity is currently visible.
-     */
-    isVisible: function() {
-      return this._visible;
     },
 
     /**
@@ -324,6 +398,19 @@ define([
           this._dirty[key] = true;
         }, this)
       }
+      if (this.isDirty('entity') || this.isDirty('vertices') || this.isDirty('model')) {
+        this._invalidateGeometry();
+      }
+    },
+
+    /**
+     * Invalidates values that are calculated using the geometry of this GeoEntity.
+     * @protected
+     */
+    _invalidateGeometry: function() {
+      // Invalidate the centroid and area. They will be recalculated when requested.
+      this._centroid = null;
+      this._area = null;
     },
 
     /**
@@ -332,11 +419,7 @@ define([
      *     is marked clean.
      */
     setClean: function(component) {
-      if (!component) {
-        delete this._dirty[component];
-      } else {
-        this.clean();
-      }
+      delete this._dirty[component];
     },
 
     /**
@@ -365,15 +448,16 @@ define([
      * @returns {atlas.model.Style} The old style, or null if it was not changed.
      */
     setStyle: function(style) {
-      // Only change style if the new style is different so _previousStyle isn't clobbered.
-      if (this._style && this._style.equals(style)) {
+      var previousStyle = this.getStyle();
+      if (previousStyle && previousStyle.equals(style)) {
         return null;
       }
       this.setDirty('style');
-      this._previousStyle = this._style;
       this._style = style;
-      this.isVisible() && this._build();
-      return this._previousStyle;
+      var isVisible = this.isVisible();
+      this._update();
+      this._updateVisibility(isVisible);
+      return previousStyle;
     },
 
     /**
@@ -381,13 +465,6 @@ define([
      */
     getStyle: function() {
       return this._style;
-    },
-
-    /**
-     * @returns {atlas.model.Style}
-     */
-    getPreviousStyle: function() {
-      return this._previousStyle;
     },
 
     /**
@@ -455,10 +532,9 @@ define([
      * Translates the GeoEntity by the given vector.
      * @param {atlas.model.GeoPoint} translation - The amount to move the GeoEntity in latitude,
      * longitude and elevation.
-     * @abstract
      */
     translate: function(translation) {
-      throw new DeveloperError('Can not call abstract method "translate" of GeoEntity');
+      this._onTransform();
     },
 
     /**
@@ -470,11 +546,23 @@ define([
      * @param {Number} scale.x - The scale along the <code>x</code> axis of the GeoEntity.
      * @param {Number} scale.y - The scale along the <code>y</code> axis of the GeoEntity.
      * @param {Number} scale.z - The scale along the <code>z</code> axis of the GeoEntity.
-     *
-     * @abstract
      */
     scale: function(scale) {
-      throw new DeveloperError('Can not call abstract method "scale" of GeoEntity');
+      this._onTransform();
+    },
+
+    /**
+     * @param {atlas.model.Vertex} scale
+     */
+    setScale: function(scale) {
+      this.scale(scale.componentwiseDivide(this.getScale()));
+    },
+
+    /**
+     * @returns {atlas.model.Vertex}
+     */
+    getScale: function() {
+      return this._scale;
     },
 
     /**
@@ -486,15 +574,38 @@ define([
      *        rotates clockwise, positive rotates counterclockwise.
      * @param {Number} rotation.z - The rotation about the <code>z</code> axis in degrees, negative
      *      rotates clockwise, positive rotates counterclockwise.
-     *
-     * @abstract
      */
     rotate: function(rotation) {
-      throw new DeveloperError('Can not call abstract method "rotate" of GeoEntity');
+      this._onTransform();
     },
 
     /**
-     * Function to build the GeoEntity so it can be rendered.
+     * @param {atlas.model.Vertex} rotation
+     */
+    setRotation: function(rotation) {
+      var diff = rotation.subtract(this.getRotation());
+      this.rotate(diff);
+    },
+
+    /**
+     * @returns {atlas.model.Vertex}
+     */
+    getRotation: function() {
+      return this._rotation;
+    },
+
+    /**
+     * Called by transform methods. Override to prevent default behaviour of rebuilding the model.
+     * @protected
+     */
+    _onTransform: function() {
+      this.setDirty('model');
+      this._update();
+    },
+
+    /**
+     * Builds the GeoEntity so it can be rendered. Do not be call this directly from subclasses -
+     * use {@link #_update} instead.
      * @abstract
      */
     _build: function() {
@@ -507,109 +618,146 @@ define([
      * may be required.
      */
     remove: function() {
+      // TODO(aramk) Distinguish between this and destroying the entity, which should remove all
+      // contained objects.
+      this.hide();
+      this._cancelEventHandles();
       // TODO(aramk) We should try to keep consistent with these - either all entities have
       // references to managers or none do - otherwise we could have discrepancies in the entity
-      // manger like a removed entity still being referenced.
+      // manager like a removed entity still being referenced.
       this._entityManager && this._entityManager.remove(this._id);
-      this._eventManager && this._eventManager.dispatchEvent(new Event(new EventTarget(),
-          'entity/remove', {
-            id: this.getId()
-          }));
+      this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'entity/remove', {
+        id: this.getId()
+      }));
     },
 
     /**
      * Shows the GeoEntity in the current scene.
-     * @returns {Boolean} Whether the GeoEntity is shown.
      */
     show: function() {
-      return this._visible = true;
+      this._visible = true;
+      this._update();
+      this._updateVisibility(true);
+    },
+
+    /**
+     * Updates the GeoEntity for rendering.
+     * @private
+     */
+    _update: function() {
+      if (this.isVisible() && !this.isRenderable()) {
+        this._build();
+        this.clean();
+      }
     },
 
     /**
      * Hides the GeoEntity from the current scene.
-     * @returns {Boolean} Whether the GeoEntity is hidden.
      */
     hide: function() {
-      return this._visible = false;
+      this._visible = false;
+      this._updateVisibility(false);
+    },
+
+    /**
+     * @returns {Boolean} Whether the GeoEntity is currently visible.
+     */
+    isVisible: function() {
+      return this._visible;
+    },
+
+    /**
+     * @param {Boolean} visible
+     */
+    setVisibility: function(visible) {
+      visible ? this.show() : this.hide();
     },
 
     /**
      * Toggles the visibility of the GeoEntity.
      */
     toggleVisibility: function() {
-      if (this.isVisible()) {
-        this.hide();
-      } else {
-        this.show();
+      this.setVisibility(!this.isVisible());
+    },
+
+    /**
+     * Overridable method to update the visibility of underlying geometries based on the given
+     * visibility.
+     * @param {Boolean} visible
+     * @abstract
+     * @private
+     */
+    _updateVisibility: function(visible) {
+      // Override in subclasses.
+    },
+
+    /**
+     * @returns {Boolean} Whether the entity is selected.
+     */
+    isSelected: function() {
+      return this._selected;
+    },
+
+    /**
+     * Sets the selection state of the entity.
+     * @param {Boolean} selected
+     * @returns {Boolean|null} The original selection state of the entity, or null if the state
+     * is unchanged.
+     */
+    setSelected: function(selected) {
+      if (this._selected === selected) {
+        return null;
       }
+      this._selected = selected;
+      selected ? this._onSelect() : this._onDeselect();
     },
 
     // -------------------------------------------
-    // BEHAVIOUR
+    // EVENTS
     // -------------------------------------------
 
     /**
-     * Handles the GeoEntities behaviour when it is selected.
+     * Handles the behaviour when this entity is selected.
      */
-    onSelect: function() {
-      this._selected = true;
+    _onSelect: function() {
+      this._preSelectStyle = this.getStyle();
       this.setStyle(GeoEntity.getSelectedStyle());
+      this._eventManager.dispatchEvent(new Event(this, 'entity/select', {
+        ids: [this.getId()]
+      }));
     },
 
     /**
-     * Handles the GeoEntities behaviour when it is deselected.
+     * Handles the behaviour when this entity is selected.
      */
-    onDeselect: function() {
-      this._selected = false;
-      this.setStyle(this.getPreviousStyle());
+    _onDeselect: function() {
+      this.setStyle(this._preSelectStyle);
+      this._eventManager.dispatchEvent(new Event(this, 'entity/deselect', {
+        ids: [this.getId()]
+      }));
     },
 
     /**
-     * Enables 'editing' of the GeoEntity using keyboard input.
+     * Adds the given event handle to be managed by the entity.
+     * @param {EventListener} handle
      */
-    onEnableEditing: function() {
-      // TODO(bpstudds): Move this functionality to an EditManager module.
-//      this._editEventHandler = this._eventManager.addEventHandler('intern', 'input/keydown',
-//          function(args) {
-//            // TODO(bpstudds): Replace 'magic numbers' with constants. Probably should update keycode.js library for this.
-//            if (!args.modifiers.shiftKey && !args.modifiers.metaKey && !args.modifiers.altKey &&
-//                !args.modifiers.ctrlKey) {
-//              switch (args.key) {
-//                case 95: // underscore/minus beside backspace key
-//                  this.scale({x: 0.95, y: 0.95, z: 0.95});
-//                  break;
-//                case 61: // equals/plus beside backspace key
-//                  this.scale({x: 1.05, y: 1.05, z: 1.05});
-//                  break;
-//                case 37: // left
-//                  this.rotate({x: 0, y: 0, z: 5});
-//                  break;
-//                case 39: // right
-//                  this.rotate({x: 0, y: 0, z: -5});
-//                  break;
-//              }
-//            }
-//          }.bind(this)
-//      );
-//      this._editingHandles = this.getEditingHandles();
+    _bindEventHandle: function(handle) {
+      this._eventHandles.push(handle);
     },
 
     /**
-     * Disables editing of the GeoEntity.
+     * Cancels all event handles on the entity.
      */
-    onDisableEditing: function() {
-      // TODO(bpstudds): Move this functionality to an EditManager module.
-//      this._editEventHandler && this._editEventHandler.cancel();
-//      this._editingHandles.forEach(function(handle) {
-//        handle.remove();
-//      })
-//      this._editingHandles = [];
+    _cancelEventHandles: function() {
+      this._eventHandles.forEach(function(handle) {
+        handle.cancel();
+      });
     }
 
   }), {
 
     // -------------------------------------------------
-    // Statics
+    // STATICS
     // -------------------------------------------------
 
     /**

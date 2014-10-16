@@ -38,7 +38,7 @@ define([
 
     /**
      * An ItemStore of the @{link atlas.model.Line|Lines} constructing the LineNetwork.
-     * @type {atlas.model.ItemStore}
+     * @type {atlas.core.ItemStore}
      * @private
      */
     _lines: null,
@@ -124,7 +124,6 @@ define([
           this._bindDependencies({parent: this}));
         this._lines.add(line);
       }, this);
-      this.clean();
     },
 
     /**

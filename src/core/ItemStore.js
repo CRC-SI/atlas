@@ -76,6 +76,15 @@ define([
       return Object.keys(this._items);
     },
 
+    /**
+     * @returns {atlas.core.ItemStore} A shallow copy of this object.
+     */
+    clone: function () {
+      var clone = new ItemStore();
+      clone.addArray(this.asArray());
+      return clone;
+    },
+
     // -------------------------------------------------
     // ADDING AND REMOVING
     // -------------------------------------------------
@@ -138,11 +147,9 @@ define([
     // -------------------------------------------------
 
     /**
-     * Applies a given function to every item in the store. The function is assumed to be a
-     * property of every object in the store.
+     * Applies a given function to every item in the store.
      * @param {String|Function.<Object>} func - The name of a method existing on each item, or a
      * function to call with each item and the id as passed arguments.
-     * or a callback function to apply for each item.
      * @param {Object} [scope] - The object that <code>this</code> will refer to. Only valid when
      * <code>func</code> is a callback function.
      * @returns {Array} The returned values from each call of the given function.
@@ -152,8 +159,7 @@ define([
     },
 
     /**
-     * Applies a given function to every item in the store. The given function is called once for
-     * every object in the store, with the object being the only argument.
+     * Applies a given function to every item in the store.
      * @param {String|Function.<Object>} func - The name of a method existing on each item, or a
      * function to call with each item and the id as passed arguments.
      * @param {Object} [scope] - The object that <code>this</code> will refer to. Only used when
@@ -161,6 +167,30 @@ define([
      */
     forEach: function(func, scope) {
       return this._forEach('forEach', func, scope);
+    },
+
+    /**
+     * Applies a given function to every item in the store.
+     * @param {String|Function.<Object>} func - The name of a method existing on each item, or a
+     * function to call with each item and the id as passed arguments.
+     * @param {Object} [scope] - The object that <code>this</code> will refer to. Only used when
+     * <code>func</code> is a callback function.
+     * @returns {Array} Whether at least one call to the given function returned true.
+     */
+    some: function(func, scope) {
+      return this._forEach('some', func, scope);
+    },
+
+    /**
+     * Applies a given function to every item in the store.
+     * @param {String|Function.<Object>} func - The name of a method existing on each item, or a
+     * function to call with each item and the id as passed arguments.
+     * @param {Object} [scope] - The object that <code>this</code> will refer to. Only used when
+     * <code>func</code> is a callback function.
+     * @returns {Array} Whether all calls to the given function returned true.
+     */
+    every: function(func, scope) {
+      return this._forEach('every', func, scope);
     },
 
     /**

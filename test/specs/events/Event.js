@@ -23,19 +23,17 @@ define([
     },
     
     function createBasic() {
-      doh.assertEqual(bareEvent.target, target);
-      doh.assertEqual(bareEvent.type, type);
-      doh.assertTrue(!bareEvent.args);
-      doh.assertTrue(!bareEvent.cancelled);
-      doh.assertTrue(!bareEvent.cancelHost);
+      doh.assertEqual(bareEvent.getTarget(), target);
+      doh.assertEqual(bareEvent.getType(), type);
+      doh.assertTrue(!bareEvent.getArgs());
+      doh.assertTrue(!bareEvent.isCancelled());
     },
 
     function createEventWithArgs() {
-      doh.assertEqual(argedEvent.target, target);
-      doh.assertEqual(argedEvent.type, type);
-      doh.assertEqual(argedEvent.args, args);
-      doh.assertTrue(!argedEvent.cancelled);
-      doh.assertTrue(!argedEvent.cancelHost);
+      doh.assertEqual(argedEvent.getTarget(), target);
+      doh.assertEqual(argedEvent.getType(), type);
+      doh.assertEqual(argedEvent.getArgs(), args);
+      doh.assertTrue(!argedEvent.isCancelled());
     },
 
     function createIncorrectly() {
@@ -50,13 +48,13 @@ define([
 
     function cancelEvent() {
       bareEvent.cancel();
-      doh.assertTrue(bareEvent.cancelled);
+      doh.assertTrue(bareEvent.isCancelled());
       doh.assertTrue(!bareEvent.cancelHost);
       bareEvent.cancel(false);
-      doh.assertTrue(bareEvent.cancelled);
+      doh.assertTrue(bareEvent.isCancelled());
       doh.assertTrue(!bareEvent.cancelHost);
       bareEvent.cancel(true);
-      doh.assertTrue(bareEvent.cancelled);
+      doh.assertTrue(bareEvent.isCancelled());
       doh.assertTrue(bareEvent.cancelHost);
     }
   ];

@@ -1,10 +1,12 @@
 define([
+  'atlas/model/Vertex',
   'atlas/model/GeoPoint',
   'atlas/lib/OpenLayers',
   'atlas/lib/utility/error/DevError',
   'atlas/lib/utility/Class',
+  'atlas/lib/utility/Types',
   'atlas/util/Instances'
-], function(GeoPoint, OpenLayers, DevError, Class, Instances) {
+], function(Vertex, GeoPoint, OpenLayers, DevError, Class, Types, Instances) {
 
   /**
    * @typedef atlas.util.WKT
@@ -25,9 +27,9 @@ define([
     },
 
     /**
-     * Converts a WKT polygon string to an array of {@link atlas.model.GeoPoint} objects.
      * @param {String} wktStr - The WKT string to convert
-     * @returns {Array.<Array.<atlas.model.GeoPoint>> | Array.<atlas.model.GeoPoint>} The convert polygon.
+     * @returns {Array.<Array.<atlas.model.Vertex>> | Array.<atlas.model.Vertex>} The converted
+     * polygon.
      */
     verticesFromWKT: function(wktStr) {
       var geometry = this.openLayersGeometryFromWKT(wktStr).geometry;
@@ -35,7 +37,15 @@ define([
     },
 
     /**
-     * Parses the given WKT string and returns an OpenLayers geometry collection.
+     * @param {String} wktStr - The WKT string to convert
+     * @returns {Array.<Array.<atlas.model.GeoPoint>> | Array.<atlas.model.GeoPoint>} The converted
+     * polygon.
+     */
+    geoPointsFromWKT: function(wktStr) {
+      return this._verticesToGeoPoints(this.verticesFromWKT(wktStr));
+    },
+
+    /**
      * @param {String} wktStr - The WKT string to convert
      * @returns {OpenLayers.Geometry.Collection}
      */
@@ -48,13 +58,14 @@ define([
     },
 
     /**
-     * Returns an array of Vertices representing the given geometry object.
-     * @param  {OpenLayers.Geometry.Collection|OpenLayers.Geometry.Point} geometry - The geometry to convert.
-     * @returns {Array.<atlas.model.GeoPoint>|atlas.model.GeoPoint} An array of Vertices forming a closed polygon.
+     * @param {OpenLayers.Geometry.Collection|OpenLayers.Geometry.Point} geometry - The geometry to convert.
+     * @returns {Array.<Array.<atlas.model.Vertex>>|atlas.model.Vertex} An array of Vertices forming a closed polygon.
      */
     verticesFromOpenLayersGeometry: function(geometry) {
       var vertices = [];
       if (geometry instanceof OpenLayers.Geometry.Point) {
+        // TODO(aramk) This is inconsistent - prefer to return an array containing an array
+        // containing the Vertex.
         return this.vertexFromOpenLayersPoint(geometry);
       } else if (geometry instanceof OpenLayers.Geometry.Collection) {
         var components = geometry.components;
@@ -67,18 +78,33 @@ define([
     },
 
     /**
-     * Converts an OpenLayers.Geometry.Point to a {@link atlas.model.GeoPoint}.
+     * @param {OpenLayers.Geometry.Collection|OpenLayers.Geometry.Point} geometry - The geometry to convert.
+     * @returns {Array.<Array.<atlas.model.GeoPoint>>|atlas.model.GeoPoint} An array of points forming a closed polygon.
+     */
+    geoPointsFromOpenLayersGeometry: function(geometry) {
+      return this._verticesToGeoPoints(this.verticesFromOpenLayersGeometry(geometry));
+    },
+
+    /**
+     * @param  {OpenLayers.Geometry.Point} point - The point to be converted.
+     * @returns {atlas.model.Vertex}
+     */
+    vertexFromOpenLayersPoint: function(point) {
+      // NOTE: OpenLayers treats latitude as x, longitude as y.
+      return new Vertex(point.y, point.x);
+    },
+
+    /**
      * @param  {OpenLayers.Geometry.Point} point - The point to be converted.
      * @returns {atlas.model.GeoPoint}
      */
-    vertexFromOpenLayersPoint: function(point) {
+    geoPointFromOpenLayersPoint: function(point) {
       // NOTE: OpenLayers treats latitude as x, longitude as y.
       return new GeoPoint({longitude: point.y, latitude: point.x});
     },
 
     /**
-     * Converts an array of coordinates into an array of Points.
-     * @param {Array.<atlas.model.GeoPoint>} vertices - The coordinates to convert.
+     * @param {Array.<atlas.model.Vertex>} vertices
      * @returns {Array.<OpenLayers.Geometry.Point>}
      */
     openLayersPointsFromVertices: function(vertices) {
@@ -86,15 +112,22 @@ define([
       for (var i = 0; i < vertices.length; i++) {
         var vertex = vertices[i];
         // NOTE: OpenLayers treats latitude as x, longitude as y. Atlas uses the opposite.
-        var point = new OpenLayers.Geometry.Point(vertex.latitude, vertex.longitude);
+        var point = new OpenLayers.Geometry.Point(vertex.y, vertex.x);
         points.push(point);
       }
       return points;
     },
 
     /**
-     * Returns an OpenLayers Polygon from an array of vertices.
-     * @param {Array.<atlas.model.GeoPoint>} vertices - The vertices to convert.
+     * @param {Array.<atlas.model.GeoPoint>} points
+     * @returns {Array.<OpenLayers.Geometry.Point>}
+     */
+    openLayersPointsFromGeoPoints: function(points) {
+      return this.openLayersPointsFromVertices(GeoPoint.arrayToVertices(points));
+    },
+
+    /**
+     * @param {Array.<atlas.model.Vertex>} vertices
      * @returns {OpenLayers.Geometry.Polygon}
      */
     openLayersPolygonFromVertices: function(vertices) {
@@ -110,23 +143,56 @@ define([
     },
 
     /**
-     * Returns a WKT string from an array of vertices.
-     * @param {Array.<atlas.model.GeoPoint>} vertices - The vertices to convert.
+     * @param {Array.<atlas.model.GeoPoint>} points
+     * @returns {OpenLayers.Geometry.Polygon}
+     */
+    openLayersPolygonFromGeoPoints: function(points) {
+      return this.openLayersPolygonFromVertices(GeoPoint.arrayToVertices(points));
+    },
+
+    /**
+     * @param {Array.<atlas.model.Vertex>} vertices
+     * @returns {OpenLayers.Geometry.Polygon}
+     */
+    openLayersPolylineFromVertices: function(vertices) {
+      var points = this.openLayersPointsFromVertices(vertices);
+      return new OpenLayers.Geometry.LineString(points);
+    },
+
+    /**
+     * @param {Array.<atlas.model.GeoPoint>} points
+     * @returns {OpenLayers.Geometry.Polygon}
+     */
+    openLayersPolylineFromGeoPoints: function(points) {
+      return this.openLayersPolylineFromVertices(GeoPoint.arrayToVertices(points));
+    },
+
+    /**
+     * @param {Array.<atlas.model.Vertex>} vertices
      * @returns {String}
      */
+    // TODO(aramk) Rename this to indicate that it creates polygons.
+    // TODO(aramk) Also support LINESTRING and POINT.
     wktFromVertices: function(vertices) {
-      // TODO(aramk) Also support LINESTRING and POINT.
       var polygon = this.openLayersPolygonFromVertices(vertices);
       return this.parser.extractGeometry(polygon);
     },
 
     /**
+     * @param {Array.<atlas.model.GeoPoint>} points - The points to convert.
+     * @returns {String}
+     */
+    wktFromGeoPoints: function(points) {
+      return this.wktFromVertices(GeoPoint.arrayToVertices(points));
+    },
+
+    /**
      * Scales a polygon formed by a series of Vertices.
-     * @param {Array.<atlas.model.GeoPoint>} vertices - The vertices to scale.
-     * @param {atlas.model.GeoPoint} scaleBy - Defines the factors to scale by.
+     * @param {Array.<atlas.model.Vertex>} vertices - The vertices to scale.
+     * @param {atlas.model.Vertex} scaleBy - Defines the factors to scale by.
      * @param {Number} scaleBy.x - The factor to scale the x axis by.
      * @param {Number} scaleBy.y - The factor to scale the y axis by.
-     * @returns {Array.<atlas.model.GeoPoint>} The rescaled vertices.
+     * @returns {Array.<atlas.model.Vertex>} The rescaled vertices.
      */
     scaleVertices: function(vertices, scaleBy) {
       // TODO(aramk) WKT.scaleVertices does not work.
@@ -157,6 +223,15 @@ define([
         }
       });
       return coords;
+    },
+
+    _verticesToGeoPoints: function(vertices) {
+      var isMultiPolygon = Types.isArrayLiteral(vertices[0]);
+      var innerArray = isMultiPolygon ? vertices[0] : vertices;
+      innerArray = innerArray.map(function(vertex) {
+        return GeoPoint.fromVertex(vertex);
+      });
+      return isMultiPolygon ? [innerArray] : innerArray;
     },
 
     _isType: function(wktStr, type) {

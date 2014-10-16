@@ -3,10 +3,9 @@ define([
   'atlas/lib/utility/Setter',
   'atlas/model/GeoEntity',
   'atlas/model/GeoPoint',
-  'atlas/model/Vertex',
   'atlas/model/Handle',
   'atlas/util/WKT'
-], function(Types, Setter, GeoEntity, GeoPoint, Vertex, Handle, WKT) {
+], function(Types, Setter, GeoEntity, GeoPoint, Handle, WKT) {
   /**
    * @typedef atlas.model.VertexedEntity
    * @ignore
@@ -29,13 +28,6 @@ define([
     _vertices: null,
 
     /**
-     * The elevation of the base of the GeoEntity.
-     * @type {Number}
-     * @private
-     */
-    _elevation: 0,
-
-    /**
      * The z-axis order as an integer in the range [0, Infinity]. Entities with higher zIndex will
      * appear on top.
      * @type {Number}
@@ -56,14 +48,18 @@ define([
       var vertices = data.vertices;
       if (Types.isString(vertices)) {
         var wkt = WKT.getInstance(),
-            vertexArray = wkt.verticesFromWKT(vertices);
+            vertexArray = wkt.geoPointsFromWKT(vertices);
         if (vertexArray[0] instanceof Array) {
+          // Polygon
           this._vertices = vertexArray[0];
+        } else if (vertexArray[0] instanceof GeoPoint) {
+          // Line
+          this._vertices = vertexArray;
         } else {
           throw new Error('Invalid vertices for entity ' + id);
         }
       } else if (Types.isArrayLiteral(vertices)) {
-        this._vertices = Setter.def(vertices, []).map(function (vertex) {
+        this._vertices = Setter.def(vertices, []).map(function(vertex) {
           return new GeoPoint(vertex);
         });
       } else {
@@ -77,21 +73,12 @@ define([
 
     _build: function() {
       if (this.isDirty('entity') || this.isDirty('vertices') || this.isDirty('model')) {
-        // Rebuild centroid. Assign it back in case subclasses change memoization logic.
-        var oldCentroid = this._centroid;
-        this._centroid = null;
-        this._centroid = this.getCentroid();
-        if (oldCentroid && !oldCentroid.equals(this._centroid)) {
-          // Update the entity handle (if any).
-          var entityHandle = this.getEntityHandle();
-          if (entityHandle) {
-            entityHandle.setTarget(this._centroid);
-          }
+        // Update the entity handle (if any).
+        var entityHandle = this.getEntityHandle();
+        if (entityHandle) {
+          entityHandle.setTarget(this.getCentroid());
         }
-        // Invalidate the area.
-        this._area = null;
       }
-      this.clean();
     },
 
     createHandles: function() {
@@ -126,29 +113,37 @@ define([
     // -------------------------------------------
 
     translate: function(translation) {
-      // TODO(aramk) This centroid isn't the same instance as in the handle.
-      this.getCentroid().translate(translation);
       this._vertices.forEach(function(vertex) {
         vertex.set(vertex.translate(translation));
       });
-      // TODO(aramk) Why does this update the handle vertex?
       this._handles.map(function(handle) {
         handle.translate(translation, {delegate: false});
       });
-      this.setDirty('model');
-      this.isVisible() && this.show();
+      this._super(translation);
     },
 
     scale: function(scale) {
       var centroid = this.getCentroid();
       this._vertices.forEach(function(vertex, i) {
-        var diff = vertex.subtract(centroid);
+        var diff = vertex.subtract(centroid).toVertex();
         diff = diff.componentwiseMultiply(scale);
-        this._vertices[i] = diff.add(centroid);
+        this._vertices[i] = centroid.translate(GeoPoint.fromVertex(diff));
       }, this);
-      this.setDirty('model');
-      this.isVisible() && this.show();
+      this._height *= scale.z;
+      this._super(scale);
     },
+
+    // TODO(aramk) Rotation of vertices needs matrix math functions in Atlas.
+    // TODO(aramk) Perhaps a better strategy than transforming the original vertices would
+    // be to keep the transformation entirely separate and apply it conditionally after building
+    // the primitive. At the moment, we're relying on reproducing the transformation to vertices
+    // that affect the primitives in atlas-cesium. At the same time, atlas should perform all the
+    // calculations the provider (atlas-cesium) should only be visualising, so we likely need
+    // matrix transformations in Atlas, which is more work for now.
+
+//    rotate: function(rotation) {
+//      this._super(rotation);
+//    },
 
     // -------------------------------------------
     // GETTERS AND SETTERS
@@ -161,10 +156,7 @@ define([
      */
     addVertex: function(vertex) {
       this._vertices.push(vertex);
-      // Invalidate any pre-calculated area and centroid.
       this.setDirty('vertices');
-      this._area = null;
-      this._centroid = null;
       return this._vertices.length;
     },
 
@@ -182,14 +174,10 @@ define([
       if (index < 0) {
         insertAt = this._vertices.length + 1 + index;
       }
-
       // TODO(aramk) This will destroy the indices for the handles. Pass them IDs instead of
       // indices.
       this._vertices.splice(insertAt, 0, vertex);
-      // Clear derived values.
       this.setDirty('vertices');
-      this._area = null;
-      this._centroid = null;
       return insertAt;
     },
 
@@ -205,10 +193,7 @@ define([
       }
       if (-this._vertices.length <= index && index <= this._vertices.length - 1) {
         var removed = this._vertices.splice(index, 1)[0];
-        // Clear derived values
         this.setDirty('vertices');
-        this._area = null;
-        this._centroid = null;
         return removed;
       }
       return null;
@@ -222,26 +207,14 @@ define([
       if (this._area) {
         return this._area;
       }
-      var geometry = this._getOpenLayersGeometry();
+      var geometry = this.getOpenLayersGeometry();
       this._area = geometry.getGeodesicArea();
       return this._area;
     },
 
-    getCentroid: function() {
-      if (this._centroid) {
-        return this._centroid.clone();
-      } else if (this._vertices.length === 0) {
-        return null;
-      }
+    getOpenLayersGeometry: function() {
       var wkt = WKT.getInstance();
-      var geometry = this._getOpenLayersGeometry();
-      this._centroid = wkt.vertexFromOpenLayersPoint(geometry.getCentroid());
-      return this._centroid.clone();
-    },
-
-    _getOpenLayersGeometry: function () {
-      var wkt = WKT.getInstance();
-      return wkt.openLayersPolygonFromVertices(this._vertices);
+      return wkt.openLayersPolygonFromGeoPoints(this._vertices);
     },
 
     /**
@@ -249,17 +222,8 @@ define([
      * @param {Number} elevation - The elevation of the base of the GeoEntity.
      */
     setElevation: function(elevation) {
-      if (typeof elevation === 'number' && this._elevation !== elevation) {
-        this._elevation = elevation;
-        this.setDirty('vertices');
-      }
-    },
-
-    /**
-     * @returns {Number} The elevation of the base of the GeoEntity.
-     */
-    getElevation: function() {
-      return this._elevation;
+      this._super(elevation);
+      this.setDirty('vertices');
     },
 
     /**

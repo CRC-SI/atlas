@@ -246,8 +246,7 @@ define([
      */
     translate: function(translation) {
       this._centroid = this._centroid.translate(translation);
-      this.setDirty('model');
-      this.isVisible() && this.show();
+      this._super(translation);
     },
 
     /**
@@ -273,8 +272,7 @@ define([
       }
       this._semiMajor = major;
       this._semiMinor = minor;
-      this.setDirty('model');
-      this.isVisible() && this.show();
+      this._super(scale);
     },
 
     /**
@@ -283,8 +281,7 @@ define([
      */
     rotate: function(rotation) {
       this._rotation += (parseFloat(rotation) || 0.0);
-      this.setDirty('model');
-      this.isVisible() && this.show();
+      this._super(rotation);
     }
 
   });

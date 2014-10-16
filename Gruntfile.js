@@ -90,11 +90,11 @@ module.exports = function(grunt) {
 
       buildOpenLayers: {
         options: {
-          stdout: true
+          stdout: true, stderr: true, failOnError: true
         },
         command: [
-              'cd ' + OPEN_LAYERS_BUILD_PATH,
-              'python build.py -c none ' + OPEN_LAYERS_CONFIG_FILE.replace(/\.cfg$/, '') + ' ' +
+              'cd ' + OPEN_LAYERS_BUILD_PATH, 'pwd', 'ls -l',
+              'python ./build.py -c none ' + OPEN_LAYERS_CONFIG_FILE.replace(/\.cfg$/, '') + ' ' +
               OPEN_LAYERS_BUILD_OUTPUT_FILE
         ].join('&&')
       }
@@ -104,10 +104,12 @@ module.exports = function(grunt) {
       bowerDep: {
         files: [
           {src: libPath('Requirejs', 'require.js'), dest: libPath('require.js')},
-          {src: libPath('Tinycolor', 'tinycolor.js'), dest: libPath('tinycolor.js')},
+          {src: libPath('tinycolor', 'tinycolor.js'), dest: libPath('tinycolor.js')},
           {src: libPath('Keycode', 'keycode.js'), dest: libPath('keycode.js')},
           {src: libPath('numeraljs', 'min', 'numeral.min.js'), dest: libPath('numeral.js')},
-          {src: libPath('q', 'q.js'), dest: libPath('Q.js')}
+          {src: libPath('q', 'q.js'), dest: libPath('Q.js')},
+          {src: libPath('graham_scan', 'src',
+              'graham_scan.js'), dest: libPath('ConvexHullGrahamScan.js')}
         ]
       },
       openLayersBuildConfig: {
@@ -258,15 +260,26 @@ module.exports = function(grunt) {
     addTasks('compile-imports', 'clean:dist');
     hasArgs('no-minify') ? addTasks('shell:build') : addTasks('shell:buildMinify');
     addTasks('set-build-env', 'less', 'copy:resources', 'clean:resourcesLess');
+    hasArgs('meteor') && addTasks('fix-build-meteor');
     console.log('Running tasks', tasks);
     tasks.forEach(function(task) {
       grunt.task.run(task);
     })
   });
+
   grunt.registerTask('doc', 'Generates documentation.', ['clean:doc', 'shell:jsDoc']);
+
   grunt.registerTask('install-openlayers', 'Installs OpenLayers with a custom build.',
       ['copy:openLayersBuildConfig', 'shell:buildOpenLayers', 'fix-openlayers-build',
         'copy:openLayersBuildOutput']);
+
+  grunt.registerTask('fix-build-meteor', 'Fixes build to work with Meteor.', function() {
+    // Create a closure around the build and shim client-side variables.
+    var fixes = readFile(path.join(BUILD_DIR, 'meteorFixes.js'));
+    writeFile(BUILD_OUTPUT_PATH, function(data) {
+      return fixes.replace('// EXISTING CODE GOES HERE', data);
+    });
+  });
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // AUXILIARY

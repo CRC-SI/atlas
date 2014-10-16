@@ -105,9 +105,10 @@ define([
      * event system.
      * @param  {String}   eventName - The event type to subscribe to.
      * @param  {Function} callback - The callback that will be called when the event occurs.
+     * @returns {Object} An EventListener object that can be used to cancel the EventHandler.
      */
     subscribe: function(eventName, callback) {
-      this._managers.event.addEventHandler('intern', eventName, callback);
+      return this._managers.event.addEventHandler('intern', eventName, callback);
     },
 
     /**

@@ -2,7 +2,6 @@ define([
   'atlas/core/Manager',
   'atlas/core/ItemStore',
   'atlas/lib/utility/Log',
-  'atlas/lib/utility/Objects',
   'atlas/lib/utility/Setter',
   'atlas/model/Ellipse',
   'atlas/model/Feature',
@@ -13,7 +12,7 @@ define([
   'atlas/model/Image',
   'atlas/model/Vertex',
   'atlas/util/DeveloperError'
-], function(Manager, ItemStore, Log, Objects, Setter, Ellipse, Feature, GeoEntity, Mesh, Polygon,
+], function(Manager, ItemStore, Log, Setter, Ellipse, Feature, GeoEntity, Mesh, Polygon,
             Line, Image, Vertex, DeveloperError) {
 
   /**
@@ -84,8 +83,11 @@ define([
           callback: function(args) {
             Log.time('entity/show');
             var entity = this.getById(args.id);
-            (!entity) && (entity = this.createFeature(args.id, args));
-            entity.show();
+            if (!entity) {
+              entity = this.createFeature(args.id, args)
+            } else {
+              entity.show();
+            }
             Log.timeEnd('entity/show');
           }.bind(this)
         },
@@ -116,10 +118,7 @@ define([
             Log.time('entity/show/bulk');
             var ids;
             if (args.features) {
-              this.bulkCreate(args.features);
-              ids = args.features.map(function(item) {
-                return item.id
-              });
+              ids = this.bulkCreate(args.features);
             } else if (args.ids) {
               ids = args.ids;
             } else {
@@ -128,9 +127,6 @@ define([
             if (args.callback) {
               args.callback(ids);
             }
-            this.getByIds(ids).forEach(function(entity) {
-              entity.show();
-            }, this);
             Log.timeEnd('entity/show/bulk');
           }.bind(this)
         },
@@ -265,7 +261,9 @@ define([
         // Add the EntityManager to the args for the feature.
         args.entityManager = this;
         Log.debug('Creating entity', id);
-        return new this._entityTypes.Feature(id, args);
+        var feature = new this._entityTypes.Feature(id, args);
+        (args.show !== false) && feature.show();
+        return feature;
       }
     },
 
@@ -285,7 +283,6 @@ define([
           // the API for consistency.
           var args = this._parseC3ML(c3ml);
           var feature = this.createFeature(id, args);
-          args.show && feature.show();
           ids.push(id);
         }
       }, this);
@@ -324,8 +321,7 @@ define([
         image: {
           vertices: _this._parseCoordinates(c3ml.coordinates),
           image: c3ml.image
-        },
-        show: true
+        }
       };
     },
 
@@ -342,8 +338,7 @@ define([
           color: c3ml.color,
           height: c3ml.height,
           elevation: c3ml.altitude
-        },
-        show: true
+        }
       };
     },
 
@@ -360,8 +355,7 @@ define([
           color: c3ml.color,
           height: c3ml.height,
           elevation: c3ml.altitude
-        },
-        show: true
+        }
       };
     },
 
@@ -381,8 +375,7 @@ define([
           geoLocation: c3ml.geoLocation,
           scale: c3ml.scale,
           rotation: c3ml.rotation
-        },
-        show: true
+        }
       };
     },
 
@@ -479,9 +472,11 @@ define([
      * @returns {Object.<String, atlas.model.GeoEntity>} A map of IDs to visible features.
      */
     getVisibleFeatures: function() {
-      return this.getVisibleEntities({filter: function(entity) {
-        return entity instanceof Feature;
-      }});
+      return this.getVisibleEntities({
+        filter: function(entity) {
+          return entity instanceof Feature;
+        }
+      });
     },
 
     /**

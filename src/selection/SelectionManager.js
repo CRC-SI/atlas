@@ -241,16 +241,9 @@ define([
           }
           toSelectIds.forEach(function(id) {
             var entity = toSelectEntities[id];
-            entity.onSelect();
+            entity.setSelected(true);
             this._selection[id] = entity;
           }.bind(this));
-
-          this._managers.event.dispatchEvent(
-            new Event(null, 'entity/select', {
-              ids: toSelectIds,
-              mousePosition: mousePosition
-            })
-          );
         }
       }
       Log.debug('selected entities', toSelectIds);
@@ -269,13 +262,11 @@ define([
         entities.forEach(function(entity) {
           var id = entity.getId();
           if (this.isSelected(id)) {
-            entity.onDeselect();
+            entity.setSelected(false);
             deselected.push(id);
             delete this._selection[id];
           }
         }.bind(this));
-        this._managers.event.dispatchEvent(new Event(new EventTarget(), 'entity/deselect',
-            {ids: deselected}));
         Log.debug('deselected entities', ids);
       }
       return deselected;

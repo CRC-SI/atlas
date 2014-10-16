@@ -3,7 +3,7 @@ define([
   'atlas/util/AtlasMath',
   'atlas/lib/utility/Class',
   'atlas/util/FreezeObject'
-], function(Tinycolor, AtlasMath, Class, freeze) {
+], function(tinycolor, AtlasMath, Class, freeze) {
   var __DEBUG__ = true;
 
   if (__DEBUG__) {
@@ -64,7 +64,7 @@ define([
     },
 
     _fromStr: function(str) {
-      var c = Tinycolor(str).toRgb(),
+      var c = tinycolor(str).toRgb(),
           toFloat = function(x) {
             return x / 255;
           };
@@ -101,7 +101,7 @@ define([
      * @returns {Object} The colour as a tinycolor HSV object.
      */
     toHsv: function() {
-      var tiny = Tinycolor(this.toString());
+      var tiny = tinycolor(this.toString());
       return tiny.toHsv();
     },
 
@@ -165,7 +165,7 @@ define([
    * @returns {atlas.model.Colour} - The converted colour.
    */
   Colour.fromHsv = function(hsv) {
-    var tiny = Tinycolor(hsv).toRgb();
+    var tiny = tinycolor(hsv).toRgb();
     return new Colour(tiny.r / 255, tiny.g / 255, tiny.b / 255, 1);
   };
 

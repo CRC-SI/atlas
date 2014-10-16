@@ -13,6 +13,7 @@ define([
    */
   var Feature;
 
+  // TODO(aramk) Docs about display mode arguments are outdated.
   /**
    * @classdesc A Feature represents an entity that can be visualised either
    * as a 2D line, 2D footprint, an 3D extrusion of said footprint, or a 3D mesh.
@@ -96,43 +97,32 @@ define([
 
     _init: function(id, args) {
       this._super(id, args);
-      var displayMode;
-      if (args.mesh) {
-        displayMode = Feature.DisplayMode.MESH;
-      } else if (args.ellipse) {
-        displayMode = Feature.DisplayMode.EXTRUSION;
-      } else if (args.polygon) {
-        displayMode = Feature.DisplayMode.EXTRUSION;
-      } else if (args.line) {
-        displayMode = Feature.DisplayMode.LINE;
-      } else if (args.image) {
-        displayMode = Feature.DisplayMode.IMAGE;
-      }
-      this.setDisplayMode(args.displayMode || displayMode);
+      var displayMode = args.displayMode;
+      var propertyToDisplayMode = {
+        mesh: Feature.DisplayMode.MESH,
+        ellipse: Feature.DisplayMode.EXTRUSION,
+        polygon: Feature.DisplayMode.EXTRUSION,
+        line: Feature.DisplayMode.LINE,
+        image: Feature.DisplayMode.IMAGE
+      };
+      Object.keys(propertyToDisplayMode).forEach(function(prop) {
+        var mode = propertyToDisplayMode[prop];
+        var form = args[prop];
+        if (form) {
+          this.setForm(mode, form);
+          displayMode = displayMode || mode;
+        }
+      }, this);
+      this.setDisplayMode(displayMode);
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
       this._initDelegation();
+      this._initSelection();
     },
 
     // -------------------------------------------
     // GETTERS AND SETTERS
     // -------------------------------------------
-
-    getForm: function(displayMode) {
-      displayMode = displayMode || this._displayMode;
-      var form;
-      if (displayMode === Feature.DisplayMode.FOOTPRINT ||
-          displayMode === Feature.DisplayMode.EXTRUSION) {
-        form = this._footprint;
-      } else if (displayMode === Feature.DisplayMode.MESH) {
-        form = this._mesh;
-      } else if (displayMode === Feature.DisplayMode.IMAGE) {
-        form = this._image;
-      } else if (displayMode === Feature.DisplayMode.LINE) {
-        form = this._line;
-      }
-      return form;
-    },
 
     /**
      * Binds various methods in {@link atlas.model.GeoEntity} which should be entirely delegated to
@@ -142,18 +132,79 @@ define([
     _initDelegation: function() {
       var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
         'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles',
-        'getCentroid', 'getArea', 'getVertices', 'isVisible', 'translate', 'scale', 'rotate',
-        'onSelect', 'onDeselect'];
+        'getCentroid', 'getArea', 'getVertices', 'getOpenLayersGeometry', 'translate',
+        'scale', 'rotate', 'setScale', 'setRotation', 'setElevation', 'isSelected'];
       methods.forEach(function(method) {
         this[method] = function() {
           return this._delegateToForm(method, arguments);
-        }
+        };
       }, this);
     },
 
     _delegateToForm: function(method, args) {
       var form = this.getForm();
       return form && form[method].apply(form, args);
+    },
+
+    /**
+     * @param {atlas.model.Feature.DisplayMode} displayMode
+     * @param {atlas.model.GeoEntity} entity
+     */
+    setForm: function(displayMode, entity) {
+      var property = this._getFormPropertyName(displayMode);
+      this[property] = entity;
+      this.isVisible() && this.show();
+    },
+
+    /**
+     * @param {atlas.model.Feature.DisplayMode} [displayMode]
+     * @returns {atlas.model.GeoEntity} The form for the given display mode, or the current
+     * display mode if none is given.
+     */
+    getForm: function(displayMode) {
+      displayMode = displayMode || this._displayMode;
+      if (displayMode) {
+        var property = this._getFormPropertyName(displayMode);
+        return this[property];
+      } else {
+        return null;
+      }
+    },
+
+    /**
+     * @param {atlas.model.Feature.DisplayMode} displayMode
+     * @returns {String} The name of the property used for storing the given display mode.
+     * @private
+     */
+    _getFormPropertyName: function(displayMode) {
+      // TODO(aramk) Extrusion is a special case. If there are more, create a map instead.
+      if (displayMode === Feature.DisplayMode.EXTRUSION) {
+        displayMode = Feature.DisplayMode.FOOTPRINT;
+      }
+      if (Feature.DisplayMode[displayMode.toUpperCase()]) {
+        return '_' + displayMode;
+      } else {
+        throw new DeveloperError('Invalid display mode ' + displayMode);
+      }
+    },
+
+    setSelected: function(selected) {
+      // Ensure a selection event is fired for the feature as well. Since setSelected alters the
+      // style and it will replace the style of the entity before it is considered selected, and
+      // setting the style of the feature will set the style on the entity a second time. When
+      // deselected, the entity will not revert to the original style. To prevent this, call the
+      // selection on the form first.
+      // When deselecting, the issue is that when the feature is deselected it applies the
+      // wrong pre select style on the entity due to delegation, so we want to ensure the form
+      // itself reverts selection.
+      // TODO(aramk) This is complicated - refactor.
+      if (selected) {
+        this._delegateToForm('setSelected', arguments);
+        this._super(selected);
+      } else {
+        this._super(selected);
+        this._delegateToForm('setSelected', arguments);
+      }
     },
 
     /**
@@ -173,13 +224,6 @@ define([
       return this._delegateToForm('getElevation') || this._elevation;
     },
 
-    setFootprint: function(footprint) {
-      if (!(footprint instanceof Polygon)) {
-        throw new DeveloperError('Can only assign Polygon to footprint');
-      }
-      this._footprint = footprint;
-    },
-
     /**
      * Sets the extruded height of the Feature to form a prism.
      * @param {Number} height - The extruded height of the feature.
@@ -196,13 +240,6 @@ define([
      */
     getHeight: function() {
       return this._delegateToForm('getHeight') || this._height;
-    },
-
-    setMesh: function(mesh) {
-      if (!(mesh instanceof Mesh)) {
-        throw new DeveloperError('Can only assign Mesh to mesh.');
-      }
-      this._mesh = mesh;
     },
 
     setStyle: function(style) {
@@ -303,7 +340,7 @@ define([
         this._footprint && this._footprint.hide();
         this._image && this._image.hide();
         if (this._line) {
-          this._visible = this._line.show();
+          this._line.show();
         }
       } else if (this._displayMode === Feature.DisplayMode.FOOTPRINT) {
         this._mesh && this._mesh.hide();
@@ -311,7 +348,7 @@ define([
         this._image && this._image.hide();
         if (this._footprint) {
           this._footprint.disableExtrusion();
-          this._visible = this._footprint.show();
+          this._footprint.show();
         }
       } else if (this._displayMode === Feature.DisplayMode.EXTRUSION) {
         this._mesh && this._mesh.hide();
@@ -319,40 +356,45 @@ define([
         this._image && this._image.hide();
         if (this._footprint) {
           this._footprint.enableExtrusion();
-          this._visible = this._footprint.show();
+          this._footprint.show();
         }
       } else if (this._displayMode === Feature.DisplayMode.MESH) {
         this._footprint && this._footprint.hide();
         this._line && this._line.hide();
         this._image && this._image.hide();
         if (this._mesh) {
-          this._visible = this._mesh.show();
+          this._mesh.show();
         }
       } else if (this._displayMode === Feature.DisplayMode.IMAGE) {
         this._footprint && this._footprint.hide();
         this._line && this._line.hide();
         this._image && this._image.hide();
         if (this._image) {
-          this._visible = this._image.show();
+          this._image.show();
         }
       }
-      return this._visible;
+      // Call this afterwards to avoid calling clean() on the form, which would prevent show()
+      // calling _build().
+      this._super();
     },
 
     /**
      * Hides the Feature.
      */
     hide: function() {
-      this._visible = false;
-      return this._delegateToForm('hide') || this._visible;
+      this._super();
+      this._delegateToForm('hide');
     },
 
     /**
      * @param {atlas.model.Feature.DisplayMode} displayMode
      */
     setDisplayMode: function(displayMode) {
+      if (displayMode && !this._getFormPropertyName(displayMode)) {
+        throw new Error('Invalid display mode: ' + displayMode);
+      }
       this._displayMode = displayMode;
-      this.isVisible() && this.show();
+      this.isVisible() ? this.show() : this.hide();
     },
 
     /**
@@ -360,6 +402,42 @@ define([
      */
     getDisplayMode: function() {
       return this._displayMode;
+    },
+
+    _build: function() {
+      // Rendering is delegated to the form.
+    },
+
+    /**
+     * Listen for selection events on the form and apply it to this feature so that all forms
+     * are selected.
+     * @private
+     */
+    _initSelection: function() {
+      var feature = this;
+      var actions = {'select': true, 'deselect': false};
+      // TODO(aramk) Binding events to specific target GeoEntity objects would prevent the need to
+      // iterate through and check if each child is in the selected set.
+      Object.keys(actions).forEach(function(name) {
+        var state = actions[name];
+        var handle = this._eventManager.addEventHandler('intern', 'entity/' + name, function(args) {
+          var formsById = {};
+          Object.keys(Feature.DisplayMode).forEach(function(modeId) {
+            var modeValue = Feature.DisplayMode[modeId];
+            var form = feature.getForm(modeValue);
+            if (form) {
+              formsById[form.getId()] = form;
+            }
+          });
+          var match = args.ids.some(function(id) {
+            return formsById[id];
+          });
+          if (match) {
+            feature.setSelected(state);
+          }
+        });
+        this._bindEventHandle(handle);
+      }, this);
     }
 
   }), {

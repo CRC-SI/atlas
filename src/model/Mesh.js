@@ -1,11 +1,12 @@
 define([
   'atlas/lib/utility/Setter',
   'atlas/model/Colour',
+  'atlas/model/GeoPoint',
   'atlas/model/Style',
   'atlas/model/Vertex',
   // Base class
   'atlas/model/GeoEntity'
-], function(Setter, Colour, Style, Vertex, GeoEntity) {
+], function(Setter, Colour, GeoPoint, Style, Vertex, GeoEntity) {
 
   /**
    * @typedef atlas.model.Mesh
@@ -56,24 +57,10 @@ define([
 
     /**
      * The location of the mesh object, specified by longitude, latitude, and elevation.
-     * @type {atlas.model.Vertex}
+     * @type {atlas.model.GeoPoint}
      * @protected
      */
     _geoLocation: null,
-
-    /**
-     * The scale that is applied to the Mesh when transforming it from model space to world space.
-     * @type {atlas.model.Vertex}
-     * @protected
-     */
-    _scale: null,
-
-    /**
-     * The rotation that is applied to the entity when transforming it from model space to world space.
-     * @type {atlas.model.Vertex}
-     * @protected
-     */
-    _rotation: null,
 
     /**
      * Defines a transformation from model space to world space. This is derived from <code>Mesh._geoLocation</code>,
@@ -110,6 +97,7 @@ define([
         }, this);
       }
 
+      // TODO(aramk) Normals not currently used.
       if (meshData.normals && meshData.normals.length) {
         this._normals = new Float64Array(meshData.normals.length);
         meshData.normals.forEach(function(normal, i) {
@@ -118,7 +106,7 @@ define([
       }
 
       if (meshData.geoLocation) {
-        this._geoLocation = new Vertex(meshData.geoLocation);
+        this._geoLocation = new GeoPoint(meshData.geoLocation);
       }
 
       if (meshData.scale && meshData.scale.length > 0) {
@@ -148,6 +136,24 @@ define([
     // GETTERS AND SETTERS
     // -------------------------------------------
 
+    /**
+     * @returns {atlas.model.Vertex}
+     */
+    getGeoLocation: function () {
+      return this._geoLocation;
+    },
+
+    getOpenLayersGeometry: function () {
+      // TODO(aramk) Currently only supported in Atlas-Cesium.
+      throw new Error('Incomplete method');
+    },
+
+    // TODO(aramk) Re-render mesh when changing height.
+    setElevation: function (elevation) {
+      this._super(elevation);
+      this._geoLocation.elevation = elevation;
+    },
+
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------
@@ -161,10 +167,8 @@ define([
      */
     translate: function(translation) {
       // Update the 'translation', ie change _geoLocation.
-      this._geoLocation = this._geoLocation.add(translation);
-      // And redraw the Mesh.
-      this.setDirty('model');
-      this.isVisible() && this.show();
+      this._geoLocation = this._geoLocation.translate(translation);
+      this._super(translation);
     },
 
     /**
@@ -176,8 +180,7 @@ define([
      */
     scale: function(scale) {
       this._scale = this._scale.componentwiseMultiply(scale);
-      this.setDirty('model');
-      this.isVisible() && this.show();
+      this._super(scale);
     },
 
     /**
@@ -192,8 +195,7 @@ define([
      */
     rotate: function(rotation) {
       this._rotation = this._rotation.add(rotation);
-      this.setDirty('model');
-      this.isVisible() && this.show();
+      this._super(rotation);
     }
 
   }), {

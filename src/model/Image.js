@@ -101,7 +101,7 @@ define([
     // BEHAVIOUR
     // -------------------------------------------
 
-    onSelect: function() {
+    _onSelect: function() {
       this._selected = true;
       this.setStyle(Image.getSelectedStyle());
     }

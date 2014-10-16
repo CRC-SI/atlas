@@ -80,11 +80,6 @@ define([
       // The dot should not be registered with the EntityManager, as the Handle already is.
       delete args.entityManager;
       this.setDirty('model');
-      this._build();
-    },
-
-    _build: function() {
-      this.clean();
     },
 
     /**
@@ -109,7 +104,7 @@ define([
     setTarget: function(target) {
       this._target = target;
       this.setDirty('model');
-      this._build();
+      this._update();
     },
 
     /**

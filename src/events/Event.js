@@ -1,14 +1,11 @@
 define([
+  'atlas/events/EventTarget',
+  'atlas/lib/utility/Class',
   'atlas/util/DeveloperError'
-], function (DeveloperError) {
-  "use strict";
-  // summary:
-  //      Event, like a regular DOM event, is a simple object that
-  //      encapsulates the information relevant to the event that occurred
-
+], function(EventTarget, Class, DeveloperError) {
   /**
    * Event, like a regular DOM event, is a simple object that
-   * encapsulates the information relevatant to the event that occured.
+   * encapsulates the information relevant to the event that occurred.
    *
    * @param {atlas.events.EventTarget} target - The target of the Event.
    * @param {string} type - The type of the Event.
@@ -17,40 +14,89 @@ define([
    * @alias atlas.events.Event
    * @constructor
    */
-  var Event = function(target, type, args) {
-    if (type === undefined) {
-      throw new DeveloperError('Can not create Event: Event must type.');
-    }
+  return Class.extend({
 
     /**
      * Current target of this event.
      * @type {atlas.model.EventTarget}
      */
-    this.target = target;
+    _target: null,
 
     /**
      * Type of this event.
      * @type {string}
+     * @private
      */
-    this.type = type;
+    _type: null,
 
     /**
      * Optional event specific arguments or data.
      * @type {Object}
+     * @private
      */
-    this.args = args;
-  };
+    _args: null,
 
-  /**
-   * Prevents the Event from being handled by any more EventTargets (a combination
-   * of preventDefault and stopPropagation from the DOM event model).
-   * @param {boolean} [cancelHost=false] - If true, the EventManager will not propagate this Event to the host application.
-   */
-  Event.prototype.cancel = function(cancelHost) {
-    this.cancelHost = this.cancelHost || cancelHost;
-    this.cancelled = true;
-  };
+    /**
+     * Whether this event has been cancelled.
+     * @type {Boolean}
+     * @private
+     */
+    _isCancelled: false,
 
-  return Event;
+    _init: function(target, type, args) {
+      this.setTarget(target);
+      this.setType(type);
+      this.setArgs(args);
+    },
+
+    setTarget: function(target) {
+      if (target && !(target instanceof EventTarget)) {
+        // TODO(aramk) We could also make this more lenient and check for existence of properties.
+        throw new DeveloperError('Event target must be instance of EventTarget');
+      }
+      this._target = target;
+    },
+
+    getTarget: function() {
+      return this._target;
+    },
+
+    setType: function(type) {
+      if (type === undefined) {
+        throw new DeveloperError('Can not create Event: Event must type.');
+      }
+      this._type = type;
+    },
+
+    getType: function() {
+      return this._type;
+    },
+
+    setArgs: function(args) {
+      this._args = args;
+    },
+
+    getArgs: function () {
+      return this._args;
+    },
+
+    /**
+     * Prevents the Event from being handled by any more EventTargets (a combination
+     * of preventDefault and stopPropagation from the DOM event model).
+     * @param {boolean} [cancelHost=false] - If true, the EventManager will not propagate this Event to the host application.
+     */
+    cancel: function(cancelHost) {
+      this._cancelHost = this._cancelHost || cancelHost;
+      this._isCancelled = true;
+    },
+
+    /**
+     * @returns {Boolean} Whether this event has been cancelled.
+     */
+    isCancelled: function() {
+      return this._isCancelled;
+    }
+
+  });
 });
 

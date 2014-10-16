@@ -13,6 +13,7 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'atlas/test/test-main.js',
+      {pattern: 'atlas/assets/**/*', included: false},
       {pattern: 'atlas/src/**/*.js', included: false},
       {pattern: 'atlas/lib/**/*.js', included: false},
       {pattern: 'atlas/test/lib/**/*.js', included: false},

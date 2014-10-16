@@ -5,7 +5,6 @@ define([
   'atlas.model.tests.Line',
   =====*/
   'atlas/model/tests/Feature',
-  'atlas/model/tests/Polygon',
   'atlas/model/tests/GeoEntity',
   'atlas/model/tests/Vertex'
 ], 1);

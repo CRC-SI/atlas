@@ -122,6 +122,10 @@ define([
       this._managers.event.addEventHandlers(handlers);
     },
 
+    getCurrentCamera: function () {
+      return this._current;
+    },
+
     // TODO(aramk) This might be superseded by getStats() on Camera.
     getCameraMetrics: function() {
       return {

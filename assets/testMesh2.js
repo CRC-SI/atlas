@@ -8,8 +8,8 @@ define([
     /* Specifies uniform colour of Mesh in r, g, b, a channels, always in range [0,255]? */
     'color': [240, 240, 240, 255],
 
-    /* Specifies the location of the Mesh in lat, lng, elevation */
-    'geoLocation': [-37.8, 144.96, 0.0],
+    /* Specifies the location of the Mesh in lng, lat, elevation */
+    'geoLocation': [144.96, -37.8, 0.0],
 
     /* Specifies the scale from model space to world space, 1 == no change, 0.5 == half size, 2 == double size */
     'scale': [0.1,  0.1,  0.1],
