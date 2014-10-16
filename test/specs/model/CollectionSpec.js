@@ -34,63 +34,63 @@ define([
       collection = polygonA = polygonB = null;
     });
 
-//    it('can have entities', function() {
-//      expect(collection.getEntity('a')).toEqual(polygonA);
-//      expect(collection.getEntity('b')).toEqual(polygonB);
-//      expect(collection.getEntities('b').getCount()).toEqual(2);
-//    });
+    it('can have entities', function() {
+      expect(collection.getEntity('a')).toEqual(polygonA);
+      expect(collection.getEntity('b')).toEqual(polygonB);
+      expect(collection.getEntities('b').getCount()).toEqual(2);
+    });
 
     it('has centroid', function() {
       expect(collection.getCentroid()).toEqual(centroid);
     });
 
-//    it('has no centroid if no entities are added', function() {
-//      var collection2 = new Collection('c2', {}, constructArgs);
-//      expect(collection2.getCentroid()).toEqual(null);
-//    });
-//
-//    it('cannot set centroid if no entities are added', function() {
-//      var collection2 = new Collection('c2', {}, constructArgs);
-//      collection2.setCentroid(centroid);
-//      expect(collection2.getCentroid()).toEqual(null);
-//    });
-//
-//    it('has area', function() {
-//      expect(collection.getArea()).toEqual(polygonA.getArea() + polygonB.getArea());
-//    });
-//
-//    it('can translate', function() {
-//      var polyAOldCentroid = polygonA.getCentroid();
-//      var polyBOldCentroid = polygonB.getCentroid();
-//      var amount = new GeoPoint({latitude: 0.001, longitude: 0.001});
-//      collection.translate(amount);
-//      // Centroid is recalculated and floating point math causes it to vary slightly.
-//      expect(collection.getCentroid().isCloseTo(centroid.translate(amount))).toBe(true);
-//      expect(polygonA.getCentroid().isCloseTo(polyAOldCentroid.translate(amount))).toBe(true);
-//      expect(polygonB.getCentroid().isCloseTo(polyBOldCentroid.translate(amount))).toBe(true);
-//    });
-//
-//    it('is not initially visible', function() {
-//      spyOn(polygonA, 'isVisible').and.callThrough();
-//      spyOn(polygonB, 'isVisible').and.callThrough();
-//      var isVisible = collection.isVisible();
-//      expect(isVisible).toBe(false);
-//      expect(polygonA.isVisible()).toBe(isVisible);
-//      expect(polygonB.isVisible()).toBe(isVisible);
-//      expect(polygonA.isVisible.calls.any()).toEqual(true);
-//      expect(polygonB.isVisible.calls.any()).toEqual(true);
-//    });
-//
-//    it('can calculate bounding box', function() {
-//      var boundingBox = collection.getBoundingBox();
-//      var expectedBoundingBox = new Rectangle({
-//        west: 145.23747355356,
-//        south: -37.826790372354,
-//        east: 145.23771058855,
-//        north: -37.826664658962
-//      });
-//      expect(boundingBox).toEqual(expectedBoundingBox);
-//    });
+    it('has no centroid if no entities are added', function() {
+      var collection2 = new Collection('c2', {}, constructArgs);
+      expect(collection2.getCentroid()).toEqual(null);
+    });
+
+    it('cannot set centroid if no entities are added', function() {
+      var collection2 = new Collection('c2', {}, constructArgs);
+      collection2.setCentroid(centroid);
+      expect(collection2.getCentroid()).toEqual(null);
+    });
+
+    it('has area', function() {
+      expect(collection.getArea()).toEqual(polygonA.getArea() + polygonB.getArea());
+    });
+
+    it('can translate', function() {
+      var polyAOldCentroid = polygonA.getCentroid();
+      var polyBOldCentroid = polygonB.getCentroid();
+      var amount = new GeoPoint({latitude: 0.001, longitude: 0.001});
+      collection.translate(amount);
+      // Centroid is recalculated and floating point math causes it to vary slightly.
+      expect(collection.getCentroid().isCloseTo(centroid.translate(amount))).toBe(true);
+      expect(polygonA.getCentroid().isCloseTo(polyAOldCentroid.translate(amount))).toBe(true);
+      expect(polygonB.getCentroid().isCloseTo(polyBOldCentroid.translate(amount))).toBe(true);
+    });
+
+    it('is not initially visible', function() {
+      spyOn(polygonA, 'isVisible').and.callThrough();
+      spyOn(polygonB, 'isVisible').and.callThrough();
+      var isVisible = collection.isVisible();
+      expect(isVisible).toBe(false);
+      expect(polygonA.isVisible()).toBe(isVisible);
+      expect(polygonB.isVisible()).toBe(isVisible);
+      expect(polygonA.isVisible.calls.any()).toEqual(true);
+      expect(polygonB.isVisible.calls.any()).toEqual(true);
+    });
+
+    it('can calculate bounding box', function() {
+      var boundingBox = collection.getBoundingBox();
+      var expectedBoundingBox = new Rectangle({
+        west: 145.23747355356,
+        south: -37.826790372354,
+        east: 145.23771058855,
+        north: -37.826664658962
+      });
+      expect(boundingBox).toEqual(expectedBoundingBox);
+    });
 
   });
 });
