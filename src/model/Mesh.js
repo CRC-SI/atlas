@@ -105,14 +105,10 @@ define([
         }, this);
       }
 
-      this._geoLocation = new GeoPoint(0, 0, 0);
       meshData.rotation && this.rotate(new Vertex(meshData.rotation));
-      // TODO(aramk) How should this be handled?
-      if (meshData.geoLocation) {
-        this.translate(new GeoPoint(meshData.geoLocation));
-        // this._geoLocation = new GeoPoint(meshData.geoLocation);
-      }
       meshData.scale && this.scale(new Vertex(meshData.scale));
+      this._geoLocation = new GeoPoint(meshData.geoLocation) || new GeoPoint(0, 0, 0) ;
+      this.setCentroid(new GeoPoint(meshData.geoLocation));
 
       // Set the Mesh's style based on the hierarchy: a Mesh specific style,
       // inherit the parent Feature's style, or use the Mesh default style.
@@ -145,23 +141,6 @@ define([
     setElevation: function (elevation) {
       this._super(elevation);
       this._geoLocation.elevation = elevation;
-    },
-
-    // -------------------------------------------
-    // MODIFIERS
-    // -------------------------------------------
-
-    /**
-     * Translates the Mesh.
-     * @param {atlas.model.Vertex} translation - The vector from the Mesh's current location to the desired location.
-     * @param {Number} translation.x - The change in longitude, given in decimal degrees.
-     * @param {Number} translation.y - The change in latitude, given in decimal degrees.
-     * @param {Number} translation.z - The change in altitude, given in metres.
-     */
-    translate: function(translation) {
-      // Update the 'translation', ie change _geoLocation.
-      this._geoLocation = this._geoLocation.translate(translation);
-      this._super(translation);
     }
 
   }), {
