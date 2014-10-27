@@ -151,11 +151,6 @@ define([
     // MODIFIERS
     // -------------------------------------------
 
-    getCentroid: function () {
-      // TODO(aramk) Unsure if this is always correct.
-      return this._geoLocation;
-    },
-
     /**
      * Translates the Mesh.
      * @param {atlas.model.Vertex} translation - The vector from the Mesh's current location to the desired location.
