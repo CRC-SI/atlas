@@ -140,10 +140,9 @@ define([
     // that affect the primitives in atlas-cesium. At the same time, atlas should perform all the
     // calculations the provider (atlas-cesium) should only be visualising, so we likely need
     // matrix transformations in Atlas, which is more work for now.
-
-//    rotate: function(rotation) {
-//      this._super(rotation);
-//    },
+    // rotate: function(rotation) 
+    //   this._super(rotation);
+    // },
 
     // -------------------------------------------
     // GETTERS AND SETTERS

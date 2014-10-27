@@ -534,6 +534,7 @@ define([
      * longitude and elevation.
      */
     translate: function(translation) {
+      // NOTE: Translation is handled by the subclasses, since not all models have vertices.
       this._onTransform();
     },
 
@@ -548,6 +549,7 @@ define([
      * @param {Number} scale.z - The scale along the <code>z</code> axis of the GeoEntity.
      */
     scale: function(scale) {
+      this._scale = this._scale.componentwiseMultiply(scale);
       this._onTransform();
     },
 
@@ -576,6 +578,7 @@ define([
      *      rotates clockwise, positive rotates counterclockwise.
      */
     rotate: function(rotation) {
+      this._rotation = rotation;
       this._onTransform();
     },
 

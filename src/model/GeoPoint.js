@@ -143,6 +143,10 @@ define([
       return northSouth + ' ' + eastWest;
     },
 
+    toArray: function() {
+      return [this.longitude, this.latitude, this.elevation];
+    },
+
     /**
      * @returns {atlas.model.GeoPoint} A deep copy of this object.
      */
