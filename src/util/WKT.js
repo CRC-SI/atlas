@@ -47,7 +47,8 @@ define([
 
     /**
      * @param {String} wktStr - The WKT string to convert
-     * @returns {OpenLayers.Geometry.Collection}
+     * @returns {Object} args
+     * @returns {OpenLayers.Geometry.Collection} args.geometry
      */
     openLayersGeometryFromWKT: function(wktStr) {
       var geometry;

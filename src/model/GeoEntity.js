@@ -576,8 +576,10 @@ define([
      *        rotates clockwise, positive rotates counterclockwise.
      * @param {Number} rotation.z - The rotation about the <code>z</code> axis in degrees, negative
      *      rotates clockwise, positive rotates counterclockwise.
+     * @param {GeoPoint} [centroid] - The centroid to use for rotating. By default this is the
+     * centroid of the GeoEntity obtained from {@link #getCentroid}.
      */
-    rotate: function(rotation) {
+    rotate: function(rotation, centroid) {
       this._rotation = rotation;
       this._onTransform();
     },

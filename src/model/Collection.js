@@ -162,7 +162,7 @@ define([
         };
       }, this);
       // Call on all entities and the collection.
-      var forSelfMethods = ['remove', 'show', 'hide', 'translate', 'scale', 'rotate'];
+      var forSelfMethods = ['remove', 'show', 'hide', 'translate', 'scale'];
       forSelfMethods.forEach(function(method) {
         var selfMethod = this[method];
         this[method] = function() {
@@ -258,6 +258,16 @@ define([
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------
+
+    rotate: function (rotation, centroid) {
+      // Rotation should be applied on each child entity around the same centroid - by default that
+      // of the collection.
+      var centroid = centroid || this.getCentroid();
+      this._super(rotation, centroid);
+      this._entities.forEach(function(entity) {
+        entity.rotate(rotation, centroid);
+      });
+    },
 
     _build: function() {
       // Collection does not have geometry to build.

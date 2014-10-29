@@ -279,7 +279,8 @@ define([
      * Rotates the Ellipse by the given amount.
      * @param {Number} rotation - Change in rotation in degrees. Positive rotates clockwise.
      */
-    rotate: function(rotation) {
+    rotate: function(rotation, centroid) {
+      // TODO(aramk) Support rotation around any given centroid.
       this._rotation += (parseFloat(rotation) || 0.0);
       this._super(rotation);
     }
