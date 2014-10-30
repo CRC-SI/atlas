@@ -1,7 +1,8 @@
 define([
   'atlas/core/Manager',
+  'atlas/events/Event',
   'atlas/lib/keycode'
-], function(Manager, Keycode) {
+], function(Manager, Event, Keycode) {
 
   /**
    * @typedef atlas.input.InputManager
