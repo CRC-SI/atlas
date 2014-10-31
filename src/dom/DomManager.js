@@ -58,7 +58,6 @@ define([
       if (!newDomNode) {
         throw new DeveloperError('DOM node not found: ' + elem);
       }
-//      var newDomNodeId = newDomNode.id;
 
       // Move existing DOM if there is one.
       Log.debug('setting DOM node', newDomNode);
@@ -75,6 +74,7 @@ define([
       // Show in new location if required.
       DomClass[showNow ? 'remove' : 'add'](newDomNode, 'hidden');
       this._visible = !!showNow;
+      newDomNode.className += ' ' + DomManager.ATLAS_CSS_CLASS;
       // Cause the set DOM element to be populated with the Atlas visualisation.
       this.populateDom(newDomNode);
     },
@@ -154,14 +154,12 @@ define([
       this._visible ? this.hide() : this.show();
     }
 
-  }), // End class instance definitions.
-
+  }),
       // -------------------------------------------
       // STATICS
       // -------------------------------------------
-
       {
-        // Nope
+        ATLAS_CSS_CLASS: 'atlas'
       }
   ); // End class static definitions.
 

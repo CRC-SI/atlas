@@ -141,7 +141,7 @@ define([
     _init: function (args) {
       // Set defaults
       args = Setter.merge({
-        parent: document,
+        parent: document.body,
         cssClass: '',
         title: '',
         position: {},
@@ -215,8 +215,8 @@ define([
      */
     getDomElements: function () {
       var overlay = this._element,
-          title = overlay.getElementsByClassName('overlay-title')[0],
-          content = overlay.getElementsByClassName('overlay-body')[0];
+          title = overlay.getElementsByClassName('title')[0],
+          content = overlay.getElementsByClassName('body')[0];
       return {title: title, content: content};
     },
 
@@ -328,20 +328,23 @@ define([
         element.style.position = this._cssPosition;
       }
 
-      // Create HTML for title of overlay.
-      // Wrap the title with an enable checkbox and remove button if necessary.
-      var title = '<div class="overlay-title">';
-      if (this._hasEnableCheckbox) {
-        title += '<input type="checkbox" value="true" class="enable-overlay">'
+      var title = '';
+      if (this._title) {
+        // Create HTML for title of overlay.
+        // Wrap the title with an enable checkbox and remove button if necessary.
+        title += '<div class="title">';
+        if (this._hasEnableCheckbox) {
+          title += '<input type="checkbox" value="true" class="enable">'
+        }
+        title += '<div class="enable-label">' + this._title + '</div>';
+        if (this._hasRemoveBtn) {
+          title += '<button class="remove">X</button>';
+        }
+        title +=  '</div>';
       }
-      title += '<div class="enable-overlay-label">' + this._title + '</div>';
-      if (this._hasRemoveBtn) {
-        title += '<button class="remove-overlay">X</button>';
-      }
-      title +=  '</div>';
 
       // Create HTML for body of overlay.
-      var bodyClass = 'overlay-body';
+      var bodyClass = 'body';
       bodyClass += this._showMinimised ? ' hidden' : '';
       this._html = title + '<div class="' + bodyClass + '">' + this._content + '</div>';
 

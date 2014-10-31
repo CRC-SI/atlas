@@ -80,6 +80,15 @@ define([
       return this.west;
     },
 
+    getCorners: function() {
+      return [
+        new GeoPoint(this.east, this.north),
+        new GeoPoint(this.west, this.north),
+        new GeoPoint(this.west, this.south),
+        new GeoPoint(this.east, this.south)
+      ];
+    },
+
     // -------------------------------------------------
     // OPERATIONS
     // -------------------------------------------------
