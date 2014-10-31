@@ -109,7 +109,8 @@ module.exports = function(grunt) {
           {src: libPath('numeraljs', 'min', 'numeral.min.js'), dest: libPath('numeral.js')},
           {src: libPath('q', 'q.js'), dest: libPath('Q.js')},
           {src: libPath('graham_scan', 'src',
-              'graham_scan.js'), dest: libPath('ConvexHullGrahamScan.js')}
+              'graham_scan.js'), dest: libPath('ConvexHullGrahamScan.js')},
+          {src: libPath('jquery', 'dist', 'jquery.min.js'), dest: libPath('jquery.js')}
         ]
       },
       openLayersBuildConfig: {
