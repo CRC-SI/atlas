@@ -1,6 +1,9 @@
 // Build profile for RequireJS.
 ({
   baseUrl: '../src',
+  packages: [
+    {name: 'jquery', location: '../lib', main: 'jquery'}
+  ],
   paths: {
     'atlas': '',
     'atlas/lib': '../lib',

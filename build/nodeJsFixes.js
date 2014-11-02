@@ -18,6 +18,8 @@
       }
     };
     window = {
+      // Used to check if these shims are in use.
+      isShimmed: true,
       location: {
         search: ''
       }
