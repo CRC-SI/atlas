@@ -454,9 +454,7 @@ define([
       }
       this.setDirty('style');
       this._style = style;
-      var isVisible = this.isVisible();
       this._update();
-      this._updateVisibility(isVisible);
       return previousStyle;
     },
 
@@ -642,7 +640,6 @@ define([
     show: function() {
       this._visible = true;
       this._update();
-      this._updateVisibility(true);
     },
 
     /**
@@ -650,10 +647,12 @@ define([
      * @private
      */
     _update: function() {
-      if (this.isVisible() && !this.isRenderable()) {
+      var isVisible = this.isVisible();
+      if (isVisible && !this.isRenderable()) {
         this._build();
         this.clean();
       }
+      this._updateVisibility(isVisible);
     },
 
     /**
@@ -661,7 +660,7 @@ define([
      */
     hide: function() {
       this._visible = false;
-      this._updateVisibility(false);
+      this._update();
     },
 
     /**
