@@ -73,7 +73,7 @@ define([
         // except for the .target and .cancelled parameters, which may
         // possibly be changed when the target handles the event.
         nextEvent = event.getTarget().handleEvent(event);
-        parent = event.getTarget().parent;
+        parent = event.getTarget().getParent();
         event = nextEvent;
         // Parent may be given as a string if it was not resolved at the time the entity was
         // created.

@@ -24,19 +24,12 @@ define([
     _eventManager: null,
 
     /**
-     * The parent object of the EventTarget.
-     * @type {atlas.events.EventTarget}
-     * @protected
-     */
-    _parent: null,
-
-    /**
      * Maps an EventListenerID to a tuple containing the Event type and
      * the event handler callback.
      * @type {Object}
      * @private
      */
-    _eventHandlers: {},
+    _eventHandlers: null,
 
     /**
      * Each EventListener needs a unique ID. These are determined from this counter.
@@ -52,7 +45,8 @@ define([
      */
     _init: function(em, parent) {
       this._eventManager = Setter.def(em, null);
-      this.parent = Setter.def(parent, null);
+      this._eventHandlers = {};
+      parent && this.setParent(parent);
     },
 
     /**
@@ -76,11 +70,11 @@ define([
 
     /**
      * Allows an object to register to events emmited from the EventTarget.
-     * @param {String} name - The name of the event being registered to.
+     * @param {String} type - The name of the event being registered to.
      * @param {Function} callback - A callback function to be called when the event occurs.
      * @returns {Object} An EventListener object used to de-register the EventListener from the event.
      */
-    addEventListener: function(name, callback) {
+    addEventListener: function(type, callback) {
       // Use closure in place of lang.hitch for the cancel() function.
       var listener = {
         id: 'id' + this._nextEventListenerId,
@@ -92,7 +86,7 @@ define([
       };
       // Add the EventListener to the eventHandlers map.
       this._eventHandlers[listener.id] = {
-        name: name,
+        type: type,
         callback: callback.bind(this)
       };
       this._nextEventListenerId++;
@@ -124,6 +118,30 @@ define([
         }
       }
       return event;
+    },
+
+    /**
+     * @param {atlas.model.GeoEntity} parent
+     */
+    setParent: function(parent) {
+      this._parent = parent;
+    },
+
+    /**
+     * @return {atlas.model.GeoEntity}
+     */
+    getParent: function() {
+      return this._parent;
+    },
+
+    /**
+     * Removes event handlers.
+     */
+    remove: function() {
+      for (var id in this._eventHandlers) {
+        this._removeEventListener(id);
+      }
     }
+
   });
 });
