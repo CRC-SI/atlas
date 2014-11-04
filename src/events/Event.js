@@ -3,6 +3,13 @@ define([
   'atlas/lib/utility/Class',
   'atlas/util/DeveloperError'
 ], function(EventTarget, Class, DeveloperError) {
+
+  /**
+   * @typedef atlas.events.Event
+   * @ignore
+   */
+  var Event;
+
   /**
    * Event, like a regular DOM event, is a simple object that
    * encapsulates the information relevant to the event that occurred.
@@ -11,10 +18,10 @@ define([
    * @param {string} type - The type of the Event.
    * @param {Object} [args] - Arguments relevant to the Event.
    *
-   * @alias atlas.events.Event
+   * @class atlas.events.Event
    * @constructor
    */
-  return Class.extend({
+  Event = Class.extend({
 
     /**
      * Current target of this event.
@@ -95,8 +102,14 @@ define([
      */
     isCancelled: function() {
       return this._isCancelled;
+    },
+
+    clone: function() {
+      return new Event(this.getTarget(), this.getType(), this.getArgs());
     }
 
   });
+
+  return Event;
 });
 

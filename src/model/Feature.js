@@ -1,12 +1,13 @@
 define([
+  'atlas/events/Event',
   'atlas/lib/utility/Objects',
   'atlas/lib/utility/Setter',
-  'atlas/util/DeveloperError',
   'atlas/model/Mesh',
   'atlas/model/Polygon',
+  'atlas/util/DeveloperError',
   // Base class.
   'atlas/model/GeoEntity'
-], function(Objects, Setter, DeveloperError, Mesh, Polygon, GeoEntity) {
+], function(Event, Objects, Setter, Mesh, Polygon, DeveloperError, GeoEntity) {
 
   /**
    * @typedef atlas.model.Feature
@@ -118,7 +119,7 @@ define([
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
       this._initDelegation();
-      this._initSelection();
+      this._initEvents();
     },
 
     // -------------------------------------------
@@ -424,17 +425,30 @@ define([
     },
 
     /**
-     * Listen for selection events on the form and apply it to this feature so that all forms
-     * are selected.
+     * Listen for events on the forms and apply it to this feature.
      * @private
      */
-    _initSelection: function() {
+    _initEvents: function() {
       // This responds to events in the forms which bubble up.
       this.addEventListener('entity/select', function() {
         this.setSelected(true);
       }.bind(this));
       this.addEventListener('entity/deselect', function() {
         this.setSelected(false);
+      }.bind(this));
+      // Prevent the dispatch from running the handler in an infinite loop.
+      // TODO(aramk) This is quite involved. If we need similar logic, attempt to refactor event
+      // management.
+      var isHandlingDblClick = false;
+      this.addEventListener('entity/dblclick', function(event) {
+        if (isHandlingDblClick) return;
+        isHandlingDblClick = true;
+        var newEvent = event.clone();
+        var args = Setter.cloneDeep(newEvent.getArgs());
+        args.id = this.getId();
+        newEvent.setArgs(args);
+        this.dispatchEvent(newEvent);
+        isHandlingDblClick = false;
       }.bind(this));
     },
 

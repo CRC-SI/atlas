@@ -127,7 +127,7 @@ define([
             if (entities.length > 0) {
               // Only capture the double click on the first entity.
               var entity = entities[0];
-              this._managers.event.dispatchEvent(new Event(new EventTarget(),
+              this._managers.event.dispatchEvent(new Event(entity,
                   'entity/dblclick', {
                     id: entity.getId()
                   }));
