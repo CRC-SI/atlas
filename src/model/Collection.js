@@ -155,7 +155,7 @@ define([
 
       // Call on all entities.
       var forMethods = ['createHandles', 'addHandles', 'clearHandles', 'setStyle', 'modifyStyle',
-        'setSelected', 'isSelected'];
+        'setSelected'];
       forMethods.forEach(function(method) {
         this[method] = function() {
           return this._forEntities(method, arguments);
@@ -171,7 +171,7 @@ define([
         };
       }, this);
       // All entities must return true.
-      var everyMethods = ['isRenderable'];
+      var everyMethods = ['isRenderable', 'isSelected'];
       everyMethods.forEach(function(method) {
         this[method] = function() {
           return this._everyEntity(method, arguments, function(value) {
