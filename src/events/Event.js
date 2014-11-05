@@ -44,7 +44,8 @@ define([
     _args: null,
 
     /**
-     * Whether this event has been cancelled.
+     * Whether this event has been cancelled. Cancelled events can still be listened to, but will
+     * not bubble up the hierarchy.
      * @type {Boolean}
      * @private
      */

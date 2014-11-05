@@ -120,6 +120,20 @@ define([
         },
         {
           source: 'intern',
+          name: 'entity/select',
+          callback: function(args) {
+            this.selectEntities(args.ids, true, null);
+          }.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'entity/deselect',
+          callback: function(args) {
+            this.selectEntities(args.ids, true, null);
+          }.bind(this)
+        },
+        {
+          source: 'intern',
           name: 'input/left/dblclick',
           callback: function(args) {
             // TODO(bpstudds): Move this handler to EntityManager.

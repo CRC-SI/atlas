@@ -436,19 +436,13 @@ define([
       this.addEventListener('entity/deselect', function() {
         this.setSelected(false);
       }.bind(this));
-      // Prevent the dispatch from running the handler in an infinite loop.
-      // TODO(aramk) This is quite involved. If we need similar logic, attempt to refactor event
-      // management.
-      var isHandlingDblClick = false;
+
       this.addEventListener('entity/dblclick', function(event) {
-        if (isHandlingDblClick) return;
-        isHandlingDblClick = true;
         var newEvent = event.clone();
         var args = Setter.cloneDeep(newEvent.getArgs());
         args.id = this.getId();
         newEvent.setArgs(args);
         this.dispatchEvent(newEvent);
-        isHandlingDblClick = false;
       }.bind(this));
     },
 

@@ -87,10 +87,27 @@ define([
       // Add the EventListener to the eventHandlers map.
       this._eventHandlers[listener.id] = {
         type: type,
-        callback: callback.bind(this)
+        // Prevent any events dispatched in the handler from causing infinite loops if the handler is
+        // invoked before it completes execution.
+        callback: this._wrapEventListenerCallback(callback).bind(this)
       };
       this._nextEventListenerId++;
       return listener;
+    },
+
+    /**
+     * @param  {Function} callback
+     * @return {Function} A wrapped version of the given callback that ensures the callback will be
+     * ignored if it is called recursively.
+     */
+    _wrapEventListenerCallback: function(callback) {
+      var isHandling = false;
+      return function() {
+        if (isHandling) return;
+        isHandling = true;
+        callback.apply(this, arguments);
+        isHandling = false;
+      };
     },
 
     /**
