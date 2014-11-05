@@ -46,7 +46,7 @@ define([
       options = Setter.mixin({
         isExclusive: true
       }, options);
-      this._isExclusive = args.isExclusive;
+      this._isExclusive = options.isExclusive;
       this._popups = new ItemStore();
     },
 

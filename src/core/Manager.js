@@ -40,10 +40,9 @@ define([
 
     /**
      * Sets up the manager. Can rely on dependent managers existing.
-     * @abstract
      */
     setup: function() {
-      throw new DeveloperError('Cannot call abstract method of Manager');
+      // By default, do nothing if no dependencies on other managers exist.
     }
 
   });
