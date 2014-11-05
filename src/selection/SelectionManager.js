@@ -102,19 +102,19 @@ define([
             var selectedEntities = this._managers.entity.getAt(args.position),
                 keepSelection = 'shift' in args.modifiers,
                 changed;
-            var selectedIds, unselectedIds;
+            var selectedIds, deselectedIds;
             if (selectedEntities.length > 0) {
               changed = this.selectEntity(selectedEntities[0].getId(), keepSelection, args.position);
               selectedIds = this.getSelectionIds();
-              unselectedIds = [];
+              deselectedIds = [];
             } else if (!keepSelection) {
-              unselectedIds = changed = this.clearSelection();
+              deselectedIds = changed = this.clearSelection();
               selectedIds = [];
             }
             if (changed && changed.length > 0) {
               this._managers.event.dispatchEvent(new Event(new EventTarget(),
                   'entity/selection/change', {ids: changed, selected: selectedIds,
-                  unselected: unselectedIds}));
+                  deselected: deselectedIds}));
             }
           }.bind(this)
         },
@@ -129,7 +129,7 @@ define([
           source: 'intern',
           name: 'entity/deselect',
           callback: function(args) {
-            this.selectEntities(args.ids, true, null);
+            this.deselectEntities(args.ids, true, null);
           }.bind(this)
         },
         {

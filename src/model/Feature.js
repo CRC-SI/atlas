@@ -135,7 +135,7 @@ define([
       var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
         'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles',
         'getCentroid', 'getArea', 'getVertices', 'getOpenLayersGeometry', 'translate',
-        'scale', 'rotate', 'setScale', 'setRotation', 'setElevation', 'isSelected'];
+        'scale', 'rotate', 'setScale', 'setRotation', 'setElevation'];
       methods.forEach(function(method) {
         this[method] = function() {
           return this._delegateToForm(method, arguments);
@@ -436,7 +436,6 @@ define([
       this.addEventListener('entity/deselect', function() {
         this.setSelected(false);
       }.bind(this));
-
       this.addEventListener('entity/dblclick', function(event) {
         var newEvent = event.clone();
         var args = Setter.cloneDeep(newEvent.getArgs());
@@ -455,9 +454,7 @@ define([
     _setSelectStyle: function() {
     },
 
-    _onDeselect: function() {
-      // Ignore all logic since it's handled by the forms. Otherwise, setting the style for this
-      // feature applies it to the form and this changes it from the pre-select style.
+    _revertSelectStyle: function() {
     }
 
   }), {
