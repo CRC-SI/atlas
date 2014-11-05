@@ -220,11 +220,11 @@ define([
       // itself reverts selection.
       // TODO(aramk) This is complicated - refactor.
       if (selected) {
-        this._delegateToForms('setSelected', arguments);
+        this._delegateToForm('setSelected', arguments);
         this._super(selected);
       } else {
         this._super(selected);
-        this._delegateToForms('setSelected', arguments);
+        this._delegateToForm('setSelected', arguments);
       }
     },
 
@@ -392,6 +392,13 @@ define([
       // Call this afterwards to avoid calling clean() on the form, which would prevent show()
       // calling _build().
       this._super();
+    },
+
+    _update: function() {
+      this._super();
+      // Only update the selection of the current form and after transitioning for efficiency.
+      var form = this.getForm();
+      form && form.setSelected(this.isSelected());
     },
 
     /**
