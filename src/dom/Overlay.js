@@ -1,9 +1,10 @@
 define([
+  'atlas/events/EventTarget',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types',
-  'atlas/lib/utility/Class'
-], function (Log, Setter, Types, Class) {
+  'atlas/lib/utility/Class',
+], function (EventTarget, Log, Setter, Types, Class) {
 
   /**
    * @typedef atlas.dom.Overlay
@@ -48,10 +49,12 @@ define([
    * @param {Object} [args.dimensions.height] - The height of the Overlay, by default it fits the content.
    * @param {Object} [args.dimensions.width] - The width of the Overlay, by default it fits the content.
    * @param {String} [args.content=''] - Either a plain text or HTML to be rendered in the Overlay.
+   * @param {atlas.events.EventManager} [args.eventManager]
    *
    * @class atlas.dom.Overlay
+   * @extends atlas.dom.EventTarget
    */
-  Overlay = Class.extend(/** @lends atlas.dom.Overlay# */ {
+  Overlay = EventTarget.extend(/** @lends atlas.dom.Overlay# */ {
 
     /**
      * The parent element of the Overlay, null if the Overlay is positioned absolutely within
@@ -151,6 +154,7 @@ define([
         hasRemoveBtn: false,
         hasChangeCheckbox: false
       }, args);
+      this._super(args.eventManager);
       if (typeof args.parent === 'string') {
         args.parent = document.getElementById(args.parent);
       }
@@ -268,6 +272,7 @@ define([
     hide: function () {
       if (!this._element) { return; }
       this._element.classList.add('hidden');
+      this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/hide'));
     },
 
     /**
@@ -276,6 +281,7 @@ define([
     show: function () {
       if (!this._element) { return; }
       this._element.classList.remove('hidden');
+      this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/show'));
     },
 
     /**

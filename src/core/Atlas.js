@@ -1,9 +1,15 @@
 define([
+  'atlas/edit/EditManager',
+  'atlas/events/EventManager',
+  'atlas/selection/SelectionManager',
+  'atlas/visualisation/VisualisationManager',
+  'atlas/dom/PopupManager',
   'atlas/dom/PopupFaculty',
   'atlas/util/DeveloperError',
   'atlas/lib/utility/Class',
   'atlas/lib/utility/Setter'
-], function(PopupFaculty, DeveloperError, Class, Setter) {
+], function(EditManager, EventManager, SelectionManager, VisualisationManager, PopupManager,
+  PopupFaculty, DeveloperError, Class, Setter) {
 
   /**
    * @typedef atlas.core.Atlas
@@ -41,6 +47,23 @@ define([
 
     _init: function() {
       this._managers = {};
+      // Create all the atlas manager objects before initialising any. Any initialisation work
+      // that requires the presence of a particular manager is done in <code>setup()</code>,
+      // so the managers may be created in any order.
+      this.setManager(new EditManager(this._managers));
+      this.setManager(new EventManager(this._managers));
+      this.setManager(new EntityManager(this._managers));
+      this.setManager(new SelectionManager(this._managers));
+      this.setManager(new VisualisationManager(this._managers));
+      this.setManager(new PopupManager(this._managers));
+      this._setup();
+    },
+
+    _setup: function() {
+      this._managers.entity.setup();
+      this._managers.selection.setup();
+      this._managers.visualisation.setup();
+      this._managers.popup.setup();
     },
 
     attachTo: function(elem) {
