@@ -63,7 +63,7 @@ define([
      */
     dispatchEvent: function(event) {
       // Propagate the event up the target hierarchy.
-      while (event.getTarget()) {
+      while (event.getCurrentTarget()) {
         var nextEvent,
             parent;
         if (event.isCancelled()) {
@@ -72,15 +72,15 @@ define([
         // Handling the event returns a new Event object that is exactly the same
         // except for the .target and .cancelled parameters, which may
         // possibly be changed when the target handles the event.
-        nextEvent = event.getTarget().handleEvent(event);
-        parent = event.getTarget().getParent();
+        nextEvent = event.getCurrentTarget().handleEvent(event);
+        parent = event.getCurrentTarget().getParent();
         event = nextEvent;
         // Parent may be given as a string if it was not resolved at the time the entity was
         // created.
         if (Types.isString(parent)) {
           parent = this._managers.entity.getById(parent);
         }
-        event.setTarget(parent);
+        event.setCurrentTarget(parent);
       }
 
       if (!event.cancelHost) {

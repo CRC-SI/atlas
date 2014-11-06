@@ -24,10 +24,17 @@ define([
   Event = Class.extend({
 
     /**
-     * Current target of this event.
+     * The target that triggered this event.
      * @type {atlas.model.EventTarget}
      */
     _target: null,
+
+    /**
+     * The current target of this event. When the event is bubbling up, this becomes the parent at
+     * the current level.
+     * @type {atlas.model.EventTarget}
+     */
+    _currentTarget: null,
 
     /**
      * Type of this event.
@@ -53,6 +60,7 @@ define([
 
     _init: function(target, type, args) {
       this.setTarget(target);
+      this.setCurrentTarget(target);
       this.setType(type);
       this.setArgs(args);
     },
@@ -67,6 +75,18 @@ define([
 
     getTarget: function() {
       return this._target;
+    },
+
+    setCurrentTarget: function(target) {
+      if (target && !(target instanceof EventTarget)) {
+        // TODO(aramk) We could also make this more lenient and check for existence of properties.
+        throw new DeveloperError('Event target must be instance of EventTarget');
+      }
+      this._currentTarget = target;
+    },
+
+    getCurrentTarget: function() {
+      return this._currentTarget;
     },
 
     setType: function(type) {
@@ -106,7 +126,9 @@ define([
     },
 
     clone: function() {
-      return new Event(this.getTarget(), this.getType(), this.getArgs());
+      var event = new Event(this.getTarget(), this.getType(), this.getArgs());
+      event.setCurrentTarget(this.getCurrentTarget());
+      return event;
     }
 
   });

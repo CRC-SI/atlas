@@ -238,13 +238,16 @@ define([
      *      selected. Null if a mouse action did not result in the selection.
      */
     selectEntities: function(ids, keepSelection, mousePosition) {
-      Log.debug('selecting entities', ids);
       var entities = this._managers.entity.getByIds(ids),
           toSelectIds = [],
-          toSelectEntities = {};
+          toSelectEntities = {},
+          selectedIds = [];
       if (entities.length > 0) {
         entities.forEach(function(entity) {
           var id = entity.getId();
+          // Even though the entity may be selected directly, it may not be registered as selected
+          // until the event is caught by this manager, hence the need to check the registry rather
+          // than the entity.
           if (!this.isSelected(id)) {
             toSelectIds.push(id);
             toSelectEntities[id] = entity;
@@ -255,18 +258,19 @@ define([
         // If nothing was actually selected in addition to what was already selected, don't clear
         // the current selection.
         if (toSelectIds.length > 0) {
+          Log.debug('selecting entities', toSelectIds);
           if (!keepSelection) {
             this.clearSelection();
           }
           toSelectIds.forEach(function(id) {
             var entity = toSelectEntities[id];
-            entity.setSelected(true);
             this._selection[id] = entity;
+            entity.setSelected(true);
           }.bind(this));
+          Log.debug('selected entities', toSelectIds);
         }
       }
-      Log.debug('selected entities', toSelectIds);
-      return toSelectIds;
+      return selectedIds;
     },
 
     /**
@@ -281,12 +285,14 @@ define([
         entities.forEach(function(entity) {
           var id = entity.getId();
           if (this.isSelected(id)) {
+            delete this._selection[id];
             entity.setSelected(false);
             deselected.push(id);
-            delete this._selection[id];
           }
         }.bind(this));
-        Log.debug('deselected entities', ids);
+        if (deselected.length > 0) {
+          Log.debug('deselected entities', deselected);
+        }
       }
       return deselected;
     },

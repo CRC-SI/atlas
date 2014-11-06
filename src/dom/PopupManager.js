@@ -62,6 +62,7 @@ define([
           callback: function(args) {
             var callback = args.callback;
             delete args.callback;
+            args.renderManager = this._managers.render;
             var popup = new Popup(args);
             this._bindPopupEvents(popup);
             this._popups.add(popup);
