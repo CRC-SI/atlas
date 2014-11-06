@@ -3,7 +3,10 @@ define([
   'atlas/core/Manager',
   'atlas/dom/Popup',
   'atlas/lib/utility/Setter',
-], function(ItemStore, Manager, Popup, Setter) {
+  'atlas/lib/utility/Types'
+], function(ItemStore, Manager, Popup, Setter, Types) {
+
+  // TODO(aramk) This duplicates the purpose of PopupFaculty in some ways.
 
   /**
    * @typedef atlas.dom.PopupManager
@@ -62,9 +65,7 @@ define([
           callback: function(args) {
             var callback = args.callback;
             delete args.callback;
-            args.renderManager = this._managers.render;
-            var popup = new Popup(args);
-            this._bindPopupEvents(popup);
+            var popup = this._createPopup(args);
             this._popups.add(popup);
             callback && callback(popup);
           }.bind(this)
@@ -89,6 +90,20 @@ define([
         }
       ];
       this._managers.event.addEventHandlers(handlers);
+    },
+
+    _createPopup: function(args) {
+      args.renderManager = this._managers.render;
+      var entity = args.entity
+      if (Types.isString(entity)) {
+        args.entity = this._managers.entity.getById(entity);
+      }
+      args = Setter.merge({
+        parent: this._managers.dom.getDom()
+      }, args);
+      var popup = new Popup(args);
+      this._bindPopupEvents(popup);
+      return popup;
     },
 
     _bindPopupEvents: function(popup) {

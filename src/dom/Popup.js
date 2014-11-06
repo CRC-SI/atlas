@@ -24,11 +24,13 @@ define([
    */
   Popup = Overlay.extend( /** @lends atlas.dom.Popup# */ {
 
+    // TODO(aramk) Add docs for these.
+
     _entity: null,
 
     _renderManager: null,
 
-    _handles: null,
+    // _handles: null,
 
     _isExclusive: false,
 
@@ -40,17 +42,16 @@ define([
     _yPadding: 20,
 
     _init: function(args) {
+      var entity = args.entity;
       args = Setter.merge({
+        id: Popup.ID_PREFIX + entity.getId()
       }, args);
-      this._super();
-      this._entity = args.entity;
+      this._super(args);
+      this._entity = entity;
       this._renderManager = args.renderManager;
-      this._handles = [];
-      this._bindEvents();
-    },
-
-    getId: function() {
-      return Popup.ID_PREFIX + this._entity.getId();
+      // this._handles = [];
+      // this._bindEvents();
+      this.hide();
     },
 
     remove: function() {
@@ -63,16 +64,18 @@ define([
     // EVENTS
     // -------------------------------------------
 
-    _bindEvents: function() {
-      var entity = this._entity;
-      this._handles.push(entity.addEventListener('entity/select', this._show.bind(this)));
-      this._handles.push(entity.addEventListener('entity/deselect', this._hide.bind(this)));
-    },
+    // _bindEvents: function() {
+    //   var entity = this._entity;
+    //   this._handles.push(entity.addEventListener('entity/select', this._show.bind(this)));
+    //   this._handles.push(entity.addEventListener('entity/deselect', this._hide.bind(this)));
+    // },
 
-    _show: function() {
+    show: function() {
+      this._super();
       var entity = this._entity,
-        renderManager = this._renderManager;
-      var centroid = entity.getCentroid();
+        renderManager = this._renderManager,
+        dimensions = this.getDimensions(),
+        centroid = entity.getCentroid();
       var elevation = entity.getElevation() + entity.getHeight();
       // Find all points from the bounding box and convert to screen coordinates. Use this to
       // ensure the overlay doesn't overlap the entity.
@@ -88,8 +91,8 @@ define([
       screenCoord.y = minY - this._yPadding;
       console.log('new screenCoord', screenCoord);
       var position = {
-        left: screenCoord.x - this.getWidth() / 2,
-        top: screenCoord.y - this.getHeight()
+        left: screenCoord.x - dimensions.width / 2,
+        top: screenCoord.y - dimensions.height
       };
       console.log('position', position);
       this.setPosition(position);
@@ -105,10 +108,6 @@ define([
       //   }
       // });
       // DomUtil.constrainPositionWithin(currentOverlay.getDom(), atlasDomNode);
-    },
-
-    _hide: function() {
-      this.exclusive;
     },
 
     // -------------------------------------------
