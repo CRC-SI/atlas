@@ -3,8 +3,9 @@ define([
   'atlas/lib/utility/Class',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
+  'atlas/model/Feature',
   'jquery'
-], function(Overlay, Class, Log, Setter, $) {
+], function(Overlay, Class, Log, Setter, Feature, $) {
 
   /**
    * @typedef atlas.dom.Popup
@@ -70,6 +71,7 @@ define([
 
     _render: function() {
       this._super();
+      $(this.getDom()).addClass('popup');
       this._update();
     },
 
@@ -85,7 +87,7 @@ define([
         height = $element.height(),
         centroid = entity.getCentroid();
 
-      var elevation = entity.getElevation() + entity.getHeight();
+      var elevation = entity.getElevation() + this.getEntityHeight(entity);
       // Find all points from the bounding box and convert to screen coordinates. Use this to
       // ensure the overlay doesn't overlap the entity.
       var bBox = entity.getBoundingBox();
@@ -103,11 +105,19 @@ define([
         left: screenCoord.x - width / 2,
         top: screenCoord.y - height
       };
-    }
+    },
 
-    // -------------------------------------------
-    // GETTERS AND SETTERS
-    // -------------------------------------------
+    getEntityHeight: function(entity) {
+      var heightEntity;
+      if (entity instanceof Feature) {
+        heightEntity = entity.getForm(Feature.DisplayMode.EXTRUSION);
+      }
+      if (heightEntity && heightEntity.getHeight) {
+        return heightEntity.getHeight();
+      } else {
+        return 0;
+      }
+    }
 
   }); // End class instance definition
 

@@ -148,7 +148,7 @@ define([
       var initPopup = function() {
         if (entityPopup) return;
         entityPopup = this._createPopup(args);
-        onCreate(entityPopup);
+        onCreate && onCreate(entityPopup);
         // TODO(aramk) Track the entity instead.
         this._managers.event.addEventHandler('intern', 'input/leftdown', function(event) {
           entityPopup && entityPopup.hide();
