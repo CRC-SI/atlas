@@ -149,13 +149,17 @@ define([
         if (entityPopup) return;
         entityPopup = this._createPopup(args);
         onCreate(entityPopup);
+        // TODO(aramk) Track the entity instead.
+        this._managers.event.addEventHandler('intern', 'input/leftdown', function(event) {
+          entityPopup && entityPopup.hide();
+        });
+        entity.addEventListener('entity/deselect', function(event) {
+          entityPopup.hide();
+        }, {ignoreBubbled: true});
       }.bind(this);
       entity.addEventListener('entity/select', function(event) {
         initPopup();
         entityPopup.show();
-      }, {ignoreBubbled: true});
-      entity.addEventListener('entity/deselect', function(event) {
-        entityPopup.hide();
       }, {ignoreBubbled: true});
       return entityPopup;
     },

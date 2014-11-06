@@ -26,14 +26,14 @@ define([
    * @param {String} [args.title] - A title to show in the overlay.
    * @param {String} [args.class] - The CSS class to apply to the <code><div</code> surrounding
    *    the Overlay.
-   * @param {boolean} [args.hasRemoveBtn=false] - Whether the Overlay should have a remove
+   * @param {Boolean} [args.hasRemoveBtn=false] - Whether the Overlay should have a remove
    *    button. The default action of this button is to remove and destroy the Overlay.
-   * @param {function} [args.onRemove] - A callback that is called when the Overlay remove
+   * @param {Function} [args.onRemove] - A callback that is called when the Overlay remove
    *    button is clicked. This callback overrides the default action of the remove button, so the
    *    callback should remove the Overlay if that is required.
-   * @param {boolean} [args.hasEnableCheckbox=false] - Whether the Overlay should have an enable
+   * @param {Boolean} [args.hasEnableCheckbox=false] - Whether the Overlay should have an enable
    *    checkbox. The default action of this checkbox is to minimise and maximise the Overlay.
-   * @param {function} [args.onEnabledChange] - A callback that is called when the overlay enable
+   * @param {Function} [args.onEnabledChange] - A callback that is called when the overlay enable
    *    checkbox is clicked. This callback overrides the default behaviour of the enable checkbox,
    *    so the callback should minimise/maximise the Overlay if this is required.
    * @param {Object} [args.position] - The position of the Overlay.
@@ -51,6 +51,7 @@ define([
    * @param {Object} [args.dimensions.height] - The height of the Overlay, by default it fits the content.
    * @param {Object} [args.dimensions.width] - The width of the Overlay, by default it fits the content.
    * @param {String} [args.content=''] - Either a plain text or HTML to be rendered in the Overlay.
+   * @param {Boolean} [args.visible=true] - Whether the Overlay is visible.
    * @param {atlas.events.EventManager} [args.eventManager]
    *
    * @class atlas.dom.Overlay
@@ -117,6 +118,11 @@ define([
     _content: null,
 
     /**
+     * @type {Boolean}
+     */
+    _isVisible: true,
+
+    /**
      * Function handler for when the Overlay is removed. The context of this
      * function is assumed to be correctly set.
      * @function
@@ -144,6 +150,7 @@ define([
         title: '',
         position: {},
         dimensions: {},
+        visible: true,
         showMinimised: false,
         content: '',
         hasRemoveBtn: false,
@@ -168,6 +175,7 @@ define([
       this._title = args.title;
       this._cssClass = args.cssClass;
 
+      this._isVisible = args.visible;
       this._position = args.position;
       this._dimensions = args.dimensions;
       this._content = args.content;
@@ -187,9 +195,7 @@ define([
     // -------------------------------------------
 
     isVisible: function() {
-      var element = this.getDom();
-      if (!element) { return false; }
-      return $(element).is(':visible');
+      return this._isVisible;
     },
 
     getContent: function() {
@@ -238,6 +244,7 @@ define([
         var value = position[attr];
         value !== undefined && $element.css(attr, value + 'px');
       });
+      DomUtil.constrainPositionWithin($element, this.getParent());
     },
 
     getDimensions: function() {
@@ -281,8 +288,10 @@ define([
      * Hides the Overlay from view.
      */
     hide: function() {
-      if (!this.isVisible()) { return; }
-      $(this.getDom()).hide();
+      var dom = this.getDom();
+      if (!this.isVisible() || !dom) { return; }
+      $(dom).hide();
+      this._isVisible = false;
       this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/hide'));
     },
 
@@ -290,8 +299,10 @@ define([
      * Shows the overlay on the parent document.
      */
     show: function() {
-      if (this.isVisible()) { return; }
-      $(this.getDom()).show();
+      var dom = this.getDom();
+      if (this.isVisible() || !dom) { return; }
+      $(dom).show();
+      this._isVisible = true;
       this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/show'));
     },
 
@@ -350,9 +361,9 @@ define([
         // Wrap the title with an enable checkbox and remove button if necessary.
         title += '<div class="title">';
         if (this._hasEnableCheckbox) {
-          title += '<input type="checkbox" value="true" class="enable">'
+          title += '<input type="checkbox" value="true" class="enable checkbox">'
         }
-        title += '<div class="enable-label">' + this._title + '</div>';
+        title += '<div class="content">' + this._title + '</div>';
         if (this._hasRemoveBtn) {
           title += '<button class="remove">X</button>';
         }
@@ -366,11 +377,10 @@ define([
       // Create the overlay html.
       $element.html(html);
 
-      this.setPosition(this._position);
       this.setDimensions(this._dimensions);
       this.setMinimised(this._showMinimised);
+      this.setPosition(this._position);
       $parent.append($element);
-      DomUtil.constrainPositionWithin($element, $parent);
 
       // Add event handler to close button and checkbox
       if (this._hasRemoveBtn) {

@@ -41,12 +41,15 @@ define([
 
     _init: function(args) {
       var entity = args.entity;
+      if (!entity) {
+        throw new Error('GeoEntity needed for Popup.');
+      }
+      this._entity = entity;
+      this._renderManager = args.renderManager;
       args = Setter.merge({
         id: Popup.ID_PREFIX + entity.getId()
       }, args);
       this._super(args);
-      this._entity = entity;
-      this._renderManager = args.renderManager;
       this.hide();
     },
 
@@ -62,6 +65,19 @@ define([
 
     show: function() {
       this._super();
+      this._update();
+    },
+
+    _render: function() {
+      this._super();
+      this._update();
+    },
+
+    _update: function() {
+      this.setPosition(this.getPositionAboveEntity());
+    },
+
+    getPositionAboveEntity: function() {
       var entity = this._entity,
         renderManager = this._renderManager,
         $element = $(this.getDom()),
@@ -83,12 +99,11 @@ define([
       console.log('centroid screenCoord', screenCoord);
       screenCoord.y = minY - this._yPadding;
       console.log('new screenCoord', screenCoord);
-      var position = {
+      return {
         left: screenCoord.x - width / 2,
         top: screenCoord.y - height
       };
-      this.setPosition(position);
-    },
+    }
 
     // -------------------------------------------
     // GETTERS AND SETTERS
