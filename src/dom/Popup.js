@@ -1,9 +1,10 @@
 define([
   'atlas/dom/Overlay',
+  'atlas/lib/utility/Class',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
-  'atlas/lib/utility/Class'
-], function(Overlay, Log, Setter, Class) {
+  'jquery'
+], function(Overlay, Class, Log, Setter, $) {
 
   /**
    * @typedef atlas.dom.Popup
@@ -63,8 +64,11 @@ define([
       this._super();
       var entity = this._entity,
         renderManager = this._renderManager,
-        dimensions = this.getDimensions(),
+        $element = $(this.getDom()),
+        width = $element.width(),
+        height = $element.height(),
         centroid = entity.getCentroid();
+
       var elevation = entity.getElevation() + entity.getHeight();
       // Find all points from the bounding box and convert to screen coordinates. Use this to
       // ensure the overlay doesn't overlap the entity.
@@ -80,8 +84,8 @@ define([
       screenCoord.y = minY - this._yPadding;
       console.log('new screenCoord', screenCoord);
       var position = {
-        left: screenCoord.x - dimensions.width / 2,
-        top: screenCoord.y - dimensions.height
+        left: screenCoord.x - width / 2,
+        top: screenCoord.y - height
       };
       this.setPosition(position);
     },

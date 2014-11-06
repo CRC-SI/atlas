@@ -21,9 +21,11 @@
     .hidden {
       display: none;
     }
-    .enable-label {
+    .enable.checkbox {
+      margin-right: 5px;
+    }
+    .content {
       display: inline-block;
-      margin-left: 5px;
     }
     .remove {
       // TODO this is a bit of a hack
@@ -36,6 +38,7 @@
       // Formatting for Projection legend titles.
       font-size: 1.2em;
       padding: 5px;
+      padding-bottom: 0;
       &:hover > button {
         display: block;
       }

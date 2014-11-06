@@ -328,6 +328,7 @@ define([
       this.hide();
       $(this.getDom()).remove();
       this._element = null;
+      this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/remove'));
     },
 
     /**

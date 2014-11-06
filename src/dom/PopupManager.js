@@ -61,12 +61,18 @@ define([
       var handlers = [
         {
           source: 'extern',
+          name: 'popup/onSelection',
+          callback: function(args) {
+            this.createOnSelection(args);
+          }.bind(this)
+        },
+        {
+          source: 'extern',
           name: 'popup/create',
           callback: function(args) {
             var callback = args.callback;
             delete args.callback;
             var popup = this._createPopup(args);
-            this._popups.add(popup);
             callback && callback(popup);
           }.bind(this)
         },
@@ -76,9 +82,7 @@ define([
           callback: function(args) {
             var callback = args.callback;
             delete args.callback;
-            var popup = this._popups.get(Popup.ID_PREFIX + args.id);
-            popup.remove();
-            this._popups.remove(popup);
+            this._removePopup(Popup.ID_PREFIX + args.id);
           }.bind(this)
         },
         {
@@ -93,17 +97,32 @@ define([
     },
 
     _createPopup: function(args) {
+      var entity = args.entity,
+        content = args.content,
+        title = args.title;
       args.renderManager = this._managers.render;
-      var entity = args.entity
       if (Types.isString(entity)) {
         args.entity = this._managers.entity.getById(entity);
       }
       args = Setter.merge({
         parent: this._managers.dom.getDom()
       }, args);
+      if (Types.isFunction(content)) {
+        args.content = content(args);
+      }
+      if (Types.isFunction(title)) {
+        args.title = title(args);
+      }
       var popup = new Popup(args);
       this._bindPopupEvents(popup);
+      this._popups.add(popup);
       return popup;
+    },
+
+    _removePopup: function(id) {
+      var popup = this._popups.get(id);
+      popup.remove();
+      this._popups.remove(id);
     },
 
     _bindPopupEvents: function(popup) {
@@ -115,9 +134,33 @@ define([
           otherPopup.hide();
         });
       }.bind(this));
+      popup.addEventListener('overlay/remove', function() {
+        this._removePopup(popup.getId());
+      }.bind(this));
     },
 
-    getCurrent: function () {
+    createOnSelection: function(args) {
+      var entity = args.entity,
+        entityPopup,
+        onCreate = args.onCreate;
+      delete args.onCreate;
+
+      var initPopup = function() {
+        if (entityPopup) return;
+        entityPopup = this._createPopup(args);
+        onCreate(entityPopup);
+      }.bind(this);
+      entity.addEventListener('entity/select', function(event) {
+        initPopup();
+        entityPopup.show();
+      }, {ignoreBubbled: true});
+      entity.addEventListener('entity/deselect', function(event) {
+        entityPopup.hide();
+      }, {ignoreBubbled: true});
+      return entityPopup;
+    },
+
+    getCurrent: function() {
       return this._current;
     }
 
