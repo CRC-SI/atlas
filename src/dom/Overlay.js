@@ -1,11 +1,12 @@
 define([
+  'atlas/dom/DomUtil',
   'atlas/events/EventTarget',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types',
   'atlas/lib/utility/Class',
   'jquery',
-], function (EventTarget, Log, Setter, Types, Class, $) {
+], function (DomUtil, EventTarget, Log, Setter, Types, Class, $) {
 
   /**
    * @typedef atlas.dom.Overlay
@@ -230,20 +231,13 @@ define([
       return this._position;
     },
 
-    setPosition: function (position) {
+    setPosition: function(position) {
       this._position = position;
-      var element = this.getDom();
-      // Set the Overlay's position.
-      position.top !== undefined && (element.style.top = position.top + 'px');
-      position.left !== undefined && (element.style.left = position.left + 'px');
-      if (position.bottom !== undefined) {
-        element.style.bottom = position.bottom + 'px';
-        position.top !== undefined && (this._dimensions.height = 0);
-      }
-      if (position.right !== undefined) {
-        element.style.right = position.right + 'px';
-        position.left !== undefined && (this._dimensions.width = 0);
-      }
+      var $element = $(this.getDom());
+      ['top', 'bottom', 'left', 'right'].forEach(function(attr) {
+        var value = position[attr];
+        value !== undefined && $element.css(attr, value + 'px');
+      });
     },
 
     getDimensions: function() {
@@ -251,11 +245,12 @@ define([
     },
 
     setDimensions: function(dimensions) {
-      var element = this.getDom();
+      var $element = $(this.getDom());
       this._dimensions = dimensions;
-      // Width and Height don't need to be set, even if height and width are set to '0'.
-      dimensions.height && (element.style.height = dimensions.height + 'px');
-      dimensions.width && (element.style.width = dimensions.width + 'px');
+      ['height', 'width'].forEach(function(attr) {
+        var value = dimensions[attr];
+        value !== undefined && $element.css(attr, value + 'px');
+      });
     },
 
     /**
@@ -345,7 +340,8 @@ define([
       // TODO(aramk) Refactor to use jQuery.
       var $element = $('<div class="overlay"></div>');
       $element.addClass(this.getCssClass());
-      var element = this._element = $element[0];
+      var element = this._element = $element[0],
+        $parent = $(this.getParent());
 
       var title = '';
       if (this._title) {
@@ -372,8 +368,8 @@ define([
       this.setPosition(this._position);
       this.setDimensions(this._dimensions);
       this.setMinimised(this._showMinimised);
-
-      $(this._parent).append($element);
+      $parent.append($element);
+      DomUtil.constrainPositionWithin($element, $parent);
 
       // Add event handler to close button and checkbox
       if (this._hasRemoveBtn) {

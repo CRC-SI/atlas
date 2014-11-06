@@ -1,10 +1,9 @@
 define([
   'atlas/dom/Overlay',
-  'atlas/dom/DomUtil',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Class'
-], function(Overlay, DomUtil, Log, Setter, Class) {
+], function(Overlay, Log, Setter, Class) {
 
   /**
    * @typedef atlas.dom.Popup
@@ -30,8 +29,6 @@ define([
 
     _renderManager: null,
 
-    // _handles: null,
-
     _isExclusive: false,
 
     /**
@@ -49,8 +46,6 @@ define([
       this._super(args);
       this._entity = entity;
       this._renderManager = args.renderManager;
-      // this._handles = [];
-      // this._bindEvents();
       this.hide();
     },
 
@@ -63,12 +58,6 @@ define([
     // -------------------------------------------
     // EVENTS
     // -------------------------------------------
-
-    // _bindEvents: function() {
-    //   var entity = this._entity;
-    //   this._handles.push(entity.addEventListener('entity/select', this._show.bind(this)));
-    //   this._handles.push(entity.addEventListener('entity/deselect', this._hide.bind(this)));
-    // },
 
     show: function() {
       this._super();
@@ -94,20 +83,7 @@ define([
         left: screenCoord.x - dimensions.width / 2,
         top: screenCoord.y - dimensions.height
       };
-      console.log('position', position);
       this.setPosition(position);
-      // TODO(aramk) Put this logic in the manager.
-      // currentOverlay && currentOverlay.remove();
-      // currentOverlay = new Overlay({
-      //   content: 'Overlay',
-      //   parent: atlasDomNode,
-      //   position: position,
-      //   dimensions: {
-      //     height: height,
-      //     width: width
-      //   }
-      // });
-      // DomUtil.constrainPositionWithin(currentOverlay.getDom(), atlasDomNode);
     },
 
     // -------------------------------------------
