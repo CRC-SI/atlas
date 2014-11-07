@@ -84,10 +84,9 @@ define([
         renderManager = this._renderManager,
         $element = $(this.getDom()),
         width = $element.width(),
-        height = $element.height(),
-        centroid = entity.getCentroid();
+        height = $element.height();
 
-      var elevation = entity.getElevation() + this.getEntityHeight(entity);
+      var elevation = entity.getElevation() + this._getEntityHeight(entity);
       // Find all points from the bounding box and convert to screen coordinates. Use this to
       // ensure the overlay doesn't overlap the entity.
       var bBox = entity.getBoundingBox();
@@ -97,17 +96,15 @@ define([
         cornerYs.push(renderManager.screenCoordsFromGeoPoint(corner).y);
       });
       var minY = Math.min.apply(null, cornerYs);
-      var screenCoord = renderManager.screenCoordsFromGeoPoint(centroid);
-      console.log('centroid screenCoord', screenCoord);
+      var screenCoord = renderManager.screenCoordsFromGeoPoint(this._getEntityCentroid(entity));
       screenCoord.y = minY - this._yPadding;
-      console.log('new screenCoord', screenCoord);
       return {
         left: screenCoord.x - width / 2,
         top: screenCoord.y - height
       };
     },
 
-    getEntityHeight: function(entity) {
+    _getEntityHeight: function(entity) {
       var heightEntity;
       if (entity instanceof Feature) {
         heightEntity = entity.getForm(Feature.DisplayMode.EXTRUSION);
@@ -117,9 +114,23 @@ define([
       } else {
         return 0;
       }
+    },
+
+    _getEntityCentroid: function(entity) {
+      if (entity instanceof Feature) {
+        var extrusion = entity.getForm(Feature.DisplayMode.EXTRUSION);
+        if (extrusion) {
+          entity = extrusion;
+        }
+      }
+      return entity.getCentroid();
     }
 
-  }); // End class instance definition
+  });
+
+  // -------------------------------------------
+  // STATICS
+  // -------------------------------------------
 
   Setter.mixin(Popup, {
 

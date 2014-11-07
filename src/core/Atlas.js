@@ -50,9 +50,12 @@ define([
      */
     _managers: {},
 
+    _managerClasses: {},
+
     _init: function() {
       this._managers = {};
       this._initManagers();
+      this._createManagers();
       this._setup();
     },
 
@@ -69,15 +72,28 @@ define([
     _initManagers: function() {
       [CameraManager, DomManager, EditManager, EntityManager, EventManager, InputManager,
         PopupManager, RenderManager, SelectionManager, VisualisationManager
-      ].forEach(this.addManagerClass, this);
+      ].forEach(this.setManagerClass, this);
+    },
+
+    _createManagers: function() {
+      for (var id in this._managerClasses) {
+        var ManagerClass = this._managerClasses[id];
+        var manager = new ManagerClass(this._managers);
+        this.setManager(manager);
+      }
     },
 
     /**
      * Sets up the {@link atlas.core.Manager} objects by calling {@link atlas.core.Manager#setup}.
      */
     _setup: function() {
+      // These managers are set up later.
+      var delayedSetupManagers = ['input'];
+      // var ignoredManagersMap = {};
       for (var id in this._managers) {
-        this._managers[id].setup();
+        if (delayedSetupManagers.indexOf(id) === -1) {
+          this._managers[id].setup();
+        }
       }
     },
 
@@ -86,10 +102,9 @@ define([
      * @param {Function} ManagerClass - A class of {@link atlas.core.Manager}.
      * @returns {atlas.core.Manager}
      */
-    addManagerClass: function(ManagerClass) {
-      var manager = new ManagerClass(this._managers);
-      this.setManager(manager);
-      return manager;
+    setManagerClass: function(ManagerClass) {
+      var managerId = ManagerClass.prototype._id;
+      this._managerClasses[managerId] = ManagerClass;
     },
 
     /**
@@ -119,12 +134,12 @@ define([
       // Hook up the InputManager to the selected DOM element.
       this._managers.input.setup(dom);
       // TODO(bpstudds): Work out all this dependency injection stuff.
-      this._faculties = {};
-      this._faculties.popup = new PopupFaculty();
-      this._faculties.popup.setup({
-        parentDomNode: elem,
-        eventManager: this._managers.event
-      })
+      // this._faculties = {};
+      // this._faculties.popup = new PopupFaculty();
+      // this._faculties.popup.setup({
+      //   parentDomNode: elem,
+      //   eventManager: this._managers.event
+      // })
     },
 
     getCameraMetrics: function() {
