@@ -109,6 +109,10 @@ define([
       return this;
     },
 
+    negate: function() {
+      return new GeoPoint(0, 0, 0).subtract(this);
+    },
+
     // -------------------------------------------
     // GENERATORS AND CONVERTERS
     // -------------------------------------------

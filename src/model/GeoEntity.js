@@ -202,11 +202,11 @@ define([
       this._renderManager = args.renderManager;
       this._eventManager = args.eventManager;
       this._entityManager = args.entityManager;
-      this._entityManager.add(this.getId(), this);
+      this._entityManager && this._entityManager.add(this.getId(), this);
       var parentId = args.parent,
         parent;
       if (parentId) {
-        parent = this._entityManager.getById(parentId);
+        parent = this._entityManager && this._entityManager.getById(parentId);
       }
       // Call the superclass' (EventTarget) constructor.
       this._super(args.eventManager, parent);
