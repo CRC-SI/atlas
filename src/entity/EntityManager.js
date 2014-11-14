@@ -84,7 +84,7 @@ define([
             Log.time('entity/show');
             var entity = this.getById(args.id);
             if (!entity) {
-              entity = this.createFeature(args.id, args)
+              entity = this.createFeature(args.id, args);
             } else {
               entity.show();
             }
@@ -262,7 +262,7 @@ define([
         args.entityManager = this;
         Log.debug('Creating entity', id);
         var feature = new this._entityTypes.Feature(id, args);
-        (args.show !== false) && feature.show();
+        args.show !== undefined && feature.setVisibility(args.show);
         return feature;
       }
     },

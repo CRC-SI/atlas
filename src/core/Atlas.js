@@ -1,9 +1,21 @@
 define([
+  'atlas/camera/CameraManager',
+  'atlas/dom/DomManager',
   'atlas/dom/PopupFaculty',
+  'atlas/dom/PopupManager',
+  'atlas/edit/EditManager',
+  'atlas/entity/EntityManager',
+  'atlas/events/EventManager',
+  'atlas/input/InputManager',
+  'atlas/render/RenderManager',
+  'atlas/selection/SelectionManager',
+  'atlas/visualisation/VisualisationManager',
   'atlas/util/DeveloperError',
   'atlas/lib/utility/Class',
   'atlas/lib/utility/Setter'
-], function(PopupFaculty, DeveloperError, Class, Setter) {
+], function(CameraManager, DomManager, PopupFaculty, PopupManager, EditManager, EntityManager,
+  EventManager, InputManager, RenderManager, SelectionManager, VisualisationManager, DeveloperError,
+  Class, Setter) {
 
   /**
    * @typedef atlas.core.Atlas
@@ -29,34 +41,70 @@ define([
    * @abstract
    * @class atlas.core.Atlas
    */
-  Atlas = Setter.mixin(Class.extend({
+  Atlas = Setter.mixin(Class.extend( /** @lends atlas.core.Atlas# */ {
 
     /**
-     * A mapping of every manager type in Atlas to the manager instance. This
-     * object is created on Atlas, but the manager instances are set by each
-     * manager upon creation.
+     * A mapping of every manager type in Atlas to the manager instance. This object is created on
+     * Atlas, but the manager instances are set by each manager upon creation.
      * @type {Object}
      */
     _managers: {},
 
+    _managerClasses: {},
+
     _init: function() {
       this._managers = {};
+      this._initManagers();
+      this._createManagers();
+      this._setup();
     },
 
-    attachTo: function(elem) {
-      var dom = typeof elem === 'string' ? document.getElementById(elem) : elem;
-      this._managers.dom.setDom(dom, true);
-      // Hook up the InputManager to the selected DOM element.
-      this._managers.input.setup(dom);
+    // -------------------------------------------
+    // MANAGERS
+    // -------------------------------------------
 
-      // TODO(bpstudds): Work out all this dependency injection stuff.
-      this._faculties = {};
-      this._faculties.popup = new PopupFaculty();
-      this._faculties.popup.setup({parentDomNode: elem, eventManager: this._managers.event})
+    /**
+     * Creates all the {@link atlas.core.Manager} objects before initialising any. Any
+     * initialisation work that requires the presence of a particular manager is done in
+     * {@link #_setup}, so the managers may be created in any order. Override this in subclasses to
+     * redefine or add more managers.
+     */
+    _initManagers: function() {
+      [CameraManager, DomManager, EditManager, EntityManager, EventManager, InputManager,
+        PopupManager, RenderManager, SelectionManager, VisualisationManager
+      ].forEach(this.setManagerClass, this);
     },
 
-    getCameraMetrics: function() {
-      return this._managers.camera.getCameraMetrics();
+    _createManagers: function() {
+      for (var id in this._managerClasses) {
+        var ManagerClass = this._managerClasses[id];
+        var manager = new ManagerClass(this._managers);
+        this.setManager(manager);
+      }
+    },
+
+    /**
+     * Sets up the {@link atlas.core.Manager} objects by calling {@link atlas.core.Manager#setup}.
+     */
+    _setup: function() {
+      // These managers are set up later.
+      var delayedSetupManagers = ['input'];
+      // var ignoredManagersMap = {};
+      for (var id in this._managers) {
+        if (delayedSetupManagers.indexOf(id) === -1) {
+          this._managers[id].setup();
+        }
+      }
+    },
+
+    /**
+     * Creates an instance of the given class and sets it on this {@link atlas.core.Atlas} instance.
+     * @param {Function} ManagerClass - A class of {@link atlas.core.Manager}.
+     * @returns {atlas.core.Manager}
+     */
+    setManagerClass: function(ManagerClass) {
+      var managerId = ManagerClass.prototype._id;
+      this._managerClasses[managerId] = ManagerClass;
     },
 
     /**
@@ -74,6 +122,28 @@ define([
         this._managers[id] = manager;
         return oldManager;
       }
+    },
+
+    // -------------------------------------------
+    // API
+    // -------------------------------------------
+
+    attachTo: function(elem) {
+      var dom = typeof elem === 'string' ? document.getElementById(elem) : elem;
+      this._managers.dom.setDom(dom, true);
+      // Hook up the InputManager to the selected DOM element.
+      this._managers.input.setup(dom);
+      // TODO(bpstudds): Work out all this dependency injection stuff.
+      // this._faculties = {};
+      // this._faculties.popup = new PopupFaculty();
+      // this._faculties.popup.setup({
+      //   parentDomNode: elem,
+      //   eventManager: this._managers.event
+      // })
+    },
+
+    getCameraMetrics: function() {
+      return this._managers.camera.getCameraMetrics();
     },
 
     /**
@@ -129,7 +199,9 @@ define([
 
   }), {
 
-    // Static members
+    // -------------------------------------------
+    // STATICS
+    // -------------------------------------------
 
     /**
      * @type {atlas.core.Environment}

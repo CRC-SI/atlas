@@ -32,8 +32,8 @@ define([
      * polygon.
      */
     verticesFromWKT: function(wktStr) {
-      var geometry = this.openLayersGeometryFromWKT(wktStr).geometry;
-      return this.verticesFromOpenLayersGeometry(geometry);
+      var geometry = this.openLayersGeometryFromWKT(wktStr);
+      return geometry ? this.verticesFromOpenLayersGeometry(geometry) : null;
     },
 
     /**
@@ -47,14 +47,13 @@ define([
 
     /**
      * @param {String} wktStr - The WKT string to convert
-     * @returns {OpenLayers.Geometry.Collection}
+     * @returns {Object} args
+     * @returns {OpenLayers.Geometry.Collection} args.geometry
      */
     openLayersGeometryFromWKT: function(wktStr) {
-      var geometry;
-      if (typeof wktStr === 'string') {
-        geometry = this.parser.read(wktStr);
-      }
-      return geometry;
+      var result = this.parser.read(wktStr);
+      if (!result) return null;
+      return result.geometry;
     },
 
     /**

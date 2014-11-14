@@ -109,6 +109,10 @@ define([
       return this;
     },
 
+    negate: function() {
+      return new GeoPoint(0, 0, 0).subtract(this);
+    },
+
     // -------------------------------------------
     // GENERATORS AND CONVERTERS
     // -------------------------------------------
@@ -141,6 +145,10 @@ define([
       var northSouth = this.latitude < 0 ? -1 * this.latitude + 'S' : this.latitude + 'N',
           eastWest = this.longitude < 0 ? -1 * this.longitude + 'W' : this.longitude + 'E';
       return northSouth + ' ' + eastWest;
+    },
+
+    toArray: function() {
+      return [this.longitude, this.latitude, this.elevation];
     },
 
     /**

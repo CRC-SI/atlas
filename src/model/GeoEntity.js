@@ -52,13 +52,6 @@ define([
      */
     _id: null,
 
-    /*
-     * ID of the parent GeoEntity of the GeoEntity. Defined in EventTarget.
-     * @name _parent
-     * @type {String}
-     * @protected
-     */
-
     /**
      * The RenderManager object for the GeoEntity.
      * @type {atlas.render.RenderManager}
@@ -162,25 +155,36 @@ define([
     /**
      * Whether the GeoEntity is selected.
      * @type {Boolean}
+     * @protected
      */
     _selected: false,
 
     /**
      * {@link atlas.model.Handle} objects used for editing.
      * @type {atlas.core.ItemStore}
+     * @protected
      */
     _handles: null,
 
     /**
      * The {@link atlas.model.Handle} on the entity itself.
+     * @type {atlas.model.Handle}
+     * @protected 
      */
     _entityHandle: null,
 
     /**
      * Event handles which are bound to the entity and should be removed with it.
      * @type {Array.<EventListener>}
+     * @protected
      */
     _eventHandles: null,
+
+    /**
+     * @type {atlas.events.EventTarget}
+     * @protected
+     */
+    _parent: null,
 
     _init: function(id, args) {
       if (typeof id === 'object') {
@@ -190,10 +194,6 @@ define([
         args = args || {};
       }
       id = id.toString();
-      // Call the superclass' (EventTarget) constructor.
-      this._super(args.eventManager, args.parent);
-      this.clean();
-      this.setDirty('entity');
 
       if (!id || typeof id === 'object') {
         throw new DeveloperError('Can not create instance of GeoEntity without an ID');
@@ -203,6 +203,16 @@ define([
       this._eventManager = args.eventManager;
       this._entityManager = args.entityManager;
       this._entityManager && this._entityManager.add(this.getId(), this);
+      var parentId = args.parent,
+        parent;
+      if (parentId) {
+        parent = this._entityManager && this._entityManager.getById(parentId);
+      }
+      // Call the superclass' (EventTarget) constructor.
+      this._super(args.eventManager, parent);
+      this.clean();
+      this.setDirty('entity');
+
       this.setStyle(args.style || GeoEntity.getDefaultStyle());
       this._handles = new ItemStore();
       this._eventHandles = [];
@@ -454,9 +464,7 @@ define([
       }
       this.setDirty('style');
       this._style = style;
-      var isVisible = this.isVisible();
       this._update();
-      this._updateVisibility(isVisible);
       return previousStyle;
     },
 
@@ -534,6 +542,7 @@ define([
      * longitude and elevation.
      */
     translate: function(translation) {
+      // NOTE: Translation is handled by the subclasses, since not all models have vertices.
       this._onTransform();
     },
 
@@ -548,6 +557,7 @@ define([
      * @param {Number} scale.z - The scale along the <code>z</code> axis of the GeoEntity.
      */
     scale: function(scale) {
+      this._scale = this._scale.componentwiseMultiply(scale);
       this._onTransform();
     },
 
@@ -574,8 +584,11 @@ define([
      *        rotates clockwise, positive rotates counterclockwise.
      * @param {Number} rotation.z - The rotation about the <code>z</code> axis in degrees, negative
      *      rotates clockwise, positive rotates counterclockwise.
+     * @param {GeoPoint} [centroid] - The centroid to use for rotating. By default this is the
+     * centroid of the GeoEntity obtained from {@link #getCentroid}.
      */
-    rotate: function(rotation) {
+    rotate: function(rotation, centroid) {
+      this._rotation = rotation;
       this._onTransform();
     },
 
@@ -613,11 +626,11 @@ define([
     },
 
     /**
-     * Function to remove the GeoEntity from rendering. This function should
-     * be overridden on subclasses to accomplish any cleanup that
-     * may be required.
+     * Removes the GeoEntity from rendering. This function should be overridden on subclasses to
+     * accomplish any cleanup that may be required.
      */
     remove: function() {
+      this._super();
       // TODO(aramk) Distinguish between this and destroying the entity, which should remove all
       // contained objects.
       this.hide();
@@ -637,7 +650,6 @@ define([
     show: function() {
       this._visible = true;
       this._update();
-      this._updateVisibility(true);
     },
 
     /**
@@ -645,10 +657,12 @@ define([
      * @private
      */
     _update: function() {
-      if (this.isVisible() && !this.isRenderable()) {
+      var isVisible = this.isVisible();
+      if (isVisible && !this.isRenderable()) {
         this._build();
         this.clean();
       }
+      this._updateVisibility(isVisible);
     },
 
     /**
@@ -656,7 +670,7 @@ define([
      */
     hide: function() {
       this._visible = false;
-      this._updateVisibility(false);
+      this._update();
     },
 
     /**
@@ -720,8 +734,7 @@ define([
      * Handles the behaviour when this entity is selected.
      */
     _onSelect: function() {
-      this._preSelectStyle = this.getStyle();
-      this.setStyle(GeoEntity.getSelectedStyle());
+      this._setSelectStyle();
       this._eventManager.dispatchEvent(new Event(this, 'entity/select', {
         ids: [this.getId()]
       }));
@@ -731,10 +744,19 @@ define([
      * Handles the behaviour when this entity is selected.
      */
     _onDeselect: function() {
-      this.setStyle(this._preSelectStyle);
+      this._revertSelectStyle();
       this._eventManager.dispatchEvent(new Event(this, 'entity/deselect', {
         ids: [this.getId()]
       }));
+    },
+
+    _setSelectStyle: function() {
+      this._preSelectStyle = this.getStyle();
+      this.setStyle(GeoEntity.getSelectedStyle());
+    },
+
+    _revertSelectStyle: function() {
+      this.setStyle(this._preSelectStyle);
     },
 
     /**

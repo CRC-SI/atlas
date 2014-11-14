@@ -59,9 +59,16 @@ define([
       });
     },
 
-    _provideTarget: function (event) {
-      event.setTarget(this._managers.entity.getAt(event.position)[0]);
-      return event;
+    // TODO(aramk) Currently, Event object is only used internally and EventManager is passing
+    // it's name and arguments only.
+    // _provideTarget: function (event) {
+    //   event.setTarget(this._managers.entity.getAt(event.position)[0]);
+    //   return event;
+    // },
+
+    _provideTarget: function (args) {
+      args.target = this._managers.entity.getAt(args.position)[0];
+      return args;
     },
 
     /**

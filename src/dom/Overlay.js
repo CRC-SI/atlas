@@ -1,9 +1,12 @@
 define([
+  'atlas/dom/DomUtil',
+  'atlas/events/EventTarget',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types',
-  'atlas/lib/utility/Class'
-], function (Log, Setter, Types, Class) {
+  'atlas/lib/utility/Class',
+  'jquery',
+], function (DomUtil, EventTarget, Log, Setter, Types, Class, $) {
 
   /**
    * @typedef atlas.dom.Overlay
@@ -23,14 +26,14 @@ define([
    * @param {String} [args.title] - A title to show in the overlay.
    * @param {String} [args.class] - The CSS class to apply to the <code><div</code> surrounding
    *    the Overlay.
-   * @param {boolean} [args.hasRemoveBtn=false] - Whether the Overlay should have a remove
+   * @param {Boolean} [args.hasRemoveBtn=false] - Whether the Overlay should have a remove
    *    button. The default action of this button is to remove and destroy the Overlay.
-   * @param {function} [args.onRemove] - A callback that is called when the Overlay remove
+   * @param {Function} [args.onRemove] - A callback that is called when the Overlay remove
    *    button is clicked. This callback overrides the default action of the remove button, so the
    *    callback should remove the Overlay if that is required.
-   * @param {boolean} [args.hasEnableCheckbox=false] - Whether the Overlay should have an enable
+   * @param {Boolean} [args.hasEnableCheckbox=false] - Whether the Overlay should have an enable
    *    checkbox. The default action of this checkbox is to minimise and maximise the Overlay.
-   * @param {function} [args.onEnabledChange] - A callback that is called when the overlay enable
+   * @param {Function} [args.onEnabledChange] - A callback that is called when the overlay enable
    *    checkbox is clicked. This callback overrides the default behaviour of the enable checkbox,
    *    so the callback should minimise/maximise the Overlay if this is required.
    * @param {Object} [args.position] - The position of the Overlay.
@@ -48,10 +51,13 @@ define([
    * @param {Object} [args.dimensions.height] - The height of the Overlay, by default it fits the content.
    * @param {Object} [args.dimensions.width] - The width of the Overlay, by default it fits the content.
    * @param {String} [args.content=''] - Either a plain text or HTML to be rendered in the Overlay.
+   * @param {Boolean} [args.visible=true] - Whether the Overlay is visible.
+   * @param {atlas.events.EventManager} [args.eventManager]
    *
    * @class atlas.dom.Overlay
+   * @extends atlas.dom.EventTarget
    */
-  Overlay = Class.extend(/** @lends atlas.dom.Overlay# */ {
+  Overlay = EventTarget.extend(/** @lends atlas.dom.Overlay# */ {
 
     /**
      * The parent element of the Overlay, null if the Overlay is positioned absolutely within
@@ -112,11 +118,9 @@ define([
     _content: null,
 
     /**
-     * The entire HTML of the rendered Overlay.
-     * @type {String}
-     * @protected
+     * @type {Boolean}
      */
-    _html: null,
+    _isVisible: true,
 
     /**
      * Function handler for when the Overlay is removed. The context of this
@@ -141,16 +145,18 @@ define([
     _init: function (args) {
       // Set defaults
       args = Setter.merge({
-        parent: document,
+        parent: document.body,
         cssClass: '',
         title: '',
         position: {},
         dimensions: {},
+        visible: true,
         showMinimised: false,
         content: '',
         hasRemoveBtn: false,
         hasChangeCheckbox: false
       }, args);
+      this._super(args.eventManager);
       if (typeof args.parent === 'string') {
         args.parent = document.getElementById(args.parent);
       }
@@ -168,8 +174,8 @@ define([
       this._parent = args.parent;
       this._title = args.title;
       this._cssClass = args.cssClass;
-      this._cssPosition = args.cssPosition;
 
+      this._isVisible = args.visible;
       this._position = args.position;
       this._dimensions = args.dimensions;
       this._content = args.content;
@@ -181,31 +187,26 @@ define([
       this._hasEnableCheckbox = args.hasEnableCheckbox || this._onEnabledChange !== null;
 
       // Construct element and append it to the parent.
-      this._element = this._render();
+      this._render();
     },
 
     // -------------------------------------------
     // Getters and Setters
     // -------------------------------------------
 
-    isVisible: function () {
-      if (!this._element) { return false; }
-      return !this._element.classList.contains('hidden');
+    isVisible: function() {
+      return this._isVisible;
     },
 
-    getContent: function () {
+    getContent: function() {
       return this._content;
     },
 
-    getCssClass: function () {
+    getCssClass: function() {
       return this._cssClass;
     },
 
-    getDimensions: function () {
-      return this._dimensions;
-    },
-
-    getDom: function () {
+    getDom: function() {
       return this._element;
     },
 
@@ -213,27 +214,50 @@ define([
      * Gets the individual DOM elements for the title and content of the Overlay.
      * @returns {{title: HTMLElement, content: HTMLElement}}
      */
-    getDomElements: function () {
-      var overlay = this._element,
-          title = overlay.getElementsByClassName('overlay-title')[0],
-          content = overlay.getElementsByClassName('overlay-body')[0];
+    getDomElements: function() {
+      var overlay = this.getDom(),
+          title = $('.title', overlay)[0],
+          content = $('.body', overlay)[0];
       return {title: title, content: content};
     },
 
-    getHtml: function () {
-      return this._html;
+    getHtml: function() {
+      return $(this.getDom()).html();
     },
 
-    getId: function () {
+    getId: function() {
       return this._id;
     },
 
-    getParent: function () {
+    getParent: function() {
       return this._parent;
     },
 
-    getPosition: function () {
+    getPosition: function() {
       return this._position;
+    },
+
+    setPosition: function(position) {
+      this._position = position;
+      var $element = $(this.getDom());
+      ['top', 'bottom', 'left', 'right'].forEach(function(attr) {
+        var value = position[attr];
+        value !== undefined && $element.css(attr, value + 'px');
+      });
+      DomUtil.constrainPositionWithin($element, this.getParent());
+    },
+
+    getDimensions: function() {
+      return this._dimensions;
+    },
+
+    setDimensions: function(dimensions) {
+      var $element = $(this.getDom());
+      this._dimensions = dimensions;
+      ['height', 'width'].forEach(function(attr) {
+        var value = dimensions[attr];
+        value !== undefined && $element.css(attr, value + 'px');
+      });
     },
 
     /**
@@ -241,21 +265,19 @@ define([
      * @param {boolean} isMinimised - The Overlay should be minimised.
      */
     setMinimised: function (isMinimised) {
-      var content = this.getDomElements().content,
-      enableCheckbox = this.getDomElements().title.getElementsByClassName('enable-overlay')[0];
-
-      content && content.classList.toggle('hidden', isMinimised);
-      if (enableCheckbox) {
-        enableCheckbox.checked = !isMinimised;
-      }
+      var elems = this.getDomElements(),
+        $content = $(elems.content),
+        $enableCheckbox = $('.enable-overlay', elems.title);
+      $content.toggle(!isMinimised);
+      $enableCheckbox.prop('checked', !isMinimised);
     },
 
     /**
      * @returns {boolean} Whether the Overlay is minimised.
      */
-    isMinimised: function () {
+    isMinimised: function() {
       var content = this.getDomElements().content;
-      return content && content.classList.contains('hidden');
+      return !$(content).is(':visible');
     },
 
     // -------------------------------------------
@@ -265,23 +287,29 @@ define([
     /**
      * Hides the Overlay from view.
      */
-    hide: function () {
-      if (!this._element) { return; }
-      this._element.classList.add('hidden');
+    hide: function() {
+      var dom = this.getDom();
+      if (!this.isVisible() || !dom) { return; }
+      $(dom).hide();
+      this._isVisible = false;
+      this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/hide'));
     },
 
     /**
      * Shows the overlay on the parent document.
      */
-    show: function () {
-      if (!this._element) { return; }
-      this._element.classList.remove('hidden');
+    show: function() {
+      var dom = this.getDom();
+      if (this.isVisible() || !dom) { return; }
+      $(dom).show();
+      this._isVisible = true;
+      this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/show'));
     },
 
     /**
      * Sets the content of the Overlay to be visible.
      */
-    maximise: function () {
+    maximise: function() {
       this.setMinimised(false);
     },
 
@@ -289,28 +317,29 @@ define([
      * Sets the content of the Overlay to be hidden. The Overlay should be sized so that
      * only it uses only sufficient space to display the title.
      */
-    minimise: function () {
+    minimise: function() {
       this.setMinimised(true);
     },
 
     /**
      * Toggles whether the Overlay is minimised.
      */
-    toggleMinimisation: function () {
+    toggleMinimisation: function() {
       this.setMinimised(!this.isMinimised());
     },
 
     /**
      * Removes the Overlay from the parent document.
      */
-    remove: function () {
+    remove: function() {
       if (!this._element || !this._element.parentElement) {
         Log.warn('Tried to remove an unrendered Overlay.');
         return;
       }
       this.hide();
-      this._element.parentElement.removeChild(this._element);
+      $(this.getDom()).remove();
       this._element = null;
+      this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/remove'));
     },
 
     /**
@@ -318,75 +347,59 @@ define([
      * @returns {HTMLElement} The rendered DOM for the Overlay.
      * @protected
      */
-    _render: function () {
+    _render: function() {
       // TODO(bpstudds): Refactor this function.
-      var element = document.createElement('div');
-      element.classList.add('overlay');
-      this._cssClass !== '' && element.classList.add(this._cssClass);
+      // TODO(aramk) Refactor to use jQuery.
+      var $element = $('<div class="overlay"></div>');
+      $element.addClass(this.getCssClass());
+      var element = this._element = $element[0],
+        $parent = $(this.getParent());
 
-      if (this._cssPosition) {
-        element.style.position = this._cssPosition;
+      var title = '';
+      if (this._title) {
+        // Create HTML for title of overlay.
+        // Wrap the title with an enable checkbox and remove button if necessary.
+        title += '<div class="title">';
+        if (this._hasEnableCheckbox) {
+          title += '<input type="checkbox" value="true" class="enable checkbox">'
+        }
+        title += '<div class="content">' + this._title + '</div>';
+        if (this._hasRemoveBtn) {
+          title += '<button class="remove">X</button>';
+        }
+        title += '</div>';
       }
-
-      // Create HTML for title of overlay.
-      // Wrap the title with an enable checkbox and remove button if necessary.
-      var title = '<div class="overlay-title">';
-      if (this._hasEnableCheckbox) {
-        title += '<input type="checkbox" value="true" class="enable-overlay">'
-      }
-      title += '<div class="enable-overlay-label">' + this._title + '</div>';
-      if (this._hasRemoveBtn) {
-        title += '<button class="remove-overlay">X</button>';
-      }
-      title +=  '</div>';
 
       // Create HTML for body of overlay.
-      var bodyClass = 'overlay-body';
-      bodyClass += this._showMinimised ? ' hidden' : '';
-      this._html = title + '<div class="' + bodyClass + '">' + this._content + '</div>';
+      var bodyClass = 'body';
+      var html = title + '<div class="' + bodyClass + '">' + this._content + '</div>';
 
       // Create the overlay html.
-      element.innerHTML = this._html;
+      $element.html(html);
 
-      // Set the Overlay's position.
-      this._position.top !== undefined && (element.style.top = this._position.top + 'px');
-      this._position.left !== undefined && (element.style.left = this._position.left + 'px');
-      if (this._position.bottom !== undefined) {
-        element.style.bottom = this._position.bottom + 'px';
-        this._position.top !== undefined && (this._dimensions.height = 0);
-      }
-      if (this._position.right !== undefined) {
-        element.style.right = this._position.right + 'px';
-        this._position.left !== undefined && (this._dimensions.width = 0);
-      }
-
-      // Width and Height don't need to be set, even if height and width are set to '0'.
-      this._dimensions.height && (element.style.height = this._dimensions.height + 'px');
-      this._dimensions.width && (element.style.width = this._dimensions.width + 'px');
-
-      // Attach to parent
-      this._parent.appendChild(element);
+      this.setDimensions(this._dimensions);
+      this.setMinimised(this._showMinimised);
+      this.setPosition(this._position);
+      $parent.append($element);
 
       // Add event handler to close button and checkbox
       if (this._hasRemoveBtn) {
-        var closeBtn = element.getElementsByClassName('remove-overlay')[0];
-            removeFunction = this._onRemove ? '_onRemove' : 'remove';
-        closeBtn.addEventListener('click', function (e) {
+        var removeFunction = this._onRemove ? '_onRemove' : 'remove';
+        $('.remove-overlay', element).click(function (e) {
           // 0 -> left click.
           if (e.button === 0) {
             this[removeFunction](e);
           }
-        }.bind(this))
+        }.bind(this));
       }
       if (this._hasEnableCheckbox) {
-        var enableCheckbox = element.getElementsByClassName('enable-overlay')[0];
-            enableFunction = this._onEnabledChange ? '_onEnabledChange' : 'toggleMinimisation';
-        enableCheckbox.addEventListener('click', function (e) {
+        var enableFunction = this._onEnabledChange ? '_onEnabledChange' : 'toggleMinimisation';
+        $('.enable-overlay', element).click(function (e) {
           // 0 -> left click.
           if (e.button === 0) {
             this[enableFunction](e.target.value, e);
           }
-        }.bind(this))
+        }.bind(this));
       }
 
       return element;
@@ -407,6 +420,7 @@ define([
    * @returns {String} The HTML string of the attributes.
    */
   Overlay.parseAttributes = function (data) {
+    // TODO(aramk) Rely on $.attr() instead.
     var html = '',
         style = '',
         data = data || {};

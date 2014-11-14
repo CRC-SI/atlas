@@ -105,6 +105,10 @@ define([
       return new Vertex(Math.abs(this.x), Math.abs(this.y), Math.abs(this.z))
     },
 
+    negate: function() {
+      return new Vertex(0, 0, 0).subtract(this);
+    },
+
     /**
      * Componentwise multiplies this Vertex with another Vertex.
      * @param {atlas.model.Vertex} other

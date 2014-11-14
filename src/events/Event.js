@@ -3,6 +3,13 @@ define([
   'atlas/lib/utility/Class',
   'atlas/util/DeveloperError'
 ], function(EventTarget, Class, DeveloperError) {
+
+  /**
+   * @typedef atlas.events.Event
+   * @ignore
+   */
+  var Event;
+
   /**
    * Event, like a regular DOM event, is a simple object that
    * encapsulates the information relevant to the event that occurred.
@@ -11,16 +18,23 @@ define([
    * @param {string} type - The type of the Event.
    * @param {Object} [args] - Arguments relevant to the Event.
    *
-   * @alias atlas.events.Event
+   * @class atlas.events.Event
    * @constructor
    */
-  return Class.extend({
+  Event = Class.extend({
 
     /**
-     * Current target of this event.
+     * The target that triggered this event.
      * @type {atlas.model.EventTarget}
      */
     _target: null,
+
+    /**
+     * The current target of this event. When the event is bubbling up, this becomes the parent at
+     * the current level.
+     * @type {atlas.model.EventTarget}
+     */
+    _currentTarget: null,
 
     /**
      * Type of this event.
@@ -37,7 +51,8 @@ define([
     _args: null,
 
     /**
-     * Whether this event has been cancelled.
+     * Whether this event has been cancelled. Cancelled events can still be listened to, but will
+     * not bubble up the hierarchy.
      * @type {Boolean}
      * @private
      */
@@ -45,6 +60,7 @@ define([
 
     _init: function(target, type, args) {
       this.setTarget(target);
+      this.setCurrentTarget(target);
       this.setType(type);
       this.setArgs(args);
     },
@@ -59,6 +75,18 @@ define([
 
     getTarget: function() {
       return this._target;
+    },
+
+    setCurrentTarget: function(target) {
+      if (target && !(target instanceof EventTarget)) {
+        // TODO(aramk) We could also make this more lenient and check for existence of properties.
+        throw new DeveloperError('Event target must be instance of EventTarget');
+      }
+      this._currentTarget = target;
+    },
+
+    getCurrentTarget: function() {
+      return this._currentTarget;
     },
 
     setType: function(type) {
@@ -95,8 +123,16 @@ define([
      */
     isCancelled: function() {
       return this._isCancelled;
+    },
+
+    clone: function() {
+      var event = new Event(this.getTarget(), this.getType(), this.getArgs());
+      event.setCurrentTarget(this.getCurrentTarget());
+      return event;
     }
 
   });
+
+  return Event;
 });
 

@@ -19,6 +19,7 @@ module.exports = function(grunt) {
   var MAIN_FILE = srcPath('main.js');
   var BUILD_FILE = buildPath('build.js');
   var BUILD_OUTPUT_PATH = distPath(MODULE_NAME + '.min.js');
+  var JQUERY_LIB_PATH = libPath('jquery.js');
   var STYLE_FILE = MODULE_NAME + '.less';
   var STYLE_BUILD_FILE = MODULE_NAME + '.min.css';
   var OPEN_LAYERS_CONFIG_FILE = 'atlas.openlayers.cfg';
@@ -109,7 +110,8 @@ module.exports = function(grunt) {
           {src: libPath('numeraljs', 'min', 'numeral.min.js'), dest: libPath('numeral.js')},
           {src: libPath('q', 'q.js'), dest: libPath('Q.js')},
           {src: libPath('graham_scan', 'src',
-              'graham_scan.js'), dest: libPath('ConvexHullGrahamScan.js')}
+              'graham_scan.js'), dest: libPath('ConvexHullGrahamScan.js')},
+          {src: libPath('jquery', 'dist', 'jquery.min.js'), dest: JQUERY_LIB_PATH}
         ]
       },
       openLayersBuildConfig: {
@@ -231,6 +233,22 @@ module.exports = function(grunt) {
     });
   });
 
+  grunt.registerTask('fix-build-nodejs', 'Fixes build to work with NodeJS.', function() {
+    // Creates a closure around the build and shim client-side variables.
+    var fixes = readFile(path.join(BUILD_DIR, 'nodeJsFixes.js'));
+    writeFile(BUILD_OUTPUT_PATH, function(data) {
+      return fixes.replace('// EXISTING CODE GOES HERE', data);
+    });
+  });
+
+  grunt.registerTask('fix-jquery', 'Fixes jQuery to prevent issues with running in non-brower \
+    environments.', function() {
+    var fixes = readFile(path.join(BUILD_DIR, 'jQueryFixes.js'));
+    writeFile(JQUERY_LIB_PATH, function(data) {
+      return fixes.replace('// EXISTING CODE GOES HERE', data);
+    });
+  });
+
   grunt.registerTask('set-build-env', 'Sets the build environment.', function() {
     writeFile(BUILD_OUTPUT_PATH, function(data) {
       data = data.replace(/_environment\s*:\s*([^\r\n,.]+\.)\w+(,?)/,
@@ -240,7 +258,8 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('install', 'Installs dependencies.',
-      ['shell:installNpmDep', 'shell:installBowerDep', 'install-openlayers', 'copy:bowerDep']);
+      ['shell:installNpmDep', 'shell:installBowerDep', 'install-openlayers', 'copy:bowerDep',
+      'fix-jquery']);
   grunt.registerTask('update', 'Updates dependencies.',
       ['shell:updateNpmDep', 'shell:updateBowerDep']);
   grunt.registerTask('build', 'Builds the app into a distributable package.', function() {
@@ -272,14 +291,6 @@ module.exports = function(grunt) {
   grunt.registerTask('install-openlayers', 'Installs OpenLayers with a custom build.',
       ['copy:openLayersBuildConfig', 'shell:buildOpenLayers', 'fix-openlayers-build',
         'copy:openLayersBuildOutput']);
-
-  grunt.registerTask('fix-build-nodejs', 'Fixes build to work with NodeJS.', function() {
-    // Create a closure around the build and shim client-side variables.
-    var fixes = readFile(path.join(BUILD_DIR, 'nodeJsFixes.js'));
-    writeFile(BUILD_OUTPUT_PATH, function(data) {
-      return fixes.replace('// EXISTING CODE GOES HERE', data);
-    });
-  });
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // AUXILIARY

@@ -1,11 +1,13 @@
 define([
+  'atlas/events/Event',
+  'atlas/lib/utility/Objects',
   'atlas/lib/utility/Setter',
-  'atlas/util/DeveloperError',
   'atlas/model/Mesh',
   'atlas/model/Polygon',
+  'atlas/util/DeveloperError',
   // Base class.
   'atlas/model/GeoEntity'
-], function(Setter, DeveloperError, Mesh, Polygon, GeoEntity) {
+], function(Event, Objects, Setter, Mesh, Polygon, DeveloperError, GeoEntity) {
 
   /**
    * @typedef atlas.model.Feature
@@ -117,7 +119,7 @@ define([
       this._height = parseFloat(args.height) || 0.0;
       this._elevation = parseFloat(args.elevation) || 0.0;
       this._initDelegation();
-      this._initSelection();
+      this._initEvents();
     },
 
     // -------------------------------------------
@@ -133,7 +135,7 @@ define([
       var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
         'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles',
         'getCentroid', 'getArea', 'getVertices', 'getOpenLayersGeometry', 'translate',
-        'scale', 'rotate', 'setScale', 'setRotation', 'setElevation', 'isSelected'];
+        'scale', 'rotate', 'setScale', 'setRotation', 'setElevation'];
       methods.forEach(function(method) {
         this[method] = function() {
           return this._delegateToForm(method, arguments);
@@ -146,13 +148,22 @@ define([
       return form && form[method].apply(form, args);
     },
 
+    _delegateToForms: function(method, args) {
+      var forms = this.getForms();
+      forms.forEach(function(form) {
+        form[method].apply(form, args);
+      });
+    },
+
     /**
      * @param {atlas.model.Feature.DisplayMode} displayMode
      * @param {atlas.model.GeoEntity} entity
      */
     setForm: function(displayMode, entity) {
       var property = this._getFormPropertyName(displayMode);
+      if (!property) throw new Error('Invalid display mode: ' + displayMode);
       this[property] = entity;
+      entity.setParent(this);
       this.isVisible() && this.show();
     },
 
@@ -165,10 +176,20 @@ define([
       displayMode = displayMode || this._displayMode;
       if (displayMode) {
         var property = this._getFormPropertyName(displayMode);
+        if (!property) throw new Error('Invalid display mode: ' + displayMode);
         return this[property];
       } else {
         return null;
       }
+    },
+
+    getForms: function () {
+      var forms = [];
+      Feature.getDisplayModeIds().forEach(function (displayMode) {
+        var form = this.getForm(displayMode);
+        form && forms.push(form);
+      }, this);
+      return forms;
     },
 
     /**
@@ -207,6 +228,9 @@ define([
       }
     },
 
+    // TODO(aramk) A lot of these operations below should be calling _super() and being called on
+    // each form (even those which are not visible)?
+
     /**
      * Sets the elevation of the base of the feature.
      * @param {Number} elevation - The elevation of the feature.
@@ -214,14 +238,14 @@ define([
     setElevation: function(elevation) {
       var oldElevation = this._elevation;
       this._elevation = elevation;
-      return this._delegateToForm('setElevation', arguments) || oldElevation;
+      return this._delegateToForms('setElevation', arguments) || oldElevation;
     },
 
     /**
      * @returns {number} The elevation of the base of the feature.
      */
     getElevation: function() {
-      return this._delegateToForm('getElevation') || this._elevation;
+      return this._delegateToForms('getElevation') || this._elevation;
     },
 
     /**
@@ -232,24 +256,24 @@ define([
     setHeight: function(height) {
       var oldHeight = this._height;
       this._height = height;
-      return this._delegateToForm('setHeight', arguments) || oldHeight;
+      return this._delegateToForms('setHeight', arguments) || oldHeight;
     },
 
     /**
      * @returns {number} The extruded height of the Feature to form a prism.
      */
     getHeight: function() {
-      return this._delegateToForm('getHeight') || this._height;
+      return this._delegateToForms('getHeight') || this._height;
     },
 
     setStyle: function(style) {
       var oldStyle = this._style;
       this._style = style;
-      return this._delegateToForm('setStyle', arguments) || oldStyle;
+      return this._delegateToForms('setStyle', arguments) || oldStyle;
     },
 
     getStyle: function() {
-      return this._delegateToForm('getStyle') || this._style;
+      return this._delegateToForms('getStyle') || this._style;
     },
 
     // -------------------------------------------
@@ -303,27 +327,19 @@ define([
 
     /**
      * Clean up the Feature so it can be deleted by the RenderManager.
+     * @param {Boolean} recursive - Whether to remove all forms as well.
      */
-    remove: function() {
+    remove: function(recursive) {
+      recursive = Setter.def(recursive, true);
+      Feature.getDisplayModeIds().forEach(function(displayMode) {
+        var propName = this._getFormPropertyName(displayMode);
+        var form = this.getForm(displayMode);
+        if (form) {
+          recursive && form.remove();
+          this[propName] = null;
+        }
+      }, this);
       this._super();
-
-      // Remove mesh and footprint.
-      if (this._mesh !== null) {
-        this._mesh.remove();
-        this._mesh = null;
-      }
-      if (this._footprint !== null) {
-        this._footprint.remove();
-        this._footprint = null;
-      }
-      if (this._image !== null) {
-        this._image.remove();
-        this._image = null;
-      }
-      if (this._line !== null) {
-        this._line.remove();
-        this._line = null;
-      }
     },
 
     // -------------------------------------------
@@ -378,6 +394,13 @@ define([
       this._super();
     },
 
+    _update: function() {
+      this._super();
+      // Only update the selection of the current form and after transitioning for efficiency.
+      var form = this.getForm();
+      form && form.setSelected(this.isSelected());
+    },
+
     /**
      * Hides the Feature.
      */
@@ -409,35 +432,36 @@ define([
     },
 
     /**
-     * Listen for selection events on the form and apply it to this feature so that all forms
-     * are selected.
+     * Listen for events on the forms and apply it to this feature.
      * @private
      */
-    _initSelection: function() {
-      var feature = this;
-      var actions = {'select': true, 'deselect': false};
-      // TODO(aramk) Binding events to specific target GeoEntity objects would prevent the need to
-      // iterate through and check if each child is in the selected set.
-      Object.keys(actions).forEach(function(name) {
-        var state = actions[name];
-        var handle = this._eventManager.addEventHandler('intern', 'entity/' + name, function(args) {
-          var formsById = {};
-          Object.keys(Feature.DisplayMode).forEach(function(modeId) {
-            var modeValue = Feature.DisplayMode[modeId];
-            var form = feature.getForm(modeValue);
-            if (form) {
-              formsById[form.getId()] = form;
-            }
-          });
-          var match = args.ids.some(function(id) {
-            return formsById[id];
-          });
-          if (match) {
-            feature.setSelected(state);
-          }
-        });
-        this._bindEventHandle(handle);
-      }, this);
+    _initEvents: function() {
+      // This responds to events in the forms which bubble up.
+      this.addEventListener('entity/select', function() {
+        this.setSelected(true);
+      }.bind(this));
+      this.addEventListener('entity/deselect', function() {
+        this.setSelected(false);
+      }.bind(this));
+      this.addEventListener('entity/dblclick', function(event) {
+        var newEvent = event.clone();
+        var args = Setter.cloneDeep(newEvent.getArgs());
+        args.id = this.getId();
+        newEvent.setArgs(args);
+        this.dispatchEvent(newEvent);
+      }.bind(this));
+    },
+
+    // -------------------------------------------
+    // EVENTS
+    // -------------------------------------------
+
+    // Ignore all style since it's handled by the forms. Otherwise, setting the style for this
+    // feature applies it to the form and this changes it from the pre-select style.
+    _setSelectStyle: function() {
+    },
+
+    _revertSelectStyle: function() {
     }
 
   }), {
@@ -456,6 +480,10 @@ define([
       EXTRUSION: 'extrusion',
       MESH: 'mesh',
       IMAGE: 'image'
+    },
+
+    getDisplayModeIds: function() {
+      return Objects.values(this.DisplayMode);
     }
 
   });

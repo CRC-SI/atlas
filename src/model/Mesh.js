@@ -105,21 +105,10 @@ define([
         }, this);
       }
 
-      if (meshData.geoLocation) {
-        this._geoLocation = new GeoPoint(meshData.geoLocation);
-      }
-
-      if (meshData.scale && meshData.scale.length > 0) {
-        this._scale = new Vertex(meshData.scale);
-      } else {
-        this._scale = new Vertex(1, 1, 1);
-      }
-
-      if (meshData.rotation && meshData.rotation.length > 0) {
-        this._rotation = new Vertex(meshData.rotation);
-      } else {
-        this._rotation = new Vertex(0, 0, 0);
-      }
+      meshData.rotation && this.rotate(new Vertex(meshData.rotation));
+      meshData.scale && this.scale(new Vertex(meshData.scale));
+      this._geoLocation = new GeoPoint(meshData.geoLocation) || new GeoPoint(0, 0, 0) ;
+      this.setCentroid(new GeoPoint(meshData.geoLocation));
 
       // Set the Mesh's style based on the hierarchy: a Mesh specific style,
       // inherit the parent Feature's style, or use the Mesh default style.
@@ -152,50 +141,6 @@ define([
     setElevation: function (elevation) {
       this._super(elevation);
       this._geoLocation.elevation = elevation;
-    },
-
-    // -------------------------------------------
-    // MODIFIERS
-    // -------------------------------------------
-
-    /**
-     * Translates the Mesh.
-     * @param {atlas.model.Vertex} translation - The vector from the Mesh's current location to the desired location.
-     * @param {Number} translation.x - The change in longitude, given in decimal degrees.
-     * @param {Number} translation.y - The change in latitude, given in decimal degrees.
-     * @param {Number} translation.z - The change in altitude, given in metres.
-     */
-    translate: function(translation) {
-      // Update the 'translation', ie change _geoLocation.
-      this._geoLocation = this._geoLocation.translate(translation);
-      this._super(translation);
-    },
-
-    /**
-     * Scales the Mesh.
-     * @param {atlas.model.Vertex} scale - The vector to scale the Mesh by.
-     * @param {Number} scale.x - The scale along the <code>x</code> axis.
-     * @param {Number} scale.y - The scale along the <code>y</code> axis.
-     * @param {Number} scale.z - The scale along the <code>z</code> axis.
-     */
-    scale: function(scale) {
-      this._scale = this._scale.componentwiseMultiply(scale);
-      this._super(scale);
-    },
-
-    /**
-     * Rotates the Mesh by the given vector.
-     * @param {atlas.model.Vertex} rotation - The vector to rotate the Mesh by.
-     * @param {Number} rotation.x - The rotation about the <code>x</code> axis in degrees, negative
-     *    rotates clockwise, positive rotates counterclockwise.
-     * @param {Number} rotation.y - The rotation about the <code>y</code> axis in degrees, negative
-     *    rotates clockwise, positive rotates counterclockwise.
-     * @param {Number} rotation.z - The rotation about the <code>z</code> axis in degrees, negative
-     *    rotates clockwise, positive rotates counterclockwise.
-     */
-    rotate: function(rotation) {
-      this._rotation = this._rotation.add(rotation);
-      this._super(rotation);
     }
 
   }), {
