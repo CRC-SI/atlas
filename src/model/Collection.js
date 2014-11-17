@@ -154,15 +154,14 @@ define([
       // TODO(aramk) getHandles should create a new ItemStore and add all.
 
       // Call on all entities.
-      var forMethods = ['createHandles', 'addHandles', 'clearHandles', 'setStyle', 'modifyStyle',
-        'setSelected'];
+      var forMethods = ['createHandles', 'addHandles', 'clearHandles', 'setStyle', 'modifyStyle'];
       forMethods.forEach(function(method) {
         this[method] = function() {
           return this._forEntities(method, arguments);
         };
       }, this);
       // Call on all entities and the collection.
-      var forSelfMethods = ['remove', 'show', 'hide', 'translate', 'scale'];
+      var forSelfMethods = ['remove', 'show', 'hide', 'translate', 'scale', 'setSelected'];
       forSelfMethods.forEach(function(method) {
         var selfMethod = this[method];
         this[method] = function() {
