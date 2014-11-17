@@ -287,6 +287,14 @@ define([
         });
         this._bindEventHandle(handle);
       }, this);
+    },
+
+    // Ignore all style since it's handled by the entities. Otherwise, setting the style for this
+    // feature applies it to the form and this changes it from the pre-select style.
+    _setSelectStyle: function() {
+    },
+
+    _revertSelectStyle: function() {
     }
 
   });
