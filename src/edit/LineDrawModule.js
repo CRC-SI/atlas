@@ -9,7 +9,9 @@ define([
 
   // TODO(bpstudds): This is copied almost entirely from the existing DrawModule (for polygons).
   // TODO(bpstudds): Abstract common logic in DrawModule and LineDrawModule.
-
+  // TODO(aramk): The logic to draw lines is now available in DrawModule so this module should be
+  // cleaned up to set only the display mode to "line".
+  
   // Possibly could abstract this whole module.
   //  - DrawModule is abstract, doesn't care what it's drawing.
   //  - Might construct it like var lineDrawer = DrawModule(Line);
