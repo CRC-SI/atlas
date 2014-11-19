@@ -270,6 +270,7 @@ define([
         Log.error('A line must have at least 2 vertices.');
         return false;
       }
+      this._isDrawing = false;
       this._executeHandlers(this._handlers.create);
       this._removeHandles();
       this._reset();
