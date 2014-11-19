@@ -81,8 +81,8 @@ define([
           persistent: true
         },
         'entity/draw/stop': {
-          callback: function() {
-            if (this._stop() === false) {
+          callback: function(args) {
+            if (this._stop(args) === false) {
               // Stopping has failed, so we need to abort manually.
               this._cancel();
             }
@@ -146,6 +146,7 @@ define([
       }
       this._displayMode = args.displayMode || Feature.DisplayMode.FOOTPRINT
       this.enable();
+      this._setup();
       this._managers.edit.enableModule('translation');
       this._isDrawing = true;
     },
@@ -153,12 +154,14 @@ define([
     /**
      * Executes the given handlers with the drawn object.
      * @param handlers
+     * @param  {atlas.model.Feature} [feature]
      * @private
      */
-    _executeHandlers: function(handlers) {
+    _executeHandlers: function(handlers, feature) {
+      feature = feature || this._feature;
       handlers.forEach(function(handler) {
         handler.call(this, {
-          feature: this._feature
+          feature: feature
         });
       }, this);
     },
@@ -177,7 +180,6 @@ define([
       var target = handles.get(targetId);
       var now = Date.now();
       var translationModule = this._managers.edit.getModule('translation');
-      this._setup();
       var form = this._getForm(),
           line = this._getLine();
 
@@ -253,27 +255,38 @@ define([
 
     /**
      * Stops drawing if the currently drawn object is valid (has the minimum number of vertices).
+     * @param {Object} [args]
+     * @param {Boolean} [args.validate=true] Whether to preform validation and pervent completion of
+     * the draw session if validation fails.
      * @returns {Boolean} Whether stopping was successful.
      * @private
      */
     _stop: function(args) {
+      args = Setter.merge({
+        validate: true
+      }, args);
       if (!this.isDrawing()) {
         throw new DeveloperError('Nothing is being drawn - cannot stop.');
       }
-      var form = this._getForm(),
-        len = form.getVertices().length;
-      if ((this._displayMode === Feature.DisplayMode.FOOTPRINT ||
-        this._displayMode === Feature.DisplayMode.EXTRUSION) && len < 3) {
-        Log.error('A polygon must have at least 3 vertices.');
-        return false;
-      } else if (this._displayMode === Feature.DisplayMode.LINE && len < 2) {
-        Log.error('A line must have at least 2 vertices.');
-        return false;
+      var form = this._getForm();
+      if (args.validate) {
+        var len = form.getVertices().length;
+        if ((this._displayMode === Feature.DisplayMode.FOOTPRINT ||
+          this._displayMode === Feature.DisplayMode.EXTRUSION) && len < 3) {
+          Log.error('A polygon must have at least 3 vertices.');
+          return false;
+        } else if (this._displayMode === Feature.DisplayMode.LINE && len < 2) {
+          Log.error('A line must have at least 2 vertices.');
+          return false;
+        }
       }
-      this._isDrawing = false;
-      this._executeHandlers(this._handlers.create);
+      // Store references to the handlers and the feature which is passed to them. We need to 
+      // unregister before calling the handlers in case another draw session is started from within.
+      var feature = this._feature;
+      var handlers = this._handlers.create;
       this._removeHandles();
       this._reset();
+      this._executeHandlers(handlers, feature);
       return true;
     },
 
