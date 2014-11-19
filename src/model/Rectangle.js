@@ -94,7 +94,8 @@ define([
     // -------------------------------------------------
 
     /**
-     * Subtracts a Rectangle from this Rectangle
+     * Subtracts a Rectangle from this Rectangle. This has the negative effect of
+     * {@link #translate()}.
      * @param {atlas.model.Rectangle} other
      * @returns {atlas.model.Rectangle}
      */
@@ -125,7 +126,7 @@ define([
      * Scales this Rectangle from the centroid.
      * @param {Number} scale - A scale of 1 has no effect. 0.5 is half the size. 2 is
      * twice the size.
-     * @returns {atlas.model.Rectangle}
+     * @returns {atlas.model.Rectangle} The scaled rectangle
      */
     scale: function(scale) {
       var centroid = this.getCentroid();

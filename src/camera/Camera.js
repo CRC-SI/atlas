@@ -234,9 +234,9 @@ define([
      * Moves the camera to the given address.
      * @param {String} address
      */
-    // TODO(aramk) Add "address" as a possible input to zoomTo() and delegate it to this method.
-    // Make this method private.
     zoomToAddress: function(address) {
+      // TODO(aramk) Add "address" as a possible input to zoomTo() and delegate it to this method.
+      // Make this method private.
       Geocoder.getInstance().getInfo({address: address}).then(function(result) {
         this.zoomTo({position: result.position});
       }.bind(this), function() {
