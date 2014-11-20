@@ -214,7 +214,7 @@ define([
       }
       Log.debug('EditManager enabled');
       this._editing = true;
-      this._entities.addArray(args.entities);
+      var addedEntities = this._entities.addArray(args.entities);
       // TODO(aramk) Only allow translation of handles (any) and args.entities.
       this._wasTranslationModuleEnabled = this.isModuleEnabled('translation');
       this.enableModule('translation');
@@ -222,8 +222,8 @@ define([
       // Disable selection
       this._managers.event.handleExternalEvent('selection/disable');
 
-      // Render the editing handles.
-      this._entities.forEach(function(entity) {
+      // Render the editing handles for those entities which were not editing to begin with.
+      addedEntities.forEach(function(entity) {
         var meta = {};
         meta.origDisplayMode = entity.getDisplayMode();
         this._entitiesMeta[entity.getId()] = meta;

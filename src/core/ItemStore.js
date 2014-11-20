@@ -69,6 +69,10 @@ define([
       return this.getCount() === 0;
     },
 
+    _getId: function(item) {
+      return item[this._getterName]();
+    },
+
     /**
      * @returns {Array} The item IDs in the store.
      */
@@ -97,8 +101,8 @@ define([
       if (!obj[this._getterName]) {
         throw new DeveloperError('Tried to add object without an ID getter to the store.');
       }
-      var id = obj[this._getterName]();
-      if (!this._items[id]) {
+      var id = this._getId(obj);
+      if (!this.contains(obj)) {
         this._items[id] = obj;
         this._count++;
       }
@@ -107,11 +111,18 @@ define([
     /**
      * Adds an array of objects to the store.
      * @param {Array.<Object>} objs - The array of objects to add.
+     * @returns {Array} The items that were added to the store. Does not include any items that
+     * were already added.
      */
     addArray: function(objs) {
+      var added = [];
       objs.forEach(function(obj) {
-        this.add(obj);
+        if (!this.contains(obj)) {
+          this.add(obj);
+          added.push(obj);
+        }
       }, this);
+      return added;
     },
 
     /**
@@ -132,6 +143,11 @@ define([
      */
     get: function(id) {
       return this._items[id];
+    },
+
+    contains: function(obj) {
+      var id = this._getId(obj);
+      return this.get(id) !== undefined;
     },
 
     /**

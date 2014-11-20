@@ -63,6 +63,12 @@ define([
       this.setStyle(style);
     },
 
+    setWidth: function(width) {
+      this._width = width;
+      this.setDirty('entity');
+      this._update();
+    },
+
     getWidth: function() {
       return this._width;
     },
