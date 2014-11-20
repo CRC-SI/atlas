@@ -54,16 +54,6 @@ define([
       this.hide();
     },
 
-    remove: function() {
-      this._handles.forEach(function(handle) {
-        handle.cancel();
-      });
-    },
-
-    // -------------------------------------------
-    // EVENTS
-    // -------------------------------------------
-
     show: function() {
       this._super();
       this._update();

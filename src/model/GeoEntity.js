@@ -88,7 +88,7 @@ define([
     _elevation: 0,
 
     /**
-     * The scale of the GeoEntity with each component in the range [0,1] and 1 by default.
+     * The scale of the GeoEntity in each axis direction. 1 by default for all axes.
      * @type {atlas.model.Vertex}
      * @protected
      */
@@ -257,7 +257,7 @@ define([
       if (!this._centroid) {
         this._centroid = this._calcCentroid();
       }
-      return this._centroid && this._centroid.clone();
+      return this._centroid.clone();
     },
 
     /**
@@ -266,10 +266,8 @@ define([
      */
     setCentroid: function(centroid) {
       var oldCentroid = this.getCentroid();
-      if (oldCentroid) {
-        var diff = centroid.subtract(oldCentroid);
-        this.translate(diff);
-      }
+      var diff = centroid.subtract(oldCentroid);
+      this.translate(diff);
     },
 
     _calcCentroid: function() {
