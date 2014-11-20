@@ -38,6 +38,13 @@ define([
     _staticProjections: null,
 
     /**
+     * The an ItemStore of all dynamic projections.
+     * @type {atlas.core.ItemStore}
+     * @private
+     */
+    _dynamicProjections: null,
+
+    /**
      * A map of GUI overlays to control rendering/unrendering of Projections.
      */
     _overlays: null,
@@ -59,6 +66,7 @@ define([
     _init: function(managers) {
       this._super(managers);
       this._staticProjections = new ItemStore();
+      this._dynamicProjections = new ItemStore();
       this._legendStore = new ItemStore();
       this._overlays = {};
     },
@@ -154,8 +162,8 @@ define([
           callback: function(args) {
             throw new DeveloperError("Dynamic projection not yet supported.");
             // TODO(aramk) This was incomplete so I threw an exception.
-            this._projections['dynamic-' + args].stop();
-            delete this._projections['dynamic-' + args];
+            this._dynamicProjections['dynamic-' + args].stop();
+            delete this._dynamicProjections['dynamic-' + args];
           }.bind(this)
         },
         {
@@ -167,7 +175,7 @@ define([
           callback: function(args) {
             throw new DeveloperError("Dynamic projection not yet supported.");
             // TODO(aramk) This was incomplete so I threw an exception.
-            this._projections['dynamic-' + args].start();
+            this._dynamicProjections['dynamic-' + args].start();
           }.bind(this)
         },
         {
@@ -179,7 +187,7 @@ define([
           callback: function(args) {
             throw new DeveloperError("Dynamic projection not yet supported.");
             // TODO(aramk) This was incomplete so I threw an exception.
-            this._projections['dynamic-' + args].pause();
+            this._dynamicProjections['dynamic-' + args].pause();
           }.bind(this)
         },
         {
@@ -191,7 +199,7 @@ define([
           callback: function(args) {
             throw new DeveloperError("Dynamic projection not yet supported.");
             // TODO(aramk) This was incomplete so I threw an exception.
-            this._projections['dynamic-' + args].stop();
+            this._dynamicProjections['dynamic-' + args].stop();
           }.bind(this)
         }
       ];
@@ -289,10 +297,10 @@ define([
     },
 
 //    showLegends: function () {
-//      if (!this._projections['colour']) { return; }
+//      if (!this._dynamicProjections['colour']) { return; }
 //
 //      // TODO(bpstudds): This needs to be refactored so we can have multiple legends.
-//      var legendData = this._projections['colour'].getLegend(),
+//      var legendData = this._dynamicProjections['colour'].getLegend(),
 //          legendHtml = Overlay.generateTable(legendData.legend),
 //          html;
 //      html = '<div class="caption">' + legendData.caption + '</div>';
@@ -346,7 +354,7 @@ define([
           BUTTON = 'visual-btn',
           SLIDER = 'visual-slider';
 
-      this._projections[target] = dynamic;
+      this._dynamicProjections[target] = dynamic;
       this._overlays[target] = new Overlay({
         parent: this._managers.dom.getDom(),
         position: {top: 0, left: 0},
@@ -363,17 +371,17 @@ define([
           function(event) {
             this.setFps(getFpsFromForm(target));
             event.button === 0 && this.start();
-          }.bind(this._projections[target]));
+          }.bind(this._dynamicProjections[target]));
 
       document.getElementById(BUTTON + '-pause-' + target).addEventListener('click',
           function(event) {
             event.button === 0 && this.pause();
-          }.bind(this._projections[target]));
+          }.bind(this._dynamicProjections[target]));
 
       document.getElementById(BUTTON + '-stop-' + target).addEventListener('click',
           function(event) {
             event.button === 0 && this.stop();
-          }.bind(this._projections[target]));
+          }.bind(this._dynamicProjections[target]));
     },
 
     /**
