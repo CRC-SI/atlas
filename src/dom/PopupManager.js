@@ -164,7 +164,7 @@ define([
         entityPopup.show();
       }, {ignoreBubbled: true}));
       entity.addEventListener('entity/remove', function(event) {
-        entityPopup.remove();
+        entityPopup && entityPopup.remove();
       }.bind(this));
       return entityPopup;
     },

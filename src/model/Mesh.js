@@ -108,7 +108,6 @@ define([
       meshData.rotation && this.rotate(new Vertex(meshData.rotation));
       meshData.scale && this.scale(new Vertex(meshData.scale));
       this._geoLocation = new GeoPoint(meshData.geoLocation) || new GeoPoint(0, 0, 0) ;
-      this.setCentroid(new GeoPoint(meshData.geoLocation));
 
       // Set the Mesh's style based on the hierarchy: a Mesh specific style,
       // inherit the parent Feature's style, or use the Mesh default style.
