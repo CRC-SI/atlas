@@ -52,6 +52,7 @@ define([
       }, args);
       this._super(args);
       this.hide();
+      $(this.getDom()).addClass('popup');
     },
 
     show: function() {
@@ -61,7 +62,6 @@ define([
 
     _render: function() {
       this._super();
-      $(this.getDom()).addClass('popup');
       this._update();
     },
 
