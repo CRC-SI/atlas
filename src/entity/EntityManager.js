@@ -238,7 +238,7 @@ define([
      * @param {Number} [args.height=0] - The extruded height when displaying as a extruded polygon.
      * @param {Number} [args.elevation=0] - The elevation (from the terrain surface) to the base of
      * the Mesh or Polygon.
-     * @param {Boolean} [args.show=false] - Whether the feature should be initially shown when
+     * @param {Boolean} [args.show=true] - Whether the feature should be initially shown when
      * created.
      * @param {String} [args.displayMode='footprint'] - Initial display mode of feature.
      */
@@ -247,6 +247,9 @@ define([
         args = id;
         id = args.id;
       }
+      args = Setter.merge({
+        show: true
+      }, args);
       if (id === undefined) {
         throw new DeveloperError('Can not create Feature without specifying ID');
       } else if (this._entities.get(id)) {
@@ -262,7 +265,7 @@ define([
         args.entityManager = this;
         Log.debug('Creating entity', id);
         var feature = new this._entityTypes.Feature(id, args);
-        args.show !== undefined && feature.setVisibility(args.show);
+        feature.setVisibility(args.show);
         return feature;
       }
     },
