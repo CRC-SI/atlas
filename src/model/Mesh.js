@@ -105,9 +105,13 @@ define([
         }, this);
       }
 
-      meshData.rotation && this.rotate(new Vertex(meshData.rotation));
-      meshData.scale && this.scale(new Vertex(meshData.scale));
-      this._geoLocation = new GeoPoint(meshData.geoLocation) || new GeoPoint(0, 0, 0) ;
+      if (meshData.rotation) {
+        this._rotation = new Vertex(meshData.rotation);
+      }
+      if (meshData.scale) {
+        this._scale = new Vertex(meshData.scale);
+      }
+      this._geoLocation = new GeoPoint(meshData.geoLocation) || new GeoPoint(0, 0, 0);
 
       // Set the Mesh's style based on the hierarchy: a Mesh specific style,
       // inherit the parent Feature's style, or use the Mesh default style.
@@ -117,7 +121,6 @@ define([
       } else {
         this.setStyle(args.style || Mesh.getDefaultStyle());
       }
-
     },
 
     // -------------------------------------------

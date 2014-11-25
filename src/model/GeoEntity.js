@@ -211,7 +211,6 @@ define([
       // Call the superclass' (EventTarget) constructor.
       this._super(args.eventManager, parent);
       this.clean();
-      this.setDirty('entity');
 
       this.setStyle(args.style || GeoEntity.getDefaultStyle());
       this._handles = new ItemStore();
@@ -223,6 +222,7 @@ define([
       this._visible = Setter.def(args.show, false);
       this._rotation = new Vertex(0, 0, 0);
       this._scale = new Vertex(1, 1, 1);
+      this.setDirty('entity');
     },
 
     // TODO(aramk) Use better dependency injection.
