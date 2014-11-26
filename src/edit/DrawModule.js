@@ -251,6 +251,7 @@ define([
         Log.error('A polygon must have at least 3 vertices.');
         return false;
       }
+      this._isDrawing = false;
       this._executeHandlers(this._handlers.create);
       this._removeHandles();
       this._reset();

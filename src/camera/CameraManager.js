@@ -122,6 +122,9 @@ define([
       this._managers.event.addEventHandlers(handlers);
     },
 
+    /**
+     * @return {atlas.model.Camera} The currently active camera.
+     */
     getCurrentCamera: function () {
       return this._current;
     },
