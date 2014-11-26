@@ -31,8 +31,11 @@ module.exports = function(config) {
     },
 
     coverageReporter: {
-      type: 'lcov',
-      dir: 'atlas/coverage/'
+      dir: 'atlas/coverage/',
+      reporters: [
+        { type: 'html', subdir: 'report-html' },
+        { type: 'lcovonly', subdir: '.', file: 'lcov.dat' }
+      ]
     },
 
     // test results reporter to use
@@ -60,7 +63,7 @@ module.exports = function(config) {
     // - Safari (only Mac; has to be installed with `npm install karma-safari-launcher`)
     // - PhantomJS
     // - IE (only Windows; has to be installed with `npm install karma-ie-launcher`)
-    //browsers: ['Firefox'],
+    browsers: ['Firefox'],
 
     // If browser does not capture in given timeout [ms], kill it
     captureTimeout: 60000,

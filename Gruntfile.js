@@ -28,6 +28,7 @@ module.exports = function(grunt) {
   var OPEN_LAYERS_BUILD_OUTPUT_FILE = 'OpenLayers.js';
   var OPEN_LAYERS_BUILD_OUTPUT_PATH = path.join(OPEN_LAYERS_BUILD_PATH,
       OPEN_LAYERS_BUILD_OUTPUT_FILE);
+  var LCOV_REPORT_PATH = 'coverage/lcov.dat';
 
   require('logfile-grunt')(grunt, {filePath: buildPath('grunt.log'), clearLogFile: true});
   // Define the configuration for all the tasks.
@@ -185,6 +186,30 @@ module.exports = function(grunt) {
           }
         ]
       }
+    },
+
+    karma: {
+      options: {
+        configFile: 'test/karma.conf.js',
+        runnerPort: 9876,
+      },
+      unit: {
+        browsers: ['Chrome', 'Firefox']
+      },
+      continuous: {
+        singleRun: true,
+        browsers: ['PhantomJS']
+      }
+    },
+
+    sed: {
+      // The karma coverage outputs source file names (SF) as "./atlas/src/..."
+      // Sonar-runner expects source file names to be "src/..."
+      fixCoverageOutput: {
+        path: LCOV_REPORT_PATH,
+        pattern: './atlas/src',
+        replacement: 'src'
+      }
     }
   });
 
@@ -291,6 +316,8 @@ module.exports = function(grunt) {
   grunt.registerTask('install-openlayers', 'Installs OpenLayers with a custom build.',
       ['copy:openLayersBuildConfig', 'shell:buildOpenLayers', 'fix-openlayers-build',
         'copy:openLayersBuildOutput']);
+
+  grunt.registerTask('test', 'Runs defined tests', ['force:karma:unit', 'sed:fixCoverageOutput']);
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // AUXILIARY
