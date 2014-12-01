@@ -69,9 +69,9 @@ define([
         if (event.isCancelled()) {
           break;
         }
-        // Handling the event returns a new Event object that is exactly the same
-        // except for the .target and .cancelled parameters, which may
-        // possibly be changed when the target handles the event.
+        // Handling the event returns a new Event object that is exactly the same except for the
+        // target and cancelled parameters, which may possibly be changed when the target handles
+        // the event.
         nextEvent = event.getCurrentTarget().handleEvent(event);
         parent = event.getCurrentTarget().getParent();
         event = nextEvent;
