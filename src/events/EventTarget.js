@@ -60,7 +60,10 @@ define([
      * @param {atlas.events.Event} event - The Event object to be propagated.
      */
     dispatchEvent: function(event) {
-      this._eventManager.dispatchEvent(event);
+      var newEvent = event.clone();
+      newEvent.setTarget(this);
+      newEvent.setCurrentTarget(this);
+      this._eventManager.dispatchEvent(newEvent);
     },
 
     /**

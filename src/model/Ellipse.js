@@ -3,10 +3,11 @@ define([
   'atlas/model/Colour',
   'atlas/model/GeoPoint',
   'atlas/model/Style',
+  'atlas/model/Vertex',
   // Base class
   'atlas/model/GeoEntity',
   'atlas/util/DeveloperError'
-], function(Setter, Colour, GeoPoint, Style, GeoEntity, DeveloperError) {
+], function(Setter, Colour, GeoPoint, Style, Vertex, GeoEntity, DeveloperError) {
 
   /**
    * @classdesc Represents a 2D ellipse.
@@ -103,7 +104,7 @@ define([
       this._centroid = new GeoPoint(ellipseData.centroid);
       this._semiMajor = parseFloat(ellipseData.semiMajor);
       this._semiMinor = parseFloat(ellipseData.semiMinor) || this._semiMajor;
-      this._rotation = ellipseData.rotation;
+      this._rotation = new Vertex(ellipseData.rotation);
       this._height = parseFloat(ellipseData.height) || this._height;
       this._elevation = parseFloat(ellipseData.elevation) || this._elevation;
       this._zIndex = parseFloat(ellipseData.zIndex) || this._zIndex;

@@ -3,11 +3,13 @@ define([
   'atlas/model/Style',
   'atlas/model/Colour',
   'atlas/model/VertexedEntity',
+  'atlas/lib/OpenLayers',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(GeoPoint, Style, Colour, VertexedEntity, Setter, Types, DeveloperError, WKT) {
+], function(GeoPoint, Style, Colour, VertexedEntity, OpenLayers, Setter, Types, DeveloperError,
+  WKT) {
 
   /**
    * @typedef atlas.model.Line
@@ -61,8 +63,32 @@ define([
       this.setStyle(style);
     },
 
+    setWidth: function(width) {
+      this._width = width;
+      this.setDirty('entity');
+      this._update();
+    },
+
     getWidth: function() {
       return this._width;
+    },
+
+    /**
+     * @return {Number} The length of the line in metres.
+     */
+    getLength: function() {
+      return this._getOpenLayersCurve().getGeodesicLength();
+    },
+
+    getOpenLayersGeometry: function() {
+      var wkt = WKT.getInstance();
+      return wkt.openLayersPolylineFromGeoPoints(this._vertices);
+    },
+
+    _getOpenLayersCurve: function() {
+      var wkt = WKT.getInstance();
+      var points = wkt.openLayersPointsFromGeoPoints(this._vertices);
+      return new OpenLayers.Geometry.Curve(points);
     },
 
     /**

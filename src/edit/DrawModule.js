@@ -64,6 +64,12 @@ define([
      */
     _isDrawing: false,
 
+    /**
+     * The display mode to use when drawing.
+     * @type {atlas.model.Feature.DisplayMode.LINE}
+     */
+    _displayMode: null,
+
     _init: function(managers) {
       this._super(managers);
       this._reset();
@@ -75,8 +81,8 @@ define([
           persistent: true
         },
         'entity/draw/stop': {
-          callback: function() {
-            if (this._stop() === false) {
+          callback: function(args) {
+            if (this._stop(args) === false) {
               // Stopping has failed, so we need to abort manually.
               this._cancel();
             }
@@ -102,11 +108,15 @@ define([
      */
     _setup: function() {
       if (!this._feature) {
-        this._feature = this._managers.entity.createFeature(this._getNextId(), {
-          polygon: {vertices: []},
+        var displayMode = this._displayMode;
+        var createArgs = {
           line: {vertices: [], width: '2px'},
-          displayMode: Feature.DisplayMode.FOOTPRINT
-        });
+          displayMode: displayMode
+        };
+        if (displayMode === Feature.DisplayMode.FOOTPRINT) {
+          createArgs.polygon = {vertices: []};
+        }
+        this._feature = this._managers.entity.createFeature(this._getNextId(), createArgs);
         // We will be adding new handles ourselves, and the new feature doesn't have any to begin
         // with.
         this._managers.edit.enable({
@@ -121,6 +131,8 @@ define([
      * added).
      * @param {Function} [args.create] - A callback invoked when drawing is complete.
      * @param {Function} [args.cancel] - A callback invoked when drawing is cancelled.
+     * @param {atlas.model.Feature.DisplayMode} [displayMode] - The display mode to use when drawing
+     * the entity. {@link atlas.model.Feature.DisplayMode.FOOTPRINT} by default.
      * @private
      */
     _draw: function(args) {
@@ -132,7 +144,9 @@ define([
         var handler = args[event];
         handler && this._handlers[event].push(handler);
       }
+      this._displayMode = args.displayMode || Feature.DisplayMode.FOOTPRINT
       this.enable();
+      this._setup();
       this._managers.edit.enableModule('translation');
       this._isDrawing = true;
     },
@@ -140,12 +154,14 @@ define([
     /**
      * Executes the given handlers with the drawn object.
      * @param handlers
+     * @param  {atlas.model.Feature} [feature]
      * @private
      */
-    _executeHandlers: function(handlers) {
+    _executeHandlers: function(handlers, feature) {
+      feature = feature || this._feature;
       handlers.forEach(function(handler) {
         handler.call(this, {
-          feature: this._feature
+          feature: feature
         });
       }, this);
     },
@@ -164,8 +180,7 @@ define([
       var target = handles.get(targetId);
       var now = Date.now();
       var translationModule = this._managers.edit.getModule('translation');
-      this._setup();
-      var polygon = this._getPolygon(),
+      var form = this._getForm(),
           line = this._getLine();
 
       if (this._lastClickTime) {
@@ -181,8 +196,8 @@ define([
           var lastHandle = this._handles.pop();
           // Remove the point added on the first click of the double click.
           // NOTE: it will still invoke the update callback.
-          polygon.removeVertex();
-          line.removeVertex();
+          form.removeVertex();
+          line !== form && line.removeVertex();
           this._removeHandle(lastHandle);
           this._render();
           this._stop(args);
@@ -209,14 +224,14 @@ define([
 
     _doAdd: function(point) {
       var handles = this._managers.edit.getHandles(),
-          polygon = this._getPolygon(),
+          form = this._getForm(),
           line = this._getLine();
-      polygon.addVertex(point);
-      if (polygon.getVertices().length <= 2) {
+      form.addVertex(point);
+      if (form.getVertices().length <= 2) {
         line.addVertex(point);
       }
-      // Use the polygon handle constructor for consistency.
-      var handle = polygon.addHandle(polygon.createHandle(point, polygon.getVertices().length - 1));
+      // Use the form's handle constructor for consistency.
+      var handle = form.addHandle(form.createHandle(point, form.getVertices().length - 1));
       handle.show();
       this._handles.push(handle);
       handles.add(handle);
@@ -228,33 +243,50 @@ define([
      * @private
      */
     _render: function() {
-      var len = this._getPolygon().getVertices().length;
+      var len = this._getForm().getVertices().length;
       if (len === 2) {
         this._feature.setDisplayMode(Feature.DisplayMode.LINE);
         this._feature.show();
       } else if (len >= 3) {
-        this._feature.setDisplayMode(Feature.DisplayMode.FOOTPRINT);
+        this._feature.setDisplayMode(this._displayMode);
         this._feature.show();
       }
     },
 
     /**
      * Stops drawing if the currently drawn object is valid (has the minimum number of vertices).
+     * @param {Object} [args]
+     * @param {Boolean} [args.validate=true] Whether to preform validation and pervent completion of
+     * the draw session if validation fails.
      * @returns {Boolean} Whether stopping was successful.
      * @private
      */
     _stop: function(args) {
+      args = Setter.merge({
+        validate: true
+      }, args);
       if (!this.isDrawing()) {
         throw new DeveloperError('Nothing is being drawn - cannot stop.');
       }
-      if (this._getPolygon().getVertices().length < 3) {
-        Log.error('A polygon must have at least 3 vertices.');
-        return false;
+      var form = this._getForm();
+      if (args.validate) {
+        var len = form.getVertices().length;
+        if ((this._displayMode === Feature.DisplayMode.FOOTPRINT ||
+          this._displayMode === Feature.DisplayMode.EXTRUSION) && len < 3) {
+          Log.error('A polygon must have at least 3 vertices.');
+          return false;
+        } else if (this._displayMode === Feature.DisplayMode.LINE && len < 2) {
+          Log.error('A line must have at least 2 vertices.');
+          return false;
+        }
       }
-      this._isDrawing = false;
-      this._executeHandlers(this._handlers.create);
+      // Store references to the handlers and the feature which is passed to them. We need to 
+      // unregister before calling the handlers in case another draw session is started from within.
+      var feature = this._feature;
+      var handlers = this._handlers.create;
       this._removeHandles();
       this._reset();
+      this._executeHandlers(handlers, feature);
       return true;
     },
 
@@ -299,12 +331,12 @@ define([
       this._isDrawing = false;
     },
 
-    _getPolygon: function() {
-      return this._feature.getForm(Feature.DisplayMode.FOOTPRINT);
+    _getForm: function(displayMode) {
+      return this._feature.getForm(displayMode || this._displayMode);
     },
 
     _getLine: function() {
-      return this._feature.getForm(Feature.DisplayMode.LINE);
+      return this._getForm(Feature.DisplayMode.LINE);
     },
 
     /**

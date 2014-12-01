@@ -436,14 +436,22 @@ define([
      * @private
      */
     _initEvents: function() {
+      // If the original target is this feature, don't dispatch the event since it would be a
+      // duplicate.
+      var isOwnEvent = function(event) {
+        return event.getTarget() === this;
+      }.bind(this);
       // This responds to events in the forms which bubble up.
-      this.addEventListener('entity/select', function() {
+      this.addEventListener('entity/select', function(event) {
+        if (isOwnEvent(event)) return;
         this.setSelected(true);
       }.bind(this));
-      this.addEventListener('entity/deselect', function() {
+      this.addEventListener('entity/deselect', function(event) {
+        if (isOwnEvent(event)) return;
         this.setSelected(false);
       }.bind(this));
       this.addEventListener('entity/dblclick', function(event) {
+        if (isOwnEvent(event)) return;
         var newEvent = event.clone();
         var args = Setter.cloneDeep(newEvent.getArgs());
         args.id = this.getId();
