@@ -18,12 +18,32 @@ define([
    * @classdesc A Mesh represents a 3D renderable object in Atlas.
    *
    * @param {String} id - The ID of the Mesh object.
-   * @param {Object} meshData - The data required to define what is actually rendered (Implementation defined).
+   * @param {Object} meshData - The data required to define what is actually rendered.
+   * @param {GeoPoint} [meshData.geoLocation] - The geographic location the Mesh should be
+   *     rendered at.
+   * @param {Number} [meshData.uniformScale] - A uniform scale applied to the Mesh.
+   * @param {Vertex} [meshData.scale] - A non-uniform scale applied to the Mesh.
+   * @param {Vertex} [meshData.rotation] - A rotation applied to the Mesh.
+   * @param {Vertex} [meshData.color] - A uniform color to apply to the Mesh.
+   * @param {String} [meshData.gltfUrl] - URL of GLTF data to construct the Mesh.
+   * @param {Object} [meshdata.gltf] - JSON GLTF object.
+   * @param {Array.<Number>} [meshData.positions] - [C3ML] The array of vertex positions for the
+   *     Mesh. This should be a 1D array where every three elements describe a new vertex.
+   * @param {Array.<Number>} [meshData.indices] - [C3ML] The array of triangle indices for the Mesh.
+   *     This should be a 1D array where every three elements are groubed together and describe a
+   *     triangle forming the mesh. The value of each element is the index of a vertex in the
+   *     positions array.
+   * @param {Array.<Number>} [meshData.normals] - [C3ML] An array of normal vectors for each vertex
+   *     defined in <code>meshData.positions</code>.
    * @param {Object} args - Both optional and required construction parameters.
-   * @param {String} args.id - The ID of the GeoEntity. (Optional if both <code>id</code> and <code>args</code> are provided as arguments)
-   * @param {atlas.render.RenderManager} args.renderManager - The RenderManager object responsible for the GeoEntity.
-   * @param {atlas.events.EventManager} args.eventManager - The EventManager object responsible for the Event system.
-   * @param {atlas.events.EventTarget} [args.parent] - The parent EventTarget object of the GeoEntity.
+   * @param {String} args.id - The ID of the GeoEntity. (Optional if both <code>id</code> and
+   *     <code>args</code> are provided as arguments)
+   * @param {atlas.render.RenderManager} args.renderManager - The RenderManager object responsible
+   *     for the GeoEntity.
+   * @param {atlas.events.EventManager} args.eventManager - The EventManager object responsible for
+   *     the Event system.
+   * @param {atlas.events.EventTarget} [args.parent] - The parent EventTarget object of the
+   *     GeoEntity.
    *
    * @class atlas.model.Mesh
    * @extends atlas.model.GeoEntity
@@ -81,6 +101,14 @@ define([
 
     _init: function(id, meshData, args) {
       this._super(id, args);
+
+      if (meshData.gltf) {
+        this._gltf = meshData.gltf;
+      }
+
+      if (meshData.gltfUrl) {
+        this._gltfUrl = meshData.gltfUrl;
+      }
 
       // Parse all the things!
       if (meshData.positions && meshData.positions.length) {
