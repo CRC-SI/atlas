@@ -66,7 +66,7 @@ define([
 
     /**
      * The display mode to use when drawing.
-     * @type {atlas.model.Feature.DisplayMode.LINE}
+     * @type {atlas.model.Feature.DisplayMode}
      */
     _displayMode: null,
 
@@ -256,7 +256,7 @@ define([
     /**
      * Stops drawing if the currently drawn object is valid (has the minimum number of vertices).
      * @param {Object} [args]
-     * @param {Boolean} [args.validate=true] Whether to preform validation and pervent completion of
+     * @param {Boolean} [args.validate=true] Whether to preform validation and prevent completion of
      * the draw session if validation fails.
      * @returns {Boolean} Whether stopping was successful.
      * @private

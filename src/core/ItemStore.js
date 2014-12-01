@@ -109,10 +109,10 @@ define([
     },
 
     /**
-     * Adds an array of objects to the store.
+     * Adds an array of objects to the store. Any objects with a conflicting ID are ignored.
      * @param {Array.<Object>} objs - The array of objects to add.
      * @returns {Array} The items that were added to the store. Does not include any items that
-     * were already added.
+     * were already existed in the store.
      */
     addArray: function(objs) {
       var added = [];
