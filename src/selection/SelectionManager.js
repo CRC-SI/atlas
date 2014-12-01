@@ -93,6 +93,13 @@ define([
           }.bind(this)
         },
         {
+          source: 'extern',
+          name: 'entity/deselect/all',
+          callback: function(args) {
+            this.clearSelection();
+          }.bind(this)
+        },
+        {
           source: 'intern',
           name: 'input/leftclick',
           callback: function(args) {
