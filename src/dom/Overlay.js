@@ -1,12 +1,13 @@
 define([
   'atlas/dom/DomUtil',
+  'atlas/events/Event',
   'atlas/events/EventTarget',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types',
   'atlas/lib/utility/Class',
   'jquery',
-], function (DomUtil, EventTarget, Log, Setter, Types, Class, $) {
+], function (DomUtil, Event, EventTarget, Log, Setter, Types, Class, $) {
 
   /**
    * @typedef atlas.dom.Overlay
@@ -65,7 +66,7 @@ define([
      * @type {HTMLElement}
      * @protected
      */
-    _parent: null,
+    _parentElement: null,
 
     /**
      * The HTMLElement generated from this Overlay.
@@ -171,7 +172,7 @@ define([
 
       // Set instance members
       this._id = args.id;
-      this._parent = args.parent;
+      this._parentElement = args.parent;
       this._title = args.title;
       this._cssClass = args.cssClass;
 
@@ -229,8 +230,8 @@ define([
       return this._id;
     },
 
-    getParent: function() {
-      return this._parent;
+    getParentElement: function() {
+      return this._parentElement;
     },
 
     getPosition: function() {
@@ -244,7 +245,7 @@ define([
         var value = position[attr];
         value !== undefined && $element.css(attr, value + 'px');
       });
-      DomUtil.constrainPositionWithin($element, this.getParent());
+      DomUtil.constrainPositionWithin($element, this.getParentElement());
     },
 
     getDimensions: function() {
@@ -353,7 +354,7 @@ define([
       var $element = $('<div class="overlay"></div>');
       $element.addClass(this.getCssClass());
       var element = this._element = $element[0],
-        $parent = $(this.getParent());
+        $parent = $(this.getParentElement());
 
       var title = '';
       if (this._title) {

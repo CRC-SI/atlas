@@ -88,7 +88,7 @@ define([
     _elevation: 0,
 
     /**
-     * The scale of the GeoEntity with each component in the range [0,1] and 1 by default.
+     * The scale of the GeoEntity in each axis direction. 1 by default for all axes.
      * @type {atlas.model.Vertex}
      * @protected
      */
@@ -211,7 +211,6 @@ define([
       // Call the superclass' (EventTarget) constructor.
       this._super(args.eventManager, parent);
       this.clean();
-      this.setDirty('entity');
 
       this.setStyle(args.style || GeoEntity.getDefaultStyle());
       this._handles = new ItemStore();
@@ -221,8 +220,7 @@ define([
       // method called setUp() which we call here and subclasses override to ensure all properties
       // (e.g. vertices) are set and _build() can safely be called from here.
       this._visible = Setter.def(args.show, false);
-      this._rotation = new Vertex(0, 0, 0);
-      this._scale = new Vertex(1, 1, 1);
+      this.setDirty('entity');
     },
 
     // TODO(aramk) Use better dependency injection.
@@ -257,7 +255,7 @@ define([
       if (!this._centroid) {
         this._centroid = this._calcCentroid();
       }
-      return this._centroid && this._centroid.clone();
+      return this._centroid.clone();
     },
 
     /**
@@ -266,10 +264,8 @@ define([
      */
     setCentroid: function(centroid) {
       var oldCentroid = this.getCentroid();
-      if (oldCentroid) {
-        var diff = centroid.subtract(oldCentroid);
-        this.translate(diff);
-      }
+      var diff = centroid.subtract(oldCentroid);
+      this.translate(diff);
     },
 
     _calcCentroid: function() {
@@ -557,7 +553,7 @@ define([
      * @param {Number} scale.z - The scale along the <code>z</code> axis of the GeoEntity.
      */
     scale: function(scale) {
-      this._scale = this._scale.componentwiseMultiply(scale);
+      this._scale = this.getScale().componentwiseMultiply(scale);
       this._onTransform();
     },
 
@@ -572,6 +568,9 @@ define([
      * @returns {atlas.model.Vertex}
      */
     getScale: function() {
+      if (!this._scale) {
+        this._scale = new Vertex(1, 1, 1);
+      }
       return this._scale;
     },
 
@@ -588,7 +587,7 @@ define([
      * centroid of the GeoEntity obtained from {@link #getCentroid}.
      */
     rotate: function(rotation, centroid) {
-      this._rotation = rotation;
+      this._rotation = this.getRotation().translate(rotation);
       this._onTransform();
     },
 
@@ -604,6 +603,9 @@ define([
      * @returns {atlas.model.Vertex}
      */
     getRotation: function() {
+      if (!this._rotation) {
+        this._rotation = new Vertex(0, 0, 0);
+      }
       return this._rotation;
     },
 
