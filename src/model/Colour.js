@@ -97,6 +97,12 @@ define([
       return '#' + hex(this.red * 255) + hex(this.green * 255) + hex(this.blue * 255);
     },
 
+    toArray: function() {
+      return ['red', 'green', 'blue', 'alpha'].map(function(colourName) {
+        return this[colourName];
+      }, this);
+    },
+
     /**
      * @returns {Object} The colour as a tinycolor HSV object.
      */
