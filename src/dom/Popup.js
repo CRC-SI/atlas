@@ -52,17 +52,8 @@ define([
       }, args);
       this._super(args);
       this.hide();
+      $(this.getDom()).addClass('popup');
     },
-
-    remove: function() {
-      this._handles.forEach(function(handle) {
-        handle.cancel();
-      });
-    },
-
-    // -------------------------------------------
-    // EVENTS
-    // -------------------------------------------
 
     show: function() {
       this._super();
@@ -71,7 +62,6 @@ define([
 
     _render: function() {
       this._super();
-      $(this.getDom()).addClass('popup');
       this._update();
     },
 

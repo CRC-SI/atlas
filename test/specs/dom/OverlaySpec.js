@@ -233,7 +233,7 @@ define([
       });
 
       it('can be constructed', function () {
-        expect(overlay.getParent()).toBe(parent);
+        expect(overlay.getParentElement()).toBe(parent);
         expect(overlay.getDimensions()).toBe(dimensions);
         expect(overlay.getContent()).toContain(content);
       });

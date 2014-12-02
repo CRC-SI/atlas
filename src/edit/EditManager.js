@@ -6,8 +6,10 @@ define([
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types',
+  'atlas/model/Feature',
   'atlas/util/DeveloperError'
-], function(Manager, ItemStore, TranslationModule, DrawModule, Log, Setter, Types, DeveloperError) {
+], function(Manager, ItemStore, TranslationModule, DrawModule, Log, Setter, Types, Feature,
+  DeveloperError) {
 
   /**
    * @typedef atlas.edit.EditManager
@@ -212,7 +214,7 @@ define([
       }
       Log.debug('EditManager enabled');
       this._editing = true;
-      this._entities.addArray(args.entities);
+      var addedEntities = this._entities.addArray(args.entities);
       // TODO(aramk) Only allow translation of handles (any) and args.entities.
       this._wasTranslationModuleEnabled = this.isModuleEnabled('translation');
       this.enableModule('translation');
@@ -220,12 +222,14 @@ define([
       // Disable selection
       this._managers.event.handleExternalEvent('selection/disable');
 
-      // Render the editing handles.
-      this._entities.forEach(function(entity) {
+      // Render the editing handles for those entities which were not editing to begin with.
+      addedEntities.forEach(function(entity) {
         var meta = {};
         meta.origDisplayMode = entity.getDisplayMode();
         this._entitiesMeta[entity.getId()] = meta;
-        args.show && entity.showAsFootprint();
+        // Show the footprint if it's available when editing.
+        args.show && entity.getForm && entity.getForm(Feature.DisplayMode.FOOTPRINT)
+          && entity.showAsFootprint();
         if (args.addHandles) {
           // Put the Handles into the EntityManager and render them.
           var handles = entity.addHandles();
