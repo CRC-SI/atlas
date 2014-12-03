@@ -245,7 +245,7 @@ define([
      * @returns {number} The elevation of the base of the feature.
      */
     getElevation: function() {
-      return this._delegateToForms('getElevation') || this._elevation;
+      return this._delegateToForm('getElevation') || this._elevation;
     },
 
     /**
@@ -263,7 +263,7 @@ define([
      * @returns {number} The extruded height of the Feature to form a prism.
      */
     getHeight: function() {
-      return this._delegateToForms('getHeight') || this._height;
+      return this._delegateToForm('getHeight') || this._height;
     },
 
     setStyle: function(style) {
@@ -273,7 +273,7 @@ define([
     },
 
     getStyle: function() {
-      return this._delegateToForms('getStyle') || this._style;
+      return this._delegateToForm('getStyle') || this._style;
     },
 
     // -------------------------------------------

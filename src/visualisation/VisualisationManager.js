@@ -397,9 +397,6 @@ define([
         Log.warn('Tried to remove projection ' + id + ' that does not exist.');
         return;
       }
-      if (this._currentProjection === id) {
-        this._currentProjection = null;
-      }
       // Unrender projection and remove the projections legend.
       prj.unrender();
       legend.remove();
@@ -439,12 +436,8 @@ define([
         throw new DeveloperError('Tried to render projection ' + id
             + ' without adding a projection object.');
       } else {
-        if (this._currentProjection && this._currentProjection !== id) {
-          this.unrender(this._currentProjection);
-        }
         projection.render();
         legend.maximise();
-        this._currentProjection = id;
         this._managers.event.handleInternalEvent('projection/render/complete',
             {id: projection.getId(), name: artifact});
       }
@@ -466,7 +459,6 @@ define([
       } else {
         projection.unrender();
         legend.minimise();
-        this._currentProjection = null;
         this._managers.event.handleInternalEvent('projection/unrender/complete',
             {id: projection.getId(), name: artifact});
       }

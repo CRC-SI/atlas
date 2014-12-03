@@ -53,7 +53,7 @@ define([
       // TODO(bpstudds): Handle the case where an entity sits on two entities.
       // TODO(bpstudds): Handle the case where there's a hierarchy of 'parents'
       var newElevation = this._getModifiedElevation(oldElevation, entity.getCentroid(),
-          entity.parent);
+          entity.getParent());
       // Footprints can have elevation but not height. Generating height will cause an invalid
       // top elevation as applying height on the footprint will have no effect.
       var isFootprint = false;
@@ -88,7 +88,6 @@ define([
       var newElevations,
           result = oldElevation,
           parent = parent || null;
-
       var modifiedElevations = this._modifiedElevations[parent];
       newElevations = modifiedElevations ? modifiedElevations[oldElevation] : null;
 
@@ -127,8 +126,7 @@ define([
      * @private
      */
     _setModifiedElevation: function(entity, oldElevation, newElevation) {
-      var parent = entity.parent || null;
-
+      var parent = entity.getParent() || null;
       if (!this._modifiedElevations[parent]) {
         this._modifiedElevations[parent] = {};
       }
