@@ -15,7 +15,8 @@ define([
   var Mesh;
 
   /**
-   * @classdesc A Mesh represents a 3D renderable object in Atlas.
+   * @classdesc A Mesh represents a 3D renderable object in Atlas. The Mesh data can be defined
+   * using C3ML, the JSON of a GLTF resource, or a URL to a GLTF resource.
    *
    * @param {String} id - The ID of the Mesh object.
    * @param {Object} meshData - The data required to define what is actually rendered.
@@ -24,9 +25,9 @@ define([
    * @param {Number} [meshData.uniformScale] - A uniform scale applied to the Mesh.
    * @param {Vertex} [meshData.scale] - A non-uniform scale applied to the Mesh.
    * @param {Vertex} [meshData.rotation] - A rotation applied to the Mesh.
-   * @param {Vertex} [meshData.color] - A uniform color to apply to the Mesh.
+   * @param {atlas.model.Colour} [meshData.color] - A uniform color to apply to the Mesh.
    * @param {String} [meshData.gltfUrl] - URL of GLTF data to construct the Mesh.
-   * @param {Object} [meshdata.gltf] - JSON GLTF object.
+   * @param {Object} [meshData.gltf] - JSON GLTF object to construct the Mesh.
    * @param {Array.<Number>} [meshData.positions] - [C3ML] The array of vertex positions for the
    *     Mesh. This should be a 1D array where every three elements describe a new vertex.
    * @param {Array.<Number>} [meshData.indices] - [C3ML] The array of triangle indices for the Mesh.
@@ -49,6 +50,7 @@ define([
    * @extends atlas.model.GeoEntity
    */
   Mesh = Setter.mixin(GeoEntity.extend(/** @lends atlas.model.Mesh# */ {
+
     /**
      * The array of vertex positions for this Mesh, in model space coordinates.
      * This is a 1D array to conform with Cesium requirements. Every three elements of this
@@ -76,11 +78,32 @@ define([
     _normals: null,
 
     /**
-     * The location of the mesh object, specified by longitude, latitude, and elevation.
+     * The location of the mesh object.
      * @type {atlas.model.GeoPoint}
      * @protected
      */
     _geoLocation: null,
+
+    /**
+     * The scale of the mesh, along the X, Y, and Z axis.
+     * @type {atlas.model.Vertex}
+     * @protected
+     */
+    _scale: null,
+
+    /**
+     * A uniform scale to apply to the Mesh. Explicitly for Meshes defined by GLTF.
+     * @type {Number}
+     * @protected
+     */
+    _uniformScale: null,
+
+    /**
+     * The rotation of the Mesh.
+     * @type {atlas.model.Vertex}
+     * @protected
+     */
+    _rotation: null,
 
     /**
      * Defines a transformation from model space to world space. This is derived from <code>Mesh._geoLocation</code>,
@@ -99,18 +122,26 @@ define([
      */
     _uniformColour: null,
 
+    /**
+     * True iff the Mesh is defined using GLTF input.
+     * @type {Boolean}
+     * @protected
+     */
+    _usesGltf: null,
+
     _init: function(id, meshData, args) {
       this._super(id, args);
 
       if (meshData.gltf) {
+        this._usesGltf = true;
         this._gltf = meshData.gltf;
       }
 
       if (meshData.gltfUrl) {
+        this._usesGltf = true;
         this._gltfUrl = meshData.gltfUrl;
       }
 
-      // Parse all the things!
       if (meshData.positions && meshData.positions.length) {
         this._positions = new Float64Array(meshData.positions.length);
         meshData.positions.forEach(function(position, i) {
@@ -171,6 +202,10 @@ define([
     setElevation: function (elevation) {
       this._super(elevation);
       this._geoLocation.elevation = elevation;
+    },
+
+    isGltf: function () {
+      return this._usesGltf;
     }
 
   }), {
