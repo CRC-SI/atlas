@@ -18,11 +18,16 @@ define([
    *
    * @param {Number} id - The ID of this Polygon.
    * @param {Object} polygonData - Data describing the Polygon.
-   * @param {string|Array.<atlas.model.GeoPoint>} [polygonData.vertices=[]] - The vertices of the Polygon.
+   * @param {string|Array.<atlas.model.GeoPoint>} [polygonData.vertices=[]] - The vertices of the
+   *                                                                          Polygon.
    * @param {Number} [polygonData.height=0] - The extruded height of the Polygon to form a prism.
    * @param {Number} [polygonData.elevation] - The elevation of the base of the Polygon (or prism).
-   * @param {atlas.model.Colour} [polygonData.color] - The fill colour of the Polygon (overridden/overrides Style)
-   * @param {atlas.model.Style} [polygonData.style=defaultStyle] - The Style to apply to the Polygon.
+   * @param {atlas.model.Colour} [polygonData.color] - The fill colour of the Polygon. Overrides the
+   *                                                   given style.
+   * @param {atlas.model.Colour} [polygonData.borderColor] - The border colour of the Polygon.
+   *                                                         Overrides the given style.
+   * @param {atlas.model.Style} [polygonData.style=defaultStyle] - The Style to apply to the
+   *                                                               Polygon.
    * @param {Object} [args] - Option arguments describing the Polygon.
    * @param {atlas.model.GeoEntity} [args.parent=null] - The parent entity of the Polygon.
    * @returns {atlas.model.Polygon}
@@ -78,17 +83,20 @@ define([
       this._elevation = parseFloat(polygonData.elevation) || this._elevation;
       this._zIndex = parseFloat(polygonData.zIndex) || this._zIndex;
       this._zIndexOffset = parseFloat(polygonData.zIndexOffset) || this._zIndexOffset;
-      var style;
-      if (polygonData.color) {
-        if (polygonData.color instanceof Colour) {
-          style = new Style({fillColour: polygonData.color});
-        } else {
-          style = new Style({fillColour: Colour.fromRGBA(polygonData.color)});
+      var style = polygonData.style || Polygon.getDefaultStyle(),
+        color = polygonData.color,
+        borderColor = polygonData.borderColor;
+      if (color) {
+        if (!(color instanceof Colour)) {
+          color = new Colour(color);
         }
-      } else if (polygonData.style) {
-        style = polygonData.style;
-      } else {
-        style = Polygon.getDefaultStyle();
+        style.setFillColour(color);
+      }
+      if (borderColor) {
+        if (!(borderColor instanceof Colour)) {
+          borderColor = new Colour(borderColor);
+        }
+        style.setBorderColour(borderColor);
       }
       this.setStyle(style);
     },

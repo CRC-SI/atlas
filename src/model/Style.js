@@ -41,7 +41,7 @@ define([
     _borderColour: null,
 
     /**
-     * Border width in pixels of this Style.
+     * Border width in pixels of this Style. 1 by default.
      * @type {Number}
      * @private
      */
@@ -51,7 +51,7 @@ define([
       args = args || {};
       this._fillColour = args.fillColour;
       this._borderColour = args.borderColour;
-      this._borderWidth = args.borderWidth;
+      this._borderWidth = Setter.def(args.borderWidth, 1);
     },
 
     // -------------------------------------------
