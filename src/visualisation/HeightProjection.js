@@ -52,8 +52,16 @@ define([
       var oldElevation = entity.getElevation();
       // TODO(bpstudds): Handle the case where an entity sits on two entities.
       // TODO(bpstudds): Handle the case where there's a hierarchy of 'parents'
-      var newElevation = this._getModifiedElevation(oldElevation, entity.getCentroid(),
-          entity.getParent());
+      var newElevation,
+        parent = entity.getParent();
+      if (!parent && oldHeight === 0 && oldElevation === 0) {
+        // If the entity had a height of 0 and no parent, the old top elevation of 0 will be
+        // incorrectly mapped to a new non-zero top elevation, causing other similar entities to
+        // stack. Avoid this by setting the new elevation to the old one.
+        newElevation = oldElevation;
+      } else {
+        newElevation = this._getModifiedElevation(oldElevation, entity.getCentroid(), parent);
+      }
       // Footprints can have elevation but not height. Generating height will cause an invalid
       // top elevation as applying height on the footprint will have no effect.
       var isFootprint = false;
@@ -90,7 +98,6 @@ define([
           parent = parent || null;
       var modifiedElevations = this._modifiedElevations[parent];
       newElevations = modifiedElevations ? modifiedElevations[oldElevation] : null;
-
       if (newElevations) {
         // A 'stacked elevation' exists.
         if (newElevations.length === 1) {
