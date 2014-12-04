@@ -27,6 +27,7 @@
       display: none;
     }
     .enable.checkbox {
+      margin: 0;
       margin-right: 5px;
     }
     .content {
@@ -43,7 +44,6 @@
       // Formatting for Projection legend titles.
       font-size: 1.2em;
       padding: 5px;
-      padding-bottom: 0;
       &:hover > button {
         display: block;
       }
@@ -51,8 +51,17 @@
     }
     .body {
       padding: 5px;
+      padding-top: 0;
       flex-grow: 1;
       overflow: auto;
+      .overlay {
+        position: relative;
+        margin: 0;
+        margin-bottom: 5px;
+        .body {
+          padding: 0;
+        }
+      }
     }
     // The 'table' selector is inefficient :(
     .legend table {

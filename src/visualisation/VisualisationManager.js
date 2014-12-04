@@ -271,9 +271,12 @@ define([
       var id = projection.getId(),
           legendData = projection.getLegendData(),
           keyHtml = Overlay.generateTable(legendData.key),
-          legendHtml;
-      legendHtml = '<div class="legend-caption">' + legendData.caption + '</div>';
-      legendHtml += keyHtml;
+          legendHtml = '',
+          caption = legendData.caption;
+      if (caption || keyHtml) {
+        legendHtml += '<div class="legend-caption">' + legendData.caption + '</div>';
+        legendHtml += keyHtml;
+      }
 
       var container = this.getLegendContainer(),
           contentNode = container.getDomElements().content,
