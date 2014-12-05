@@ -132,45 +132,11 @@ define([
     _init: function(id, meshData, args) {
       this._super(id, args);
 
-      if (meshData.gltf) {
-        this._usesGltf = true;
-        this._gltf = meshData.gltf;
-      }
-
-      if (meshData.gltfUrl) {
-        this._usesGltf = true;
-        this._gltfUrl = meshData.gltfUrl;
-      }
-
-      if (meshData.positions && meshData.positions.length) {
-        this._positions = new Float64Array(meshData.positions.length);
-        meshData.positions.forEach(function(position, i) {
-          this._positions[i] = position;
-        }, this);
-      }
-
-      if (meshData.triangles && meshData.triangles.length) {
-        this._indices = new Uint16Array(meshData.triangles.length);
-        meshData.triangles.forEach(function(triangle, i) {
-          this._indices[i] = triangle;
-        }, this);
-      }
-
-      // TODO(aramk) Normals not currently used.
-      if (meshData.normals && meshData.normals.length) {
-        this._normals = new Float64Array(meshData.normals.length);
-        meshData.normals.forEach(function(normal, i) {
-          this._normals[i] = normal;
-        }, this);
-      }
-
-      if (meshData.rotation) {
-        this._rotation = new Vertex(meshData.rotation);
-      }
-      if (meshData.scale) {
-        this._scale = new Vertex(meshData.scale);
-      }
-      this._geoLocation = new GeoPoint(meshData.geoLocation) || new GeoPoint(0, 0, 0);
+      // Set generic properties.
+      this._uniformScale = Setter.def(meshData.scale, 1);
+      this._rotation = Setter.defCstr(meshData.rotation, Vertex);
+      this._scale = Setter.defCstr(meshData.scale, Vertex);
+      this._geoLocation = Setter.defCstr(meshData.geoLocation, GeoPoint);
 
       // Set the Mesh's style based on the hierarchy: a Mesh specific style,
       // inherit the parent Feature's style, or use the Mesh default style.
@@ -179,6 +145,41 @@ define([
         this.setStyle(new Style({fillColour: Colour.fromRGBA(meshData.color)}));
       } else {
         this.setStyle(args.style || Mesh.getDefaultStyle());
+      }
+
+      // Set GLTF properties
+      if (meshData.gltf) {
+        this._gltf = meshData.gltf;
+      }
+
+      if (meshData.gltfUrl) {
+        this._gltfUrl = meshData.gltfUrl;
+      }
+      this._usesGltf = !!(this._gltf || this._gltfUrl);
+
+      // Set C3ML properties only if GLTF is not defined.
+      if (!this.isGltf()) {
+        if (meshData.positions && meshData.positions.length) {
+          this._positions = new Float64Array(meshData.positions.length);
+          meshData.positions.forEach(function(position, i) {
+            this._positions[i] = position;
+          }, this);
+        }
+
+        if (meshData.triangles && meshData.triangles.length) {
+          this._indices = new Uint16Array(meshData.triangles.length);
+          meshData.triangles.forEach(function(triangle, i) {
+            this._indices[i] = triangle;
+          }, this);
+        }
+
+        // TODO(aramk) Normals not currently used.
+        if (meshData.normals && meshData.normals.length) {
+          this._normals = new Float64Array(meshData.normals.length);
+          meshData.normals.forEach(function(normal, i) {
+            this._normals[i] = normal;
+          }, this);
+        }
       }
     },
 

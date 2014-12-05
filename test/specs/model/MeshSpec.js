@@ -2,38 +2,52 @@ define([
   'atlas/assets/testMesh',
   // Code under test
   'atlas/model/Mesh',
-  'atlas/model/GeoPoint'
-], function(testMesh, Mesh, GeoPoint) {
+  'atlas/model/GeoPoint',
+  'jasmine-utility'
+], function(c3mlMesh, Mesh, GeoPoint, jasmineUtils) {
   describe('A Mesh', function() {
 
-    var mesh, centroid, area, constructArgs;
+    var mesh, args;
 
     beforeEach(function() {
-      // TODO(aramk) This isn't the actual centroid - calculate the value below and replace if it's
-      // reasonable.
-      centroid =
-          new GeoPoint({longitude: 145.2376011191871, latitude: -37.82674343831081, elevation: 0});
-      area = 184.8778;
-      constructArgs = {
+      args = {
         renderManager: {},
         eventManager: {}
       };
-      mesh = new Mesh('a', testMesh, constructArgs);
+      jasmine.addMatchers(jasmineUtils);
     });
 
     afterEach(function() {
       mesh = null;
     });
 
-    it('has a location', function() {
-      expect(mesh.getGeoLocation()).toEqual(new GeoPoint(testMesh.geoLocation));
+    it('can be constructed with C3ML', function() {
+      mesh = new Mesh('id', c3mlMesh, args);
+      expect(mesh.getId()).toEqual('id');
+      expect(mesh.isGltf()).toBe(false);
+      expect(mesh._positions).not.toBe(null);
+      expect(mesh._indices).not.toBe(null);
     });
 
-    // TODO(aramk) Centroid needs vertices of a mesh, which use matrix transformations only
-    // available in Cesium.
-    xit('has a centroid', function() {
-      expect(mesh.getCentroid()).toEqual(centroid);
+    it('can be constructed with a GLTF url', function() {
+      mesh = new Mesh('id', {gltfUrl: 'www.whatever.com'}, args);
+      expect(mesh.getId()).toEqual('id');
+      expect(mesh._gltfUrl).toEqual('www.whatever.com');
+      expect(mesh.isGltf()).toBe(true);
+      expect(mesh._positions).toBe(null);
+      expect(mesh._indices).toBe(null);
     });
 
+    it('can be constructed with GLTF JSON', function() {
+      var gltfJson = {
+        a: 'totally gltf'
+      }
+      mesh = new Mesh('id', {gltf: gltfJson}, args);
+      expect(mesh.getId()).toEqual('id');
+      expect(mesh._gltf).toEqual(gltfJson);
+      expect(mesh.isGltf()).toBe(true);
+      expect(mesh._positions).toBe(null);
+      expect(mesh._indices).toBe(null);
+    });
   });
 });
