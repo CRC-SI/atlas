@@ -11,9 +11,9 @@ define([
      * Waits until the given predicate evaluates to a truthy value.
      * @param  {Function} predicate
      * @param  {Object} args
-     * @param  {Number} args.timeout - The time in milliseconds to continue waiting. After this
-     * period, the promise is rejected.
-     * @param  {Number} args.freq - The frequency in milliseconds to check the predicate.
+     * @param  {Number} [args.timeout=60000] - The time in milliseconds to continue waiting. After
+     * this period, the promise is rejected.
+     * @param  {Number} [args.freq=200] - The frequency in milliseconds to check the predicate.
      * @returns {Q.Deferred} A deferred promise which is resolved when the given predicate evaluates
      * to a truthy value.
      */
@@ -36,6 +36,7 @@ define([
           var isDone = predicate();
           if (isDone) {
             df.resolve();
+            clearInterval(handle);
           }
           if (totalTime >= timeout) {
             clearInterval(handle);
