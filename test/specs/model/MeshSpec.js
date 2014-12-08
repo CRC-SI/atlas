@@ -1,10 +1,10 @@
 define([
   'atlas/assets/testMesh',
   // Code under test
-  'atlas/model/Mesh',
   'atlas/model/GeoPoint',
-  'jasmine-utility'
-], function(c3mlMesh, Mesh, GeoPoint, jasmineUtils) {
+  'atlas/model/Mesh',
+  'atlas/model/Vertex'
+], function(c3mlMesh, GeoPoint, Mesh, Vertex) {
   describe('A Mesh', function() {
 
     var mesh, args;
@@ -14,11 +14,20 @@ define([
         renderManager: {},
         eventManager: {}
       };
-      jasmine.addMatchers(jasmineUtils);
     });
 
     afterEach(function() {
       mesh = null;
+    });
+
+    it('should have some intelligent defaults', function() {
+      var originalScale = c3mlMesh.scale;
+      c3mlMesh.scale = null;
+      mesh = new Mesh('id', c3mlMesh, args);
+      expect(mesh._uniformScale).toEqual(1);
+      expect(mesh._scale).toEqual(new Vertex({x: 1, y: 1, z: 1}));
+
+      c3mlMesh.scale = originalScale;
     });
 
     it('can be constructed with C3ML', function() {

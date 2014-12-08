@@ -132,10 +132,10 @@ define([
     _init: function(id, meshData, args) {
       this._super(id, args);
 
-      // Set generic properties.
-      this._uniformScale = Setter.def(meshData.scale, 1);
+      // Set generic properties .
+      this._uniformScale = Setter.def(meshData.uniformScale, 1);
       this._rotation = Setter.defCstr(meshData.rotation, Vertex);
-      this._scale = Setter.defCstr(meshData.scale, Vertex);
+      this._scale = Setter.defCstr(meshData.scale, Vertex, [1, 1, 1]);
       this._geoLocation = Setter.defCstr(meshData.geoLocation, GeoPoint);
 
       // Set the Mesh's style based on the hierarchy: a Mesh specific style,
