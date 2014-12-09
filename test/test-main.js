@@ -33,6 +33,7 @@ requirejs.config({
   baseUrl: '/base',
 
   packages: [
+    {name: 'jquery', location: 'atlas/lib', main: 'jquery.js'},
     {name: 'atlas/lib', location: 'atlas/lib'},
     {name: 'atlas/lib/utility', location: 'atlas/lib/utility/src'},
     {name: 'atlas/assets', location: 'atlas/assets'}, // Only need this for testing

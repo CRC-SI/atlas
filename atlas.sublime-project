@@ -6,8 +6,11 @@
       "folder_exclude_patterns": [
         "coverage",
         "docs",
-        "atlas/lib",
-        "dist"
+        "lib",
+        "dist",
+        ".idea",
+        ".sonar",
+        "node_modules"
       ]
     }
   ]

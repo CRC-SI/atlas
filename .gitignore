@@ -1,4 +1,6 @@
 *.sublime-workspace
+*.unity3d
+
 
 # Generated files #
 ###################
@@ -11,6 +13,7 @@ bower_components/
 /dist
 src/main.js
 .build*
+.sonar
 
 # Misc #
 ########
@@ -62,4 +65,4 @@ Thumbs.db
 #######
 .settings
 .idea
-resources/build.unity3d
+

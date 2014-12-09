@@ -101,6 +101,7 @@ define([
         content = args.content,
         title = args.title;
       args.renderManager = this._managers.render;
+      args.eventManager = this._managers.event;
       if (Types.isString(entity)) {
         args.entity = this._managers.entity.getById(entity);
       }
@@ -142,7 +143,8 @@ define([
     createOnSelection: function(args) {
       var entity = args.entity,
         entityPopup,
-        onCreate = args.onCreate;
+        onCreate = args.onCreate
+        handles = [];
       delete args.onCreate;
 
       var initPopup = function() {
@@ -157,15 +159,22 @@ define([
           entityPopup.hide();
         }, {ignoreBubbled: true});
       }.bind(this);
-      entity.addEventListener('entity/select', function(event) {
+      handles.push(entity.addEventListener('entity/select', function(event) {
         initPopup();
         entityPopup.show();
-      }, {ignoreBubbled: true});
+      }, {ignoreBubbled: true}));
+      entity.addEventListener('entity/remove', function(event) {
+        entityPopup && entityPopup.remove();
+      }.bind(this));
       return entityPopup;
     },
 
     getCurrent: function() {
       return this._current;
+    },
+
+    getPopups: function() {
+      return this._popups.asArray();
     }
 
   });

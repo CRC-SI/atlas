@@ -10,10 +10,10 @@ define([
   'atlas/model/Polygon',
   'atlas/model/Line',
   'atlas/model/Image',
-  'atlas/model/Vertex',
+  'atlas/model/GeoPoint',
   'atlas/util/DeveloperError'
-], function(Manager, ItemStore, Log, Setter, Ellipse, Feature, GeoEntity, Mesh, Polygon,
-            Line, Image, Vertex, DeveloperError) {
+], function(Manager, ItemStore, Log, Setter, Ellipse, Feature, GeoEntity, Mesh, Polygon, Line,
+            Image, GeoPoint, DeveloperError) {
 
   /**
    * @typedef atlas.entity.EntityManager
@@ -230,15 +230,15 @@ define([
      * Creates and adds a new Feature object to atlas-cesium.
      * @param {String} id - The ID of the Feature to add.
      * @param {Object} args - Arguments describing the Feature to add.
-     * @param {String|Array.<atlas.model.Vertex>} [args.line=null] - Either a WKT string or array
+     * @param {String|Array.<atlas.model.GeoPoint>} [args.line=null] - Either a WKT string or array
      * of vertices.
-     * @param {String|Array.<atlas.model.Vertex>} [args.footprint=null] - Either a WKT string or array
+     * @param {String|Array.<atlas.model.GeoPoint>} [args.footprint=null] - Either a WKT string or array
      * of vertices.
      * @param {Object} [args.mesh=null] - A object in the C3ML format describing the Features' Mesh.
      * @param {Number} [args.height=0] - The extruded height when displaying as a extruded polygon.
      * @param {Number} [args.elevation=0] - The elevation (from the terrain surface) to the base of
      * the Mesh or Polygon.
-     * @param {Boolean} [args.show=false] - Whether the feature should be initially shown when
+     * @param {Boolean} [args.show=true] - Whether the feature should be initially shown when
      * created.
      * @param {String} [args.displayMode='footprint'] - Initial display mode of feature.
      */
@@ -247,6 +247,9 @@ define([
         args = id;
         id = args.id;
       }
+      args = Setter.merge({
+        show: true
+      }, args);
       if (id === undefined) {
         throw new DeveloperError('Can not create Feature without specifying ID');
       } else if (this._entities.get(id)) {
@@ -262,7 +265,7 @@ define([
         args.entityManager = this;
         Log.debug('Creating entity', id);
         var feature = new this._entityTypes.Feature(id, args);
-        args.show !== undefined && feature.setVisibility(args.show);
+        feature.setVisibility(args.show);
         return feature;
       }
     },
@@ -306,9 +309,12 @@ define([
             image: this._parseC3MLimage
           };
       // Generate the Geometry for the C3ML type if it is supported.
-      parsers[c3ml.type] && (geometry = parsers[c3ml.type](c3ml, this));
+      parsers[c3ml.type] && (geometry = parsers[c3ml.type].call(this, c3ml));
       return Setter.mixin(c3ml, geometry);
     },
+
+    // TODO(aramk) For all parsers - reuse the objects passed rather than creating new ones.
+    // Mix in new parameters.
 
     /**
      * Parses a C3ML image object to an format supported by Atlas.
@@ -316,10 +322,10 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLimage: function(c3ml, _this) {
+    _parseC3MLimage: function(c3ml) {
       return {
         image: {
-          vertices: _this._parseCoordinates(c3ml.coordinates),
+          vertices: this._parseCoordinates(c3ml.coordinates),
           image: c3ml.image
         }
       };
@@ -331,10 +337,10 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLline: function(c3ml, _this) {
+    _parseC3MLline: function(c3ml) {
       return {
         line: {
-          vertices: _this._parseCoordinates(c3ml.coordinates),
+          vertices: this._parseCoordinates(c3ml.coordinates),
           color: c3ml.color,
           height: c3ml.height,
           elevation: c3ml.altitude
@@ -348,10 +354,13 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLpolygon: function(c3ml, _this) {
+    _parseC3MLpolygon: function(c3ml) {
       return {
         polygon: {
-          vertices: _this._parseCoordinates(c3ml.coordinates),
+          // TODO(aramk) We need to standardize which one we use - were using "vertices" internally
+          // but "coordinates" in c3ml.
+          vertices: this._parseCoordinates(c3ml.coordinates),
+          holes: this._parseHoles(c3ml.holes),
           color: c3ml.color,
           height: c3ml.height,
           elevation: c3ml.altitude
@@ -365,7 +374,7 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLmesh: function(c3ml, _this) {
+    _parseC3MLmesh: function(c3ml) {
       return {
         mesh: {
           positions: c3ml.positions,
@@ -380,31 +389,39 @@ define([
     },
 
     /**
-     * Takes an array of {x, y, z} coordinates and converts it to an array of
-     * {@see atlas.model.Vertex|Vertices}.
-     * @param {Object} coordinates - The {x, y, z} coordinates to convert.
-     * @returns {Array.<atlas.model.Vertex>} The convert coordinates.
+     * @param {Array.<Array|Object>} coordinates
+     * @returns {Array.<atlas.model.GeoPoint>} The convert coordinates.
      * @protected
      */
     _parseCoordinates: function(coordinates) {
       var vertices = [];
       for (var i = 0; i < coordinates.length; i++) {
-        vertices.push(this._coordinateAsVertex(coordinates[i]));
+        vertices.push(this._parseCoordinate(coordinates[i]));
       }
       return vertices;
     },
 
     /**
-     * Converts a coordinate object to a {@link atlas.model.Vertex|Vertex}.
-     * @param  {Object} coordinate - The coordinate to be converted.
-     * @param {Number} coordinate.x - The latitude, given in decimal degrees.
-     * @param {Number} coordinate.y - The longitude, given in decimal degrees.
-     * @param {Number} coordinate.z - The altitude, given in metres.
-     * @returns {atlas.model.Vertex}
+     * Converts a coordinate object to a {@link atlas.model.GeoPoint}.
+     * @param {Array|Object} coordinate - The coordinate to be converted. Can be anything
+     * supported by {@link atlas.model.GeoPoint}.
+     * @returns {atlas.model.GeoPoint}
      * @protected
      */
-    _coordinateAsVertex: function(coordinate) {
-      return new Vertex(coordinate);
+    _parseCoordinate: function(coordinate) {
+      return new GeoPoint(coordinate);
+    },
+
+    /**
+     * @param {Array.<Array.<Array|Object>>} holes
+     * @returns {Array.<Array.<atlas.model.GeoPoint>>}
+     * @private
+     */
+    _parseHoles: function(holes) {
+      holes = holes || [];
+      return holes.map(function(holesArray) {
+        return this._parseCoordinates(holesArray);
+      }.bind(this));
     },
 
     /**
@@ -546,9 +563,11 @@ define([
     },
 
     /**
-     * Returns the GeoEntity that intersects the given Vertex or undefined.
-     * @param {atlas.model.Vertex} point - The point of interest.
-     * @returns {Array.<atlas.model.GeoEntity>} The GeoEntities located at the given screen coordinates.
+     * Returns the GeoEntity that intersects the given point or undefined if there is no such
+     * entity.
+     * @param {atlas.model.GeoPoint} point - The point of interest.
+     * @returns {Array.<atlas.model.GeoEntity>} The GeoEntities located at the given screen
+     * coordinates.
      */
     getAt: function(point) {
       throw new DeveloperError('EntityManager.getAt not yet implemented.');
