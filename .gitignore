@@ -62,3 +62,4 @@ Thumbs.db
 #######
 .settings
 .idea
+resources/build.unity3d

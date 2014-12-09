@@ -32,8 +32,14 @@ define([
      * polygon.
      */
     verticesFromWKT: function(wktStr) {
-      var geometry = this.openLayersGeometryFromWKT(wktStr);
-      return geometry ? this.verticesFromOpenLayersGeometry(geometry) : null;
+      var points = wktStr.match(/([\d\.]+\s*)+/g).map(function(match){
+        return match.split(/\s+/).map(function(component){
+          return parseFloat(component);
+        });
+      });
+      return points.map(function(point){
+        return new Vertex(point[1], point[0], point[2]);
+      });
     },
 
     /**
