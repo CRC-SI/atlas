@@ -139,22 +139,6 @@ define([
         },
         {
           source: 'intern',
-          name: 'input/left/dblclick',
-          callback: function(args) {
-            // TODO(bpstudds): Move this handler to EntityManager.
-            var entities = this._managers.entity.getAt(args.position);
-            if (entities.length > 0) {
-              // Only capture the double click on the first entity.
-              var entity = entities[0];
-              this._managers.event.dispatchEvent(new Event(entity,
-                  'entity/dblclick', {
-                    id: entity.getId()
-                  }));
-            }
-          }.bind(this)
-        },
-        {
-          source: 'intern',
           name: 'entity/remove',
           callback: function(args) {
             // If the Entity has been removed don't need to deselect it, just remove it from _selection.
@@ -336,6 +320,7 @@ define([
     selectBox: function() {
       throw new DeveloperError('Function not yet implemented');
     }
+
   });
 
   return SelectionManager;
