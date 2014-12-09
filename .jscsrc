@@ -20,5 +20,8 @@
     "do",
     "try",
     "catch"
+  ],
+  "disallowKeywords": [
+    "console"
   ]
 }
