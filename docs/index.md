@@ -4,46 +4,22 @@ Atlas is a JavaScript library that provides a high-level API for 3D geospatial r
 API makes it easy to incorporate modern rendering technologies in Web applications, supporting the
 next generation of GIS tools.
 
+[http://www.atlasjs.org/](http://www.atlasjs.org/)
+
 ## Getting Started
 
-Atlas is a component that is designed to be included within a "host" Web application. The
-integration process is not yet as simple as it could be, but this will be improved in the future.
+The default implementation of Atlas, `Atlas-Cesium`, uses the HTML5 Cesium rendering library. As a
+result, getting started with Atlas is as simple as including some JavaScript into your Web app. See
+[Getting Started](getting_started.md) for more information.
 
-At a high level, the required steps are as follows:
+## Demos
 
-1. Download or build `atlas.js` (or `atlas.min.js`) and `atlas.css`.
-2. Include the code shown below in your application's HTML.
-3. In the section marked with `// ... your code`, you can start interacting with the Atlas API.
+> TODO
 
-```
-<link rel="stylesheet" href="atlas/dist/resources/atlas.min.css">
-<link rel="stylesheet" href="atlas-cesium/dist/resources/atlas-cesium.min.css">
-<script src="atlas-cesium/lib/Requirejs/require.js"></script>
-<script>
-require.config({
-  baseUrl: '',
-  packages: [
-    { name: 'atlas', location: 'atlas/dist', main: 'atlas.min'},
-    { name: 'atlas-cesium', location: 'atlas-cesium/dist', main: 'atlas-cesium.min'}
-  ]
-});
+## Contact
 
-require(['atlas'], function() {
-  require(['atlas-cesium'], function() {
-    require([
-      'atlas-cesium/core/CesiumAtlas',
-      'atlas/assets/testWKT',
-      'atlas/model/Colour',
-      'atlas/model/Style',
-      'atlas/lib/utility/Setter'
-    ], function(CesiumAtlas, testWKT, Colour, Style, Setter) {
-      atlas = new CesiumAtlas();
-      atlas.attachTo('atlas-container');
-      // ... your code
-    });
-  });
-});
-</script>
+Atlas is developed by Urbanetic with support from the [Australian Urban Research Infrastructure
+Network][aurin] (AURIN). If you're interested in using Atlas in your own project, let us know at
+[hello@urbanetic.net](mailto:hello@urbanetic.net).
 
-<div id="atlas-container"></div>
-```
+[aurin]: http://aurin.org.au/
