@@ -188,6 +188,18 @@ define([
             }, this);
             Log.timeEnd('entity/display-mode/reset');
           }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'entity/rotate',
+          callback: function(args) {
+            if (!args || !args.ids) { return; }
+            var features = this._getFeaturesByIds(args.ids);
+            features.forEach(function(feature) {
+              console.log('Trying to rotate', feature);
+              feature.rotate(args.rotate);
+            });
+          }.bind(this)
         }
         // TODO(bpstudds): Is this stupid?
 //        {
