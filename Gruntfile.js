@@ -11,7 +11,7 @@ module.exports = function(grunt) {
   var SRC_DIR = 'src';
   var LIB_DIR = 'lib';
   var DIST_DIR = 'dist';
-  var DOCS_DIR = 'docs';
+  var JSDOCS_DIR = 'jsdocs';
   var BUILD_DIR = 'build';
   var RESOURCES_DIR = 'resources';
   var RESOURCES_BUILD_PATH = distPath(RESOURCES_DIR);
@@ -158,7 +158,7 @@ module.exports = function(grunt) {
         files: [
           {
             expand: true,
-            cwd: DOCS_DIR,
+            cwd: JSDOCS_DIR,
             src: [
               path.join('**', '*')
             ]
@@ -191,7 +191,7 @@ module.exports = function(grunt) {
     karma: {
       options: {
         configFile: 'test/karma.conf.js',
-        runnerPort: 9876,
+        runnerPort: 9876
       },
       unit: {
         browsers: ['Chrome', 'Firefox']

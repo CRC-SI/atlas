@@ -3,8 +3,8 @@
         "allowUnknownTags": false
     },
     "source": {
-        "include": ["./src"],
-        "exclude": ["./lib/", "./docs/", "*/tests/", "./spec/*"],
+        "include": ["src"],
+        "exclude": ["lib/", "docs/", "jsdocs", "*/tests/", "spec/*"],
         "includePattern": ".+\\.js(doc)?$",
         "excludePattern": "(tests/*)|((^|\\/|\\\\)_)"
     },
@@ -17,6 +17,6 @@
         "private": true,
         "recurse": true,
         "lenient": true,
-        "destination": "./docs/"
+        "destination": "jsdocs/"
     }
 }
