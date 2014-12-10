@@ -629,6 +629,8 @@ define([
     /**
      * Removes the GeoEntity from rendering. This function should be overridden on subclasses to
      * accomplish any cleanup that may be required.
+     *
+     * @fires Events#entity/remove
      */
     remove: function() {
       this._super();
