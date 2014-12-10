@@ -213,6 +213,8 @@ define([
 
     /**
      * Deselects all currently selected GeoEntities.
+     *
+     * @listens ExternalEvent#entity/deselect/all
      */
     clearSelection: function() {
       this.deselectEntities(this.getSelectionIds());
@@ -255,16 +257,17 @@ define([
      * Selects or deselects the specified entities.
      *
      * @param {boolean} selected - True if selection, false if deselection.
-     * @param {ExternalEvent#event:entity/select} event
+     * @param {InternalEvent#event:entity/select | InternalEvent#event:entity/deselect} event
      *
-     * @listens ExternalEvent#entity/select
+     * @listens InternalEvent#entity/select
+     * @listens InternalEvent#entity/deselect
      */
     _onSelection: function(selected, event) {
       (selected ? this.selectEntities : this.deselectEntities)(event.ids, true, null);
     },
 
     /**
-     * Handles external requests for selection and deselection.
+     * Handles an external request for selection and deselection.
      *
      * @param {String} method - Either 'select' or 'deselect' depending on the request.
      * @param {ExternalEvent#event:entity/select | ExternalEvent#event:entity/deselect} event
@@ -285,9 +288,9 @@ define([
     /**
      * Handles a left click event.
      *
-     * @param {ExternalEvent#event:input/leftclick} event
+     * @param {InternalEvent#event:input/leftclick} event
      *
-     * @listens ExternalEvent#input/leftclick
+     * @listens InternalEvent#input/leftclick
      */
     _onLeftClick: function(event) {
       if (!this.isEnabled()) return;
@@ -315,9 +318,9 @@ define([
     /**
      * Handles a left double-click event.
      *
-     * @param {ExternalEvent#event:input/left/dblclick} event
+     * @param {InternalEvent#event:input/left/dblclick} event
      *
-     * @listens ExternalEvent#input/left/dblclick
+     * @listens InternalEvent#input/left/dblclick
      */
     _onDoubleClick: function(event) {
       // TODO(bpstudds): Move this handler to EntityManager.
@@ -334,9 +337,9 @@ define([
     /**
      * Removes an entity from the current selection if it is deleted.
      *
-     * @param {ExternalEvent#event:entity/remove} event
+     * @param {InternalEvent#event:entity/remove} event
      *
-     * @listens ExternalEvent#entity/remove
+     * @listens InternalEvent#entity/remove
      */
     _onRemove: function(event) {
       delete this._selection[event.id];
