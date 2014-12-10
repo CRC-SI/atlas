@@ -144,6 +144,25 @@ define([
     },
 
     /**
+     * Allows for adding an array of event handler mappings.
+     * @param {Object} handlers - A map with intern and extern event handler mappings.
+     * @param {Object} handlers.intern - A mapping of internal event names to callbacks.
+     * @param {Object} handlers.extern - A mapping of external event names to callbacks.
+     * @returns {Object.<String, Object>} The map of event name to EventHandler object.
+     */
+    addNewEventHandlers: function(handlers) {
+      var eventHandlers = {};
+      Object.keys(handlers).forEach(function(source) {
+        Object.keys(handlers[source]).forEach(function(name) {
+          var callback = handlers[source][name];
+          eventHandlers[name] =
+              this.addEventHandler(source, name, callback);
+        });
+      });
+      return eventHandlers;
+    },
+
+    /**
      * Allows for event handlers to be added for an Event. Events can be external
      * (Host) or internal (Atlas) events.
      *

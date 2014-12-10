@@ -40,6 +40,26 @@ define([
      */
     _selection: null,
 
+    /**
+     * Map of subscribed events to handler methods.
+     */
+    _handlers: {
+      intern: {
+        'input/leftclick': this._onLeftClick.bind(this),
+        'input/left/dblclick': this._onDoubleClick.bind(this),
+        'entity/select': this._onSelection.bind(this, true),
+        'entity/deselect': this._onSelection.bind(this, false),
+        'entity/remove': this._onRemove.bind(this)
+      },
+      extern: {
+        'selection/enable': this.setEnabled.bind(this, true),
+        'selection/disable': this.setEnabled.bind(this, false),
+        'entity/deselect/all': this.clearSelection.bind(this),
+        'entity/select': this._handleSelection.bind(this, 'select'),
+        'entity/deselect': this._handleSelection.bind(this, 'deselect')
+      }
+    },
+
     _init: function(managers) {
       this._super(managers);
       this._selection = {};
@@ -53,117 +73,8 @@ define([
      * Registers event handlers with the EventManager for relevant events.
      */
     bindEvents: function() {
-      // Create event handlers for pertinent events.
-      var handleSelection = function(args, method) {
-        if (!this.isEnabled()) { return; }
-
-        if (args.ids instanceof Array) {
-          this[method + 'Entities'](args.ids, args.keepSelection);
-        } else {
-          this[method + 'Entity'](args.id, args.keepSelection);
-        }
-      }.bind(this);
-      var handlers = [
-        {
-          source: 'extern',
-          name: 'selection/enable',
-          callback: function() {
-            this.setEnabled(true);
-          }.bind(this)
-        },
-        {
-          source: 'extern',
-          name: 'selection/disable',
-          callback: function() {
-            this.setEnabled(false);
-          }.bind(this)
-        },
-        {
-          source: 'extern',
-          name: 'entity/select',
-          callback: function(args) {
-            handleSelection(args, 'select');
-          }.bind(this)
-        },
-        {
-          source: 'extern',
-          name: 'entity/deselect',
-          callback: function(args) {
-            handleSelection(args, 'deselect');
-          }.bind(this)
-        },
-        {
-          source: 'extern',
-          name: 'entity/deselect/all',
-          callback: function(args) {
-            this.clearSelection();
-          }.bind(this)
-        },
-        {
-          source: 'intern',
-          name: 'input/leftclick',
-          callback: function(args) {
-            if (!this.isEnabled()) { return; }
-            if (!args.modifiers) args.modifiers = {};
-            var selectedEntities = this._managers.entity.getAt(args.position),
-                keepSelection = 'shift' in args.modifiers,
-                preSelectionIds = this.getSelectionIds();
-            if (selectedEntities.length > 0) {
-              this.selectEntity(selectedEntities[0].getId(), keepSelection, args.position);
-            } else if (!keepSelection) {
-              this.clearSelection();
-            }
-            var postSelectionIds = this.getSelectionIds();
-            var changedSelectedIds = Arrays.difference(postSelectionIds, preSelectionIds);
-            var changedDeselectedIds = Arrays.difference(preSelectionIds, postSelectionIds);
-            if (changedSelectedIds.length > 0 || changedDeselectedIds.length > 0) {
-              this._managers.event.dispatchEvent(new Event(new EventTarget(),
-                  'entity/selection/change', {selected: changedSelectedIds,
-                  deselected: changedDeselectedIds}));
-            }
-          }.bind(this)
-        },
-        {
-          source: 'intern',
-          name: 'entity/select',
-          callback: function(args) {
-            this.selectEntities(args.ids, true, null);
-          }.bind(this)
-        },
-        {
-          source: 'intern',
-          name: 'entity/deselect',
-          callback: function(args) {
-            this.deselectEntities(args.ids, true, null);
-          }.bind(this)
-        },
-        {
-          source: 'intern',
-          name: 'input/left/dblclick',
-          callback: function(args) {
-            // TODO(bpstudds): Move this handler to EntityManager.
-            var entities = this._managers.entity.getAt(args.position);
-            if (entities.length > 0) {
-              // Only capture the double click on the first entity.
-              var entity = entities[0];
-              this._managers.event.dispatchEvent(new Event(entity,
-                  'entity/dblclick', {
-                    id: entity.getId()
-                  }));
-            }
-          }.bind(this)
-        },
-        {
-          source: 'intern',
-          name: 'entity/remove',
-          callback: function(args) {
-            // If the Entity has been removed don't need to deselect it, just remove it from _selection.
-            delete this._selection[args.id];
-          }.bind(this)
-        }
-      ];
       // Register event handlers with the EventManager.
-      this._managers.event.addEventHandlers(handlers);
+      this._managers.event.addNewEventHandlers(this._handlers);
     },
 
     // -------------------------------------------
@@ -173,13 +84,16 @@ define([
     /**
      * @returns {boolean} Whether the SelectionManager is enabled.
      */
-    isEnabled: function () {
+    isEnabled: function() {
       return this._enabled;
     },
 
     /**
      * Sets whether the SelectionManager is enabled.
      * @param enable - True to enable the selection manager, false to disable.
+     *
+     * @listens Events#selection/enable
+     * @listens Events#selection/disable
      */
     setEnabled: function(enable) {
       this._enabled = enable;
@@ -312,7 +226,7 @@ define([
       return id in this._selection;
     },
 
-    /*
+    /**
      * Selects multiple GeoEntities which are contained by the given Polygon.
      * @param {atlas.model.Polygon} boundingBox - The polygon defining the area to select GeoEntities.
      * @param {Boolean} [intersects=false] - If true, GeoEntities which intersect but are
@@ -324,7 +238,7 @@ define([
       throw new DeveloperError('Function not yet implemented');
     },
 
-    /*
+    /**
      * Selects multiple GeoEntities which are contained by rectangular area.
      * @param {atlas.model.Vertex} start - The first point defining the rectangular selection area.
      * @param {atlas.model.Vertex} finish - The second point defining the rectangular selection area.
@@ -335,7 +249,99 @@ define([
      */
     selectBox: function() {
       throw new DeveloperError('Function not yet implemented');
+    },
+
+    /**
+     * Selects or deselects the specified entities.
+     *
+     * @param {boolean} selected - True if selection, false if deselection.
+     * @param {Events#event:entity/select} event
+     *
+     * @listens Events#entity/select
+     */
+    _onSelection: function(selected, event) {
+      (selected ? this.selectEntities : this.deselectEntities)(event.ids, true, null);
+    },
+
+    /**
+     * Handles external requests for selection and deselection.
+     *
+     * @param {String} method - Either 'select' or 'deselect' depending on the request.
+     * @param {Events#event:entity/select | Events#event:entity/select} event
+     *
+     * @listens Events#entity/select
+     * @listens Events#entity/deselect
+     */
+    _handleSelection: function(method, event) {
+      if (!this.isEnabled()) return;
+
+      if (args.ids instanceof Array) {
+        this[method + 'Entities'](args.ids, args.keepSelection);
+      } else {
+        this[method + 'Entity'](args.id, args.keepSelection);
+      }
+    },
+
+    /**
+     * Handles a left click event.
+     *
+     * @param {Events#event:input/leftclick} event
+     *
+     * @listens Events#input/leftclick
+     */
+    _onLeftClick: function(event) {
+      if (!this.isEnabled()) return;
+      if (!event.modifiers) event.modifiers = {};
+      var selectedEntities = this._managers.entity.getAt(event.position),
+          keepSelection = 'shift' in event.modifiers,
+          preSelectionIds = this.getSelectionIds();
+      if (selectedEntities.length > 0) {
+        this.selectEntity(selectedEntities[0].getId(), keepSelection, event.position);
+      } else if (!keepSelection) {
+        this.clearSelection();
+      }
+      var postSelectionIds = this.getSelectionIds();
+      var changedSelectedIds = Arrays.difference(postSelectionIds, preSelectionIds);
+      var changedDeselectedIds = Arrays.difference(preSelectionIds, postSelectionIds);
+      if (changedSelectedIds.length > 0 || changedDeselectedIds.length > 0) {
+        this._managers.event.dispatchEvent(new Event(new EventTarget(),
+            'entity/selection/change', {
+              selected: changedSelectedIds,
+              deselected: changedDeselectedIds
+            }));
+      }
+    },
+
+    /**
+     * Handles a left double-click event.
+     *
+     * @param {Events#event:input/left/dblclick} event
+     *
+     * @listens Events#input/left/dblclick
+     */
+    _onDoubleClick: function(event) {
+      // TODO(bpstudds): Move this handler to EntityManager.
+      var entities = this._managers.entity.getAt(args.position);
+      if (entities.length > 0) {
+        // Only capture the double click on the first entity.
+        var entity = entities[0];
+        this._managers.event.dispatchEvent(new Event(entity, 'entity/dblclick', {
+          id: entity.getId()
+        }));
+      }
+    },
+
+    /**
+     * Removes an entity from the current selection if it is deleted.
+     *
+     * @param {Events#event:entity/remove} event
+     *
+     * @listens Events#entity/remove
+     */
+    _onRemove: function(event) {
+      delete this._selection[event.id];
     }
+
   });
 
   return SelectionManager;

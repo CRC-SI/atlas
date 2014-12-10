@@ -5,6 +5,12 @@ define([
 ], function(EventTarget, Class, DeveloperError) {
 
   /**
+   * A namespace for all events.
+   *
+   * @namespace Events
+   */
+
+  /**
    * @typedef atlas.events.Event
    * @ignore
    */

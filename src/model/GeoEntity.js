@@ -13,7 +13,6 @@ define([
   'atlas/util/WKT'
 ], function(ItemStore, Event, EventTarget, Setter, Types, Colour, Rectangle, Style, Vertex,
             DeveloperError, WKT) {
-
   /**
    * @typedef atlas.model.GeoEntity
    * @ignore
@@ -169,7 +168,7 @@ define([
     /**
      * The {@link atlas.model.Handle} on the entity itself.
      * @type {atlas.model.Handle}
-     * @protected 
+     * @protected
      */
     _entityHandle: null,
 
@@ -204,7 +203,7 @@ define([
       this._entityManager = args.entityManager;
       this._entityManager && this._entityManager.add(this.getId(), this);
       var parentId = args.parent,
-        parent;
+          parent;
       if (parentId) {
         parent = this._entityManager && this._entityManager.getById(parentId);
       }
@@ -641,6 +640,14 @@ define([
       // references to managers or none do - otherwise we could have discrepancies in the entity
       // manager like a removed entity still being referenced.
       this._entityManager && this._entityManager.remove(this._id);
+
+      /**
+       * Removal of an entity.
+       *
+       * @event Events#entity/remove
+       * @type {Object}
+       * @property {String} id - The ID of the removed entity.
+       */
       this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'entity/remove', {
         id: this.getId()
       }));
@@ -734,9 +741,19 @@ define([
 
     /**
      * Handles the behaviour when this entity is selected.
+     *
+     * @fires Events#entity/select
      */
     _onSelect: function() {
       this._setSelectStyle();
+
+      /**
+       * Selection of an entity.
+       *
+       * @event Events#entity/select
+       * @type {Object}
+       * @property {Array.<String>} ids - The IDs of the selected entities.
+       */
       this._eventManager.dispatchEvent(new Event(this, 'entity/select', {
         ids: [this.getId()]
       }));
@@ -744,9 +761,19 @@ define([
 
     /**
      * Handles the behaviour when this entity is selected.
+     *
+     * @fires Events#entity/deselect
      */
     _onDeselect: function() {
       this._revertSelectStyle();
+
+      /**
+       * Deselection of an entity.
+       *
+       * @event Events#entity/deselect
+       * @type {Object}
+       * @property {Array.<String>} ids - The IDs of the selected entities.
+       */
       this._eventManager.dispatchEvent(new Event(this, 'entity/deselect', {
         ids: [this.getId()]
       }));
@@ -802,5 +829,7 @@ define([
 
   });
 
+
   return GeoEntity;
+
 });
