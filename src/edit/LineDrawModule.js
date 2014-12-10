@@ -24,7 +24,7 @@ define([
    */
   var LineDrawModule;
 
-  LineDrawModule = BaseEditModule.extend({
+  LineDrawModule = BaseEditModule.extend(/** @lends atlas.edit.LineDrawModule# */{
     /**
      * The handles added during the current draw process. Used to store their sequence.
      * @type {Array.<atlas.model.Handle>}

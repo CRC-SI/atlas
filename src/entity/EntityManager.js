@@ -25,7 +25,7 @@ define([
    * Manages {@link atlas.model.GeoEntity} objects.
    * @class atlas.entity.EntityManager
    */
-  EntityManager = Manager.extend({
+  EntityManager = Manager.extend(/** @lends atlas.entity.EntityManager# */{
 
     _id: 'entity',
 

@@ -36,7 +36,7 @@ define([
   //   - have a close button
 
 
-  PopupFaculty = Class.extend({
+  PopupFaculty = Class.extend(/** @lends atlas.visualisation.FeaturePopupFaculty# */ {
 
     /**
      * The Overlay being rendered by the popup.

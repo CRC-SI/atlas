@@ -143,8 +143,22 @@ define([
   // STATICS
   // -------------------------------------------
 
-  Style.getDefault = function () {
-    return new Style({fillColour: Colour.GREEN, borderColour: null, borderWidth: 0});
+  /**
+   * The default style for entities without an explicit style.
+   * @static
+   * @returns {Style}
+   */
+  Style.getDefault = function() {
+    return new Style({fillColour: new Colour('#ddd'), borderColour: new Colour('#999')});
+  };
+
+  /**
+   * The default selected style for entities without an explicit style.
+   * @static
+   * @returns {Style}
+   */
+  Style.getDefaultSelected = function() {
+    return new Style({fillColour: Colour.RED, borderColour: Colour.BLACK});
   };
 
   return Style;

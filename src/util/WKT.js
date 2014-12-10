@@ -20,7 +20,7 @@ define([
    * expect this format. WKT and OpenLayers uses the opposite.
    * @class atlas.util.WKT
    */
-  WKT = Instances.defineGlobal(Class.extend({
+  WKT = Instances.defineGlobal(Class.extend(/** @lends atlas.util.WKT# */ {
 
     _init: function() {
       this.parser = new OpenLayers.Format.WKT();

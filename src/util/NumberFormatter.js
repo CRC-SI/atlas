@@ -8,7 +8,7 @@ define([
    * Formats values for presentation.
    * @class atlas.util.Formatter
    */
-  return Class.extend({
+  return Class.extend(/** @lends atlas.util.Formatter# */ {
 
     /**
      * @param {Number} x - Any given number, including one in exponential notation.

@@ -3,7 +3,7 @@ define([
 
   /**
    * Provides utilities for creating and managing object instances.
-   * @class atlas.util.Instances
+   * @module atlas.util.Instances
    */
   return {
 

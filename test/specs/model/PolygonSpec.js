@@ -38,7 +38,7 @@ define([
         expect(polygon.getElevation()).toEqual(0);
         expect(polygon.isVisible()).toEqual(false);
         expect(polygon.isRenderable()).toEqual(false);
-        expect(polygon.getStyle()).toEqual(Polygon.getDefaultStyle());
+        expect(polygon.getStyle()).toEqual(Style.getDefault());
       });
     });
 

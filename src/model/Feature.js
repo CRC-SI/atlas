@@ -44,7 +44,7 @@ define([
    * @class atlas.model.Feature
    * @extends atlas.model.GeoEntity
    */
-  Feature = Setter.mixin(GeoEntity.extend(/** @lends atlas.model.Feature# */ {
+  Feature = GeoEntity.extend(/** @lends atlas.model.Feature# */ {
 
     /**
      * The 2D line of this Feature.
@@ -472,28 +472,28 @@ define([
     _revertSelectStyle: function() {
     }
 
-  }), {
-
-    // -------------------------------------------
-    // STATICS
-    // -------------------------------------------
-
-    /**
-     * The display mode of the Feature which determines the underlying geometry shown.
-     * @typedef {Object} atlas.model.Feature.DisplayMode
-     */
-    DisplayMode: {
-      LINE: 'line',
-      FOOTPRINT: 'footprint',
-      EXTRUSION: 'extrusion',
-      MESH: 'mesh',
-      IMAGE: 'image'
-    },
-
-    getDisplayModeIds: function() {
-      return Objects.values(this.DisplayMode);
-    }
-
   });
+
+  /**
+   * The display mode of the Feature which determines the underlying geometry shown.
+   * @typedef {Object} atlas.model.Feature.DisplayMode
+   * @static
+   */
+  Feature.DisplayMode = {
+    LINE: 'line',
+    FOOTPRINT: 'footprint',
+    EXTRUSION: 'extrusion',
+    MESH: 'mesh',
+    IMAGE: 'image'
+  };
+
+  /**
+   * @returns {Array.<String>} The possible display mode IDs.
+   * @static
+   */
+  Feature.getDisplayModeIds = function() {
+    return Objects.values(this.DisplayMode);
+  };
+
   return Feature;
 });

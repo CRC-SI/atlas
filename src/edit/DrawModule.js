@@ -21,7 +21,7 @@ define([
    * @extends atlas.render.BaseEditModule
    * @class atlas.edit.DrawModule
    */
-  DrawModule = BaseEditModule.extend({
+  DrawModule = BaseEditModule.extend(/** @lends atlas.edit.DrawModule# */ {
 
     /**
      * The handles added during the current draw process. Used to store their sequence.

@@ -11,11 +11,10 @@ define([
   'atlas/selection/SelectionManager',
   'atlas/visualisation/VisualisationManager',
   'atlas/util/DeveloperError',
-  'atlas/lib/utility/Class',
-  'atlas/lib/utility/Setter'
+  'atlas/lib/utility/Class'
 ], function(CameraManager, DomManager, PopupFaculty, PopupManager, EditManager, EntityManager,
   EventManager, InputManager, RenderManager, SelectionManager, VisualisationManager, DeveloperError,
-  Class, Setter) {
+  Class) {
 
   /**
    * @typedef atlas.core.Atlas
@@ -27,7 +26,10 @@ define([
    * The type of execution environment. The build tool will set this to
    * {@link Environment.PRODUCTION}.
    * @typedef {Object} atlas.core.Environment
+   * @memberOf atlas.core.Atlas
+   * @static
    */
+
   var Environment = {
     DEVELOPMENT: 'development',
     PRODUCTION: 'production'
@@ -41,7 +43,7 @@ define([
    * @abstract
    * @class atlas.core.Atlas
    */
-  Atlas = Setter.mixin(Class.extend( /** @lends atlas.core.Atlas# */ {
+  Atlas = Class.extend(/** @lends atlas.core.Atlas# */ {
 
     /**
      * A mapping of every manager type in Atlas to the manager instance. This object is created on
@@ -197,27 +199,23 @@ define([
       this._managers.render.hide(id);
     }
 
-  }), {
-
-    // -------------------------------------------
-    // STATICS
-    // -------------------------------------------
-
-    /**
-     * @type {atlas.core.Environment}
-     */
-    _environment: Environment.DEVELOPMENT,
-
-    Environment: Environment,
-
-    /**
-     * @type {atlas.core.Environment}
-     */
-    getEnvironment: function() {
-      return this._environment;
-    }
-
   });
+
+  Atlas.Environment = Environment;
+
+  /**
+   * The current Atlas environment.
+   * @type {atlas.core.Environment}
+   */
+  Atlas._environment = Environment.DEVELOPMENT;
+
+  /**
+   * Returns the current Atlas environment.
+   * @type {atlas.core.Environment}
+   */
+  Atlas.getEnvironment = function() {
+    return this._environment;
+  };
 
   return Atlas;
 });

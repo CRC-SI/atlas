@@ -27,7 +27,7 @@ define([
    * @class atlas.events.Event
    * @constructor
    */
-  Event = Class.extend({
+  Event = Class.extend(/** @lends atlas.events.Event# */ {
 
     /**
      * The target that triggered this event.

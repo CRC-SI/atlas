@@ -1,8 +1,8 @@
 define([
 ], function () {
-
   /**
    * Defines a bunch of handy math functions. That are probably defined elsewhere.
+   * @module atlas.util.AtlasMath
    * @exports atlas.util.AtlasMath
    */
   return {
@@ -74,4 +74,5 @@ define([
       return x;
     }
   };
+
 });

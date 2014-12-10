@@ -43,7 +43,7 @@ define([
    * @extends atlas.events.EventTarget
    * @class atlas.model.GeoEntity
    */
-  GeoEntity = Setter.mixin(EventTarget.extend(/** @lends atlas.model.GeoEntity# */ {
+  GeoEntity = EventTarget.extend(/** @lends atlas.model.GeoEntity# */ {
     /**
      * The ID of the GeoEntity
      * @type {String}
@@ -211,7 +211,7 @@ define([
       this._super(args.eventManager, parent);
       this.clean();
 
-      this.setStyle(args.style || GeoEntity.getDefaultStyle());
+      this.setStyle(args.style || Style.getDefault());
       this._handles = new ItemStore();
       this._eventHandles = [];
       // TODO(aramk) This doesn't actually show - should call setVisibility(), but that means all
@@ -630,7 +630,7 @@ define([
      * Removes the GeoEntity from rendering. This function should be overridden on subclasses to
      * accomplish any cleanup that may be required.
      *
-     * @fires Events#entity/remove
+     * @fires InternalEvent#entity/remove
      */
     remove: function() {
       this._super();
@@ -646,7 +646,7 @@ define([
       /**
        * Removal of an entity.
        *
-       * @event Events#entity/remove
+       * @event InternalEvent#entity/remove
        * @type {Object}
        * @property {String} id - The ID of the removed entity.
        */
@@ -744,7 +744,7 @@ define([
     /**
      * Handles the behaviour when this entity is selected.
      *
-     * @fires Events#entity/select
+     * @fires InternalEvent#entity/select
      */
     _onSelect: function() {
       this._setSelectStyle();
@@ -752,7 +752,7 @@ define([
       /**
        * Selection of an entity.
        *
-       * @event Events#entity/select
+       * @event InternalEvent#entity/select
        * @type {Object}
        * @property {Array.<String>} ids - The IDs of the selected entities.
        */
@@ -764,7 +764,7 @@ define([
     /**
      * Handles the behaviour when this entity is selected.
      *
-     * @fires Events#entity/deselect
+     * @fires InternalEvent#entity/deselect
      */
     _onDeselect: function() {
       this._revertSelectStyle();
@@ -772,7 +772,7 @@ define([
       /**
        * Deselection of an entity.
        *
-       * @event Events#entity/deselect
+       * @event InternalEvent#entity/deselect
        * @type {Object}
        * @property {Array.<String>} ids - The IDs of the selected entities.
        */
@@ -807,31 +807,7 @@ define([
       });
     }
 
-  }), {
-
-    // -------------------------------------------------
-    // STATICS
-    // -------------------------------------------------
-
-    /**
-     * The default style of the entity.
-     * @returns {atlas.model.Style}
-     */
-    getDefaultStyle: function() {
-      return new Style({fillColour: Colour.GREEN, borderColour: Colour.BLACK});
-    },
-
-    /**
-     * The style of the entity during selection.
-     * @returns {atlas.model.Style}
-     */
-    getSelectedStyle: function() {
-      return new Style({fillColour: Colour.RED, borderColour: Colour.BLACK});
-    }
-
   });
 
-
   return GeoEntity;
-
 });

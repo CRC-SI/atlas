@@ -31,7 +31,7 @@ define([
    * @class atlas.model.Line
    * @extends atlas.model.VertexedEntity
    */
-  Line = Setter.mixin(VertexedEntity.extend(/** @lends atlas.model.Line# */{
+  Line = VertexedEntity.extend(/** @lends atlas.model.Line# */{
 
     /**
      * The width of the line segment in metres (e.g. 10) or pixels (eg. '10px'). If in pixels, the
@@ -56,9 +56,7 @@ define([
           style = new Style({fillColour: Colour.fromRGBA(lineData.color)});
         }
       } else if (lineData.style) {
-        style = lineData.style;
-      } else {
-        style = Line.getDefaultStyle();
+        style = lineData.style || Style.getDefault();
       }
       this.setStyle(style);
     },
@@ -97,20 +95,6 @@ define([
      */
     edit: function() {
       throw new DeveloperError('Can not call methods on abstract Line.');
-    }
-
-  }), {
-
-    // -------------------------------------------
-    // STATICS
-    // -------------------------------------------
-
-    /**
-     * Defines the default style to use when rendering a polygon.
-     * @type {atlas.model.Style}
-     */
-    getDefaultStyle: function() {
-      return new Style({fillColour: Colour.GREEN});
     }
 
   });

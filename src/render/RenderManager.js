@@ -19,7 +19,7 @@ define([
    *
    * @class atlas.render.RenderManager
    */
-  RenderManager = Manager.extend({
+  RenderManager = Manager.extend(/** @lends atlas.render.RenderManager# */ {
 
     _id: 'render',
 

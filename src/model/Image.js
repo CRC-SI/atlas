@@ -74,10 +74,8 @@ define([
         } else {
           this._style = new Style({fillColour: Colour.fromRGBA(imageData.color)});
         }
-      } else if (imageData.style) {
-        this._style = imageData.style;
       } else {
-        this._style = Image.getDefaultStyle();
+        this._style = imageData.style || Style.getDefault();
       }
     },
 
@@ -101,28 +99,16 @@ define([
     // BEHAVIOUR
     // -------------------------------------------
 
+    /**
+     * Handles the update of the image when it is selected.
+     * @private
+     */
     _onSelect: function() {
       this._selected = true;
-      this.setStyle(Image.getSelectedStyle());
+      this.setStyle(Style.getDefaultSelected());
     }
 
   });
-
-  // -------------------------------------------
-  // STATICS
-  // -------------------------------------------
-
-  /**
-   * Defines the default style to use when rendering a image.
-   * @type {atlas.model.Style}
-   */
-  Image.getDefaultStyle = function () {return new Style({fillColour: Colour.GREEN}); };
-
-  /**
-   * Defines the default style to use when rendering a selected image.
-   * @type {atlas.model.Style}
-   */
-  Image.getSelectedStyle = function () { return new Style({fillColour: Colour.RED}); };
 
   return Image;
 });

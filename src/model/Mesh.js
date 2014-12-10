@@ -28,7 +28,7 @@ define([
    * @class atlas.model.Mesh
    * @extends atlas.model.GeoEntity
    */
-  Mesh = Setter.mixin(GeoEntity.extend(/** @lends atlas.model.Mesh# */ {
+  Mesh = GeoEntity.extend(/** @lends atlas.model.Mesh# */ {
     /**
      * The array of vertex positions for this Mesh, in model space coordinates.
      * This is a 1D array to conform with Cesium requirements. Every three elements of this
@@ -119,7 +119,7 @@ define([
         // TODO(bpstudds): Work out the textures.
         this.setStyle(new Style({fillColour: Colour.fromRGBA(meshData.color)}));
       } else {
-        this.setStyle(args.style || Mesh.getDefaultStyle());
+        this.setStyle(args.style || Style.getDefault());
       }
     },
 
@@ -145,20 +145,7 @@ define([
       this._geoLocation.elevation = elevation;
     }
 
-  }), {
-
-    // -------------------------------------------
-    // STATICS
-    // -------------------------------------------
-
-    /**
-     * The default style of a Mesh.
-     * @type {atlas.model.Style}
-     */
-    getDefaultStyle: function() {
-      return new Style({fillColour: Colour.GREY});
-    }
-
   });
+
   return Mesh;
 });

@@ -30,7 +30,7 @@ define([
    * @class atlas.model.Polygon
    * @extends atlas.model.VertexedEntity
    */
-  Polygon = Setter.mixin(VertexedEntity.extend(/** @lends atlas.model.Polygon# */ {
+  Polygon = VertexedEntity.extend(/** @lends atlas.model.Polygon# */ {
 
     // TODO(aramk) Either put docs on params and document the getters and setters which don't have
     // obvious usage/logic.
@@ -85,10 +85,8 @@ define([
         } else {
           style = new Style({fillColour: Colour.fromRGBA(polygonData.color)});
         }
-      } else if (polygonData.style) {
-        style = polygonData.style;
       } else {
-        style = Polygon.getDefaultStyle();
+        style = polygonData.style || Style.getDefault();
       }
       this.setStyle(style);
     },
@@ -153,20 +151,7 @@ define([
       throw new DeveloperError('Can not call methods on abstract Polygon.');
     }
 
-  }), {
-
-    // -------------------------------------------
-    // STATICS
-    // -------------------------------------------
-
-    /**
-     * Defines the default style to use when rendering a polygon.
-     * @type {atlas.model.Style}
-     */
-    getDefaultStyle: function() {
-      return new Style({fillColour: Colour.GREEN});
-    }
-
   });
+
   return Polygon;
 });

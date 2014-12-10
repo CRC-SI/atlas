@@ -35,7 +35,7 @@ define([
         expect(line.getElevation()).toEqual(0);
         expect(line.isVisible()).toEqual(false);
         expect(line.isRenderable()).toEqual(false);
-        expect(line.getStyle()).toEqual(Line.getDefaultStyle());
+        expect(line.getStyle()).toEqual(Style.getDefault());
       });
     });
 

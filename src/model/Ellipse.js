@@ -112,10 +112,8 @@ define([
       var style;
       if (ellipseData.color) {
         style = new Style({fillColour: ellipseData.color});
-      } else if (ellipseData.style) {
-        style = ellipseData.style;
       } else {
-        style = Ellipse.getDefaultStyle();
+        style = ellipseData.style || Style.getDefault();
       }
       this.setStyle(style);
     },
@@ -287,18 +285,6 @@ define([
     }
 
   });
-
-  // -------------------------------------------
-  // STATICS
-  // -------------------------------------------
-
-  /**
-   * Defines the default style to use when rendering a polygon.
-   * @type {atlas.model.Style}
-   */
-  Ellipse.getDefaultStyle = function() {
-    return new Style({fillColour: Colour.GREEN});
-  };
 
   return Ellipse;
 });

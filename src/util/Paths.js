@@ -19,7 +19,7 @@ define([
    * @abstract
    * @class atlas.util.Paths
    */
-  Paths = Instances.defineGlobal(Class.extend({
+  Paths = Instances.defineGlobal(Class.extend(/** @lends atlas.util.Paths# */ {
 
     /**
      * @returns {String} The URL of the Atlas resources directory relative to the current URL in the

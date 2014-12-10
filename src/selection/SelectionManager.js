@@ -92,8 +92,8 @@ define([
      * Sets whether the SelectionManager is enabled.
      * @param enable - True to enable the selection manager, false to disable.
      *
-     * @listens Events#selection/enable
-     * @listens Events#selection/disable
+     * @listens ExternalEvent#selection/enable
+     * @listens ExternalEvent#selection/disable
      */
     setEnabled: function(enable) {
       this._enabled = enable;
@@ -255,9 +255,9 @@ define([
      * Selects or deselects the specified entities.
      *
      * @param {boolean} selected - True if selection, false if deselection.
-     * @param {Events#event:entity/select} event
+     * @param {ExternalEvent#event:entity/select} event
      *
-     * @listens Events#entity/select
+     * @listens ExternalEvent#entity/select
      */
     _onSelection: function(selected, event) {
       (selected ? this.selectEntities : this.deselectEntities)(event.ids, true, null);
@@ -267,27 +267,27 @@ define([
      * Handles external requests for selection and deselection.
      *
      * @param {String} method - Either 'select' or 'deselect' depending on the request.
-     * @param {Events#event:entity/select | Events#event:entity/select} event
+     * @param {ExternalEvent#event:entity/select | ExternalEvent#event:entity/deselect} event
      *
-     * @listens Events#entity/select
-     * @listens Events#entity/deselect
+     * @listens ExternalEvent#entity/select
+     * @listens ExternalEvent#entity/deselect
      */
     _handleSelection: function(method, event) {
       if (!this.isEnabled()) return;
 
       if (args.ids instanceof Array) {
-        this[method + 'Entities'](args.ids, args.keepSelection);
+        this[method + 'Entities'](event.ids, event.keepSelection);
       } else {
-        this[method + 'Entity'](args.id, args.keepSelection);
+        this[method + 'Entity'](event.id, event.keepSelection);
       }
     },
 
     /**
      * Handles a left click event.
      *
-     * @param {Events#event:input/leftclick} event
+     * @param {ExternalEvent#event:input/leftclick} event
      *
-     * @listens Events#input/leftclick
+     * @listens ExternalEvent#input/leftclick
      */
     _onLeftClick: function(event) {
       if (!this.isEnabled()) return;
@@ -315,9 +315,9 @@ define([
     /**
      * Handles a left double-click event.
      *
-     * @param {Events#event:input/left/dblclick} event
+     * @param {ExternalEvent#event:input/left/dblclick} event
      *
-     * @listens Events#input/left/dblclick
+     * @listens ExternalEvent#input/left/dblclick
      */
     _onDoubleClick: function(event) {
       // TODO(bpstudds): Move this handler to EntityManager.
@@ -334,9 +334,9 @@ define([
     /**
      * Removes an entity from the current selection if it is deleted.
      *
-     * @param {Events#event:entity/remove} event
+     * @param {ExternalEvent#event:entity/remove} event
      *
-     * @listens Events#entity/remove
+     * @listens ExternalEvent#entity/remove
      */
     _onRemove: function(event) {
       delete this._selection[event.id];
