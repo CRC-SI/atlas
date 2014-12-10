@@ -18,6 +18,8 @@ define([
    * @classdesc A Mesh represents a 3D renderable object in Atlas. The Mesh data can be defined
    * using C3ML, the JSON of a GLTF resource, or a URL to a GLTF resource.
    *
+   * Note: The use of C3ML of deprecated.
+   *
    * @param {String} id - The ID of the Mesh object.
    * @param {Object} meshData - The data required to define what is actually rendered.
    * @param {GeoPoint} [meshData.geoLocation] - The geographic location the Mesh should be
@@ -106,7 +108,8 @@ define([
     _rotation: null,
 
     /**
-     * Defines a transformation from model space to world space. This is derived from <code>Mesh._geoLocation</code>,
+     * Defines a transformation from model space to world space. This is derived from
+     *     <code>Mesh._geoLocation</code>,
      * <code>Mesh._scale</code>, and <code>Mesh._rotation</code>.
      * @type {Object}
      * @protected
@@ -138,15 +141,6 @@ define([
       this._scale = Setter.defCstr(meshData.scale, Vertex, [1, 1, 1]);
       this._geoLocation = Setter.defCstr(meshData.geoLocation, GeoPoint);
 
-      // Set the Mesh's style based on the hierarchy: a Mesh specific style,
-      // inherit the parent Feature's style, or use the Mesh default style.
-      if (meshData.color) {
-        // TODO(bpstudds): Work out the textures.
-        this.setStyle(new Style({fillColour: Colour.fromRGBA(meshData.color)}));
-      } else {
-        this.setStyle(args.style || Mesh.getDefaultStyle());
-      }
-
       // Set GLTF properties
       if (meshData.gltf) {
         this._gltf = meshData.gltf;
@@ -156,6 +150,15 @@ define([
         this._gltfUrl = meshData.gltfUrl;
       }
       this._usesGltf = !!(this._gltf || this._gltfUrl);
+
+      // Set the Mesh's style based on the hierarchy: a Mesh specific style,
+      // inherit the parent Feature's style, or use the Mesh default style.
+      if (meshData.color) {
+        // TODO(bpstudds): Work out the textures.
+        this.setStyle(new Style({fillColour: Colour.fromRGBA(meshData.color)}));
+      } else {
+        this.setStyle(args.style || Mesh.getDefaultStyle());
+      }
 
       // Set C3ML properties only if GLTF is not defined.
       if (!this.isGltf()) {
@@ -190,22 +193,22 @@ define([
     /**
      * @returns {atlas.model.Vertex}
      */
-    getGeoLocation: function () {
+    getGeoLocation: function() {
       return this._geoLocation;
     },
 
-    getOpenLayersGeometry: function () {
+    getOpenLayersGeometry: function() {
       // TODO(aramk) Currently only supported in Atlas-Cesium.
       throw new Error('Incomplete method');
     },
 
     // TODO(aramk) Re-render mesh when changing height.
-    setElevation: function (elevation) {
+    setElevation: function(elevation) {
       this._super(elevation);
       this._geoLocation.elevation = elevation;
     },
 
-    isGltf: function () {
+    isGltf: function() {
       return this._usesGltf;
     }
 
