@@ -16,7 +16,7 @@
 /**
  * A command to deselect one or more entities.
  *
- * @event ExternalEvent#entity/disable
+ * @event ExternalEvent#entity/deselect
  * @type {Object}
  * @property {Array.<String>} ids - The IDs of the entities to deselect.
  */
