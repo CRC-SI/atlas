@@ -33,7 +33,6 @@ define([
      * @param {Object} managers - A map of Atlas manager types to the manager instance.
      * @param {Object} [args] - Arguments to creating the TranslationModule.
      * @param {Number} [args.moveSensitivity] - Minimum number of screen pixels to move so a drag is recognised.
-     * @constructor
      * @private
      */
     _init: function(managers, args) {
