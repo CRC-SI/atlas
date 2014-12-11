@@ -20,7 +20,7 @@ define([
    * @param {Number} [z=0] - the 'z' coordinate.
    * @class atlas.model.Vertex
    */
-  Vertex = Setter.mixin(Class.extend(/** @lends atlas.model.Vertex# */ {
+  Vertex = Class.extend(/** @lends atlas.model.Vertex# */ {
 
     /**
      * The <code>x</code> coordinate.
@@ -179,24 +179,22 @@ define([
       return this.x === other.x && this.y === other.y && this.z === other.z;
     }
 
-  }), {
-
-    // -------------------------------------------
-    // STATICS
-    // -------------------------------------------
-
-    /**
-     * @param {Array.<atlas.model.Vertex>} vertices
-     * @param {Object} [args]
-     * @see #toArray
-     * @returns {Array.<Array.<Number>>} An array of the given vertices converted to arrays.
-     */
-    toArrays: function(vertices, args) {
-      return vertices.map(function(vertex) {
-        return vertex.toArray(args);
-      });
-    }
-
   });
+
+  /**
+   * Converts each {@link atlas.model.Vertex} object in an array into an array of numbers, and
+   * returns the array of all converted vertices.
+   * @param {Array.<atlas.model.Vertex>} vertices
+   * @param {Object} [args]
+   * @see #toArray
+   * @returns {Array.<Array.<Number>>} An array of the given vertices converted to arrays.
+   * @static
+   */
+  Vertex.toArrays = function(vertices, args) {
+    return vertices.map(function(vertex) {
+      return vertex.toArray(args);
+    });
+  };
+
   return Vertex;
 });
