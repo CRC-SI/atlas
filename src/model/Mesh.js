@@ -18,7 +18,8 @@ define([
    * @classdesc A Mesh represents a 3D renderable object in Atlas. The Mesh data can be defined
    * using C3ML, the JSON of a GLTF resource, or a URL to a GLTF resource.
    *
-   * Note: The use of C3ML of deprecated.
+   * Note: The use of C3ML of deprecated. If both C3ML and GLTF are provided, the GLTF resources
+   *       will be used.
    *
    * @param {String} id - The ID of the Mesh object.
    * @param {Object} meshData - The data required to define what is actually rendered.
@@ -32,12 +33,15 @@ define([
    * @param {Object} [meshData.gltf] - JSON GLTF object to construct the Mesh.
    * @param {Array.<Number>} [meshData.positions] - [C3ML] The array of vertex positions for the
    *     Mesh. This should be a 1D array where every three elements describe a new vertex.
+   *     Not used if either <code>gltf</code> or <code>gltfUrl</code> are provided.
    * @param {Array.<Number>} [meshData.indices] - [C3ML] The array of triangle indices for the Mesh.
    *     This should be a 1D array where every three elements are groubed together and describe a
    *     triangle forming the mesh. The value of each element is the index of a vertex in the
    *     positions array.
+   *     Not used if either <code>gltf</code> or <code>gltfUrl</code> are provided.
    * @param {Array.<Number>} [meshData.normals] - [C3ML] An array of normal vectors for each vertex
    *     defined in <code>meshData.positions</code>.
+   *     Not used if either <code>gltf</code> or <code>gltfUrl</code> are provided.
    * @param {Object} args - Both optional and required construction parameters.
    * @param {String} args.id - The ID of the GeoEntity. (Optional if both <code>id</code> and
    *     <code>args</code> are provided as arguments)
@@ -130,7 +134,7 @@ define([
      * @type {Boolean}
      * @protected
      */
-    _usesGltf: null,
+    _isGltf: false,
 
     _init: function(id, meshData, args) {
       this._super(id, args);
@@ -149,7 +153,7 @@ define([
       if (meshData.gltfUrl) {
         this._gltfUrl = meshData.gltfUrl;
       }
-      this._usesGltf = !!(this._gltf || this._gltfUrl);
+      this._isGltf = !!(this._gltf || this._gltfUrl);
 
       // Set the Mesh's style based on the hierarchy: a Mesh specific style,
       // inherit the parent Feature's style, or use the Mesh default style.
@@ -209,7 +213,7 @@ define([
     },
 
     isGltf: function() {
-      return this._usesGltf;
+      return this._isGltf;
     }
 
   }), {
