@@ -280,7 +280,7 @@ define([
           return false;
         }
       }
-      // Store references to the handlers and the feature which is passed to them. We need to 
+      // Store references to the handlers and the feature which is passed to them. We need to
       // unregister before calling the handlers in case another draw session is started from within.
       var feature = this._feature;
       var handlers = this._handlers.create;
