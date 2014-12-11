@@ -296,7 +296,8 @@ define([
      * @returns {Array} The IDs of the created entities.
      */
     bulkCreate: function(c3mls) {
-      var ids = [];
+      var ids = [],
+        collections = {};
       c3mls.forEach(function(c3ml) {
         var id = c3ml.id;
         var entity = this.getById(id);
@@ -305,12 +306,19 @@ define([
           // the API for consistency.
           var args = this._parseC3ML(c3ml);
           if (c3ml.type === 'collection') {
-            this.createCollection(id, args);
+            collections[id] = args;
           } else {
             this.createFeature(id, args);
           }
           ids.push(id);
         }
+      }, this);
+      // Create collections after all other entities.
+      // TODO(aramk) Topologically sort all entities (including collections) based on their
+      // parents/children.
+      Object.keys(collections).forEach(function(id) {
+        var args = collections[id];
+        this.createCollection(id, args);
       }, this);
       return ids;
     },
