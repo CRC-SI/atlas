@@ -1,4 +1,5 @@
 define([
+  'atlas/events/Event',
   'atlas/core/Manager',
   'atlas/core/ItemStore',
   'atlas/lib/utility/Log',
@@ -13,8 +14,8 @@ define([
   'atlas/model/Image',
   'atlas/model/GeoPoint',
   'atlas/util/DeveloperError'
-], function(Manager, ItemStore, Log, Setter, Collection, Ellipse, Feature, GeoEntity, Mesh, Polygon,
-            Line, Image, GeoPoint, DeveloperError) {
+], function(Event, Manager, ItemStore, Log, Setter, Collection, Ellipse, Feature, GeoEntity, Mesh,
+            Polygon, Line, Image, GeoPoint, DeveloperError) {
 
   /**
    * @typedef atlas.entity.EntityManager
@@ -199,12 +200,11 @@ define([
             if (entities.length > 0) {
               // Only capture the double click on the first entity.
               var entity = entities[0];
-              this._managers.event.dispatchEvent(new Event(entity,
-                  'entity/dblclick', {
-                    id: entity.getId()
-                  }));
+              this._managers.event.dispatchEvent(new Event(entity, 'entity/dblclick', {
+                id: entity.getId()
+              }));
             }
-          }
+          }.bind(this)
         }
       ];
       this._managers.event.addEventHandlers(handlers);
