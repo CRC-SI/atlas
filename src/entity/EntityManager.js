@@ -190,22 +190,22 @@ define([
             }, this);
             Log.timeEnd('entity/display-mode/reset');
           }.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'input/left/dblclick',
+          callback: function(args) {
+            var entities = this.getAt(args.position);
+            if (entities.length > 0) {
+              // Only capture the double click on the first entity.
+              var entity = entities[0];
+              this._managers.event.dispatchEvent(new Event(entity,
+                  'entity/dblclick', {
+                    id: entity.getId()
+                  }));
+            }
+          }
         }
-        // TODO(bpstudds): Is this stupid?
-//        {
-//          source: 'intern',
-//          name: 'entity/remove',
-//          callback: function (event) {
-//            event.id && this.remove(event.id);
-//          }.bind(this)
-//        },
-//        {
-//          source: 'intern',
-//          name: 'handle/remove',
-//          callback: function (event) {
-//            event.id && this.removeHandle(event.id);
-//          }.bind(this)
-//        }
       ];
       this._managers.event.addEventHandlers(handlers);
     },
@@ -621,6 +621,7 @@ define([
     getInRect: function(point1, point2) {
       throw new DeveloperError('EntityManager.getInRect not yet implemented.');
     }
+
   });
 
   return EntityManager;
