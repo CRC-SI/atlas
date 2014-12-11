@@ -22,7 +22,8 @@ define([
   var EntityManager;
 
   /**
-   * Manages {@link atlas.model.GeoEntity} objects.
+   * Maintains a collection of created {@link atlas.model.GeoEntity} objects and provides an
+   * external interface to create, update and delete them.
    * @class atlas.entity.EntityManager
    */
   EntityManager = Manager.extend(/** @lends atlas.entity.EntityManager# */{

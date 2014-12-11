@@ -16,7 +16,7 @@ define([
 
   /**
    * @classdesc Creates and manages a set of {@link atlas.dom.Popup} objects. When to visualise them
-   * is deliverately not handled by this manager.
+   * is deliberately not handled by this manager.
    *
    * @param {Object} managers - A mapping of Atlas manager types to the Manager instance.
    * @param {Object} [options] - Options to control the PopupManager's behaviour.
