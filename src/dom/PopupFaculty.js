@@ -35,7 +35,16 @@ define([
   //   - not have an enable checkbox
   //   - have a close button
 
-
+  /**
+   * @classdesc Provides services to create and remove {@link atlas.dom.Popup}s on the
+   * {@link atlas.dom.Overlay}.
+   *
+   * @param {Object} args
+   * @param {String | HTMLElement} args.parent - The parent DOM node to create popups in.
+   * @param {atlas.events.EventManager} args.eventManager - A reference to the Atlas EventManager.
+   *
+   * @class atlas.visualisation.FeaturePopupFaculty
+   */
   PopupFaculty = Class.extend(/** @lends atlas.visualisation.FeaturePopupFaculty# */ {
 
     /**
@@ -70,7 +79,9 @@ define([
     /**
      * Performs necessary initialisation after PopupFaculty's dependencies have been
      * initialised.
-     * @param args
+     * @param {Object} args
+     * @param {String | HTMLElement} args.parent - The parent DOM node to create popups in.
+     * @param {atlas.events.EventManager} args.eventManager - A reference to the Atlas EventManager.
      */
     setup: function (args) {
       // TODO(bpstudds): Work out this dependency injection business.

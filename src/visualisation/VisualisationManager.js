@@ -428,6 +428,8 @@ define([
     /**
      * Renders the effects of the Projection currently affecting the given artifact.
      * @param {Object} id - The ID of the projection to render.
+     *
+     * @fires InternalEvent#projection/render/complete
      */
     render: function(id) {
       // Unrender all other projections
@@ -445,6 +447,15 @@ define([
         projection.render();
         legend.maximise();
         this._currentProjection = id;
+
+        /**
+         * A {@link atlas.visualisation.AbstractProjection} was rendered.
+         *
+         * @event InternalEvent#projection/render/complete
+         * @type {Object}
+         * @property {String} id - The ID of the rendered projection.
+         * @property {String} name - The name of the projected artifact.
+         */
         this._managers.event.handleInternalEvent('projection/render/complete',
             {id: projection.getId(), name: artifact});
       }
@@ -453,6 +464,8 @@ define([
     /**
      * Unrenders the effects of the Projection currently affecting the given artifact.
      * @param {String} id - The ID of the projection to unrender.
+     *
+     * @fires
      */
     unrender: function(id) {
       // TODO(bpstudds): Add support for un-rendering a subset of entities.
@@ -467,6 +480,15 @@ define([
         projection.unrender();
         legend.minimise();
         this._currentProjection = null;
+
+        /**
+         * A {@link atlas.visualisation.AbstractProjection} was unrendered.
+         *
+         * @event InternalEvent#projection/unrender/complete
+         * @type {Object}
+         * @property {String} id - The ID of the unrendered projection.
+         * @property {String} name - The name of the projected artifact.
+         */
         this._managers.event.handleInternalEvent('projection/unrender/complete',
             {id: projection.getId(), name: artifact});
       }

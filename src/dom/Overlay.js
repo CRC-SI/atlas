@@ -6,7 +6,7 @@ define([
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types',
   'atlas/lib/utility/Class',
-  'jquery',
+  'jquery'
 ], function (DomUtil, Event, EventTarget, Log, Setter, Types, Class, $) {
 
   /**
@@ -287,23 +287,41 @@ define([
 
     /**
      * Hides the Overlay from view.
+     *
+     * @fires InternalEvent#overlay/hide
      */
     hide: function() {
       var dom = this.getDom();
       if (!this.isVisible() || !dom) { return; }
       $(dom).hide();
       this._isVisible = false;
+
+      /**
+       * The {@link atlas.dom.Overlay} was hidden from the DOM.
+       *
+       * @event InternalEvent#overlay/hide
+       * @type {Object}
+       */
       this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/hide'));
     },
 
     /**
      * Shows the overlay on the parent document.
+     *
+     * @fires InternalEvent#overlay/show
      */
     show: function() {
       var dom = this.getDom();
       if (this.isVisible() || !dom) { return; }
       $(dom).show();
       this._isVisible = true;
+
+      /**
+       * The {@link atlas.dom.Overlay} was shown on the DOM.
+       *
+       * @event InternalEvent#overlay/show
+       * @type {Object}
+       */
       this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/show'));
     },
 
@@ -331,6 +349,8 @@ define([
 
     /**
      * Removes the Overlay from the parent document.
+     *
+     * @fires InternalEvent#overlay/remove
      */
     remove: function() {
       if (!this._element || !this._element.parentElement) {
@@ -340,6 +360,13 @@ define([
       this.hide();
       $(this.getDom()).remove();
       this._element = null;
+
+      /**
+       * The {@link atlas.dom.Overlay} was removed from the DOM.
+       *
+       * @event InternalEvent#overlay/remove
+       * @type {Object}
+       */
       this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/remove'));
     },
 

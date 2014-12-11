@@ -1,6 +1,11 @@
 define(function() {
-  return {
 
+  /**
+   * Wrapper for the Google JS API.
+   * @module atlas.util.GoogleAPI
+   * @exports atlas.util.GoogleAPI
+   */
+  return {
     /**
      * Loads the remote Google JS API.
      * @param {Function} callback - Once invoked, <code>google</code> will be a global variable.
@@ -10,6 +15,6 @@ define(function() {
         callback();
       });
     }
-
   };
+
 });

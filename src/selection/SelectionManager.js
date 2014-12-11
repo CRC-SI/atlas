@@ -321,6 +321,7 @@ define([
      * @param {InternalEvent#event:input/left/dblclick} event
      *
      * @listens InternalEvent#input/left/dblclick
+     * @fires InternalEvent#entity/dblclick
      */
     _onDoubleClick: function(event) {
       // TODO(bpstudds): Move this handler to EntityManager.
@@ -328,6 +329,14 @@ define([
       if (entities.length > 0) {
         // Only capture the double click on the first entity.
         var entity = entities[0];
+
+        /**
+         * The {@link atlas.model.GeoEntity} was double-clicked.
+         *
+         * @event InternalEvent#entity/dblclick
+         * @type {Object}
+         * @property {String} id - The ID of the double-clicked entity.
+         */
         this._managers.event.dispatchEvent(new Event(entity, 'entity/dblclick', {
           id: entity.getId()
         }));

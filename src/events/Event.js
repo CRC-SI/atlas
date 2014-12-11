@@ -5,9 +5,8 @@ define([
 ], function(EventTarget, Class, DeveloperError) {
 
   /**
-   * A namespace for all events.
-   *
-   * @namespace Events
+   * A namespace for all internal events.
+   * @namespace InternalEvent
    */
 
   /**

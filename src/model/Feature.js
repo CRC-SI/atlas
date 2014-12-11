@@ -434,6 +434,11 @@ define([
     /**
      * Listen for events on the forms and apply it to this feature.
      * @private
+     *
+     * @listens InternalEvent#entity/select
+     * @listens InternalEvent#entity/deselect
+     * @listens InternalEvent#entity/dblclick
+     * @fires InternalEvent#entity/dblclick
      */
     _initEvents: function() {
       // If the original target is this feature, don't dispatch the event since it would be a
