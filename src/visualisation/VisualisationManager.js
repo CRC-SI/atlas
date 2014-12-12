@@ -1,6 +1,7 @@
 define([
   'atlas/core/Manager',
   'atlas/core/ItemStore',
+  'atlas/events/Event',
   'atlas/util/DeveloperError',
   'atlas/dom/Overlay',
   'atlas/visualisation/AbstractProjection',
@@ -8,7 +9,7 @@ define([
   'atlas/visualisation/DynamicProjection',
   'atlas/visualisation/HeightProjection',
   'atlas/lib/utility/Log'
-], function(Manager, ItemStore, DeveloperError, Overlay, AbstractProjection, ColourProjection,
+], function(Manager, ItemStore, Event, DeveloperError, Overlay, AbstractProjection, ColourProjection,
             DynamicProjection, HeightProjection, Log) {
 
   /**
@@ -452,12 +453,12 @@ define([
          * A {@link atlas.visualisation.AbstractProjection} was rendered.
          *
          * @event InternalEvent#projection/render/complete
-         * @type {Object}
-         * @property {String} id - The ID of the rendered projection.
-         * @property {String} name - The name of the projected artifact.
+         * @type {atlas.events.Event}
+         * @property {String} args.id - The ID of the rendered projection.
+         * @property {String} args.name - The name of the projected artifact.
          */
-        this._managers.event.handleInternalEvent('projection/render/complete',
-            {id: projection.getId(), name: artifact});
+        this._managers.event.dispatchEvent(new Event(null, 'projection/render/complete',
+            {id: projection.getId(), name: artifact}));
       }
     },
 
@@ -465,7 +466,7 @@ define([
      * Unrenders the effects of the Projection currently affecting the given artifact.
      * @param {String} id - The ID of the projection to unrender.
      *
-     * @fires
+     * @fires InternalEvent#projection/unrender/complete
      */
     unrender: function(id) {
       // TODO(bpstudds): Add support for un-rendering a subset of entities.
@@ -485,12 +486,12 @@ define([
          * A {@link atlas.visualisation.AbstractProjection} was unrendered.
          *
          * @event InternalEvent#projection/unrender/complete
-         * @type {Object}
-         * @property {String} id - The ID of the unrendered projection.
-         * @property {String} name - The name of the projected artifact.
+         * @type {atlas.events.Event}
+         * @property {String} args.id - The ID of the unrendered projection.
+         * @property {String} args.name - The name of the projected artifact.
          */
-        this._managers.event.handleInternalEvent('projection/unrender/complete',
-            {id: projection.getId(), name: artifact});
+        this._managers.event.dispatchEvent(new Event(null, 'projection/unrender/complete',
+            {id: projection.getId(), name: artifact}));
       }
     },
 
@@ -500,12 +501,7 @@ define([
      */
     toggleRender: function(id) {
       var projection = this._staticProjections.get(id);
-
-      if (projection.isRendered()) {
-        this.unrender(id);
-      } else {
-        this.render(id);
-      }
+      projection.isRendered() ? this.unrender(id) : this.render(id);
     }
   });
 

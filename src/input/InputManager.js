@@ -5,22 +5,23 @@ define([
 ], function(Manager, Event, Keycode) {
 
   /**
-   * @typedef {Object} InternalEvent#InputEvent
-   * @property {String} name - The name of the Atlas event.
-   * @property {String} button - The name of the button (left, middle or right).
-   * @property {Object.<String, Boolean>} modifiers - Boolean flags for control keys that were
+   * @typedef {atlas.events.Event} InternalEvent#atlas.events.InputEvent
+   *
+   * @property {String} args.name - The name of the Atlas event.
+   * @property {String} args.button - The name of the button (left, middle or right).
+   * @property {Object.<String, Boolean>} args.modifiers - Boolean flags for control keys that were
    *     pressed when the event occurred.
-   * @property {Boolean} modifiers.shift - Whether the Shift key was pressed.
-   * @property {Boolean} modifiers.meta - Whether the Meta key was pressed.
-   * @property {Boolean} modifiers.alt - Whether the Alt key was pressed.
-   * @property {Boolean} modifiers.ctrl - Whether the Ctrl key was pressed.
-   * @property {String} absPosition - Absolute mouse position in the browser winder.
-   * @property {String} position - Mouse position relative to the top-left corner of the Atlas
+   * @property {Boolean} args.modifiers.shift - Whether the Shift key was pressed.
+   * @property {Boolean} args.modifiers.meta - Whether the Meta key was pressed.
+   * @property {Boolean} args.modifiers.alt - Whether the Alt key was pressed.
+   * @property {Boolean} args.modifiers.ctrl - Whether the Ctrl key was pressed.
+   * @property {String} args.absPosition - Absolute mouse position in the browser winder.
+   * @property {String} args.position - Mouse position relative to the top-left corner of the Atlas
    *     DOM element.
-   * @property {Object.<String, Number>} movement - The change in the mouse's position since the
-   *     last event.
-   * @property {Number} movement.cx - The change in the mouse's X position.
-   * @property {Number} movement.cx - The change in the mouse's Y position.
+   * @property {Object.<String, Number>} args.movement - The change in the mouse's position since
+   *     the last event.
+   * @property {Number} args.movement.cx - The change in the mouse's X position.
+   * @property {Number} args.movement.cx - The change in the mouse's Y position.
    */
 
   /**
@@ -102,43 +103,43 @@ define([
       /**
        * The left mouse button was pressed.
        * @event InternalEvent#input/leftdown
-       * @type {InputEvent}
+       * @type {atlas.events.InputEvent}
        */
       /**
        *
        * The left mouse button was unpressed.
        * @event InternalEvent#input/leftup
-       * @type {InputEvent}
+       * @type {atlas.events.InputEvent}
        */
       /**
        * The middle mouse button was pressed.
        * @event InternalEvent#input/middledown
-       * @type {InputEvent}
+       * @type {atlas.events.InputEvent}
        */
       /**
        * The middle mouse button was unpressed.
        * @event InternalEvent#input/middleup
-       * @type {InputEvent}
+       * @type {atlas.events.InputEvent}
        */
       /**
        * The right mouse button was pressed.
        * @event InternalEvent#input/rightdown
-       * @type {InputEvent}
+       * @type {atlas.events.InputEvent}
        */
       /**
        * The right mouse button was unpressed.
        * @event InternalEvent#input/rightup
-       * @type {InputEvent}
+       * @type {atlas.events.InputEvent}
        */
       /**
        * The mouse was moved.
        * @event InternalEvent#input/mousemove
-       * @type {InputEvent}
+       * @type {atlas.events.InputEvent}
        */
       /**
        * The left mouse button was double-clicked.
        * @event InternalEvent#input/left/dblclick
-       * @type {InputEvent}
+       * @type {atlas.events.InputEvent}
        */
 
       /**
@@ -188,10 +189,10 @@ define([
         name: 'mousedown',
         cback: function(e) {
           event = makeMouseEvent(buttonIds[e.button] + 'down', e);
-          this.__lastX = event.position.x;
-          this.__lastY = event.position.y;
+          this.__lastX = event.getArgs().position.x;
+          this.__lastY = event.getArgs().position.y;
           eventManager.dispatchEvent(event);
-        }
+        }.bind(this)
       });
 
       // Mouse button up
@@ -199,9 +200,10 @@ define([
         name: 'mouseup',
         cback: function(e) {
           event = makeMouseEvent(buttonIds[e.button] + 'up', e);
-          if (Math.abs(event.movement.dx + event.movement.dy) < InputManager.CLICK_SENSITIVITY) {
+          var dxy = event.getArgs().movement.dx + event.getArgs().movement.dy;
+          if (Math.abs(dxy) < InputManager.CLICK_SENSITIVITY) {
             // If mouse moved less than the sensitivity, also emit a click event.
-            var args = makeMouseEventArgs('input/' + buttonIds[e.button] + 'click', e);
+            var args = makeMouseEventArgs(buttonIds[e.button] + 'click', e);
             eventManager.dispatchEvent(new Event(null, args.name, args));
           }
           eventManager.dispatchEvent(event);

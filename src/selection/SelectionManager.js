@@ -40,26 +40,6 @@ define([
      */
     _selection: null,
 
-    /**
-     * Map of subscribed events to handler methods.
-     */
-    _handlers: {
-      intern: {
-        'input/leftclick': this._onLeftClick.bind(this),
-        'input/left/dblclick': this._onDoubleClick.bind(this),
-        'entity/select': this._onSelection.bind(this, true),
-        'entity/deselect': this._onSelection.bind(this, false),
-        'entity/remove': this._onRemove.bind(this)
-      },
-      extern: {
-        'selection/enable': this.setEnabled.bind(this, true),
-        'selection/disable': this.setEnabled.bind(this, false),
-        'entity/deselect/all': this.clearSelection.bind(this),
-        'entity/select': this._handleSelection.bind(this, 'select'),
-        'entity/deselect': this._handleSelection.bind(this, 'deselect')
-      }
-    },
-
     _init: function(managers) {
       this._super(managers);
       this._selection = {};
@@ -73,101 +53,22 @@ define([
      * Registers event handlers with the EventManager for relevant events.
      */
     bindEvents: function() {
-      // Create event handlers for pertinent events.
-      var handleSelection = function(args, method) {
-        if (!this.isEnabled()) { return; }
-
-        if (args.ids instanceof Array) {
-          this[method + 'Entities'](args.ids, args.keepSelection);
-        } else {
-          this[method + 'Entity'](args.id, args.keepSelection);
+      var handlers = {
+        intern: {
+          'input/leftclick': this._onLeftClick.bind(this),
+          'entity/select': this._onSelection.bind(this, true),
+          'entity/deselect': this._onSelection.bind(this, false),
+          'entity/remove': this._onRemove.bind(this)
+        },
+        extern: {
+          'selection/enable': this.setEnabled.bind(this, true),
+          'selection/disable': this.setEnabled.bind(this, false),
+          'entity/deselect/all': this.clearSelection.bind(this),
+          'entity/select': this._handleSelection.bind(this, 'select'),
+          'entity/deselect': this._handleSelection.bind(this, 'deselect')
         }
-      }.bind(this);
-      var handlers = [
-        {
-          source: 'extern',
-          name: 'selection/enable',
-          callback: function() {
-            this.setEnabled(true);
-          }.bind(this)
-        },
-        {
-          source: 'extern',
-          name: 'selection/disable',
-          callback: function() {
-            this.setEnabled(false);
-          }.bind(this)
-        },
-        {
-          source: 'extern',
-          name: 'entity/select',
-          callback: function(args) {
-            handleSelection(args, 'select');
-          }.bind(this)
-        },
-        {
-          source: 'extern',
-          name: 'entity/deselect',
-          callback: function(args) {
-            handleSelection(args, 'deselect');
-          }.bind(this)
-        },
-        {
-          source: 'extern',
-          name: 'entity/deselect/all',
-          callback: function(args) {
-            this.clearSelection();
-          }.bind(this)
-        },
-        {
-          source: 'intern',
-          name: 'input/leftclick',
-          callback: function(args) {
-            if (!this.isEnabled()) { return; }
-            if (!args.modifiers) args.modifiers = {};
-            var selectedEntities = this._managers.entity.getAt(args.position),
-                keepSelection = 'shift' in args.modifiers,
-                preSelectionIds = this.getSelectionIds();
-            if (selectedEntities.length > 0) {
-              this.selectEntity(selectedEntities[0].getId(), keepSelection, args.position);
-            } else if (!keepSelection) {
-              this.clearSelection();
-            }
-            var postSelectionIds = this.getSelectionIds();
-            var changedSelectedIds = Arrays.difference(postSelectionIds, preSelectionIds);
-            var changedDeselectedIds = Arrays.difference(preSelectionIds, postSelectionIds);
-            if (changedSelectedIds.length > 0 || changedDeselectedIds.length > 0) {
-              this._managers.event.dispatchEvent(new Event(new EventTarget(),
-                  'entity/selection/change', {selected: changedSelectedIds,
-                  deselected: changedDeselectedIds}));
-            }
-          }.bind(this)
-        },
-        {
-          source: 'intern',
-          name: 'entity/select',
-          callback: function(args) {
-            this.selectEntities(args.ids, true, null);
-          }.bind(this)
-        },
-        {
-          source: 'intern',
-          name: 'entity/deselect',
-          callback: function(args) {
-            this.deselectEntities(args.ids, true, null);
-          }.bind(this)
-        },
-        {
-          source: 'intern',
-          name: 'entity/remove',
-          callback: function(args) {
-            // If the Entity has been removed don't need to deselect it, just remove it from _selection.
-            delete this._selection[args.id];
-          }.bind(this)
-        }
-      ];
-      // Register event handlers with the EventManager.
-      this._managers.event.addNewEventHandlers(this._handlers);
+      };
+      this._managers.event.addNewEventHandlers(handlers);
     },
 
     // -------------------------------------------
@@ -405,34 +306,6 @@ define([
               selected: changedSelectedIds,
               deselected: changedDeselectedIds
             }));
-      }
-    },
-
-    /**
-     * Handles a left double-click event.
-     *
-     * @param {InternalEvent#event:input/left/dblclick} event
-     *
-     * @listens InternalEvent#input/left/dblclick
-     * @fires InternalEvent#entity/dblclick
-     */
-    _onDoubleClick: function(event) {
-      // TODO(bpstudds): Move this handler to EntityManager.
-      var entities = this._managers.entity.getAt(args.position);
-      if (entities.length > 0) {
-        // Only capture the double click on the first entity.
-        var entity = entities[0];
-
-        /**
-         * The {@link atlas.model.GeoEntity} was double-clicked.
-         *
-         * @event InternalEvent#entity/dblclick
-         * @type {Object}
-         * @property {String} id - The ID of the double-clicked entity.
-         */
-        this._managers.event.dispatchEvent(new Event(entity, 'entity/dblclick', {
-          id: entity.getId()
-        }));
       }
     },
 

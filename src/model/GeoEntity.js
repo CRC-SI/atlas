@@ -652,8 +652,8 @@ define([
        * Removal of an entity.
        *
        * @event InternalEvent#entity/remove
-       * @type {Object}
-       * @property {String} id - The ID of the removed entity.
+       * @type {atlas.events.Event}
+       * @property {String} args.id - The ID of the removed entity.
        */
       this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'entity/remove', {
         id: this.getId()
@@ -758,8 +758,8 @@ define([
        * Selection of an entity.
        *
        * @event InternalEvent#entity/select
-       * @type {Object}
-       * @property {Array.<String>} ids - The IDs of the selected entities.
+       * @type {atlas.events.Event}
+       * @property {Array.<String>} args.ids - The IDs of the selected entities.
        */
       this._eventManager.dispatchEvent(new Event(this, 'entity/select', {
         ids: [this.getId()]
@@ -778,8 +778,8 @@ define([
        * Deselection of an entity.
        *
        * @event InternalEvent#entity/deselect
-       * @type {Object}
-       * @property {Array.<String>} ids - The IDs of the selected entities.
+       * @type {atlas.events.Event}
+       * @property {Array.<String>} args.ids - The IDs of the selected entities.
        */
       this._eventManager.dispatchEvent(new Event(this, 'entity/deselect', {
         ids: [this.getId()]

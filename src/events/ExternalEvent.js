@@ -9,35 +9,35 @@
  * A command to select one or more entities.
  *
  * @event ExternalEvent#entity/select
- * @type {Object}
- * @property {Array.<String>} ids - The IDs of the selected entities.
+ * @type {atlas.events.Event}
+ * @property {Array.<String>} args.ids - The IDs of the selected entities.
  */
 
 /**
  * A command to deselect one or more entities.
  *
  * @event ExternalEvent#entity/deselect
- * @type {Object}
- * @property {Array.<String>} ids - The IDs of the entities to deselect.
+ * @type {atlas.events.Event}
+ * @property {Array.<String>} args.ids - The IDs of the entities to deselect.
  */
 
 /**
  * A command to deselect all entities.
  *
  * @event ExternalEvent#entity/deselect/all
- * @type {Object}
+ * @type {atlas.events.Event}
  */
 
 /**
  * A command to enable selection.
  *
  * @event ExternalEvent#selection/enable
- * @type {Object}
+ * @type {atlas.events.Event}
  */
 
 /**
  * A command to disable selection.
  *
  * @event ExternalEvent#selection/disable
- * @type {Object}
+ * @type {atlas.events.Event}
  */

@@ -1,8 +1,9 @@
 define([
   'atlas/core/Manager',
+  'atlas/lib/utility/Log',
   'atlas/lib/utility/Types',
   'atlas/util/DeveloperError'
-], function(Manager, Types, DeveloperError) {
+], function(Manager, Log, Types, DeveloperError) {
 
   /**
    * @typedef atlas.events.EventManager
@@ -62,6 +63,12 @@ define([
      * @param {atlas.events.Event} event - The Event to be propagated.
      */
     dispatchEvent: function(event) {
+      // If debug logging is enabled, log all dispatched events except mousemove.
+      if (event.getType() !== 'input/mousemove') {
+        Log.debug('Dispatching event: ',
+            event.getType(), event.getArgs(), event.getTarget(), event.getCurrentTarget());
+      }
+
       // Propagate the event up the target hierarchy.
       while (event.getCurrentTarget()) {
         var nextEvent,
@@ -154,11 +161,11 @@ define([
       var eventHandlers = {};
       Object.keys(handlers).forEach(function(source) {
         Object.keys(handlers[source]).forEach(function(name) {
+          console.debug("adding event handler", source, name, handlers[source][name], "to", this);
           var callback = handlers[source][name];
-          eventHandlers[name] =
-              this.addEventHandler(source, name, callback);
-        });
-      });
+          eventHandlers[name] = this.addEventHandler(source, name, callback);
+        }, this);
+      }, this);
       return eventHandlers;
     },
 

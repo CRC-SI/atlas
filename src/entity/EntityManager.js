@@ -205,11 +205,24 @@ define([
         {
           source: 'intern',
           name: 'input/left/dblclick',
+          /**
+           * @param {InternalEvent#event:input/left/dblclick} event
+           * @listens InternalEvent#input/left/dblclick
+           * @fires InternalEvent#entity/dblclick
+           */
           callback: function(args) {
             var entities = this.getAt(args.position);
             if (entities.length > 0) {
               // Only capture the double click on the first entity.
               var entity = entities[0];
+
+              /**
+               * The {@link atlas.model.GeoEntity} was double-clicked.
+               *
+               * @event InternalEvent#entity/dblclick
+               * @type {atlas.events.Event}
+               * @property {String} args.id - The ID of the double-clicked entity.
+               */
               this._managers.event.dispatchEvent(new Event(entity,
                   'entity/dblclick', {
                     id: entity.getId()

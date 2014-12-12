@@ -24,13 +24,13 @@ define([
    * @param {Object} [args] - Arguments relevant to the Event.
    *
    * @class atlas.events.Event
-   * @constructor
    */
   Event = Class.extend(/** @lends atlas.events.Event# */ {
 
     /**
      * The target that triggered this event.
      * @type {atlas.model.EventTarget}
+     * @private
      */
     _target: null,
 
@@ -38,6 +38,7 @@ define([
      * The current target of this event. When the event is bubbling up, this becomes the parent at
      * the current level.
      * @type {atlas.model.EventTarget}
+     * @private
      */
     _currentTarget: null,
 

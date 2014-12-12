@@ -300,7 +300,7 @@ define([
        * The {@link atlas.dom.Overlay} was hidden from the DOM.
        *
        * @event InternalEvent#overlay/hide
-       * @type {Object}
+       * @type {atlas.events.Event}
        */
       this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/hide'));
     },
@@ -320,7 +320,7 @@ define([
        * The {@link atlas.dom.Overlay} was shown on the DOM.
        *
        * @event InternalEvent#overlay/show
-       * @type {Object}
+       * @type {atlas.events.Event}
        */
       this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/show'));
     },
@@ -365,7 +365,7 @@ define([
        * The {@link atlas.dom.Overlay} was removed from the DOM.
        *
        * @event InternalEvent#overlay/remove
-       * @type {Object}
+       * @type {atlas.events.Event}
        */
       this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/remove'));
     },
