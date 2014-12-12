@@ -79,10 +79,6 @@ define([
         this._holes = polygonData.holes;
       }
       this._height = parseFloat(polygonData.height) || this._height;
-      // TODO(aramk) Abstract this into VertexedEntity.
-      this._elevation = parseFloat(polygonData.elevation) || this._elevation;
-      this._zIndex = parseFloat(polygonData.zIndex) || this._zIndex;
-      this._zIndexOffset = parseFloat(polygonData.zIndexOffset) || this._zIndexOffset;
       var style = polygonData.style || Polygon.getDefaultStyle(),
         color = polygonData.color,
         borderColor = polygonData.borderColor;
