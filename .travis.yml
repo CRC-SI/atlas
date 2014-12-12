@@ -2,10 +2,10 @@
 language: node_js
 node_js:
   - "0.11"
-before_install: npm install -g grunt-cli
+before_install: npm install -g grunt-cli --cache-min 999999999
 install:
-  - npm install
-  - grunt install
+  - npm install --verbose --cache-min 999999999
+  - grunt install --verbose
 before_script:
   - grunt build
 after_success:
