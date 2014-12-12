@@ -73,6 +73,99 @@ define([
      * Registers event handlers with the EventManager for relevant events.
      */
     bindEvents: function() {
+      // Create event handlers for pertinent events.
+      var handleSelection = function(args, method) {
+        if (!this.isEnabled()) { return; }
+
+        if (args.ids instanceof Array) {
+          this[method + 'Entities'](args.ids, args.keepSelection);
+        } else {
+          this[method + 'Entity'](args.id, args.keepSelection);
+        }
+      }.bind(this);
+      var handlers = [
+        {
+          source: 'extern',
+          name: 'selection/enable',
+          callback: function() {
+            this.setEnabled(true);
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'selection/disable',
+          callback: function() {
+            this.setEnabled(false);
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'entity/select',
+          callback: function(args) {
+            handleSelection(args, 'select');
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'entity/deselect',
+          callback: function(args) {
+            handleSelection(args, 'deselect');
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'entity/deselect/all',
+          callback: function(args) {
+            this.clearSelection();
+          }.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'input/leftclick',
+          callback: function(args) {
+            if (!this.isEnabled()) { return; }
+            if (!args.modifiers) args.modifiers = {};
+            var selectedEntities = this._managers.entity.getAt(args.position),
+                keepSelection = 'shift' in args.modifiers,
+                preSelectionIds = this.getSelectionIds();
+            if (selectedEntities.length > 0) {
+              this.selectEntity(selectedEntities[0].getId(), keepSelection, args.position);
+            } else if (!keepSelection) {
+              this.clearSelection();
+            }
+            var postSelectionIds = this.getSelectionIds();
+            var changedSelectedIds = Arrays.difference(postSelectionIds, preSelectionIds);
+            var changedDeselectedIds = Arrays.difference(preSelectionIds, postSelectionIds);
+            if (changedSelectedIds.length > 0 || changedDeselectedIds.length > 0) {
+              this._managers.event.dispatchEvent(new Event(new EventTarget(),
+                  'entity/selection/change', {selected: changedSelectedIds,
+                  deselected: changedDeselectedIds}));
+            }
+          }.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'entity/select',
+          callback: function(args) {
+            this.selectEntities(args.ids, true, null);
+          }.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'entity/deselect',
+          callback: function(args) {
+            this.deselectEntities(args.ids, true, null);
+          }.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'entity/remove',
+          callback: function(args) {
+            // If the Entity has been removed don't need to deselect it, just remove it from _selection.
+            delete this._selection[args.id];
+          }.bind(this)
+        }
+      ];
       // Register event handlers with the EventManager.
       this._managers.event.addNewEventHandlers(this._handlers);
     },
