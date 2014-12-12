@@ -7,11 +7,12 @@ define([
 ], function(GeoPoint, Vertex, WKT, OpenLayers) {
   describe('WKT Utility', function() {
 
-    var wkt, wktPolygonStr, wktLineStr, polyGeoPoints, polyVertices, lineGeoPoints, lineVertices,
-        openLayersPolygon;
+    var wkt, wktPolygonStr, wktPointStr, wktLineStr, polyGeoPoints, polyVertices, lineGeoPoints,
+      lineVertices, openLayersPolygon, singleGeoPoint;
 
     beforeEach(function() {
       wkt = WKT.getInstance();
+      wktPointStr = 'POINT(-37.82673149546436 145.23770974470838)';
       wktPolygonStr =
           'POLYGON((-37.82673149546436 145.23770974470838,-37.82679037235421 145.23770595291575,-37.82673149546436 145.23770974470838))';
       wktLineStr =
@@ -29,6 +30,7 @@ define([
         new GeoPoint({latitude: -37.82679037235421, longitude: 145.23770595291575}),
         new GeoPoint({latitude: -37.82673149546436, longitude: 145.23770974470838})
       ];
+      singleGeoPoint = new GeoPoint(145.23770974470838, -37.82673149546436);
       // TODO(aramk) Add method for this.
       lineVertices = lineGeoPoints.map(function(point) {
         return new Vertex(point.longitude, point.latitude);
@@ -53,6 +55,11 @@ define([
     it('can convert a WKT line to vertices', function() {
       expect(wkt.verticesFromWKT(wktLineStr)).toEqual([lineVertices]);
       expect(wkt.geoPointsFromWKT(wktLineStr)).toEqual([lineGeoPoints]);
+    });
+
+    it('can convert a WKT point to a vertex', function() {
+      expect(wkt.verticesFromWKT(wktPointStr)).toEqual([[singleGeoPoint.toVertex()]]);
+      expect(wkt.geoPointsFromWKT(wktPointStr)).toEqual([[singleGeoPoint]]);
     });
 
     it('can convert open layers geometry to vertices', function() {
