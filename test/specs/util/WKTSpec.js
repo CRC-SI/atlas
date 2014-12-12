@@ -51,8 +51,8 @@ define([
     });
 
     it('can convert a WKT line to vertices', function() {
-      expect(wkt.verticesFromWKT(wktLineStr)).toEqual(lineVertices);
-      expect(wkt.geoPointsFromWKT(wktLineStr)).toEqual(lineGeoPoints);
+      expect(wkt.verticesFromWKT(wktLineStr)).toEqual([lineVertices]);
+      expect(wkt.geoPointsFromWKT(wktLineStr)).toEqual([lineGeoPoints]);
     });
 
     it('can convert open layers geometry to vertices', function() {
