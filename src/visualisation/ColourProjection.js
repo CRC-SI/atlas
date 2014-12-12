@@ -159,7 +159,6 @@ define([
           oldColour = this._getEffect(id, 'oldValue');
       if (oldColour) {
         entity.modifyStyle(oldColour);
-        entity.isVisible() && entity.show();
       }
     },
 

@@ -107,7 +107,10 @@ define([
     enableExtrusion: function() {
       var oldValue = this._showAsExtrusion;
       this._showAsExtrusion = true;
-      oldValue !== true && this.setDirty('model');
+      if (oldValue !== true) {
+        this.setDirty('model');
+        this._update();
+      }
     },
 
     /**
@@ -116,7 +119,10 @@ define([
     disableExtrusion: function() {
       var oldValue = this._showAsExtrusion;
       this._showAsExtrusion = false;
-      oldValue !== false && this.setDirty('model');
+      if (oldValue !== false) {
+        this.setDirty('model');
+        this._update();
+      }
     },
 
     /**
@@ -131,10 +137,10 @@ define([
      * @param {Number} height The extruded height of the building.
      */
     setHeight: function(height) {
-      // TODO(aramk) Throw error if height is not number?
-      if (typeof height === 'number' && this._height !== height) {
+      if (this._height !== height) {
         this._height = height;
         this.setDirty('vertices');
+        this._update();
       }
     },
 

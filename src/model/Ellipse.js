@@ -146,6 +146,7 @@ define([
       if (typeof elevation === 'number' && this._elevation !== elevation) {
         this._elevation = elevation;
         this.setDirty('vertices');
+        this._update();
       }
     },
 
@@ -179,6 +180,7 @@ define([
       if (typeof height === 'number' && this._height !== height) {
         this._height = height;
         this.setDirty('vertices');
+        this._update();
       }
     },
 
@@ -218,6 +220,7 @@ define([
       if (typeof index === 'number' && this._zIndex !== index) {
         this._zIndex = index;
         this.setDirty('vertices');
+        this._update();
       }
     },
 

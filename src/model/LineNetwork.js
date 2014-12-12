@@ -279,7 +279,8 @@ define([
         lineObj.setVertices(this._getLineGeoPoints(lineData));
       }
       this.setDirty(lineId);
-      lineObj.isVisible() && lineObj.show() && this.setClean(lineId);
+      this._update();
+      this.setClean(lineId);
     },
 
     // -------------------------------------------

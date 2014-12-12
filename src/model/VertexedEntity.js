@@ -193,7 +193,8 @@ define([
       if (index === undefined) {
         index = this._vertices.length - 1;
       }
-      if (-this._vertices.length <= index && index <= this._vertices.length - 1) {
+      var len = this._vertices.length;
+      if (-len <= index && index <= len - 1) {
         var removed = this._vertices.splice(index, 1)[0];
         this.setDirty('vertices');
         return removed;
@@ -226,6 +227,7 @@ define([
     setElevation: function(elevation) {
       this._super(elevation);
       this.setDirty('vertices');
+      this._update();
     },
 
     /**
@@ -233,9 +235,10 @@ define([
      * @param {Number} index
      */
     setZIndex: function(index) {
-      if (typeof index === 'number' && this._zIndex !== index) {
+      if (this._zIndex !== index) {
         this._zIndex = index;
         this.setDirty('vertices');
+        this._update();
       }
     },
 
