@@ -28,4 +28,4 @@ deploy:
 # Contains the S3 secret access key.
 env:
   global:
-    secure: QYHf+o0sIfCD/qh7BgcG1BMh7NSdT/6ELY30uGHqonOZ8xzuNb+QwMzImQAuzo1TCxvJMHFFQVQ2KHEb7bVG5NNHLh6fp7MoMsuylJcxgJNbFmZTpaAEzLd7HAFhzdMKEGPErfV/q+IOqsJAoImdHqjHUohNahSpwsbROb1ioH0=
+    secure: "ALKpAd6FNyU4P0TQFV80hYmaLknSP9DRtNE1lPa0xOUjzera+Pn8cc8qO0rd6lLBRHWlbpw253dC8Od8hs3nkpdkb42GfDMaMhPb0sUnHzK8woBICZzGBR7Fr/oCYF9hp64wfKBBE+DumwbDYjYwSgdK0pJcfiz4eCicMTxXikk="
