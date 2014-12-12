@@ -257,7 +257,8 @@ define([
      * @listens InternalEvent#entity/deselect
      */
     _onSelection: function(selected, event) {
-      (selected ? this.selectEntities : this.deselectEntities)(event.ids, true, null);
+      var methodName = (selected ? '' : 'de') + 'selectEntities';
+      this[methodName](event.ids, true, null);
     },
 
     /**

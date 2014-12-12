@@ -788,7 +788,7 @@ define([
 
     _setSelectStyle: function() {
       this._preSelectStyle = this.getStyle();
-      this.setStyle(GeoEntity.getSelectedStyle());
+      this.setStyle(Style.getDefaultSelected());
     },
 
     _revertSelectStyle: function() {
