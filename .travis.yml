@@ -22,10 +22,13 @@ deploy:
   access_key_id: AKIAJLMFT7PREEIB7JSQ
   # secret_access_key: <encrypted>
   bucket: atlas-jsdocs
+  acl: public_read
   skip_cleanup: true
   local-dir: jsdocs
   endpoint: atlas-jsdocs.s3-website-ap-southeast-2.amazonaws.com
   region: ap-southeast-2
+  on:
+    all_branches: true
 
 # Contains the S3 secret access key.
 env:
