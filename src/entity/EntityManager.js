@@ -308,29 +308,29 @@ define([
      * @returns {Array} The IDs of the created entities.
      */
     bulkCreate: function(c3mls) {
-      var ids = [],
-        collections = {};
+      var ids = [];
+      var collections = {};
       c3mls.forEach(function(c3ml) {
         var id = c3ml.id;
         var entity = this.getById(id);
         if (!entity) {
           // TODO(aramk) This is only performed for bulk requests and is inconsistent - clean up
           // the API for consistency.
-          var args = this._parseC3ML(c3ml);
+          var c3mlData = this._parseC3ML(c3ml);
           if (c3ml.type === 'collection') {
-            collections[id] = args;
+            collections[id] = c3mlData;
           } else {
-            this.createFeature(id, args);
+            this.createFeature(id, c3mlData);
           }
           ids.push(id);
         }
       }, this);
-      // Create collections after all other entities.
+      // Create collections (if any) after all other entities.
       // TODO(aramk) Topologically sort all entities (including collections) based on their
       // parents/children.
       Object.keys(collections).forEach(function(id) {
-        var args = collections[id];
-        this.createCollection(id, args);
+        var c3mlData = collections[id];
+        this.createCollection(id, c3mlData);
       }, this);
       return ids;
     },
@@ -346,19 +346,11 @@ define([
       var geometry;
       // Map of C3ML type to parse of that type.
       var parsers = {
-<<<<<<< HEAD
         line: this._parseC3MLline,
         mesh: this._parseC3MLmesh,
         polygon: this._parseC3MLpolygon,
         image: this._parseC3MLimage
       };
-=======
-            line: this._parseC3MLline,
-            mesh: this._parseC3MLmesh,
-            polygon: this._parseC3MLpolygon,
-            image: this._parseC3MLimage
-          };
->>>>>>> develop
       // Generate the Geometry for the C3ML type if it is supported.
       parsers[c3ml.type] && (geometry = parsers[c3ml.type].call(this, c3ml));
       return Setter.mixin(c3ml, geometry);

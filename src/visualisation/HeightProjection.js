@@ -52,8 +52,8 @@ define([
       var oldElevation = entity.getElevation();
       // TODO(bpstudds): Handle the case where an entity sits on two entities.
       // TODO(bpstudds): Handle the case where there's a hierarchy of 'parents'
-      var newElevation,
-        parent = entity.getParent();
+      var newElevation;
+      var parent = entity.getParent();
       if (!parent && oldHeight === 0 && oldElevation === 0) {
         // If the entity had a height of 0 and no parent, the old top elevation of 0 will be
         // incorrectly mapped to a new non-zero top elevation, causing other similar entities to

@@ -88,9 +88,14 @@ define([
           name: 'projection/add',
           /* Creates a new projection.
            * @param {String} args.type - The type of projection, either 'colour' or 'height'.
-           * @param {Array.<String>} args.ids - An array of GeoEntity IDs that the projection affects.
-           * @param {Object} args.config - Constructor arguments as required by the type of projection. Refer to @{link atlas.visualisation.AbstractProjection}, @{link atlas.visualisation.ColourProjection}, and @{link atlas.visualisation.HeightProjection}.
-           * @returns {atlas.visualisation.AbstractProjection} The new projection as <code>args.projection</code>.
+           * @param {Array.<String>} args.ids - An array of GeoEntity IDs that the projection
+           * affects.
+           * @param {Object} args.config - Constructor arguments as required by the type of
+           * projection. Refer to {@link atlas.visualisation.AbstractProjection},
+           * {@link atlas.visualisation.ColourProjection}, and
+           * {@link atlas.visualisation.HeightProjection}.
+           * @returns {atlas.visualisation.AbstractProjection} The new projection as
+           * <code>args.projection</code>.
            */
           callback: function(args) {
             args.projection = this.createProjection(args);
@@ -143,10 +148,16 @@ define([
            * Creates a new dynamic projection.
            * @param {Object} args
            * @param {String} args.type - The type of projection, either 'colour' or 'height'.
-           * @param {Array.<String>} args.ids - An array of GeoEntity ids that the projection affects.
-           * @param {Array.<Object>} args.data - An array of objects mapping index to a map of GeoEntity id to it's parameter value for that index.
-           * @param {Object} args.config - Constructor arguments as required by the type of projection. Refer to @{link atlas.visualisation.AbstractProjection}, @{link atlas.visualisation.ColourProjection}, and @{link atlas.visualisation.HeightProjection}.
-           * @returns {atlas.visualisation.DynamicProjection} The new dynamic projection as <code>args.projection</code>.
+           * @param {Array.<String>} args.ids - An array of GeoEntity ids that the projection
+           * affects.
+           * @param {Array.<Object>} args.data - An array of objects mapping index to a map of
+           * GeoEntity id to it's parameter value for that index.
+           * @param {Object} args.config - Constructor arguments as required by the type of
+           * projection. Refer to {@link atlas.visualisation.AbstractProjection},
+           * {@link atlas.visualisation.ColourProjection}, and
+           * {@link atlas.visualisation.HeightProjection}.
+           * @returns {atlas.visualisation.DynamicProjection} The new dynamic projection as
+           * <code>args.projection</code>.
            */
           callback: function(args) {
             args.projection = this.createDynamicProjection(args);
@@ -160,7 +171,7 @@ define([
            * @param {String} args - The artifact of the dynamic projection to remove.
            */
           callback: function(args) {
-            throw new DeveloperError("Dynamic projection not yet supported.");
+            throw new DeveloperError('Dynamic projection not yet supported.');
             // TODO(aramk) This was incomplete so I threw an exception.
             this._dynamicProjections['dynamic-' + args].stop();
             delete this._dynamicProjections['dynamic-' + args];
@@ -173,7 +184,7 @@ define([
            * @param {String} args - The artifact of the dynamic projection to start.
            */
           callback: function(args) {
-            throw new DeveloperError("Dynamic projection not yet supported.");
+            throw new DeveloperError('Dynamic projection not yet supported.');
             // TODO(aramk) This was incomplete so I threw an exception.
             this._dynamicProjections['dynamic-' + args].start();
           }.bind(this)
@@ -185,7 +196,7 @@ define([
            * @param {String} args - The artifact of the dynamic projection to pause.
            */
           callback: function(args) {
-            throw new DeveloperError("Dynamic projection not yet supported.");
+            throw new DeveloperError('Dynamic projection not yet supported.');
             // TODO(aramk) This was incomplete so I threw an exception.
             this._dynamicProjections['dynamic-' + args].pause();
           }.bind(this)
@@ -197,7 +208,7 @@ define([
            * @param {String} args - The artifact of the dynamic projection to stop.
            */
           callback: function(args) {
-            throw new DeveloperError("Dynamic projection not yet supported.");
+            throw new DeveloperError('Dynamic projection not yet supported.');
             // TODO(aramk) This was incomplete so I threw an exception.
             this._dynamicProjections['dynamic-' + args].stop();
           }.bind(this)
@@ -231,7 +242,10 @@ define([
      * @param {Object} args
      * @param {String} args.type - The type of projection, either 'colour' or 'height'.
      * @param {Array.<String>} args.ids - An array of GeoEntity IDs that the projection affects.
-     * @param {Object} args.config - Constructor arguments as required by the type of projection. Refer to @{link atlas.visualisation.AbstractProjection}, @{link atlas.visualisation.ColourProjection}, and @{link atlas.visualisation.HeightProjection}.
+     * @param {Object} args.config - Constructor arguments as required by the type of projection.
+     * Refer to {@link atlas.visualisation.AbstractProjection},
+     * {@link atlas.visualisation.ColourProjection}, and
+     * {@link atlas.visualisation.HeightProjection}.
      * @returns {atlas.visualisation.AbstractProjection} The new projection object.
      */
     createProjection: function(args) {
@@ -250,8 +264,12 @@ define([
      * @param {Object} args
      * @param {String} args.type - The type of projection, either 'colour' or 'height'.
      * @param {Array.<String>} args.ids - An array of GeoEntity ids that the projection affects.
-     * @param {Array.<Object>} args.data - An array of objects mapping index to a map of GeoEntity id to it's parameter value for that index.
-     * @param {Object} args.config - Constructor arguments as required by the type of projection. Refer to @{link atlas.visualisation.AbstractProjection}, @{link atlas.visualisation.ColourProjection}, and @{link atlas.visualisation.HeightProjection}.
+     * @param {Array.<Object>} args.data - An array of objects mapping index to a map of GeoEntity
+     * id to it's parameter value for that index.
+     * @param {Object} args.config - Constructor arguments as required by the type of projection.
+     * Refer to {@link atlas.visualisation.AbstractProjection},
+     * {@link atlas.visualisation.ColourProjection}, and
+     * {@link atlas.visualisation.HeightProjection}.
      * @returns {atlas.visualisation.DynamicProjection} The new dynamic projection object.
      */
     createDynamicProjection: function(args) {
@@ -268,65 +286,36 @@ define([
     },
 
     _addLegend: function(projection) {
-      var id = projection.getId(),
-          legendData = projection.getLegendData(),
-          keyHtml = Overlay.generateTable(legendData.key),
-          legendHtml = '',
-          caption = legendData.caption;
+      var id = projection.getId();
+      var legendData = projection.getLegendData();
+      var keyHtml = Overlay.generateTable(legendData.key);
+      var legendHtml = '';
+      var caption = legendData.caption;
       if (caption || keyHtml) {
         legendHtml += '<div class="legend-caption">' + legendData.caption + '</div>';
         legendHtml += keyHtml;
       }
 
-      var container = this.getLegendContainer(),
-          contentNode = container.getDomElements().content,
-          legendOverlay = new Overlay({
-            id: id,
-            parent: contentNode,
-            title: legendData.title,
-            cssClass: 'legend',
-            onRemove: function(e) {
-              this.remove(id);
-            }.bind(this),
-            onEnabledChange: function(e) {
-              this.toggleRender(id);
-            }.bind(this),
-            showMinimised: true,
-            cssPosition: 'relative',
-            content: legendHtml
-          });
+      var container = this.getLegendContainer();
+      var contentNode = container.getDomElements().content;
+      var legendOverlay = new Overlay({
+        id: id,
+        parent: contentNode,
+        title: legendData.title,
+        cssClass: 'legend',
+        onRemove: function(e) {
+          this.remove(id);
+        }.bind(this),
+        onEnabledChange: function(e) {
+          this.toggleRender(id);
+        }.bind(this),
+        showMinimised: true,
+        cssPosition: 'relative',
+        content: legendHtml
+      });
       container.show();
       this._legendStore.add(legendOverlay);
     },
-
-//    showLegends: function () {
-//      if (!this._dynamicProjections['colour']) { return; }
-//
-//      // TODO(bpstudds): This needs to be refactored so we can have multiple legends.
-//      var legendData = this._dynamicProjections['colour'].getLegend(),
-//          legendHtml = Overlay.generateTable(legendData.legend),
-//          html;
-//      html = '<div class="caption">' + legendData.caption + '</div>';
-//      html += legendHtml;
-//
-//      this._legends = new Overlay({
-//        parent: this._managers.dom.getDom(),
-//        title: legendData.title,
-//        'class': 'legend',
-//        // TODO(bpstudds): Add IDs to projections, use the ID rather than artifact to store.
-//        onRemove: function (e) { this.remove('colour'); }.bind(this),
-//        position: {top: 50, left: 0},
-//        content: html
-//      });
-//
-//      this._legends.show();
-//    },
-
-//    hideLegends: function () {
-//      if (this._legends) {
-//        this._legends.remove();
-//      }
-//    },
 
     // -------------------------------------------
     // MODIFIERS
@@ -334,14 +323,16 @@ define([
 
     /**
      * Adds a Projection to be managed by the VisualisationManager.
-     * @param {atlas.visualisation.AbstractProjection} projection - The New Projection instance to add.
+     * @param {atlas.visualisation.AbstractProjection} projection - The New Projection instance to
+     * add.
      */
     addProjection: function(projection) {
       if (!(projection instanceof AbstractProjection)) {
-        throw new DeveloperError('Tried to add an object to the VisualisationManager which is not a subclass of atlas.visualisation.AbstractProjection');
+        throw new DeveloperError('Tried to add an object to the VisualisationManager which is ' +
+          'not a subclass of atlas.visualisation.AbstractProjection');
       }
-      var id = projection.getId(),
-          old = this._staticProjections.get(id);
+      var id = projection.getId();
+      var old = this._staticProjections.get(id);
       if (old) {
         Log.error('Tried to add projection with the same ID as an existing projection');
         return;
@@ -352,10 +343,10 @@ define([
 
     addDynamicProjection: function(dynamic) {
       // TODO(aramk) This was incomplete so I threw an exception.
-      throw new DeveloperError("Dynamic projection not yet supported.");
-      var target = 'dynamic-' + dynamic._projector.ARTIFACT,
-          BUTTON = 'visual-btn',
-          SLIDER = 'visual-slider';
+      throw new DeveloperError('Dynamic projection not yet supported.');
+      var target = 'dynamic-' + dynamic._projector.ARTIFACT;
+      var BUTTON = 'visual-btn';
+      var SLIDER = 'visual-slider';
 
       this._dynamicProjections[target] = dynamic;
       this._overlays[target] = new Overlay({
@@ -394,8 +385,8 @@ define([
      *    if a projection does not existing for the given artifact.
      */
     remove: function(id) {
-      var prj = this._staticProjections.get(id),
-          legend = this._legendStore.get(id);
+      var prj = this._staticProjections.get(id);
+      var legend = this._legendStore.get(id);
       if (!prj) {
         Log.warn('Tried to remove projection ' + id + ' that does not exist.');
         return;
@@ -431,9 +422,9 @@ define([
      */
     render: function(id) {
       // Unrender all other projections
-      var projection = this._staticProjections.get(id),
-          legend = this._legendStore.get(id),
-          artifact = projection.ARTIFACT;
+      var projection = this._staticProjections.get(id);
+      var legend = this._legendStore.get(id);
+      var artifact = projection.ARTIFACT;
 
       if (!projection) {
         throw new DeveloperError('Tried to render projection ' + id
@@ -452,9 +443,9 @@ define([
      */
     unrender: function(id) {
       // TODO(bpstudds): Add support for un-rendering a subset of entities.
-      var projection = this._staticProjections.get(id),
-          legend = this._legendStore.get(id),
-          artifact = projection.ARTIFACT;
+      var projection = this._staticProjections.get(id);
+      var legend = this._legendStore.get(id);
+      var artifact = projection.ARTIFACT;
 
       if (!projection) {
         throw new DeveloperError('Tried to unrender projection ' + id

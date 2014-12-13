@@ -18,16 +18,16 @@ define([
    *
    * @param {Number} id - The ID of this Polygon.
    * @param {Object} polygonData - Data describing the Polygon.
-   * @param {string|Array.<atlas.model.GeoPoint>} [polygonData.vertices=[]] - The vertices of the
-   *                                                                          Polygon.
+   * @param {String|Array.<atlas.model.GeoPoint>} [polygonData.vertices=[]] - Either a WKT string or
+   *   an array of vertices describing the Polygon.
    * @param {Number} [polygonData.height=0] - The extruded height of the Polygon to form a prism.
    * @param {Number} [polygonData.elevation] - The elevation of the base of the Polygon (or prism).
    * @param {atlas.model.Colour} [polygonData.color] - The fill colour of the Polygon. Overrides the
-   *                                                   given style.
+   *   given style.
    * @param {atlas.model.Colour} [polygonData.borderColor] - The border colour of the Polygon.
-   *                                                         Overrides the given style.
+   *   Overrides the given style.
    * @param {atlas.model.Style} [polygonData.style=defaultStyle] - The Style to apply to the
-   *                                                               Polygon.
+   *   Polygon.
    * @param {Object} [args] - Option arguments describing the Polygon.
    * @param {atlas.model.GeoEntity} [args.parent=null] - The parent entity of the Polygon.
    * @returns {atlas.model.Polygon}
@@ -79,9 +79,9 @@ define([
         this._holes = polygonData.holes;
       }
       this._height = parseFloat(polygonData.height) || this._height;
-      var style = polygonData.style || Polygon.getDefaultStyle(),
-        color = polygonData.color,
-        borderColor = polygonData.borderColor;
+      var style = polygonData.style || Polygon.getDefaultStyle();
+      var color = polygonData.color;
+      var borderColor = polygonData.borderColor;
       if (color) {
         if (!(color instanceof Colour)) {
           color = new Colour(color);

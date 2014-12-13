@@ -5,7 +5,7 @@ define([
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/util/DeveloperError'
-], function (ItemStore, GeoEntity, Line, Log, Setter, DeveloperError) {
+], function(ItemStore, GeoEntity, Line, Log, Setter, DeveloperError) {
   /**
    * @typedef atlas.model.LineNetwork
    * @ignore
@@ -14,9 +14,9 @@ define([
 
   /**
    * @classdesc A LineNetwork represents a 2D network of lines. The network is described using a
-   * set of nodes and line data. The nodes are a set of {@link atlas.model.GeoPoint geographic points}.
-   * The line data describes an individual line in the network. It consists of an array of node
-   * indices which describe the geographic shape, and parameters which affect how the line is
+   * set of nodes and line data. The nodes are a set of {@link atlas.model.GeoPoint geographic
+   * points}. The line data describes an individual line in the network. It consists of an array of
+   * node indices which describe the geographic shape, and parameters which affect how the line is
    * rendered (colour, texture, width, ...).
    * @class atlas.model.LineNetwork
    * @extends atlas.model.GeoEntity
@@ -37,7 +37,7 @@ define([
      */
 
     /**
-     * An ItemStore of the @{link atlas.model.Line|Lines} constructing the LineNetwork.
+     * An ItemStore of the {@link atlas.model.Line|Lines} constructing the LineNetwork.
      * @type {atlas.core.ItemStore}
      * @private
      */

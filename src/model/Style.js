@@ -4,7 +4,7 @@ define([
   'atlas/lib/utility/Class',
   'atlas/util/DeveloperError',
   './Colour'
-], function (Setter, Class, DeveloperError, Colour) {
+], function(Setter, Class, DeveloperError, Colour) {
 
   /**
    * @typedef atlas.model.Style
@@ -19,7 +19,8 @@ define([
    *
    * @param {Object} [args]
    * @param {atlas.model.Colour} [args.fillColour=Colour.GREEN] - The fill colour for the polygon.
-   * @param {atlas.model.Colour} [args.borderColour=Colour.GREEN] - The border colour for the polygon.
+   * @param {atlas.model.Colour} [args.borderColour=Colour.GREEN] - The border colour for the
+   * polygon.
    * @param {Number} [args.borderWidth=1] - The border width for the polygon in pixels.
    *
    * @class atlas.model.Style
@@ -41,7 +42,7 @@ define([
     _borderColour: null,
 
     /**
-     * Border width in pixels of this Style. 1 by default.
+     * Border width in pixels of this Style.
      * @type {Number}
      * @private
      */
