@@ -2,9 +2,10 @@ define([
   'atlas/core/ItemStore',
   'atlas/core/Manager',
   'atlas/dom/Popup',
+  'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types'
-], function(ItemStore, Manager, Popup, Setter, Types) {
+], function(ItemStore, Manager, Popup, Log, Setter, Types) {
 
   // TODO(aramk) This duplicates the purpose of PopupFaculty in some ways.
 
@@ -146,6 +147,11 @@ define([
         onCreate = args.onCreate
         handles = [];
       delete args.onCreate;
+      var popupId = Popup.ID_PREFIX + entity.getId();
+      if (this._popups.get(popupId)) {
+        Log.warn('Popup selection already set up for entity', entity);
+        return;
+      }
 
       var initPopup = function() {
         if (entityPopup) return;

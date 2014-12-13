@@ -183,9 +183,9 @@ define([
       this._showMinimised = args.showMinimised;
 
       this._onRemove = Types.isFunction(args.onRemove) ? args.onRemove : null;
-      this._hasRemoveBtn = args.hasRemoveBtn || this._onRemove !== null;
+      this._hasRemoveBtn = args.hasRemoveBtn || !!this._onRemove;
       this._onEnabledChange = Types.isFunction(args.onEnabledChange) ? args.onEnabledChange : null;
-      this._hasEnableCheckbox = args.hasEnableCheckbox || this._onEnabledChange !== null;
+      this._hasEnableCheckbox = args.hasEnableCheckbox || !!this._onEnabledChange;
 
       // Construct element and append it to the parent.
       this._render();
@@ -362,7 +362,7 @@ define([
         // Wrap the title with an enable checkbox and remove button if necessary.
         title += '<div class="title">';
         if (this._hasEnableCheckbox) {
-          title += '<input type="checkbox" value="true" class="enable checkbox">'
+          title += '<input type="checkbox" class="enable checkbox" checked>'
         }
         title += '<div class="content">' + this._title + '</div>';
         if (this._hasRemoveBtn) {
@@ -386,7 +386,7 @@ define([
       // Add event handler to close button and checkbox
       if (this._hasRemoveBtn) {
         var removeFunction = this._onRemove ? '_onRemove' : 'remove';
-        $('.remove-overlay', element).click(function (e) {
+        $('.remove', element).click(function (e) {
           // 0 -> left click.
           if (e.button === 0) {
             this[removeFunction](e);
@@ -395,7 +395,7 @@ define([
       }
       if (this._hasEnableCheckbox) {
         var enableFunction = this._onEnabledChange ? '_onEnabledChange' : 'toggleMinimisation';
-        $('.enable-overlay', element).click(function (e) {
+        $('.enable.checkbox', element).click(function (e) {
           // 0 -> left click.
           if (e.button === 0) {
             this[enableFunction](e.target.value, e);

@@ -14,7 +14,7 @@ define([
   return AbstractProjection.extend(/** @lends atlas.visualisation.ColourProjection# */{
     ARTIFACT: 'colour',
 
-    DEFAULT_CODOMAIN: {fixedProj: Colour.RED},
+    DEFAULT_CODOMAIN: {startProj: Colour.RED, endProj: Colour.GREEN},
 
     // -------------------------------------------
     // GETTERS AND SETTERS
@@ -159,7 +159,6 @@ define([
           oldColour = this._getEffect(id, 'oldValue');
       if (oldColour) {
         entity.modifyStyle(oldColour);
-        entity.isVisible() && entity.show();
       }
     },
 

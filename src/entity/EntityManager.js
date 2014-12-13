@@ -4,6 +4,7 @@ define([
   'atlas/events/Event',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
+  'atlas/model/Collection',
   'atlas/model/Ellipse',
   'atlas/model/Feature',
   'atlas/model/GeoEntity',
@@ -13,8 +14,8 @@ define([
   'atlas/model/Image',
   'atlas/model/GeoPoint',
   'atlas/util/DeveloperError'
-], function(Manager, ItemStore, Event, Log, Setter, Ellipse, Feature, GeoEntity, Mesh, Polygon,
-            Line, Image, GeoPoint, DeveloperError) {
+], function(Manager, ItemStore, Event, Log, Setter, Collection, Ellipse, Feature, GeoEntity, Mesh,
+            Polygon, Line, Image, GeoPoint, DeveloperError) {
 
   /**
    * @typedef atlas.entity.EntityManager
@@ -48,7 +49,8 @@ define([
       Image: Image,
       Line: Line,
       Mesh: Mesh,
-      Polygon: Polygon
+      Polygon: Polygon,
+      Collection: Collection
     },
 
     /**
@@ -209,12 +211,11 @@ define([
             if (entities.length > 0) {
               // Only capture the double click on the first entity.
               var entity = entities[0];
-              this._managers.event.dispatchEvent(new Event(entity,
-                  'entity/dblclick', {
-                    id: entity.getId()
-                  }));
+              this._managers.event.dispatchEvent(new Event(entity, 'entity/dblclick', {
+                id: entity.getId()
+              }));
             }
-          }
+          }.bind(this)
         }
       ];
       this._managers.event.addEventHandlers(handlers);
@@ -268,19 +269,36 @@ define([
       } else if (this._entities.get(id)) {
         throw new DeveloperError('Can not create Feature with a duplicate ID');
       } else {
-        // TODO(aramk) Use dependency injection to ensure all entities that are created have these
-        // if they need them.
-        // Add EventManger to the args for the feature.
-        args.eventManager = this._managers.event;
-        // Add the RenderManager to the args for the feature.
-        args.renderManager = this._managers.render;
-        // Add the EntityManager to the args for the feature.
-        args.entityManager = this;
+        this._bindDeps(args);
         Log.debug('Creating entity', id);
-        var feature = new this._entityTypes.Feature(id, args);
-        feature.setVisibility(args.show);
-        return feature;
+        return new this._entityTypes.Feature(id, args);
       }
+    },
+
+    /**
+     * @param {String} id
+     * @param {Object} args
+     * @return {atlas.model.Collection}
+     */
+    createCollection: function(id, args) {
+      this._bindDeps(args);
+      return new this._entityTypes.Collection(id, {entities: args.children}, args);
+    },
+
+    /**
+     * Adds manager references to the given object as dependencies later passed to models.
+     * @param {Object} args
+     * @return {Object} The object passed in.
+     */
+    _bindDeps: function(args) {
+      // TODO(aramk) Use dependency injection to ensure all entities that are created have these
+      // if they need them.
+      // Add EventManger to the args for the feature.
+      args.eventManager = this._managers.event;
+      // Add the RenderManager to the args for the feature.
+      args.renderManager = this._managers.render;
+      // Add the EntityManager to the args for the feature.
+      args.entityManager = this;
     },
 
     /**
@@ -291,16 +309,28 @@ define([
      */
     bulkCreate: function(c3mls) {
       var ids = [];
+      var collections = {};
       c3mls.forEach(function(c3ml) {
         var id = c3ml.id;
         var entity = this.getById(id);
         if (!entity) {
           // TODO(aramk) This is only performed for bulk requests and is inconsistent - clean up
           // the API for consistency.
-          var args = this._parseC3ML(c3ml);
-          var feature = this.createFeature(id, args);
+          var c3mlData = this._parseC3ML(c3ml);
+          if (c3ml.type === 'collection') {
+            collections[id] = c3mlData;
+          } else {
+            this.createFeature(id, c3mlData);
+          }
           ids.push(id);
         }
+      }, this);
+      // Create collections (if any) after all other entities.
+      // TODO(aramk) Topologically sort all entities (including collections) based on their
+      // parents/children.
+      Object.keys(collections).forEach(function(id) {
+        var c3mlData = collections[id];
+        this.createCollection(id, c3mlData);
       }, this);
       return ids;
     },
@@ -316,11 +346,11 @@ define([
       var geometry;
       // Map of C3ML type to parse of that type.
       var parsers = {
-            line: this._parseC3MLline,
-            mesh: this._parseC3MLmesh,
-            polygon: this._parseC3MLpolygon,
-            image: this._parseC3MLimage
-          };
+        line: this._parseC3MLline,
+        mesh: this._parseC3MLmesh,
+        polygon: this._parseC3MLpolygon,
+        image: this._parseC3MLimage
+      };
       // Generate the Geometry for the C3ML type if it is supported.
       parsers[c3ml.type] && (geometry = parsers[c3ml.type].call(this, c3ml));
       return Setter.mixin(c3ml, geometry);

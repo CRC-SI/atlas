@@ -18,11 +18,16 @@ define([
    *
    * @param {Number} id - The ID of this Polygon.
    * @param {Object} polygonData - Data describing the Polygon.
-   * @param {string|Array.<atlas.model.GeoPoint>} [polygonData.vertices=[]] - The vertices of the Polygon.
+   * @param {String|Array.<atlas.model.GeoPoint>} [polygonData.vertices=[]] - Either a WKT string or
+   *   an array of vertices describing the Polygon.
    * @param {Number} [polygonData.height=0] - The extruded height of the Polygon to form a prism.
    * @param {Number} [polygonData.elevation] - The elevation of the base of the Polygon (or prism).
-   * @param {atlas.model.Colour} [polygonData.color] - The fill colour of the Polygon (overridden/overrides Style)
-   * @param {atlas.model.Style} [polygonData.style=defaultStyle] - The Style to apply to the Polygon.
+   * @param {atlas.model.Colour} [polygonData.color] - The fill colour of the Polygon. Overrides the
+   *   given style.
+   * @param {atlas.model.Colour} [polygonData.borderColor] - The border colour of the Polygon.
+   *   Overrides the given style.
+   * @param {atlas.model.Style} [polygonData.style=defaultStyle] - The Style to apply to the
+   *   Polygon.
    * @param {Object} [args] - Option arguments describing the Polygon.
    * @param {atlas.model.GeoEntity} [args.parent=null] - The parent entity of the Polygon.
    * @returns {atlas.model.Polygon}
@@ -74,21 +79,20 @@ define([
         this._holes = polygonData.holes;
       }
       this._height = parseFloat(polygonData.height) || this._height;
-      // TODO(aramk) Abstract this into VertexedEntity.
-      this._elevation = parseFloat(polygonData.elevation) || this._elevation;
-      this._zIndex = parseFloat(polygonData.zIndex) || this._zIndex;
-      this._zIndexOffset = parseFloat(polygonData.zIndexOffset) || this._zIndexOffset;
-      var style;
-      if (polygonData.color) {
-        if (polygonData.color instanceof Colour) {
-          style = new Style({fillColour: polygonData.color});
-        } else {
-          style = new Style({fillColour: Colour.fromRGBA(polygonData.color)});
+      var style = polygonData.style || Polygon.getDefaultStyle();
+      var color = polygonData.color;
+      var borderColor = polygonData.borderColor;
+      if (color) {
+        if (!(color instanceof Colour)) {
+          color = new Colour(color);
         }
-      } else if (polygonData.style) {
-        style = polygonData.style;
-      } else {
-        style = Polygon.getDefaultStyle();
+        style.setFillColour(color);
+      }
+      if (borderColor) {
+        if (!(borderColor instanceof Colour)) {
+          borderColor = new Colour(borderColor);
+        }
+        style.setBorderColour(borderColor);
       }
       this.setStyle(style);
     },
@@ -103,7 +107,10 @@ define([
     enableExtrusion: function() {
       var oldValue = this._showAsExtrusion;
       this._showAsExtrusion = true;
-      oldValue !== true && this.setDirty('model');
+      if (oldValue !== true) {
+        this.setDirty('model');
+        this._update();
+      }
     },
 
     /**
@@ -112,7 +119,10 @@ define([
     disableExtrusion: function() {
       var oldValue = this._showAsExtrusion;
       this._showAsExtrusion = false;
-      oldValue !== false && this.setDirty('model');
+      if (oldValue !== false) {
+        this.setDirty('model');
+        this._update();
+      }
     },
 
     /**
@@ -127,10 +137,10 @@ define([
      * @param {Number} height The extruded height of the building.
      */
     setHeight: function(height) {
-      // TODO(aramk) Throw error if height is not number?
-      if (typeof height === 'number' && this._height !== height) {
+      if (this._height !== height) {
         this._height = height;
         this.setDirty('vertices');
+        this._update();
       }
     },
 

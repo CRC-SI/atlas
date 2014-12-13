@@ -318,9 +318,10 @@ define([
      * @param {Number} elevation - The elevation of the base of the GeoEntity.
      */
     setElevation: function(elevation) {
-      if (typeof elevation === 'number' && this._elevation !== elevation) {
+      if (this._elevation !== elevation) {
         this._elevation = elevation;
         this.setDirty('model');
+        this._update();
       }
     },
 
@@ -533,8 +534,7 @@ define([
         borderColour: this._style.getBorderColour(),
         borderWidth: this._style.getBorderWidth()
       }, newStyle);
-      this._style = new Style(newStyle);
-      return oldStyle;
+      return this.setStyle(newStyle)
     },
 
     /**
