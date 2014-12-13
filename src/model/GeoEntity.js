@@ -29,9 +29,12 @@ define([
    * @param {Number} id - The ID of this GeoEntity.
    * @param {Object} args - Both optional and required construction parameters.
    * @param {String} args.id - The ID of the GeoEntity.
-   * @param {atlas.render.RenderManager} args.renderManager - The RenderManager object responsible for the GeoEntity.
-   * @param {atlas.events.EventManager} args.eventManager - The EventManager object responsible for the Event system.
-   * @param {atlas.events.EventTarget} [args.parent] - The parent EventTarget object of the GeoEntity.
+   * @param {atlas.render.RenderManager} args.renderManager - The RenderManager object responsible
+   *     for the GeoEntity.
+   * @param {atlas.events.EventManager} args.eventManager - The EventManager object responsible for
+   *     the Event system.
+   * @param {atlas.events.EventTarget} [args.parent] - The parent EventTarget object of the
+   *     GeoEntity.
    *
    * @see {atlas.model.Feature}
    * @see {atlas.model.Polygon}
@@ -169,7 +172,7 @@ define([
     /**
      * The {@link atlas.model.Handle} on the entity itself.
      * @type {atlas.model.Handle}
-     * @protected 
+     * @protected
      */
     _entityHandle: null,
 
@@ -203,8 +206,9 @@ define([
       this._eventManager = args.eventManager;
       this._entityManager = args.entityManager;
       this._entityManager && this._entityManager.add(this.getId(), this);
-      var parentId = args.parent,
-        parent;
+
+      var parentId = args.parent;
+      var parent;
       if (parentId) {
         parent = this._entityManager && this._entityManager.getById(parentId);
       }
@@ -225,7 +229,7 @@ define([
 
     // TODO(aramk) Use better dependency injection.
     /**
-     * @param args - Any object used for construction.
+     * @param {Object} args - Any object used for construction.
      * @returns {Object} - The given object with manager dependencies added.
      * @protected
      */
@@ -391,7 +395,8 @@ define([
     /**
      * Sets a particular component of the GeoEntity to dirty, which affects how the GeoEntity is
      * rendered.
-     * @param component
+     * @param {String|Array|Object} component - Either a single component name, or an array or
+     *     object literal of component names to set to dirty.
      */
     setDirty: function(component) {
       if (typeof component === 'string') {
@@ -403,7 +408,7 @@ define([
         }
         components.forEach(function(key) {
           this._dirty[key] = true;
-        }, this)
+        }, this);
       }
       if (this.isDirty('entity') || this.isDirty('vertices') || this.isDirty('model')) {
         this._invalidateGeometry();
@@ -543,7 +548,8 @@ define([
     },
 
     /**
-     * Scales the GeoEntity by the given vector. This scaling can be uniform in all axis or non-uniform.
+     * Scales the GeoEntity by the given vector. This scaling can be uniform in all axis or
+     *     non-uniform.
      * A scaling factor of <code>1</code> has no effect. Factors lower or higher than <code>1</code>
      * scale the GeoEntity down or up respectively. ie, <code>0.5</code> is half as big and
      * <code>2</code> is twice as big.

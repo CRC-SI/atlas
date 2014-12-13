@@ -1,7 +1,7 @@
 define([
-  'atlas/events/Event',
   'atlas/core/Manager',
   'atlas/core/ItemStore',
+  'atlas/events/Event',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/model/Collection',
@@ -14,7 +14,7 @@ define([
   'atlas/model/Image',
   'atlas/model/GeoPoint',
   'atlas/util/DeveloperError'
-], function(Event, Manager, ItemStore, Log, Setter, Collection, Ellipse, Feature, GeoEntity, Mesh,
+], function(Manager, ItemStore, Event, Log, Setter, Collection, Ellipse, Feature, GeoEntity, Mesh,
             Polygon, Line, Image, GeoPoint, DeveloperError) {
 
   /**
@@ -68,7 +68,7 @@ define([
 
     /**
      * Performs any manager setup that requires the presence of other managers.
-     * @param args
+     * @param {Object} args
      */
     setup: function(args) {
       var constructors = args && args.constructors;
@@ -182,14 +182,25 @@ define([
             Log.time('entity/display-mode/reset');
             var features = this._getFeaturesByIds(args.ids || Object.keys(this._origDisplayModes));
             features.forEach(function(feature) {
-              var id = feature.getId(),
-                  origDisplayMode = this._origDisplayModes[id];
+              var id = feature.getId();
+              var origDisplayMode = this._origDisplayModes[id];
               if (origDisplayMode) {
                 feature.setDisplayMode(origDisplayMode);
                 delete this._origDisplayModes[id];
               }
             }, this);
             Log.timeEnd('entity/display-mode/reset');
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'entity/rotate',
+          callback: function(args) {
+            if (!args || !args.ids) { return; }
+            var features = this._getFeaturesByIds(args.ids);
+            features.forEach(function(feature) {
+              feature.rotate(args.rotate);
+            });
           }.bind(this)
         },
         {
@@ -213,7 +224,8 @@ define([
     /**
      * Allows overriding of the default Atlas GeoEntity types with implementation specific
      * GeoEntity types.
-     * @param {Object.<String, Function>} constructors - A map of entity type names to entity constructors.
+     * @param {Object.<String, Function>} constructors - A map of entity type names to entity
+     *     constructors.
      */
     setGeoEntityTypes: function(constructors) {
       for (var key in constructors) {
@@ -233,15 +245,15 @@ define([
      * @param {String} id - The ID of the Feature to add.
      * @param {Object} args - Arguments describing the Feature to add.
      * @param {String|Array.<atlas.model.GeoPoint>} [args.line=null] - Either a WKT string or array
-     * of vertices.
-     * @param {String|Array.<atlas.model.GeoPoint>} [args.footprint=null] - Either a WKT string or array
-     * of vertices.
+     *     of vertices.
+     * @param {String|Array.<atlas.model.GeoPoint>} [args.footprint=null] - Either a WKT string or
+     *     array of vertices.
      * @param {Object} [args.mesh=null] - A object in the C3ML format describing the Features' Mesh.
      * @param {Number} [args.height=0] - The extruded height when displaying as a extruded polygon.
      * @param {Number} [args.elevation=0] - The elevation (from the terrain surface) to the base of
-     * the Mesh or Polygon.
+     *     the Mesh or Polygon.
      * @param {Boolean} [args.show=true] - Whether the feature should be initially shown when
-     * created.
+     *     created.
      * @param {String} [args.displayMode='footprint'] - Initial display mode of feature.
      */
     createFeature: function(id, args) {
@@ -334,11 +346,19 @@ define([
       var geometry;
       // Map of C3ML type to parse of that type.
       var parsers = {
+<<<<<<< HEAD
         line: this._parseC3MLline,
         mesh: this._parseC3MLmesh,
         polygon: this._parseC3MLpolygon,
         image: this._parseC3MLimage
       };
+=======
+            line: this._parseC3MLline,
+            mesh: this._parseC3MLmesh,
+            polygon: this._parseC3MLpolygon,
+            image: this._parseC3MLimage
+          };
+>>>>>>> develop
       // Generate the Geometry for the C3ML type if it is supported.
       parsers[c3ml.type] && (geometry = parsers[c3ml.type].call(this, c3ml));
       return Setter.mixin(c3ml, geometry);
@@ -467,7 +487,8 @@ define([
         return false;
       }
       if (!(entity instanceof GeoEntity)) {
-        throw new DeveloperError('Can not add entity which is not a subclass of atlas/model/GeoEntity.');
+        throw new DeveloperError('Can not add entity which is not a subclass of ' +
+            'atlas/model/GeoEntity.');
       }
       Log.debug('entityManager: added entity', id);
       this._entities.add(entity);
@@ -500,9 +521,9 @@ define([
       if (!args.ids) {
         args.ids = this._entities.getIds();
       }
-      var visible = {},
-          ids = args.ids,
-          filter = args.filter;
+      var visible = {};
+      var ids = args.ids;
+      var filter = args.filter;
       ids.forEach(function(id) {
         var entity = this.getById(id);
         if (filter && !filter(entity)) {
@@ -531,7 +552,7 @@ define([
      * Returns the GeoEntity instance corresponding to the given ID.
      * @param {String} id - The ID of the GeoEntity to return.
      * @returns {atlas.model.GeoEntity|undefined} The corresponding GeoEntity or
-     * <code>undefined</code> if there is no such GeoEntity.
+     *     <code>undefined</code> if there is no such GeoEntity.
      */
     getById: function(id) {
       // TODO(bpstudds): Accept either a single id or an array of IDs and return an either a
@@ -541,8 +562,8 @@ define([
 
     /**
      * @param {Array.<String>} ids - The ID of the GeoEntity to return.
-     * @returns {Array.<atlas.model.GeoEntity>} The corresponding GeoEntity instances mapped by their
-     * IDs.
+     * @returns {Array.<atlas.model.GeoEntity>} The corresponding GeoEntity instances mapped by
+     *     their IDs.
      */
     getByIds: function(ids) {
       var entities = [];
