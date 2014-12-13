@@ -30,8 +30,13 @@ define([
       // Use commas, with taking into account the minimum and maximum number of significant figures
       // after the period.
       var diffSigFigs = args.maxSigFigs - args.minSigFigs;
-      return numeral(x).format('0,0.' + Strings.repeat('0', args.minSigFigs) + '[' +
-          Strings.repeat('0', diffSigFigs));
+      var hasDecimals = args.maxSigFigs > 0;
+      var decimalFormat = '';
+      if (hasDecimals) {
+        decimalFormat = '.' + Strings.repeat('0', args.minSigFigs) + '[' +
+          Strings.repeat('0', diffSigFigs)
+      }
+      return numeral(x).format('0,0' + decimalFormat);
     },
 
     /**
