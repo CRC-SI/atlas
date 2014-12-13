@@ -125,7 +125,7 @@ define([
     /**
      * @return {atlas.model.Camera} The currently active camera.
      */
-    getCurrentCamera: function () {
+    getCurrentCamera: function() {
       return this._current;
     },
 

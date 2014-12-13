@@ -1,6 +1,6 @@
 define([
 
-], function () {
+], function() {
   return {
     /* not really required */
     'id': 'ID4',

@@ -1,5 +1,5 @@
 define([
-], function () {
+], function() {
 
   /**
    * Used to freeze objects using ECMAScript5 <code>Object.freeze</code>. If this
@@ -8,7 +8,7 @@ define([
    */
   var freezeObject = Object.freeze;
   if (freezeObject === undefined) {
-    freezeObject = function (o) {
+    freezeObject = function(o) {
       return o;
     };
   }

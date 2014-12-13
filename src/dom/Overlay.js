@@ -7,7 +7,7 @@ define([
   'atlas/lib/utility/Types',
   'atlas/lib/utility/Class',
   'jquery',
-], function (DomUtil, Event, EventTarget, Log, Setter, Types, Class, $) {
+], function(DomUtil, Event, EventTarget, Log, Setter, Types, Class, $) {
 
   /**
    * @typedef atlas.dom.Overlay
@@ -143,7 +143,7 @@ define([
      * Constructor for the overlay
      * @ignore
      */
-    _init: function (args) {
+    _init: function(args) {
       // Set defaults
       args = Setter.merge({
         parent: document.body,
@@ -164,7 +164,7 @@ define([
       if (!args.parent) { throw new Error('Error attaching to element ' + args.parent)}
 
       // Sanitise the dimensions and positions passed in.
-      ['top', 'left', 'right', 'bottom'].forEach(function (p) {
+      ['top', 'left', 'right', 'bottom'].forEach(function(p) {
         args.position[p] === null && delete args.position[p];
       });
       args.dimensions.width === null && delete args.dimensions.width;
@@ -265,7 +265,7 @@ define([
      * Sets whether the Overlay is minimised.
      * @param {boolean} isMinimised - The Overlay should be minimised.
      */
-    setMinimised: function (isMinimised) {
+    setMinimised: function(isMinimised) {
       var elems = this.getDomElements(),
         $content = $(elems.content),
         $enableCheckbox = $('.enable-overlay', elems.title);
@@ -386,7 +386,7 @@ define([
       // Add event handler to close button and checkbox
       if (this._hasRemoveBtn) {
         var removeFunction = this._onRemove ? '_onRemove' : 'remove';
-        $('.remove', element).click(function (e) {
+        $('.remove', element).click(function(e) {
           // 0 -> left click.
           if (e.button === 0) {
             this[removeFunction](e);
@@ -395,7 +395,7 @@ define([
       }
       if (this._hasEnableCheckbox) {
         var enableFunction = this._onEnabledChange ? '_onEnabledChange' : 'toggleMinimisation';
-        $('.enable.checkbox', element).click(function (e) {
+        $('.enable.checkbox', element).click(function(e) {
           // 0 -> left click.
           if (e.button === 0) {
             this[enableFunction](e.target.value, e);
@@ -420,7 +420,7 @@ define([
    * @param {atlas.model.Colour} [data.bgColour=null] - The CSS background-color to apply to the tag.
    * @returns {String} The HTML string of the attributes.
    */
-  Overlay.parseAttributes = function (data) {
+  Overlay.parseAttributes = function(data) {
     // TODO(aramk) Rely on $.attr() instead.
     var html = '',
         style = '',
@@ -466,14 +466,14 @@ define([
    *   ]
    * }
    */
-  Overlay.generateTable = function (data) {
+  Overlay.generateTable = function(data) {
     if (!data || !data.rows) { return ''; }
     var tableAttributes = Overlay.parseAttributes(data),
         html = '<table ' + tableAttributes + '>';
-    data.rows.forEach(function (row) {
+    data.rows.forEach(function(row) {
       var rowAttributes = Overlay.parseAttributes(row);
       html += '<tr ' + rowAttributes + '>';
-      row.cells.forEach(function (cell) {
+      row.cells.forEach(function(cell) {
         var cellAttributes = Overlay.parseAttributes(cell);
         html += '<td ' + cellAttributes + '>' + (cell.value || '') + '</td>';
       });

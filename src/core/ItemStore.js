@@ -49,8 +49,8 @@ define([
     // GETTERS AND SETTERS
     // -------------------------------------------------
 
-    asArray: function () {
-      return this.map(function (item) {
+    asArray: function() {
+      return this.map(function(item) {
         return item;
       });
     },
@@ -65,7 +65,7 @@ define([
     /**
      * @returns {boolean} Whether there are items in the store.
      */
-    isEmpty: function () {
+    isEmpty: function() {
       return this.getCount() === 0;
     },
 
@@ -76,14 +76,14 @@ define([
     /**
      * @returns {Array} The item IDs in the store.
      */
-    getIds: function () {
+    getIds: function() {
       return Object.keys(this._items);
     },
 
     /**
      * @returns {atlas.core.ItemStore} A shallow copy of this object.
      */
-    clone: function () {
+    clone: function() {
       var clone = new ItemStore();
       clone.addArray(this.asArray());
       return clone;

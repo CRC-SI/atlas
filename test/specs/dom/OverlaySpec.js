@@ -3,7 +3,7 @@ define([
   '../../lib/simulate.js',
   // Code under test.
   'atlas/dom/Overlay'
-], function (Colour, simulate, Overlay) {
+], function(Colour, simulate, Overlay) {
 
     var parent,
         position = {
@@ -19,7 +19,7 @@ define([
         overlay,
         element;
 
-  var getOverlayDom = function () {
+  var getOverlayDom = function() {
     var overlay = parent.getElementsByClassName('overlay')[0],
         title = overlay.getElementsByClassName('overlay-title')[0],
         content = overlay.getElementsByClassName('overlay-body')[0];
@@ -30,24 +30,24 @@ define([
     }
   };
 
-  describe('An Overlay', function () {
+  describe('An Overlay', function() {
 
 
-    beforeEach(function () {
+    beforeEach(function() {
       parent = document.createElement('div');
       args = {parent: parent, position: position, dimensions: dimensions, content: content};
     });
 
-    afterEach(function () {
+    afterEach(function() {
       overlay && overlay.remove();
       parent = null;
       overlay = null;
       element = null;
     });
 
-    describe('Non-default', function () {
+    describe('Non-default', function() {
 
-      it('can have a title', function () {
+      it('can have a title', function() {
         args.title = 'title';
         overlay = new Overlay(args);
 
@@ -55,15 +55,15 @@ define([
         expect(actual.title.innerHTML).toEqual('title');
       });
 
-      it('should not have a title if one is not specified', function () {
+      it('should not have a title if one is not specified', function() {
         overlay = new Overlay(args);
         var title = getOverlayDom().title;
         expect(title).toBeUndefined();
       });
 
-      it('should have a remove button if an onRemove callback is given', function () {
+      it('should have a remove button if an onRemove callback is given', function() {
         args.title = 'title';
-        args.onRemove = function () {};
+        args.onRemove = function() {};
         overlay = new Overlay(args);
 
         var actual = getOverlayDom(),
@@ -74,7 +74,7 @@ define([
         expect(removeBtn.type).toEqual('submit');
       });
 
-      it('should have a remove button if hasRemoveBtn is true', function () {
+      it('should have a remove button if hasRemoveBtn is true', function() {
         args.hasRemoveBtn = true;
         overlay = new Overlay(args);
 
@@ -85,7 +85,7 @@ define([
         expect(removeBtn.type).toEqual('submit');
       });
 
-      it('should be removed by default when the remove button is clicked', function () {
+      it('should be removed by default when the remove button is clicked', function() {
         // default callback
         args.hasRemoveBtn = true;
         overlay = new Overlay(args);
@@ -96,8 +96,8 @@ define([
         expect(overlay.remove).toHaveBeenCalled();
       });
 
-      it('should call the given callback when the remove button is pressed', function () {
-        args.onRemove = function () {};
+      it('should call the given callback when the remove button is pressed', function() {
+        args.onRemove = function() {};
         var overlay = new Overlay(args),
             removeBtn = getOverlayDom().title.getElementsByClassName('remove-overlay')[0];
         spyOn(overlay, '_onRemove');
@@ -105,14 +105,14 @@ define([
         expect(overlay._onRemove).toHaveBeenCalled();
       });
 
-      it('should not have a remove button by default', function () {
+      it('should not have a remove button by default', function() {
         overlay = new Overlay(args);
         var actual = getOverlayDom(),
             removeBtn = actual.title.getElementsByClassName('remove-overlay')[0];
         expect(removeBtn).toBeUndefined();
       });
 
-      it('should not have a remove button if told not to', function () {
+      it('should not have a remove button if told not to', function() {
         args.hasRemoveButton = false;
         overlay = new Overlay(args);
 
@@ -121,7 +121,7 @@ define([
         expect(removeBtn).toBeUndefined();
       });
 
-      it('should not have a remove button if onRemove is not a valid function', function () {
+      it('should not have a remove button if onRemove is not a valid function', function() {
         args.title = 'title';
         // onEnabledChange is undefined
         overlay = new Overlay(args);
@@ -138,9 +138,9 @@ define([
         expect(removeBtn).toBeUndefined();
       });
 
-      it('should have an enable checkbox if an onEnabledChange callback is given', function () {
+      it('should have an enable checkbox if an onEnabledChange callback is given', function() {
         args.title = 'title';
-        args.onEnabledChange = function () {};
+        args.onEnabledChange = function() {};
         overlay = new Overlay(args);
 
         var actual = getOverlayDom(),
@@ -150,7 +150,7 @@ define([
         expect(enableCb.type).toEqual('checkbox');
       });
 
-      it('should have an enable checkbox if hasEnableCheckbox is true', function () {
+      it('should have an enable checkbox if hasEnableCheckbox is true', function() {
         args.title = 'title';
         args.hasEnableCheckbox = true;
         overlay = new Overlay(args);
@@ -162,7 +162,7 @@ define([
         expect(enableCb.type).toEqual('checkbox');
       });
 
-      it('should call a callback when the enable checkbox is toggled', function () {
+      it('should call a callback when the enable checkbox is toggled', function() {
         args.hasEnableCheckbox = true;
         overlay = new Overlay(args);
 
@@ -172,7 +172,7 @@ define([
         expect(overlay.toggleMinimisation).toHaveBeenCalled();
 
         overlay.remove();
-        args.onEnabledChange = function () {};
+        args.onEnabledChange = function() {};
         overlay = new Overlay(args);
 
         enableCb = getOverlayDom().title.getElementsByClassName('enable-overlay')[0];
@@ -181,7 +181,7 @@ define([
         expect(overlay._onEnabledChange).toHaveBeenCalled();
       });
 
-      it('should not have an enable checkbox if hasEnableCheckbox is false', function () {
+      it('should not have an enable checkbox if hasEnableCheckbox is false', function() {
         args.title = 'title';
         args.hasEnableCheckbox = false;
         overlay = new Overlay(args);
@@ -191,7 +191,7 @@ define([
         expect(enableCb).toBeUndefined();
       });
 
-      it('should not have an enable checkbox if onEnabledChange is not a valid function', function () {
+      it('should not have an enable checkbox if onEnabledChange is not a valid function', function() {
         args.title = 'title';
         // onEnabledChange is undefined
         overlay = new Overlay(args);
@@ -208,7 +208,7 @@ define([
         expect(enableCb).toBeUndefined();
       });
 
-      it('should be able to be minimised and maximised', function () {
+      it('should be able to be minimised and maximised', function() {
         overlay = new Overlay(args);
         var domBefore = getOverlayDom(),
             isMinimised = domBefore.content.classList.contains('hidden');
@@ -226,42 +226,42 @@ define([
       });
     });
 
-    describe('Default', function () {
+    describe('Default', function() {
 
-      beforeEach(function () {
+      beforeEach(function() {
         overlay = new Overlay(args);
       });
 
-      it('can be constructed', function () {
+      it('can be constructed', function() {
         expect(overlay.getParentElement()).toBe(parent);
         expect(overlay.getDimensions()).toBe(dimensions);
         expect(overlay.getContent()).toContain(content);
       });
 
-      it('can create an element containing plain text from content', function () {
+      it('can create an element containing plain text from content', function() {
         var actual = getOverlayDom();
         expect(actual.overlay.classList.contains('hidden')).toBe(false);
         expect(actual.content.innerHTML).toEqual(content);
       });
 
-      it('is attached to the parent node', function () {
+      it('is attached to the parent node', function() {
         var actualOverlay = parent.getElementsByClassName('overlay')[0];
         expect(actualOverlay).not.toBeNull();
       });
 
-      it('it has dimensions', function () {
+      it('it has dimensions', function() {
         expect(parent.children[0].style.top).toEqual('100px');
         expect(parent.children[0].style.left).toEqual('200px');
         expect(parent.children[0].style.height).toEqual('300px');
         expect(parent.children[0].style.width).toEqual('400px');
       });
 
-      it('can be hidden', function () {
+      it('can be hidden', function() {
         overlay.hide();
         expect(parent.children[0].classList.contains('hidden')).toBe(true);
       });
 
-      it('can be unhidden', function () {
+      it('can be unhidden', function() {
         overlay.hide();
         overlay.show();
         expect(parent.children[0].classList.contains('hidden')).toBe(false);
@@ -273,8 +273,8 @@ define([
       });
     });
 
-    describe ('can generate HTML', function () {
-      it ('with tag class and id', function () {
+    describe ('can generate HTML', function() {
+      it ('with tag class and id', function() {
         var data = {
           cssClass: 'aClass',
           id: 'anId'
@@ -283,7 +283,7 @@ define([
         expect(html).toEqual(' class="aClass" id="anId"');
       });
 
-      it ('with inline tag styles', function () {
+      it ('with inline tag styles', function() {
         var data = {
           bgColour: Colour.RED
         };
@@ -291,14 +291,14 @@ define([
         expect(html).toEqual(' style="background-color:#ff0000;"');
       });
 
-      it ('handling blank data', function () {
+      it ('handling blank data', function() {
         var html = Overlay.parseAttributes({});
         expect(html).toEqual('');
         var html = Overlay.parseAttributes();
         expect(html).toEqual('');
       })
 
-      it ('as a plain table', function () {
+      it ('as a plain table', function() {
         var data = {
               id: 'table',
               rows: [
@@ -319,7 +319,7 @@ define([
           '</table>')
       });
 
-      it ('as a table with background colour', function () {
+      it ('as a table with background colour', function() {
         var data = {
               rows: [
                 {

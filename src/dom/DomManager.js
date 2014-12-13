@@ -98,7 +98,7 @@ define([
     translateEventCoords: function(screenCoords) {
       var element = this.getDom(),
           style = window.getComputedStyle(element),
-          getCss = function (css) {
+          getCss = function(css) {
             return parseInt(style.getPropertyValue(css).replace('px', '')) || 0;
           };
       return {

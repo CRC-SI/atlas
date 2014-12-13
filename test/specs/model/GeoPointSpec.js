@@ -7,14 +7,14 @@ define([
 
     var lat, lng, elev, geoPoint;
 
-    beforeEach(function () {
+    beforeEach(function() {
       lat = -37.79859924316406;
       lng = 144.96112060546875;
       elev = 2000;
       geoPoint = new GeoPoint({latitude: lat, longitude: lng, elevation: elev});
     });
 
-    afterEach(function () {
+    afterEach(function() {
       geoPoint = null;
     });
 

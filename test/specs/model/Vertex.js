@@ -3,7 +3,7 @@ define([
     'dam/TestCase',
     // Code under test.
     '../Vertex'
-], function (doh, TestCase, Vertex) {
+], function(doh, TestCase, Vertex) {
   // Define test variables`
   var vertex;
 

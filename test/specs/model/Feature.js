@@ -4,19 +4,19 @@ define([
     '../Polygon',
     // Code under test.
     '../Feature'
-], function (doh, TestCase, Polygon, Feature) {
+], function(doh, TestCase, Polygon, Feature) {
 
   var feature;
   var id;
   var args;
 
-  var mockMeshFootprint = function () {
+  var mockMeshFootprint = function() {
     // Mock _mesh.
     feature._mesh = {
-      show: function () {
+      show: function() {
         this._shownMesh = true;
       },
-      hide: function () {
+      hide: function() {
         this._shownMesh = false;
       }
     };
@@ -25,14 +25,14 @@ define([
       setHeight: function(h) {
         this._height = h;
       },
-      show: function (h) {
+      show: function(h) {
         if (h === undefined) {
           this._shownFootprint = true;
         } else {
           this._shownExtrusion = true;
         }
       },
-      hide: function (h) {
+      hide: function(h) {
         if (h === undefined) {
           this._shownFootprint = false;
         } else {
@@ -69,7 +69,7 @@ define([
       doh.assertTrue(feature instanceof Feature);
     },
 
-    testDefaults: function () {
+    testDefaults: function() {
       feature = new Feature(id, {renderManager: {}, eventManager: {}});
       doh.assertEqual(0, feature._height);
       doh.assertEqual(0, feature._elevation);
@@ -86,7 +86,7 @@ define([
       doh.assertEqual('extrusion', feature._displayMode);
     },
 
-    testShowFootprint: function () {
+    testShowFootprint: function() {
       mockMeshFootprint();
       feature.showAsFootprint();
       doh.assertTrue(feature._footprint._shownFootprint);
@@ -95,7 +95,7 @@ define([
       doh.is(0, feature._footprint._height);
     },
 
-    testShowExtrusion: function () {
+    testShowExtrusion: function() {
       mockMeshFootprint();
       feature.showAsExtrusion();
       doh.assertTrue(!feature._footprint._shownFootprint);
@@ -104,7 +104,7 @@ define([
       doh.is(args.height, feature._footprint._height);
     },
 
-    testShowMesh: function () {
+    testShowMesh: function() {
       mockMeshFootprint();
       feature.showAsMesh();
       doh.assertTrue(!feature._footprint._shownFootprint);

@@ -2,7 +2,7 @@ define([
     'doh/runner',
     // Code under test.
     '../Event'
-], function (doh, Event) {
+], function(doh, Event) {
   var bareEvent;
   var argedEvent;
   var target = { object: "target" };

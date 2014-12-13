@@ -3,13 +3,13 @@ define([
   'dam/TestCase',
   // Code under test
   '../DomManager'
-], function (doh, TestCase, DomManager) {
+], function(doh, TestCase, DomManager) {
   "use strict";
 
   var domManager;
   var managers;
 
-  var createDomTestBed = function () {
+  var createDomTestBed = function() {
     // Define some DOM elements to test with.
     var htmlBody = document.body;
     var docFrag = document.createDocumentFragment();
@@ -34,7 +34,7 @@ define([
 
     name: 'atlas/dom/DomManager',
 
-    setUp: function () {
+    setUp: function() {
       // summary:
 
       // Create DOM elements for testing.
@@ -46,7 +46,7 @@ define([
         event: {}
       };
       // Mock populateDom function on DomManager.
-      DomManager.prototype.populateDom = function (id) {
+      DomManager.prototype.populateDom = function(id) {
         console.debug('  populating');
         var elem = document.getElementById(id);
         var testDiv = document.createElement('div');
@@ -58,7 +58,7 @@ define([
       domManager = new DomManager(managers);
     },
 
-    tearDown: function () {
+    tearDown: function() {
       domManager = {};
       managers = {};
       // Remove test bed DOM elements.
@@ -70,7 +70,7 @@ define([
      * Tests that the DomManager is correctly initialised when a DOM ID
      * is not passed to the constructor.
      */
-    testCreateDefault: function () {
+    testCreateDefault: function() {
       doh.assertTrue(domManager instanceof DomManager);
       doh.assertTrue(managers.dom === domManager);
       doh.assertEqual(false, domManager._visible);
@@ -128,7 +128,7 @@ define([
      * Tests setting Atlas' DOM element. Checks that the test div is placed into
      * the div with id passed into setDom. Checks that the DOM element is visible.
      */
-    testSetDom: function () {
+    testSetDom: function() {
       domManager.setDom('cesium');
       var testDiv = document.getElementById('testDiv');
       doh.assertNotEqual(null, testDiv, 'Test div not created.');
@@ -139,7 +139,7 @@ define([
     /**
      * Tests setting Atlas' DOM element without showing Atlas.
      */
-    testSetDomHidden: function () {
+    testSetDomHidden: function() {
       domManager.setDom('cesium', false);
       var testDiv = document.getElementById('testDiv');
       doh.assertNotEqual(null, testDiv, 'Test div not created.');
@@ -152,7 +152,7 @@ define([
      * the new element and removed from the previous. 
      * Checks that the DOM element is visible.
      */
-    testMoveDom: function () {
+    testMoveDom: function() {
       domManager.setDom('cesium');
       // Initialise DOM in cesium.
       var testDiv = document.getElementById('testDiv');

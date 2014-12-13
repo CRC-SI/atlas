@@ -116,13 +116,13 @@ define([
    * Defines the default style to use when rendering a image.
    * @type {atlas.model.Style}
    */
-  Image.getDefaultStyle = function () {return new Style({fillColour: Colour.GREEN}); };
+  Image.getDefaultStyle = function() {return new Style({fillColour: Colour.GREEN}); };
 
   /**
    * Defines the default style to use when rendering a selected image.
    * @type {atlas.model.Style}
    */
-  Image.getSelectedStyle = function () { return new Style({fillColour: Colour.RED}); };
+  Image.getSelectedStyle = function() { return new Style({fillColour: Colour.RED}); };
 
   return Image;
 });

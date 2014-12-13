@@ -1,4 +1,4 @@
-define([], function () {
+define([], function() {
   return [
     {"id":"ID1","type":"collection","parentId":null,"children":["ID2"]},
     {"id":"ID2","type":"collection","parentId":"ID1","children":["ID3"]},

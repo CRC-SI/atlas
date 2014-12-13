@@ -6,7 +6,7 @@ Package.describe({
   git: 'https://bitbucket.org/mutopia/atlas.git'
 });
 
-Package.onUse(function (api) {
+Package.onUse(function(api) {
   api.versionsFrom('METEOR@0.9.0');
   api.use('aramk:requirejs@2.1.15', ['client', 'server']);
   api.addFiles(['dist/atlas.min.js'], ['client', 'server']);

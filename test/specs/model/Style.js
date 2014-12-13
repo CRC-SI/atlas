@@ -3,7 +3,7 @@ define([
   'dam/TestCase',
   /* Code under test */
   '../Style'
-], function (doh, TestCase, Style) {
+], function(doh, TestCase, Style) {
 
   /* Test globals go here */
   var style = new Style();
@@ -14,7 +14,7 @@ define([
 
     name: 'atlas/model/Style',
 
-    setUp: function () {
+    setUp: function() {
       // summary:
       style = new Style();
     }

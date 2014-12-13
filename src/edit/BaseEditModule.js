@@ -55,7 +55,7 @@ define([
      * @param {Object.<String, atlas.edit.Handler>} handlers
      */
     bindEvents: function(handlers) {
-      Object.keys(handlers).forEach(function (event) {
+      Object.keys(handlers).forEach(function(event) {
         this.bindEvent(event, handlers[event]);
       }, this);
     },

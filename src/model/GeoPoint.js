@@ -67,7 +67,7 @@ define([
       this.elevation = parseFloat(elevation) || 0.0;
     },
 
-    _validate: function () {
+    _validate: function() {
       if (this.longitude < -180 || this.longitude > 180) {
         throw new Error('Longitude is out of range [-180,180]: ' + this.longitude);
       } else if (this.latitude < -90 || this.latitude > 90) {
@@ -237,7 +237,7 @@ define([
      * @param {Array.<atlas.model.GeoPoint>} points
      * @returns {Array.<atlas.model.Vertex>}
      */
-    arrayToVertices: function (points) {
+    arrayToVertices: function(points) {
       return points.map(function(point) {
         return point.toVertex();
       });

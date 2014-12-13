@@ -138,7 +138,7 @@ define([
      * @param {atlas.model.Colour} other
      * @returns {Boolean} Whether the given object is equal to this object.
      */
-    equals: function (other) {
+    equals: function(other) {
       return other && this.red === other.red && this.green === other.green &&
           this.blue === other.blue && this.alpha === other.alpha;
     }

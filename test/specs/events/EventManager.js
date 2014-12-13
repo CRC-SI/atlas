@@ -5,7 +5,7 @@ define([
     '../EventTarget',
     // Code under test.
     '../EventManager'
-], function (doh, TestCase, Event, EventTarget, EventManager) {
+], function(doh, TestCase, Event, EventTarget, EventManager) {
   var host;
   var eventManager;
 
@@ -106,7 +106,7 @@ define([
       doh.assertEqual(testHostCallback, eventManager._internalEvent_Handlers['entity/render/done'][listener3.id - 2].callback, 'Incorrect callback assigned.');
     },
 
-    testAddEventHandler_badSource: function () {
+    testAddEventHandler_badSource: function() {
       var exception;
       try {
         listener0 = eventManager.addEventHandler('iextern', 'entity/render', testCallback);
@@ -117,13 +117,13 @@ define([
       doh.assertEqual('object', typeof exception, 'Exception not thrown when it should have been.');
     },
 
-    testRemoveEventHandler: function () {
+    testRemoveEventHandler: function() {
       listener0 = eventManager.addEventHandler('extern', 'entity/render', testCallback);
       listener0.cancel();
       doh.assertEqual('undefined', typeof eventManager._externalEvent_Handlers['entity/render'][listener0.id]);
     },
 
-    testHandleExternalEvent: function () {
+    testHandleExternalEvent: function() {
       var handler = {
         callbackFired: 0
       };
@@ -132,7 +132,7 @@ define([
       doh.assertEqual(1, handler.callbackFired, 'Handler callback did not fire');
     },
 
-    testHandleInternalEvent: function () {
+    testHandleInternalEvent: function() {
       var ahost = {
         callbackFired: 0
       };

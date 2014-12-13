@@ -157,7 +157,7 @@ define([
     /**
      * @returns {boolean} Whether the SelectionManager is enabled.
      */
-    isEnabled: function () {
+    isEnabled: function() {
       return this._enabled;
     },
 

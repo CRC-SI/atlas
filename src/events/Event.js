@@ -104,7 +104,7 @@ define([
       this._args = args;
     },
 
-    getArgs: function () {
+    getArgs: function() {
       return this._args;
     },
 
