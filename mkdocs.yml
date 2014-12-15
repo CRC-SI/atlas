@@ -6,3 +6,12 @@ site_author: Oliver Lade
 site_favicon: img/favicon.png
 
 markdown_extensions: [smartypants]
+
+pages:
+- ['index.md', 'Introduction']
+- ['getting_started.md', 'Getting Started']
+- ['features.md', 'Features']
+- ['design.md', 'Design']
+- ['developers.md', 'Developers']
+#- ['implementing.md', 'Implementing']
+- ['license.md', 'License']

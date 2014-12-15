@@ -5,7 +5,7 @@
 This document describes how to use Atlas in a Web application. This includes both instructions to
 build the library from source if so desired, and how to include the compiled JavaScript in the
 application to create a 3D globe.
- 
+
 The intended audience is developers of new or existing applications that are implementing (or
 considering implementing) Atlas in their project. It is also instructive to developers of the core
 library of Atlas or any of its implementations who will likely need to build Atlas from source.
@@ -54,6 +54,7 @@ manager][npm] (`npm`).If you have Grunt installed, then from the root Atlas dire
 run:
 
     npm install
+    grunt install
     grunt build
 
 The output of the build will be placed in the `dist` directory. Intermediate files will be in the

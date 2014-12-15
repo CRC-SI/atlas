@@ -7,14 +7,14 @@ description of each of them. For more information about the implementation detai
 
 ## Entities
 
-An **entity** is any geometrical object that can be rendered in the scene. Atlas supports a variety
+An **entity** is any geospatial object that can be rendered in the scene. Atlas supports a variety
 the following entity types:
 
 Entity Type | Description
 ----------- | -----------
 Point       | A point is just a point in space. It can be rendered in a variety of ways, such as a small dot or a sprite image.
 Line        | A line (more precisely a line string) is a path between a sequence of points.
-Network     | A network is a collection of connected lines. Networks provide
+Network     | A network is a collection of connected lines. Networks provide an API for operations over the whole network.
 Polygon     | A polygon is a 2D shape described by a ring of points. Polygons can also be extruded into 3D *prisms*.
 Mesh        | A mesh is a complex 3D geometry that can provide a more realistic representation of a real-world object.
 
@@ -45,10 +45,11 @@ parameter values relative to the same parameter values of other entities.
 
 ## Overlay
 
-The **overlay** is the area of the browser's DOM that covers the Atlas viewer component. The
-overlay can be used to display information relating to the contents of the Atlas scene in the DOM.
-This is preferable to rendering the same information in the the rendering library's GUI because the
-code (HTML, CSS and JS) can be reused consistently with any rendering library.
+The **overlay** is the area of the browser window that covers the Atlas viewer component. The
+overlay can be used to display information relating to the contents of the Atlas scene in the
+browser using standard HTML elements. This is preferable to rendering the same information in the
+the rendering library's GUI because the code (HTML, CSS and JS) can be reused consistently with any
+rendering library.
 
 The two primary uses of the overlay are *popups* and *legends*.
 

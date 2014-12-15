@@ -19,22 +19,26 @@ Atlas builds on a rich ecosystem of open-source software, including.
 
 The testing and build process is supported by:
 
-* [npm][npm]
-* [Bower][bower]
-* [Grunt][grunt]
+* [npm][npm] package manager
+* [Bower][bower] package manager
+* [Grunt][grunt] build automation
+* [Less][less] CSS pre-processor
 * [Karma][karma] test runner
-* Jasmine BDD test framework
-* Istanbul test coverage reporter
+* [Jasmine][jasmine] BDD test framework
+* [Istanbul][istanbul] test coverage reporter
 
 Documentation is compiled using:
 
 * [JSDoc][jsdoc]
 * [MkDocs][mkdocs]
 
-[require]: http://requirejs.org/
-[grunt]: http://gruntjs.com/
-[npm]: https://www.npmjs.org/
 [bower]: http://bower.io/
+[grunt]: http://gruntjs.com/
+[istanbul]: https://gotwarlost.github.io/istanbul/
+[jasmine]: https://jasmine.github.io/
 [jsdoc]: http://usejsdoc.org/
-[mkdocs]: http://www.mkdocs.org/
 [karma]: https://karma-runner.github.io
+[less]: http://lesscss.org/
+[mkdocs]: http://www.mkdocs.org/
+[npm]: https://www.npmjs.org/
+[require]: http://requirejs.org/

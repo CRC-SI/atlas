@@ -3,6 +3,11 @@
 Atlas is a component that is designed to be included within a "host" Web application. The
 integration process is not yet as simple as it could be, but this will be improved in the future.
 
+It's important to remember that Atlas is just an API, and can't render anything by itself. It needs
+to be coupled with an *implementation* that does the rendering job. The default implementation is
+[Atlas-Cesium][ac], which is the example we'll use below. Check out the [Atlas-Cesium
+documentation][ac-docs] for more detail information and examples.
+
 At a high level, the required steps are as follows:
 
 1. Download or build `atlas.js` (or `atlas.min.js`) and `atlas.css`.
@@ -36,7 +41,11 @@ require(['atlas'], function() {
 <div id="atlas-container"></div>
 ```
 
-You can now interact with Atlas through the `CesiumAtlas` object.
+You can now interact with Atlas through the `atlas` object.
+
+Note that you need to include both Atlas and Atlas-Cesium separately. This is because you may want
+to use multiple Atlas implementations at the same time (side-by-side, or switch between them), so
+the Atlas API is not included in each implementation.
 
 ## Using the Atlas API
 
@@ -47,7 +56,8 @@ within Atlas, use the `Atlas.subscribe` method.
 
 Start by moving the camera over the beautiful city of Melbourne, which you can do with the
 `camera/move` event. All coordinates in Atlas use latitude, longitude and elevation in the WGS 84
-projection (if you're interested, read more about [Projections in Atlas](design.md#projections)).
+projection (if you're interested, read more about [coordinate projections in
+Atlas](design.md#gis-details)).
 
     atlas.publish('camera/move', {...});
 
@@ -61,14 +71,14 @@ is `entity/create` and the body of the event contains a description of its form 
 For example, to render the footprint of the Melbourne Town Hall, we define the footprint polygon
 using the [WKT format](wkt):
 
-    atlas.publish('entity/create', {...});
+    atlas.publish('entity/show', {...});
 
 ![Town Hall](img/hall.jpg)
 
 If you provide an ID for the entity, Atlas will use that ID internally, allowing you to interact
 with it from outside. For example to hide the entity, you can use the `entity/hide` event like so:
 
-    atlas.publish('entity/hide/, {id: <polygon_id>});
+    atlas.publish('entity/hide', {id: <polygon_id>});
 
 ### Input and selection
 
@@ -105,6 +115,8 @@ different form. In fact, every time you create a new entity a new feature is cre
 unless you ask for that entity to be assigned to an existing feature.
 
 
+[ac]: https://github.com/urbanetic/atlas-cesium
+[ac-docs]: http://docs.atlas-cesium.urbanetic.net/
 [wkt]: https://en.wikipedia.org/wiki/Well-known_text
 [dom]: http://www.w3.org/TR/DOM-Level-2-Events/events.html
 [events]: design.md#events

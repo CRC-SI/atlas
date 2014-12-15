@@ -14,10 +14,13 @@ after_success:
   - cat ./coverage/lcov.dat | ./node_modules/coveralls/bin/coveralls.js
   - grunt doc
 
-# Deploy JSDocs to S3 static site
+# Deploy JSDocs to S3 static site.
+# See http://docs.travis-ci.com/user/deployment/s3/
 deploy:
   provider: s3
+  # Access key is the public key.
   access_key_id: AKIAJLMFT7PREEIB7JSQ
+  # Secret access key is the private key, encrypted for Travis.
   secret_access_key:
     secure: WKf+D1FEND54BsA1xVK4XsxpF9wXcqXbOHmPBOESqu5Fs7vGYl85ouqkVaZBPdBFKFcKPHHCPP6gNxrcy4xcgtLwhPNDmAfQiyrfTnyJIEQaD0ON1tPvr0D+XF3MSWC9IEqB8fyRLLam782BoCv8fJDBtShdUNoCKw5IreH+PjM=
   bucket: jsdocs.atlas.urbanetic.net
