@@ -139,6 +139,10 @@ define([
      */
     _onEnabledChange: null,
 
+    //TODO(Shady) add desc
+
+    _scenePosition: null,
+
     /*
      * Constructor for the overlay
      * @ignore
@@ -187,8 +191,15 @@ define([
       this._onEnabledChange = Types.isFunction(args.onEnabledChange) ? args.onEnabledChange : null;
       this._hasEnableCheckbox = args.hasEnableCheckbox || this._onEnabledChange !== null;
 
+      if (args.scenePosition) {
+        this._scenePosition = args.scenePosition;
+      }
+
       // Construct element and append it to the parent.
       this._render();
+
+      // Notify any listeners that an overlay has been created
+      args.eventManager.handleInternalEvent("overlay/created", {overlay: this});
     },
 
     // -------------------------------------------
@@ -232,6 +243,10 @@ define([
 
     getParentElement: function() {
       return this._parentElement;
+    },
+
+    getScenePosition: function() {
+      return this._scenePosition;
     },
 
     getPosition: function() {

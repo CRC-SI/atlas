@@ -3,6 +3,7 @@ define([
   'atlas/dom/DomManager',
   'atlas/dom/PopupFaculty',
   'atlas/dom/PopupManager',
+  'atlas/dom/OverlayManager',
   'atlas/edit/EditManager',
   'atlas/entity/EntityManager',
   'atlas/events/EventManager',
@@ -13,7 +14,7 @@ define([
   'atlas/util/DeveloperError',
   'atlas/lib/utility/Class',
   'atlas/lib/utility/Setter'
-], function(CameraManager, DomManager, PopupFaculty, PopupManager, EditManager, EntityManager,
+], function(CameraManager, DomManager, PopupFaculty, PopupManager, OverlayManager, EditManager, EntityManager,
   EventManager, InputManager, RenderManager, SelectionManager, VisualisationManager, DeveloperError,
   Class, Setter) {
 
@@ -71,7 +72,7 @@ define([
      */
     _initManagers: function() {
       [CameraManager, DomManager, EditManager, EntityManager, EventManager, InputManager,
-        PopupManager, RenderManager, SelectionManager, VisualisationManager
+        PopupManager, OverlayManager, RenderManager, SelectionManager, VisualisationManager
       ].forEach(this.setManagerClass, this);
     },
 

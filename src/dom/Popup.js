@@ -66,7 +66,11 @@ define([
     },
 
     _update: function() {
-      this.setPosition(this.getPositionAboveEntity());
+      // If the popup is not bound to a scene position, set the position to a position
+      // above the entity
+      if (!this.getScenePosition()) {
+        this.setPosition(this.getPositionAboveEntity());
+      }
     },
 
     getPositionAboveEntity: function() {
