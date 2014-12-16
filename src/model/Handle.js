@@ -104,6 +104,7 @@ define([
     setTarget: function(target) {
       this._target = target;
       this.setDirty('model');
+      this._update();
     },
 
     /**
