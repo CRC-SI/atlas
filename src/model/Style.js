@@ -4,7 +4,7 @@ define([
   'atlas/lib/utility/Class',
   'atlas/util/DeveloperError',
   './Colour'
-], function (Setter, Class, DeveloperError, Colour) {
+], function(Setter, Class, DeveloperError, Colour) {
 
   /**
    * @typedef atlas.model.Style
@@ -19,7 +19,8 @@ define([
    *
    * @param {Object} [args]
    * @param {atlas.model.Colour} [args.fillColour=Colour.GREEN] - The fill colour for the polygon.
-   * @param {atlas.model.Colour} [args.borderColour=Colour.GREEN] - The border colour for the polygon.
+   * @param {atlas.model.Colour} [args.borderColour=Colour.GREEN] - The border colour for the
+   * polygon.
    * @param {Number} [args.borderWidth=1] - The border width for the polygon in pixels.
    *
    * @class atlas.model.Style
@@ -51,7 +52,7 @@ define([
       args = args || {};
       this._fillColour = args.fillColour;
       this._borderColour = args.borderColour;
-      this._borderWidth = args.borderWidth;
+      this._borderWidth = Setter.def(args.borderWidth, 1);
     },
 
     // -------------------------------------------
@@ -63,7 +64,7 @@ define([
      * @param {atlas.model.Colour} colour - The new fill colour.
      * @returns {atlas.model.Colour} The original colour.
      */
-    setFillColour: function (colour) {
+    setFillColour: function(colour) {
       if (!(colour instanceof Colour)) {
         throw new DeveloperError('Feature fill colour only accepts an atlas.model.colour, not', colour);
       }
@@ -77,7 +78,7 @@ define([
      * @param {atlas.model.Colour} colour - The new border colour.
      * @returns {atlas.model.Colour} The original border colour.
      */
-    setBorderColour: function (colour) {
+    setBorderColour: function(colour) {
       if (!(colour instanceof Colour)) {
         throw new DeveloperError('Feature border colour only accepts an atlas.model.colour, not', colour);
       }
@@ -91,7 +92,7 @@ define([
      * @param {Number} width - The new border width, in pixels.
      * @returns {Number} The original border width.
      */
-    setBorderWidth: function (width) {
+    setBorderWidth: function(width) {
       width = parseInt(width, 10) || 1;
       var original = this.getBorderWidth();
       this._borderWidth = width;
@@ -101,21 +102,21 @@ define([
     /**
      * @returns {atlas.model.Colour} The Style's fill colour.
      */
-    getFillColour: function () {
+    getFillColour: function() {
       return this._fillColour;
     },
 
     /**
      * @returns {atlas.model.Colour} The Style's border colour.
      */
-    getBorderColour: function () {
+    getBorderColour: function() {
       return this._borderColour;
     },
 
     /**
      * @returns {Number} The Style's border width, in pixels.
      */
-    getBorderWidth: function () {
+    getBorderWidth: function() {
       return this._borderWidth;
     },
 
@@ -123,14 +124,14 @@ define([
      * @param {atlas.model.Style} other
      * @returns {Boolean} Whether the given object is equal to this object.
      */
-    equals: function (other) {
+    equals: function(other) {
       return other && this._colourEquals(this.getFillColour(), other.getFillColour()) &&
           this._colourEquals(this.getBorderColour(), other.getBorderColour()) &&
           this.getBorderWidth() === other.getBorderWidth();
     },
 
     // TODO(aramk) Abstract this.
-    _colourEquals: function (colourA, colourB) {
+    _colourEquals: function(colourA, colourB) {
       // Allow type coercion. If first condition fails, at least one of them is assumed to be an
       // object, so if the second condition fails, either both are different objects, or colourA is
       // falsey - both of which indicate they are not equal.

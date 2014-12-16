@@ -7,7 +7,7 @@ define([
   'atlas/lib/utility/Types',
   'atlas/lib/utility/Class',
   'jquery'
-], function (DomUtil, Event, EventTarget, Log, Setter, Types, Class, $) {
+], function(DomUtil, Event, EventTarget, Log, Setter, Types, Class, $) {
 
   /**
    * @typedef atlas.dom.Overlay
@@ -143,7 +143,7 @@ define([
      * Constructor for the overlay
      * @ignore
      */
-    _init: function (args) {
+    _init: function(args) {
       // Set defaults
       args = Setter.merge({
         parent: document.body,
@@ -164,7 +164,7 @@ define([
       if (!args.parent) { throw new Error('Error attaching to element ' + args.parent)}
 
       // Sanitise the dimensions and positions passed in.
-      ['top', 'left', 'right', 'bottom'].forEach(function (p) {
+      ['top', 'left', 'right', 'bottom'].forEach(function(p) {
         args.position[p] === null && delete args.position[p];
       });
       args.dimensions.width === null && delete args.dimensions.width;
@@ -183,9 +183,9 @@ define([
       this._showMinimised = args.showMinimised;
 
       this._onRemove = Types.isFunction(args.onRemove) ? args.onRemove : null;
-      this._hasRemoveBtn = args.hasRemoveBtn || this._onRemove !== null;
+      this._hasRemoveBtn = args.hasRemoveBtn || !!this._onRemove;
       this._onEnabledChange = Types.isFunction(args.onEnabledChange) ? args.onEnabledChange : null;
-      this._hasEnableCheckbox = args.hasEnableCheckbox || this._onEnabledChange !== null;
+      this._hasEnableCheckbox = args.hasEnableCheckbox || !!this._onEnabledChange;
 
       // Construct element and append it to the parent.
       this._render();
@@ -265,7 +265,7 @@ define([
      * Sets whether the Overlay is minimised.
      * @param {boolean} isMinimised - The Overlay should be minimised.
      */
-    setMinimised: function (isMinimised) {
+    setMinimised: function(isMinimised) {
       var elems = this.getDomElements(),
         $content = $(elems.content),
         $enableCheckbox = $('.enable-overlay', elems.title);
@@ -389,7 +389,7 @@ define([
         // Wrap the title with an enable checkbox and remove button if necessary.
         title += '<div class="title">';
         if (this._hasEnableCheckbox) {
-          title += '<input type="checkbox" value="true" class="enable checkbox">'
+          title += '<input type="checkbox" class="enable checkbox" checked>'
         }
         title += '<div class="content">' + this._title + '</div>';
         if (this._hasRemoveBtn) {
@@ -413,7 +413,7 @@ define([
       // Add event handler to close button and checkbox
       if (this._hasRemoveBtn) {
         var removeFunction = this._onRemove ? '_onRemove' : 'remove';
-        $('.remove-overlay', element).click(function (e) {
+        $('.remove', element).click(function(e) {
           // 0 -> left click.
           if (e.button === 0) {
             this[removeFunction](e);
@@ -422,7 +422,7 @@ define([
       }
       if (this._hasEnableCheckbox) {
         var enableFunction = this._onEnabledChange ? '_onEnabledChange' : 'toggleMinimisation';
-        $('.enable-overlay', element).click(function (e) {
+        $('.enable.checkbox', element).click(function(e) {
           // 0 -> left click.
           if (e.button === 0) {
             this[enableFunction](e.target.value, e);
@@ -447,7 +447,7 @@ define([
    * @param {atlas.model.Colour} [data.bgColour=null] - The CSS background-color to apply to the tag.
    * @returns {String} The HTML string of the attributes.
    */
-  Overlay.parseAttributes = function (data) {
+  Overlay.parseAttributes = function(data) {
     // TODO(aramk) Rely on $.attr() instead.
     var html = '',
         style = '',
@@ -493,14 +493,14 @@ define([
    *   ]
    * }
    */
-  Overlay.generateTable = function (data) {
+  Overlay.generateTable = function(data) {
     if (!data || !data.rows) { return ''; }
     var tableAttributes = Overlay.parseAttributes(data),
         html = '<table ' + tableAttributes + '>';
-    data.rows.forEach(function (row) {
+    data.rows.forEach(function(row) {
       var rowAttributes = Overlay.parseAttributes(row);
       html += '<tr ' + rowAttributes + '>';
-      row.cells.forEach(function (cell) {
+      row.cells.forEach(function(cell) {
         var cellAttributes = Overlay.parseAttributes(cell);
         html += '<td ' + cellAttributes + '>' + (cell.value || '') + '</td>';
       });

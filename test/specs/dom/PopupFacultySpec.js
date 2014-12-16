@@ -1,7 +1,7 @@
 define([
   // Code under test
   'atlas/dom/PopupFaculty'
-], function (PopupFaculty) {
+], function(PopupFaculty) {
   var popupFaculty,
       popup,
       entityId = '0001',
@@ -15,30 +15,30 @@ define([
         content: html
       };
 
-  describe('A PopupFaculty', function () {
+  describe('A PopupFaculty', function() {
 
-    beforeEach(function () {
+    beforeEach(function() {
       domNode = document.createElement('div');
       domNode.id = 'popupContainer';
     });
 
-    afterEach(function () {
+    afterEach(function() {
       popupFaculty = null;
       popup = null;
     });
 
-    it('should be constructed with a parent dom node', function () {
+    it('should be constructed with a parent dom node', function() {
       //popupFaculty = new PopupFaculty({parentDomNode: 'popupContainer'});
       //expect(popupFaculty).not.toBeNull();
       popupFaculty = new PopupFaculty({parent: domNode});
       expect(popupFaculty).not.toBeNull();
     });
 
-    xit('should require an EventManager to be constructed', function () {
-      var noArgs = function () { popupFaculty = new PopupFaculty(); },
-          noManager = function () { popupFaculty = new PopupFaculty({}); },
-          emptyManager = function () { popupFaculty = new PopupFaculty({eventManager: {}}); },
-          incorrectManager = function () { popupFaculty = new PopupFaculty({eventManager: null}); };
+    xit('should require an EventManager to be constructed', function() {
+      var noArgs = function() { popupFaculty = new PopupFaculty(); },
+          noManager = function() { popupFaculty = new PopupFaculty({}); },
+          emptyManager = function() { popupFaculty = new PopupFaculty({eventManager: {}}); },
+          incorrectManager = function() { popupFaculty = new PopupFaculty({eventManager: null}); };
 
       expect(noArgs).toThrow();
       expect(noManager).toThrow();
@@ -46,7 +46,7 @@ define([
       expect(incorrectManager).toThrow();
     });
 
-    it('should show popups given HTML content, a top-left position, and a entity ID', function () {
+    it('should show popups given HTML content, a top-left position, and a entity ID', function() {
       popupFaculty = new PopupFaculty({parent: domNode});
       popup = popupFaculty.show(args);
       expect(popup.getContent()).toContain(html);
@@ -54,14 +54,14 @@ define([
       expect(popup.getEntityId()).toEqual(entityId);
     });
 
-    it('should allow a CSS class for the overlay contained be set', function () {
+    it('should allow a CSS class for the overlay contained be set', function() {
       popupFaculty = new PopupFaculty({parent: domNode});
       args.cssClass = cssClass;
       popup = popupFaculty.show(args);
       expect(popup.getCssClass()).toEqual(cssClass);
     });
 
-    it('should hide popup identify by associated entity ID', function () {
+    it('should hide popup identify by associated entity ID', function() {
       popupFaculty = new PopupFaculty({parent: domNode});
       popup = popupFaculty.show(args);
       expect(popup.isVisible()).toBe(true);

@@ -1,6 +1,6 @@
 define([
 
-], function () {
+], function() {
   /**
    * @fileOverview The position and indices data used here is copied from a Cesium example.
    * @see {@link https://github.com/AnalyticalGraphicsInc/cesium/wiki/Geometry-and-Appearances}

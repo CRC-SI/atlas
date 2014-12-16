@@ -5,7 +5,7 @@ define([
   'atlas/visualisation/AbstractProjection',
   'atlas/visualisation/HeightProjection',
   'atlas/visualisation/ColourProjection'
-], function (Setter, Feature, AbstractProjection, HeightProjection, ColourProjection) {
+], function(Setter, Feature, AbstractProjection, HeightProjection, ColourProjection) {
 
   /**
    * Wrapper for the AbstractProjection test suite. This allows the test suite
@@ -13,15 +13,15 @@ define([
    * @param {String} parametrisedTestName - Name of the class under test.
    * @param {Function} parametrisedTestClass - Constructor of class to test.
    */
-  var parametrisedTestSuite = function (parametrisedTestName, parametrisedTestClass) {
+  var parametrisedTestSuite = function(parametrisedTestName, parametrisedTestClass) {
 
-    describe('A ' + parametrisedTestName, function () {
+    describe('A ' + parametrisedTestName, function() {
       var abPro, someEntities, someValues, someMoreValues, everyValue, someStats, someAttributes,
           manyValues, manyEntities, bins1, bins2auto, bins2openBelow, bins2openAbove,
           bins2specifiedRange, manyStats, manyStats2bins, manyStats2binsSpecifiedRange,
           manyAttributes2binsSpecifiedRange;
 
-      beforeEach(function () {
+      beforeEach(function() {
         someValues = {0: 0, 1: 1, 2: 2};
         someMoreValues = {3: 3, 4: 4, 5: 5};
         everyValue = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5};
@@ -93,52 +93,52 @@ define([
         };
       });
 
-      describe('can be constructed', function () {
+      describe('can be constructed', function() {
         // TODO(bpstudds): Add checks and mock passing in of GeoEntities.
 
         // You shouldn't be able to construct a Projection by default, it needs values and entities.
-        xit('by default', function () {
+        xit('by default', function() {
           abPro = new parametrisedTestClass();
           expect(abPro.getType()).toEqual('continuous');
           expect(abPro.getValues()).toEqual({});
           expect(abPro.getConfiguration()).toEqual({});
         });
 
-        it('with values', function () {
+        it('with values', function() {
           abPro = new parametrisedTestClass({values: someValues, entities: someEntities});
           expect(abPro.getId()).toEqual('projection_100000');
           expect(abPro.getValues()).toEqual(someValues);
         });
 
-        it('but fails with the incorrect arguments', function () {
-          var func = function () { new parametrisedTestClass({type: 'incorrect', values: someValues, entities: someEntities}); };
+        it('but fails with the incorrect arguments', function() {
+          var func = function() { new parametrisedTestClass({type: 'incorrect', values: someValues, entities: someEntities}); };
           expect(func).toThrow();
         });
 
-        describe('with bins', function () {
+        describe('with bins', function() {
           var args;
 
-          beforeEach(function () {
+          beforeEach(function() {
             args = {
               values: manyValues,
               entities: manyEntities
             };
           });
 
-          it('by default', function () {
+          it('by default', function() {
             abPro = new parametrisedTestClass(args);
             expect(abPro._bins).toEqual(bins1);
           });
 
-          it('of variable number but fixed capacity', function () {
+          it('of variable number but fixed capacity', function() {
             args = Setter.mixin({bins: 2}, args);
             abPro = new parametrisedTestClass(args);
             expect(abPro._bins).toEqual(bins2auto);
           });
 
-          describe('of variable number and capacity', function () {
+          describe('of variable number and capacity', function() {
 
-            it('that are unbounded above', function () {
+            it('that are unbounded above', function() {
               args = Setter.mixin({
                 bins: [{firstValue: 0, lastValue: 5}, {firstValue:5}]
               }, args);
@@ -146,7 +146,7 @@ define([
               expect(abPro._bins).toEqual(bins2openAbove);
             });
 
-            it('that are unbounded below', function () {
+            it('that are unbounded below', function() {
               args = Setter.mixin({
                 bins: [{lastValue: 5}, {firstValue:5, lastValue: 9}]
               }, args);
@@ -154,7 +154,7 @@ define([
               expect(abPro._bins).toEqual(bins2openBelow);
             });
 
-            it('that have specified range', function () {
+            it('that have specified range', function() {
               args = Setter.mixin({
                 bins: [{firstValue: 1, lastValue: 4}, {firstValue:6, lastValue: 9}]
               }, args);
@@ -166,34 +166,34 @@ define([
         }); // End 'with bins'
       }); // End 'can be constructed'
 
-      describe('once constructed', function () {
-        beforeEach(function () {
+      describe('once constructed', function() {
+        beforeEach(function() {
           abPro = new parametrisedTestClass({values: someValues, entities: someEntities});
         });
-        afterEach(function () {
+        afterEach(function() {
           abPro = null;
         });
 
-        it('can have values added', function () {
+        it('can have values added', function() {
           abPro.update({values: someMoreValues, addToExisting: true});
           expect(abPro.getValues()).toEqual(everyValue);
         });
 
-        it('can have new values set', function () {
+        it('can have new values set', function() {
           abPro.update({values: someMoreValues, addToExisting: false});
           expect(abPro.getValues()).toEqual(someMoreValues);
           abPro.update({values: someValues});
           expect(abPro.getValues()).toEqual(someValues);
         });
 
-        describe('can have stats calculated for all values', function () {
-          it('when divided into 1 bin', function () {
+        describe('can have stats calculated for all values', function() {
+          it('when divided into 1 bin', function() {
             // This test suite creates an AbstractProjection with 1 bin by default.
             // Stats for 'someValues' are calculated automatically when the AbPro is created.
             expect(abPro._stats).toEqual(someStats);
           });
 
-          it('when divided into many bins', function () {
+          it('when divided into many bins', function() {
             // Create a new abPro with 2 bins specifying a limited range.
             abPro = new parametrisedTestClass({
               values: manyValues, entities: manyEntities, bins: bins2specifiedRange
@@ -202,14 +202,14 @@ define([
           });
         }); // End 'can have stats calculated for all values'
 
-        describe('can have projection attributes calculated for values', function () {
-          it('when divided into 1 bin', function () {
+        describe('can have projection attributes calculated for values', function() {
+          it('when divided into 1 bin', function() {
             // This test suite creates an AbstractProjection with 1 bin by default.
             // Stats for 'someValues' are calculated automatically when the AbPro is created.
             expect(abPro._attributes).toEqual(someAttributes);
           });
 
-          it('when divided into many bins', function () {
+          it('when divided into many bins', function() {
             // Create a new abPro with 2 bins specifying a limited range.
             abPro = new parametrisedTestClass({
               values: manyValues, entities: manyEntities, bins: bins2specifiedRange

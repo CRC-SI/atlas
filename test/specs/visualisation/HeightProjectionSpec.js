@@ -3,8 +3,8 @@ define([
   'atlas/model/Feature',
   // Code under test
   'atlas/visualisation/HeightProjection'
-], function (Setter, Feature, HeightProjection) {
-  describe('A HeightProjection', function () {
+], function(Setter, Feature, HeightProjection) {
+  describe('A HeightProjection', function() {
     var heightProj,
         someValues = {0: 0, 1: 1, 2: 2},
         initialHeight = 50,
@@ -14,7 +14,7 @@ define([
           2: new Feature(2, {id: 1, height: initialHeight})
         };
 
-    beforeEach(function () {
+    beforeEach(function() {
       heightProj = new HeightProjection({values: someValues, entities: someEntities});
       for (var id in Object.keys(someEntities)) {
         // setHeight() normally returns the previously set height. In these tests we only
@@ -23,14 +23,14 @@ define([
       }
     });
 
-    afterEach(function () {
+    afterEach(function() {
       heightProj = null;
     });
 
-    describe('can render effects', function () {
+    describe('can render effects', function() {
 
-      describe('with a default codomain and bin', function () {
-        it('to all it\'s entities', function () {
+      describe('with a default codomain and bin', function() {
+        it('to all it\'s entities', function() {
           heightProj.render();
           for (var id in Object.keys(someEntities)) {
             expect(someEntities[id].setHeight).toHaveBeenCalledWith(heightProj._effects[id].newValue);
@@ -38,7 +38,7 @@ define([
           }
         });
 
-        it('to a subset of entities', function () {
+        it('to a subset of entities', function() {
           var ids = [0, 2];
           heightProj.render(ids);
           for (var i = 0; i < ids.length; i++) {
@@ -48,7 +48,7 @@ define([
           }
         });
 
-        it('to a single entity', function () {
+        it('to a single entity', function() {
           var id = 1;
           heightProj.render(id);
           expect(someEntities[id].setHeight).toHaveBeenCalledWith(heightProj._effects[id].newValue);
@@ -57,16 +57,16 @@ define([
       }); // End 'with default codomain and bin'.
 
       // TODO(bpstudds): Implement tests for customisable codomain.
-      xdescribe('with', function () {
+      xdescribe('with', function() {
         var args = {values: someValues, entities: someEntities};
 
-        it('a fixed codomain', function () {
+        it('a fixed codomain', function() {
           heightProj = new HeightProjection(Setter.mixin(args, {codomain: {fixedProj: 15}}));
           expect(someEntities[id].setHeight).toHaveBeenCalledWith(15);
           expect(someEntities[id].setHeight.calls.length).toEqual(1);
         });
 
-        it('a single codomain and (default) bin', function () {
+        it('a single codomain and (default) bin', function() {
           fail();
         });
 
@@ -74,12 +74,12 @@ define([
     }); // End 'can render effects'.
 
     describe('can unrender effects', function() {
-      beforeEach(function () {
+      beforeEach(function() {
         // Set up some effects to undo.
         heightProj.render();
       });
 
-      it('on all it\'s entities', function () {
+      it('on all it\'s entities', function() {
         heightProj.unrender();
         for (var id in Object.keys(someEntities)) {
           expect(someEntities[id].setHeight).toHaveBeenCalledWith(initialHeight);
@@ -87,7 +87,7 @@ define([
         }
       });
 
-      it('on all it\'s entities', function () {
+      it('on all it\'s entities', function() {
         var ids = [0, 2];
         heightProj.unrender(ids);
         for (var i = 0; i < ids.length; i++) {
@@ -97,7 +97,7 @@ define([
         }
       });
 
-      it('on all it\'s entities', function () {
+      it('on all it\'s entities', function() {
         var id = 1;
         heightProj.unrender(id);
         expect(someEntities[id].setHeight).toHaveBeenCalledWith(initialHeight);

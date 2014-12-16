@@ -5,7 +5,7 @@ define([
   'atlas/model/Feature',
   'atlas/model/GeoPoint',
   'atlas/util/DeveloperError'
-], function (BaseEditModule, Log, Setter, Feature, GeoPoint, DeveloperError) {
+], function(BaseEditModule, Log, Setter, Feature, GeoPoint, DeveloperError) {
 
   // TODO(bpstudds): This is copied almost entirely from the existing DrawModule (for polygons).
   // TODO(bpstudds): Abstract common logic in DrawModule and LineDrawModule.

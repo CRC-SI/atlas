@@ -131,6 +131,7 @@ define([
      * added).
      * @param {Function} [args.create] - A callback invoked when drawing is complete.
      * @param {Function} [args.cancel] - A callback invoked when drawing is cancelled.
+     * @param {Function} [args.init] - A callback invoked when drawing is started.
      * @param {atlas.model.Feature.DisplayMode} [displayMode] - The display mode to use when drawing
      * the entity. {@link atlas.model.Feature.DisplayMode.FOOTPRINT} by default.
      * @private
@@ -149,6 +150,10 @@ define([
       this._setup();
       this._managers.edit.enableModule('translation');
       this._isDrawing = true;
+      init = args.init;
+      if (init) {
+        init({feature: this._feature});
+      }
     },
 
     /**

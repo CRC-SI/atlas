@@ -4,7 +4,7 @@ define([
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Class',
   'atlas/util/DeveloperError',
-], function (ItemStore, Overlay, Setter, Class, DeveloperError) {
+], function(ItemStore, Overlay, Setter, Class, DeveloperError) {
   /**
    * @typedef atlas.visualisation.FeaturePopupFaculty
    * @ignore
@@ -68,7 +68,7 @@ define([
      */
     _parent: null,
 
-    _init: function (args) {
+    _init: function(args) {
       // TODO(bpstudds): Work out this dependency injection business.
       // TODO(bpstudds): All the work occurs in setup, not when the object is initialised
 
@@ -83,7 +83,7 @@ define([
      * @param {String | HTMLElement} args.parent - The parent DOM node to create popups in.
      * @param {atlas.events.EventManager} args.eventManager - A reference to the Atlas EventManager.
      */
-    setup: function (args) {
+    setup: function(args) {
       // TODO(bpstudds): Work out this dependency injection business.
       // Resolve parent DOM node where popups will be rendered.
       if (!args.parent) {
@@ -109,28 +109,28 @@ define([
       }
     },
 
-    bindEvents: function () {
+    bindEvents: function() {
       // Define some event handlers.
       this.__eventHandlerDefs = [
         {
           source: 'extern',
           name: 'entity/popup/show',
-          callback: function (args) {
+          callback: function(args) {
             this.show(args);
           }.bind(this)
         },
         {
           source: 'extern',
           name: 'entity/popup/hide',
-          callback: function (args) {
+          callback: function(args) {
             this.hide(args);
           }.bind(this)
         }/*,
         {
           source: 'intern',
           name: 'entity/selection/change',
-          callback: function (args) {
-            args.ids.forEach(function () {
+          callback: function(args) {
+            args.ids.forEach(function() {
               this.hide({entityId: id});
             });
           }.bind(this)
@@ -144,7 +144,7 @@ define([
     // Popup management
     // -------------------------------------------
 
-    hide: function (args) {
+    hide: function(args) {
       var overlay = this._overlays.get(args.entityId);
       overlay.remove();
       return overlay;
@@ -155,13 +155,13 @@ define([
      * if necessary.
      * @param args
      */
-    show: function (args) {
+    show: function(args) {
       this._overlays = new ItemStore();
 
       args = Setter.mixin({
         parent: this._parent,
         cssClass: this.DEFAULT_CSS_CLASS
-        /*onRemove: function () {
+        /*onRemove: function() {
           this.hide(args);
         }.bind(this)*/
       }, args);
@@ -178,8 +178,8 @@ define([
       return overlay;
     },
 
-    _setOverlay: function (id, overlay) {
-      overlay.getEntityId = function () { return id; };
+    _setOverlay: function(id, overlay) {
+      overlay.getEntityId = function() { return id; };
       this._overlays.add(overlay);
     }
 

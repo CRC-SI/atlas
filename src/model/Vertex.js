@@ -167,7 +167,7 @@ define([
     /**
      * @returns {atlas.model.Vertex} A deep copy of this object.
      */
-    clone: function () {
+    clone: function() {
       return new Vertex(this);
     },
 
@@ -175,7 +175,7 @@ define([
      * @param {atlas.model.Vertex} other
      * @returns {Boolean} Whether the given object is equal to this one.
      */
-    equals: function (other) {
+    equals: function(other) {
       return this.x === other.x && this.y === other.y && this.z === other.z;
     }
 

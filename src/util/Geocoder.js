@@ -81,7 +81,7 @@ define([
     getInfo: function(args) {
       var df = Q.defer();
       // To avoid an AMD cyclic dependency, we must load Camera at runtime.
-      require(['atlas/camera/Camera'], function (Camera) {
+      require(['atlas/camera/Camera'], function(Camera) {
         this.geocode(args).then(function(results) {
           var result = results.results[0];
           var loc = result.geometry.location;

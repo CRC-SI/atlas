@@ -3,7 +3,7 @@ define([
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Class',
   'atlas/util/DeveloperError'
-], function (Setter, Log, Class, DeveloperError) {
+], function(Setter, Log, Class, DeveloperError) {
 
   /**
    * @typedef atlas.visualisation.DynamicProjection
@@ -67,7 +67,7 @@ define([
      */
     _restart: false,
 
-    _init: function (staticPrj, data, args) {
+    _init: function(staticPrj, data, args) {
       if (!staticPrj) {
         throw new DeveloperError('Static projection required to construct Dynamic projection.')
       }
@@ -86,7 +86,7 @@ define([
       // Make sure data is sorted.
       for (var i = 1; i < data.length; i++) {
         if (this._data[i].index > this._data[i - 1].index) {
-          this._data.sort(function (a, b) {
+          this._data.sort(function(a, b) {
             return a.index > b.index;
           });
           break;
@@ -102,11 +102,11 @@ define([
     /**
      * @returns {String} The status of the renderer.
      */
-    getStatus: function () {
+    getStatus: function() {
       return this._state;
     },
 
-    _getValuesForIndex: function (index) {
+    _getValuesForIndex: function(index) {
       index = Math.floor(index);
       if (index >= this._data.length) { return; }
       return this._data[index].values;
@@ -126,7 +126,7 @@ define([
      * Sets the number of frames to be rendered per second.
      * @param {Number} fps - Frames per second to rendered, must between 1 and 30fps.
      */
-    setFps: function (fps) {
+    setFps: function(fps) {
       if (fps >= 1 && fps < 30) {
         this._fps = fps;
       }
@@ -136,7 +136,7 @@ define([
      * Sets the delta to apply to the index between each frame.
      * @param {Number} delta - The per frame delta of the index.
      */
-    setDelta: function (delta) {
+    setDelta: function(delta) {
       this._delta = delta;
     },
 
@@ -147,7 +147,7 @@ define([
     /**
      * Signals the DynamicRender to start or resume rendering.
      */
-    start: function () {
+    start: function() {
       if (this._state === 'playing') { return; }
 
       // Initialise the index to render from and cache the initial state of the renderer.
@@ -163,7 +163,7 @@ define([
      * Signals the DynamicRender to pause rendering. The effects of the current frame will
      * be preserved.
      */
-    pause: function () {
+    pause: function() {
       if (this._state !== 'playing') { return; }
       clearInterval(this._interval);
       this._state = 'paused';
@@ -174,7 +174,7 @@ define([
      * be removed and the state of the render returned to what it was before the dynamic rendering
      * occurred.
      */
-    stop: function () {
+    stop: function() {
       if (this._state === 'stopped') { return; }
       this._state = 'stopped';
       clearInterval(this._interval);
@@ -193,13 +193,13 @@ define([
      * data.
      * @private
      */
-    _render: function () {
+    _render: function() {
       this._state = 'playing';
       Log.debug('starting render at index', this._index);
 
       // Use window timeout for the rendering loop.
       // TODO(bpstudds): Are there more efficient ways to do the rendering
-      this._interval = setInterval( function () {
+      this._interval = setInterval( function() {
         // Get the values to use for the next render. this._index is preset as appropriate by
         // start(). If there are no values, pause the projection
         var values = this._getValuesForIndex(this._index);
