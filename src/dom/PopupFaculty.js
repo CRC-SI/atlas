@@ -80,7 +80,8 @@ define([
      * Performs necessary initialisation after PopupFaculty's dependencies have been
      * initialised.
      * @param {Object} args
-     * @param {String | HTMLElement} args.parent - The parent DOM node to create popups in.
+     * @param {String | HTMLElement} args.parent - The parent DOM node to create popups in, or its
+     *     ID.
      * @param {atlas.events.EventManager} args.eventManager - A reference to the Atlas EventManager.
      */
     setup: function(args) {

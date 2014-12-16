@@ -208,9 +208,10 @@ define([
           source: 'intern',
           name: 'input/left/dblclick',
           /**
-           * @param {InternalEvent#event:input/left/dblclick} event
+           * @param {InternalEvent#event:input/left/dblclick} args
            * @listens InternalEvent#input/left/dblclick
            * @fires InternalEvent#entity/dblclick
+           * @ignore
            */
           callback: function(args) {
             var entities = this.getAt(args.position);

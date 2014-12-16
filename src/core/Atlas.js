@@ -25,11 +25,8 @@ define([
   /**
    * The type of execution environment. The build tool will set this to
    * {@link Environment.PRODUCTION}.
-   * @typedef {Object} atlas.core.Environment
-   * @memberOf atlas.core.Atlas
-   * @static
+   * @typedef {Object} atlas.core.Atlas.Environment
    */
-
   var Environment = {
     DEVELOPMENT: 'development',
     PRODUCTION: 'production'
@@ -201,20 +198,31 @@ define([
 
   });
 
+  /**
+   * The class used to represent the Atlas environment value.
+   * @type {atlas.core.Atlas.Environment}
+   * @memberOf atlas.core.Atlas
+   * @static
+   */
   Atlas.Environment = Environment;
 
   /**
    * The current Atlas environment.
-   * @type {atlas.core.Environment}
+   * @type {atlas.core.Atlas.Environment}
+   * @memberOf atlas.core.Atlas
+   * @private
+   * @static
    */
   Atlas._environment = Environment.DEVELOPMENT;
 
   /**
    * Returns the current Atlas environment.
-   * @type {atlas.core.Environment}
+   * @type {atlas.core.Atlas.Environment}
+   * @memberOf atlas.core.Atlas
+   * @static
    */
   Atlas.getEnvironment = function() {
-    return this._environment;
+    return Atlas._environment;
   };
 
   return Atlas;

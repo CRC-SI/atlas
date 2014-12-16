@@ -3,7 +3,6 @@ define(function() {
   /**
    * Wrapper for the Google JS API.
    * @module atlas.util.GoogleAPI
-   * @exports atlas.util.GoogleAPI
    */
   return {
     /**

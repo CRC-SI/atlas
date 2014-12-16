@@ -6,6 +6,18 @@ define([
 ], function(Manager, Log, Types, DeveloperError) {
 
   /**
+   * An object that declares a callback function listening for a particular event.
+   * @typedef {Object} atlas.events.EventManager.EventHandler
+   *
+   * @property {Number} id - The ID of the event handler.
+   * @property {String} name - The name of the event being handled.
+   * @property {Function} callback - Function to handle the event when it is published.
+   * @property {Function} cancel - Function to cancel the event.
+   * @property {Function} isCancelled - Function that returns a Boolean of whether the event has been
+   *     cancelled with the <code>cancel</code> function.
+   */
+
+  /**
    * @typedef atlas.events.EventManager
    * @ignore
    */
@@ -33,16 +45,16 @@ define([
     _hosts: null,
 
     /**
-     * Mapping of extern event names to a list of callback functions handling
-     * the extern event.
-     * @type {Object}
+     * Mapping of extern event names to a list of event handlers containing callback functions for
+     * handling the extern event.
+     * @type {Object.<String, atlas.events.EventManager.EventHandler>}
      */
     _externalEventHandlers: null,
 
     /**
-     * Mapping of internal event names to a list of callback functions handling
-     * that event type. These callbacks may be internal or external to Atlas.
-     * @type {Object}
+     * Mapping of internal event names to a list of event handlers containing callback functions for
+     * handling that event type. These callbacks may be internal or external to Atlas.
+     * @type {Object.<String, atlas.events.EventManager.EventHandler>}
      */
     _internalEventHandlers: null,
 
@@ -137,9 +149,10 @@ define([
     /**
      * Allows for adding an array of event handlers.
      * @param {Object} handlers - An array of Objects describing the handlers to be added.
-     *       The objects should have properties 'source', 'name', and 'callback' as per
-     *       {@link atlas.events.EventManager#addEventHandler}.
-     * @returns {Object.<String, Object>} The map of event name to EventHandler object.
+     *     The objects should have properties 'source', 'name', and 'callback' as per
+     *     {@link atlas.events.EventManager#addEventHandler}.
+     * @returns {Object.<String, atlas.events.EventManager.EventHandler>} A map of handled event
+     *     names to EventHandler objects.
      */
     addEventHandlers: function(handlers) {
       var eventHandlers = {};
@@ -152,16 +165,23 @@ define([
 
     /**
      * Allows for adding an array of event handler mappings.
+     *
+     * Note: This method is for the "new" event handler declaration format. It is intended to
+     * replace the old <code>addEventHandlers</code> method, and should adopt its name once the old
+     * method is phased out.
+     *
      * @param {Object} handlers - A map with intern and extern event handler mappings.
-     * @param {Object} handlers.intern - A mapping of internal event names to callbacks.
-     * @param {Object} handlers.extern - A mapping of external event names to callbacks.
-     * @returns {Object.<String, Object>} The map of event name to EventHandler object.
+     * @param {Object.<String, atlas.events.EventManager.EventHandler>} handlers.intern - A mapping
+     *     of internal event names to callbacks.
+     * @param {Object.<String, atlas.events.EventManager.EventHandler>} handlers.extern - A mapping
+     *     of external event names to callbacks.
+     * @returns {Object.<String, .<String, atlas.events.EventManager.EventHandler>>} A map of event
+     *     name to EventHandler objects.
      */
     addNewEventHandlers: function(handlers) {
       var eventHandlers = {};
       Object.keys(handlers).forEach(function(source) {
         Object.keys(handlers[source]).forEach(function(name) {
-          console.debug("adding event handler", source, name, handlers[source][name], "to", this);
           var callback = handlers[source][name];
           eventHandlers[name] = this.addEventHandler(source, name, callback);
         }, this);
@@ -182,7 +202,8 @@ define([
      *    theEventManager.addEventHandler('extern', 'entity/show', show.bind(this));
      * };
      * </code>
-     * @returns {Object} An EventListener object that can be used to cancel the EventHandler.
+     * @returns {.<String, atlas.events.EventManager.EventHandler>} An EventHandler for the event
+     * that can be used to cancel the callback subscription.
      */
     addEventHandler: function(source, name, callback) {
       // Select the map of event handlers to add to.

@@ -5,7 +5,8 @@ define([
 ], function(Manager, Event, Keycode) {
 
   /**
-   * @typedef {atlas.events.Event} InternalEvent#atlas.events.InputEvent
+   * Atlas wrapper around a browser input event containing a standard set of properties.
+   * @typedef {atlas.events.Event} InternalEvent#InputEvent
    *
    * @property {String} args.name - The name of the Atlas event.
    * @property {String} args.button - The name of the button (left, middle or right).
@@ -15,13 +16,17 @@ define([
    * @property {Boolean} args.modifiers.meta - Whether the Meta key was pressed.
    * @property {Boolean} args.modifiers.alt - Whether the Alt key was pressed.
    * @property {Boolean} args.modifiers.ctrl - Whether the Ctrl key was pressed.
-   * @property {String} args.absPosition - Absolute mouse position in the browser winder.
-   * @property {String} args.position - Mouse position relative to the top-left corner of the Atlas
+   * @property {Object} args.absPosition - Absolute mouse position in the browser window.
+   * @property {Number} args.absPosition.x - Absolute X position of the mouse.
+   * @property {Number} args.absPosition.y - Absolute Y position of the mouse.
+   * @property {Object} args.position - Mouse position relative to the top-left corner of the Atlas
    *     DOM element.
+   * @property {Number} args.position.x - Relative X position of the mouse.
+   * @property {Number} args.position.y - Relative Y position of the mouse.
    * @property {Object.<String, Number>} args.movement - The change in the mouse's position since
    *     the last event.
-   * @property {Number} args.movement.cx - The change in the mouse's X position.
-   * @property {Number} args.movement.cx - The change in the mouse's Y position.
+   * @property {Number} args.movement.dx - The change in the mouse's X position.
+   * @property {Number} args.movement.dy - The change in the mouse's Y position.
    */
 
   /**
@@ -76,7 +81,8 @@ define([
 
     /**
      * Completes all initialisation that requires other Atlas managers.
-     * @param {String|HTMLElement} elem - The DOM ID or DOM element of the HTML element to receive events from.
+     * @param {String|HTMLElement} elem - The DOM ID or DOM element of the HTML element to receive
+     *     events from.
      */
     setup: function(elem) {
       // TODO(bpstudds): Pretty sure InputManager should respond to an 'dom/set' event, rather than be imperative.
@@ -103,43 +109,43 @@ define([
       /**
        * The left mouse button was pressed.
        * @event InternalEvent#input/leftdown
-       * @type {atlas.events.InputEvent}
+       * @type {InternalEvent#InputEvent}
        */
       /**
        *
        * The left mouse button was unpressed.
        * @event InternalEvent#input/leftup
-       * @type {atlas.events.InputEvent}
+       * @type {InternalEvent#InputEvent}
        */
       /**
        * The middle mouse button was pressed.
        * @event InternalEvent#input/middledown
-       * @type {atlas.events.InputEvent}
+       * @type {InternalEvent#InputEvent}
        */
       /**
        * The middle mouse button was unpressed.
        * @event InternalEvent#input/middleup
-       * @type {atlas.events.InputEvent}
+       * @type {InternalEvent#InputEvent}
        */
       /**
        * The right mouse button was pressed.
        * @event InternalEvent#input/rightdown
-       * @type {atlas.events.InputEvent}
+       * @type {InternalEvent#InputEvent}
        */
       /**
        * The right mouse button was unpressed.
        * @event InternalEvent#input/rightup
-       * @type {atlas.events.InputEvent}
+       * @type {InternalEvent#InputEvent}
        */
       /**
        * The mouse was moved.
        * @event InternalEvent#input/mousemove
-       * @type {atlas.events.InputEvent}
+       * @type {InternalEvent#InputEvent}
        */
       /**
        * The left mouse button was double-clicked.
        * @event InternalEvent#input/left/dblclick
-       * @type {atlas.events.InputEvent}
+       * @type {InternalEvent#InputEvent}
        */
 
       /**
@@ -171,8 +177,8 @@ define([
       /**
        * Helper function to construct an Atlas mouse event.
        * @param {String} name - The name of the Atlas event.
-       * @param {Event} e - The DOM event.
-       * @returns {atlas.event.Event}
+       * @param {atlas.events.Event} e - The DOM event.
+       * @returns {atlas.events.Event}
        */
       var makeMouseEvent = function(name, e) {
         var args = makeMouseEventArgs(name, e);
@@ -182,7 +188,7 @@ define([
       // -------------------------------------------
       // Construct mouse event handlers
       // -------------------------------------------
-      var /** atlas.event.Event*/ event, press;
+      var /** atlas.events.Event*/ event;
 
       // Mouse button down
       this._mouseHandlers.push({

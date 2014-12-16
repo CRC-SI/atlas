@@ -290,9 +290,9 @@ define([
     _onLeftClick: function(event) {
       if (!this.isEnabled()) return;
       if (!event.modifiers) event.modifiers = {};
-      var selectedEntities = this._managers.entity.getAt(event.position),
-          keepSelection = 'shift' in event.modifiers,
-          preSelectionIds = this.getSelectionIds();
+      var selectedEntities = this._managers.entity.getAt(event.position);
+      var keepSelection = 'shift' in event.modifiers && event.modifiers['shift'];
+      var preSelectionIds = this.getSelectionIds();
       if (selectedEntities.length > 0) {
         this.selectEntity(selectedEntities[0].getId(), keepSelection, event.position);
       } else if (!keepSelection) {

@@ -6,7 +6,6 @@ define([
   /**
    * A set of timer utility methods.
    * @module atlas.util.Timers
-   * @exports atlas.util.Timers
    */
   return {
     /**
