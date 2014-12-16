@@ -154,15 +154,6 @@ define([
       }
       this._isGltf = !!(this._gltf || this._gltfUrl);
 
-      // Set the Mesh's style based on the hierarchy: a Mesh specific style,
-      // inherit the parent Feature's style, or use the Mesh default style.
-      if (meshData.color) {
-        // TODO(bpstudds): Work out the textures.
-        this.setStyle(new Style({fillColour: Colour.fromRGBA(meshData.color)}));
-      } else {
-        this.setStyle(args.style || Style.getDefault());
-      }
-
       // Set C3ML properties only if GLTF is not defined.
       if (!this.isGltf()) {
         if (meshData.positions && meshData.positions.length) {
@@ -186,6 +177,15 @@ define([
             this._normals[i] = normal;
           }, this);
         }
+      }
+
+      // Set the Mesh's style based on the hierarchy: a Mesh specific style,
+      // inherit the parent Feature's style, or use the Mesh default style.
+      if (meshData.color) {
+        // TODO(bpstudds): Work out the textures.
+        this.setStyle(new Style({fillColour: Colour.fromRGBA(meshData.color)}));
+      } else {
+        this.setStyle(args.style || Mesh.getDefaultStyle());
       }
     },
 
