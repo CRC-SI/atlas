@@ -83,16 +83,11 @@ define([
       var color = polygonData.color;
       var borderColor = polygonData.borderColor;
       if (color) {
-        if (!(color instanceof Colour)) {
-          color = new Colour(color);
-        }
-      } else {
+        color = color instanceof Colour ? color : new Colour(color);
         style.setFillColour(color);
       }
       if (borderColor) {
-        if (!(borderColor instanceof Colour)) {
-          borderColor = new Colour(borderColor);
-        }
+        borderColor = borderColor instanceof Colour ? borderColor : new Colour(borderColor);
         style.setBorderColour(borderColor);
       }
       this.setStyle(style);

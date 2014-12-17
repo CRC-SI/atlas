@@ -50,9 +50,9 @@ define([
 
     _init: function(args) {
       args = args || {};
-      this._fillColour = args.fillColour;
-      this._borderColour = args.borderColour;
-      this._borderWidth = Setter.def(args.borderWidth, 1);
+      this.setFillColour(args.fillColour);
+      this.setBorderColour(args.borderColour);
+      this.setBorderWidth(Setter.def(args.borderWidth, 1));
     },
 
     // -------------------------------------------
@@ -65,7 +65,7 @@ define([
      * @returns {atlas.model.Colour} The original colour.
      */
     setFillColour: function(colour) {
-      if (!(colour instanceof Colour)) {
+      if (colour && !(colour instanceof Colour)) {
         throw new DeveloperError('Feature fill colour only accepts an atlas.model.colour, not', colour);
       }
       var original = this.getFillColour();
@@ -79,7 +79,7 @@ define([
      * @returns {atlas.model.Colour} The original border colour.
      */
     setBorderColour: function(colour) {
-      if (!(colour instanceof Colour)) {
+      if (colour && !(colour instanceof Colour)) {
         throw new DeveloperError('Feature border colour only accepts an atlas.model.colour, not', colour);
       }
       var original = this.getBorderColour;
