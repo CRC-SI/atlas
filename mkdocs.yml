@@ -5,8 +5,6 @@ site_description: Documentation for the Atlas 3D geospatial rendering library.
 site_author: Oliver Lade
 site_favicon: img/favicon.png
 
-markdown_extensions: [smartypants]
-
 pages:
 - ['index.md', 'Introduction']
 - ['getting_started.md', 'Getting Started']
