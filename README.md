@@ -1,6 +1,7 @@
 # Welcome to Atlas
 
 [![Build Status](https://travis-ci.org/urbanetic/atlas.svg?branch=develop)](https://travis-ci.org/urbanetic/atlas)
+[![Documentation Status](https://readthedocs.org/projects/atlasjs/badge/?version=latest)](https://readthedocs.org/projects/atlasjs/?badge=latest)
 
 Atlas is a JavaScript library that provides a high-level API for 3D geospatial rendering. The Atlas
 API makes it easy to incorporate modern rendering technologies in Web applications, supporting the
