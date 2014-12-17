@@ -13,6 +13,7 @@ module.exports = function(grunt) {
   var DIST_DIR = 'dist';
   var JSDOCS_DIR = 'jsdocs';
   var BUILD_DIR = 'build';
+  var README_FILE = 'README.md';
   var RESOURCES_DIR = 'resources';
   var RESOURCES_BUILD_PATH = distPath(RESOURCES_DIR);
   var RE_AMD_MODULE = /\b(?:define|require)\s*\(/;
@@ -72,7 +73,7 @@ module.exports = function(grunt) {
         options: {
           stdout: true
         },
-        command: path.join('node_modules', '.bin', 'jsdoc') + ' -c jsdoc.conf.json -l'
+        command: path.join('node_modules', '.bin', 'jsdoc') + ' -c jsdoc.conf.json -l ' + README_FILE
       },
 
       // Compile JS source files.
