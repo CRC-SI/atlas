@@ -52,7 +52,7 @@ define([
      * @abstract
      */
     showTerrain: function() {
-      throw new DeveloperError("Can not call functions on abstract RenderManager");
+      throw new DeveloperError('Can not call functions on abstract RenderManager');
     },
 
     /**
@@ -60,7 +60,7 @@ define([
      * @abstract
      */
     hideTerrain: function() {
-      throw new DeveloperError("Can not call functions on abstract RenderManager");
+      throw new DeveloperError('Can not call functions on abstract RenderManager');
     },
 
     /**
@@ -69,7 +69,7 @@ define([
      * @abstract
      */
     setTerrain: function(terrainParams) {
-      throw new DeveloperError("Can not call functions on abstract RenderManager");
+      throw new DeveloperError('Can not call functions on abstract RenderManager');
     },
 
     /**
@@ -78,7 +78,7 @@ define([
      * @abstract
      */
     setMapImagery: function(mapParams) {
-      throw new DeveloperError("Can not call functions on abstract RenderManager");
+      throw new DeveloperError('Can not call functions on abstract RenderManager');
     },
 
     /**
