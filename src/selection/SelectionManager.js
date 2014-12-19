@@ -84,7 +84,7 @@ define([
 
     /**
      * Sets whether the SelectionManager is enabled.
-     * @param enable - True to enable the selection manager, false to disable.
+     * @param {Boolean} enable - True to enable the selection manager, false to disable.
      *
      * @listens ExternalEvent#selection/enable
      * @listens ExternalEvent#selection/disable
@@ -150,9 +150,10 @@ define([
      *      selected. Null if a mouse action did not result in the selection.
      */
     selectEntities: function(ids, keepSelection, mousePosition) {
-      var entities = this._managers.entity.getByIds(ids),
-          toSelectIds = [],
-          toSelectEntities = {};
+      var entities = this._managers.entity.getByIds(ids);
+      var toSelectIds = [];
+      var toSelectEntities = {};
+      var preSelectionIds = this.getSelectionIds();
       if (entities.length > 0) {
         entities.forEach(function(entity) {
           var id = entity.getId();
@@ -181,6 +182,7 @@ define([
           Log.debug('selected entities', toSelectIds);
         }
       }
+      this._handleSelectionChange(preSelectionIds);
     },
 
     /**
@@ -190,6 +192,7 @@ define([
     deselectEntities: function(ids) {
       var entities = this._managers.entity.getByIds(ids);
       var deselectedIds = [];
+      var preSelectionIds = this.getSelectionIds();
       if (entities.length > 0) {
         entities.forEach(function(entity) {
           var id = entity.getId();
@@ -202,6 +205,20 @@ define([
         if (deselectedIds.length > 0) {
           Log.debug('deselected entities', deselectedIds);
         }
+      }
+      this._handleSelectionChange(preSelectionIds);
+    },
+
+    _handleSelectionChange: function(preSelectionIds) {
+      var postSelectionIds = this.getSelectionIds();
+      var changedSelectedIds = Arrays.difference(postSelectionIds, preSelectionIds);
+      var changedDeselectedIds = Arrays.difference(preSelectionIds, postSelectionIds);
+      if (changedSelectedIds.length > 0 || changedDeselectedIds.length > 0) {
+        this._managers.event.dispatchEvent(new Event(new EventTarget(),
+            'entity/selection/change', {
+              selected: changedSelectedIds,
+              deselected: changedDeselectedIds
+            }));
       }
     },
 
@@ -224,7 +241,8 @@ define([
 
     /**
      * Selects multiple GeoEntities which are contained by the given Polygon.
-     * @param {atlas.model.Polygon} boundingBox - The polygon defining the area to select GeoEntities.
+     * @param {atlas.model.Polygon} boundingBox - The polygon defining the area to select
+     * GeoEntities.
      * @param {Boolean} [intersects=false] - If true, GeoEntities which intersect but are
      *      not contained by the <code>boundingBox</code> are also selected.
      * @param {Boolean} [keepSelection=false] - If true, the current selection will be added
@@ -237,7 +255,8 @@ define([
     /**
      * Selects multiple GeoEntities which are contained by rectangular area.
      * @param {atlas.model.Vertex} start - The first point defining the rectangular selection area.
-     * @param {atlas.model.Vertex} finish - The second point defining the rectangular selection area.
+     * @param {atlas.model.Vertex} finish - The second point defining the rectangular selection
+     * area.
      * @param {Boolean} [intersects=false] - If true, GeoEntities which intersect but are not
      *      contained by the <code>boundingBox</code> are also selected.
      * @param {Boolean} [keepSelection=false] - If true, the current selection will be added
@@ -273,7 +292,7 @@ define([
     _handleSelection: function(method, event) {
       if (!this.isEnabled()) return;
 
-      if (args.ids instanceof Array) {
+      if (event.ids instanceof Array) {
         this[method + 'Entities'](event.ids, event.keepSelection);
       } else {
         this[method + 'Entity'](event.id, event.keepSelection);
@@ -292,21 +311,10 @@ define([
       if (!event.modifiers) event.modifiers = {};
       var selectedEntities = this._managers.entity.getAt(event.position);
       var keepSelection = 'shift' in event.modifiers && event.modifiers['shift'];
-      var preSelectionIds = this.getSelectionIds();
       if (selectedEntities.length > 0) {
         this.selectEntity(selectedEntities[0].getId(), keepSelection, event.position);
       } else if (!keepSelection) {
         this.clearSelection();
-      }
-      var postSelectionIds = this.getSelectionIds();
-      var changedSelectedIds = Arrays.difference(postSelectionIds, preSelectionIds);
-      var changedDeselectedIds = Arrays.difference(preSelectionIds, postSelectionIds);
-      if (changedSelectedIds.length > 0 || changedDeselectedIds.length > 0) {
-        this._managers.event.dispatchEvent(new Event(new EventTarget(),
-            'entity/selection/change', {
-              selected: changedSelectedIds,
-              deselected: changedDeselectedIds
-            }));
       }
     },
 

@@ -17,16 +17,16 @@ define([
    * @classdesc Represents a 2D polygon.
    *
    * @param {Number} id - The ID of this Polygon.
-   * @param {Object} polygonData - Data describing the Polygon.
-   * @param {String|Array.<atlas.model.GeoPoint>} [polygonData.vertices=[]] - Either a WKT string or
+   * @param {Object} data - Data describing the Polygon.
+   * @param {String|Array.<atlas.model.GeoPoint>} [data.vertices=[]] - Either a WKT string or
    *   an array of vertices describing the Polygon.
-   * @param {Number} [polygonData.height=0] - The extruded height of the Polygon to form a prism.
-   * @param {Number} [polygonData.elevation] - The elevation of the base of the Polygon (or prism).
-   * @param {atlas.model.Colour} [polygonData.color] - The fill colour of the Polygon. Overrides the
+   * @param {Number} [data.height=0] - The extruded height of the Polygon to form a prism.
+   * @param {Number} [data.elevation] - The elevation of the base of the Polygon (or prism).
+   * @param {atlas.model.Colour} [data.color] - The fill colour of the Polygon. Overrides the
    *   given style.
-   * @param {atlas.model.Colour} [polygonData.borderColor] - The border colour of the Polygon.
+   * @param {atlas.model.Colour} [data.borderColor] - The border colour of the Polygon.
    *   Overrides the given style.
-   * @param {atlas.model.Style} [polygonData.style=defaultStyle] - The Style to apply to the
+   * @param {atlas.model.Style} [data.style=defaultStyle] - The Style to apply to the
    *   Polygon.
    * @param {Object} [args] - Option arguments describing the Polygon.
    * @param {atlas.model.GeoEntity} [args.parent=null] - The parent entity of the Polygon.
@@ -66,22 +66,22 @@ define([
      * Constructs a new Polygon
      * @ignore
      */
-    _init: function(id, polygonData, args) {
-      polygonData = Setter.mixin({}, polygonData);
+    _init: function(id, data, args) {
+      data = Setter.mixin({}, data);
       args = Setter.mixin({}, args);
-      this._super(id, polygonData, args);
+      this._super(id, data, args);
       // Don't have closed polygons.
       var len = this._vertices.length;
       if (this._vertices[0] === this._vertices[len - 1] && len > 1) {
         this._vertices.pop();
       }
-      if (polygonData.holes) {
-        this._holes = polygonData.holes;
+      if (data.holes) {
+        this._holes = data.holes;
       }
-      this._height = parseFloat(polygonData.height) || this._height;
-      var style = polygonData.style || Style.getDefault();
-      var color = polygonData.color;
-      var borderColor = polygonData.borderColor;
+      this._height = parseFloat(data.height) || this._height;
+      var style = data.style || Style.getDefault();
+      var color = data.color;
+      var borderColor = data.borderColor;
       if (color) {
         color = color instanceof Colour ? color : new Colour(color);
         style.setFillColour(color);

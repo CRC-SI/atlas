@@ -2,7 +2,6 @@ define([
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Class'
 ], function(Setter, Class) {
-  "use strict";
 
   /**
    * @classdesc EventTarget is a mixin class that provides an object with the ability to dispatch
@@ -44,7 +43,7 @@ define([
 
     /**
      * Initialise the {@link atlas.events.EventTarget} post-construction.
-     * @param {atlas.events.EventManager} eventManger
+     * @param {atlas.events.EventManager} eventManager
      * @param {atlas.events.EventTarget} parent - The parent of this
      * {@link atlas.events.EventTarget}.
      */

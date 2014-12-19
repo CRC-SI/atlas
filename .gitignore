@@ -64,3 +64,4 @@ Thumbs.db
 .settings
 .idea
 *.unity3d
+.build*

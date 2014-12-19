@@ -644,6 +644,8 @@ define([
       // TODO(aramk) Distinguish between this and destroying the entity, which should remove all
       // contained objects.
       this.hide();
+      // Ensure any selected entities are deselected so any event handlers listening are notified.
+      this.setSelected(false);
       this._cancelEventHandles();
       // TODO(aramk) We should try to keep consistent with these - either all entities have
       // references to managers or none do - otherwise we could have discrepancies in the entity
