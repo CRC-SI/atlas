@@ -251,13 +251,14 @@ define([
     },
 
     /**
-     * @returns {atlas.model.GeoPoint} The centre-point of this GeoEntity.
+     * @returns {atlas.model.GeoPoint | null} The centre-point of this GeoEntity, or null if no
+     * centroid exists.
      */
     getCentroid: function() {
       if (!this._centroid) {
         this._centroid = this._calcCentroid();
       }
-      return this._centroid.clone();
+      return this._centroid ? this._centroid.clone() : null;
     },
 
     /**
@@ -272,7 +273,8 @@ define([
 
     _calcCentroid: function() {
       var wkt = WKT.getInstance();
-      return wkt.geoPointFromOpenLayersPoint(this.getOpenLayersGeometry().getCentroid());
+      var centroid = this.getOpenLayersGeometry().getCentroid();
+      return centroid ? wkt.geoPointFromOpenLayersPoint(centroid) : null;
     },
 
     /**

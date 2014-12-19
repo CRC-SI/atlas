@@ -73,5 +73,10 @@ define([
           20))).toEqual(new GeoPoint({longitude: 20, latitude: 10}));
     });
 
+    it('can convert empty points to open layers geometry', function() {
+      var polygon = wkt.openLayersPolygonFromGeoPoints([]);
+      expect(polygon.components[0].components.length).toEqual(0);
+    });
+
   });
 });

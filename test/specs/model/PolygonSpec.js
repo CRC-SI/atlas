@@ -3,8 +3,9 @@ define([
   // Code under test
   'atlas/model/Polygon',
   'atlas/model/GeoPoint',
+  'atlas/model/Style',
   'atlas/util/WKT'
-], function(EventManager, Polygon, GeoPoint, WKT) {
+], function(EventManager, Polygon, GeoPoint, Style, WKT) {
   describe('A Polygon', function() {
 
     var polygon, footprint, centroid, area, constructArgs, vertices, eventManager;
@@ -87,6 +88,11 @@ define([
       eventManager.addEventHandler('intern', 'entity/select', spy);
       polygon.setSelected(true);
       expect(spy.calls.count()).toEqual(1);
+    });
+
+    it('has a null centroid if no vertices exist', function() {
+      var polygon2 = new Polygon('foo', {vertices: []}, constructArgs);
+      expect(polygon2.getCentroid()).toEqual(null);
     });
 
   });
