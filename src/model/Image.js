@@ -54,8 +54,8 @@ define([
      * Constructs a new Image
      * @ignore
      */
-    _init: function(id, imageData, args) {
-      args = Setter.mixin({}, args);
+    _setup: function(id, imageData, args) {
+      args = args || {};
       this._super(id, imageData, args);
       // Don't have closed images.
       if (this._vertices.first === this._vertices.last) {
@@ -63,19 +63,6 @@ define([
       }
       if (imageData.image) {
         this._image = imageData.image;
-      }
-      // TODO(aramk) Abstract this into VertexedEntity.
-      this._elevation = parseFloat(imageData.elevation) || this._elevation;
-      this._zIndex = parseFloat(imageData.zIndex) || this._zIndex;
-      this._zIndexOffset = parseFloat(imageData.zIndexOffset) || this._zIndexOffset;
-      if (imageData.color) {
-        if (imageData.color instanceof Colour) {
-          this._style = new Style({fillColour: imageData.color});
-        } else {
-          this._style = new Style({fillColour: Colour.fromRGBA(imageData.color)});
-        }
-      } else {
-        this._style = imageData.style || Style.getDefault();
       }
     },
 

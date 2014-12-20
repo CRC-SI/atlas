@@ -38,8 +38,8 @@ define([
     alpha: null,
 
     _init: function() {
-      var firstArg = arguments[0],
-          type = typeof firstArg;
+      var firstArg = arguments[0];
+      var type = typeof firstArg;
       if (type === 'object') {
         this._fromObj.apply(this, arguments);
       } else if (type === 'string') {
@@ -64,10 +64,10 @@ define([
     },
 
     _fromStr: function(str) {
-      var c = tinycolor(str).toRgb(),
-          toFloat = function(x) {
-            return x / 255;
-          };
+      var c = tinycolor(str).toRgb();
+      var toFloat = function(x) {
+        return x / 255;
+      };
       this._fromRgba(toFloat(c.r), toFloat(c.g), toFloat(c.b), c.a);
     },
 
@@ -76,7 +76,8 @@ define([
     // -------------------------------------------
 
     /**
-     * @returns {string} The colour as a string in the format 'rbga([RED], [GREEN], [BLUE], [ALPHA])'
+     * @returns {String} The colour as a string in the format
+     *     'rbga([RED], [GREEN], [BLUE], [ALPHA])'
      */
     toString: function() {
       return 'rgba(' + [this.red * 255, this.green * 255, this.blue * 255, this.alpha].join(', ') +
@@ -128,8 +129,8 @@ define([
      * @returns {atlas.model.Colour} The interpolated colour.
      */
     interpolateByHue: function(other, lerpFactor) {
-      var hsv1 = this.toHsv(),
-          hsv2 = other.toHsv();
+      var hsv1 = this.toHsv();
+      var hsv2 = other.toHsv();
       hsv1.h = AtlasMath.lerp(hsv2.h, hsv1.h, lerpFactor);
       return Colour.fromHsv(hsv1);
     },
@@ -151,10 +152,15 @@ define([
 
   /**
    * Function that creates a new Colour instance from the given RGBA values.
-   * @param {Number|Array} red - The red value, where 0 is minimum intensity and 255 is maximum intensity. Alternatively, an array of 4 elements containing values for red, green, blue, and alpha in that order.
-   * @param {Number} [green] - The green value, where 0 is minimum intensity and 255 is maximum intensity.
-   * @param {Number} [blue] - The blue value, where 0 is minimum intensity and 255 is maximum intensity.
-   * @param {Number} [alpha] - The alpha value, where 0 is minimum intensity and 255 is maximum intensity.
+   * @param {Number|Array} red - The red value, where 0 is minimum intensity and 255 is maximum
+   * intensity. Alternatively, an array of 4 elements containing values for red, green, blue, and
+   * alpha in that order.
+   * @param {Number} [green] - The green value, where 0 is minimum intensity and 255 is maximum
+   * intensity.
+   * @param {Number} [blue] - The blue value, where 0 is minimum intensity and 255 is maximum
+   * intensity.
+   * @param {Number} [alpha] - The alpha value, where 0 is minimum intensity and 255 is maximum
+   * intensity.
    * @returns {atlas.model.Colour}
    */
   Colour.fromRGBA = function(red, green, blue, alpha) {
@@ -167,7 +173,7 @@ define([
 
   /**
    * Generates an Atlas Colour object from a hsv value.
-   * @param hsv - The HSV colour.
+   * @param {Object} hsv - The HSV colour.
    * @returns {atlas.model.Colour} - The converted colour.
    */
   Colour.fromHsv = function(hsv) {

@@ -26,8 +26,12 @@ define([
    *     GeoPoints describing the geometry of the Line.
    * @param {number|string} [data.width=10] - The width of the line. Assumed to be meters if a
    *     argument type is number, or pixels if the argument is a string with the format "[0-9]+px".
-   * @param {atlas.model.Colour} [data.color] - The color of the Line.
-   * @param {atlas.model.Style} [data.style] - The style of the Line.
+   * @param {atlas.model.Colour} [data.color] - The fill colour of the Polygon. Overrides the
+   *     given style.
+   * @param {atlas.model.Colour} [data.borderColor] - The border colour of the Polygon.
+   *     Overrides the given style.
+   * @param {atlas.model.Style} [data.style=Style.getDefault()] - The Style to apply to the
+   *     Polygon.
    * @class atlas.model.Line
    * @extends atlas.model.VertexedEntity
    */
@@ -45,21 +49,9 @@ define([
      * Constructs a new {@link Line}.
      * @ignore
      */
-    _init: function(id, data, args) {
+    _setup: function(id, data, args) {
       this._super(id, data, args);
       this._width = data.width || this._width;
-      var style = data.style || Style.getDefault();
-      var color = data.color;
-      var borderColor = data.borderColor;
-      if (color) {
-        color = color instanceof Colour ? color : new Colour(color);
-        style.setFillColour(color);
-      }
-      if (borderColor) {
-        borderColor = borderColor instanceof Colour ? borderColor : new Colour(borderColor);
-        style.setBorderColour(borderColor);
-      }
-      this.setStyle(style);
     },
 
     setWidth: function(width) {

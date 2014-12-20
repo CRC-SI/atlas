@@ -62,7 +62,11 @@ define([
     _dotRadius: null,
 
     _init: function(args) {
-      this._super(Handle._getNextId(), args);
+      this._super(Handle._getNextId(), null, args);
+    },
+
+    _setup: function(id, data, args) {
+      this._super(id, data, args);
       var owner = this._owner = args.owner;
       var index = this._index = args.index;
       var target = args.target || owner.getCentroid();

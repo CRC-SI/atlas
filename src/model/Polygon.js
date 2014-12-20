@@ -19,15 +19,15 @@ define([
    * @param {Number} id - The ID of this Polygon.
    * @param {Object} data - Data describing the Polygon.
    * @param {String|Array.<atlas.model.GeoPoint>} [data.vertices=[]] - Either a WKT string or
-   *   an array of vertices describing the Polygon.
+   *     an array of vertices describing the Polygon.
    * @param {Number} [data.height=0] - The extruded height of the Polygon to form a prism.
    * @param {Number} [data.elevation] - The elevation of the base of the Polygon (or prism).
    * @param {atlas.model.Colour} [data.color] - The fill colour of the Polygon. Overrides the
-   *   given style.
+   *     given style.
    * @param {atlas.model.Colour} [data.borderColor] - The border colour of the Polygon.
-   *   Overrides the given style.
-   * @param {atlas.model.Style} [data.style=defaultStyle] - The Style to apply to the
-   *   Polygon.
+   *     Overrides the given style.
+   * @param {atlas.model.Style} [data.style=Style.getDefault()] - The Style to apply to the
+   *     Polygon.
    * @param {Object} [args] - Option arguments describing the Polygon.
    * @param {atlas.model.GeoEntity} [args.parent=null] - The parent entity of the Polygon.
    * @returns {atlas.model.Polygon}
@@ -66,9 +66,7 @@ define([
      * Constructs a new Polygon
      * @ignore
      */
-    _init: function(id, data, args) {
-      data = Setter.mixin({}, data);
-      args = Setter.mixin({}, args);
+    _setup: function(id, data, args) {
       this._super(id, data, args);
       // Don't have closed polygons.
       var len = this._vertices.length;
@@ -79,18 +77,6 @@ define([
         this._holes = data.holes;
       }
       this._height = parseFloat(data.height) || this._height;
-      var style = data.style || Style.getDefault();
-      var color = data.color;
-      var borderColor = data.borderColor;
-      if (color) {
-        color = color instanceof Colour ? color : new Colour(color);
-        style.setFillColour(color);
-      }
-      if (borderColor) {
-        borderColor = borderColor instanceof Colour ? borderColor : new Colour(borderColor);
-        style.setBorderColour(borderColor);
-      }
-      this.setStyle(style);
     },
 
     // -------------------------------------------

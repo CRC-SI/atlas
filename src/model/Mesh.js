@@ -90,25 +90,11 @@ define([
     _geoLocation: null,
 
     /**
-     * The scale of the mesh, along the X, Y, and Z axis.
-     * @type {atlas.model.Vertex}
-     * @protected
-     */
-    _scale: null,
-
-    /**
      * A uniform scale to apply to the Mesh. Explicitly for Meshes defined by GLTF.
      * @type {Number}
      * @protected
      */
     _uniformScale: null,
-
-    /**
-     * The rotation of the Mesh.
-     * @type {atlas.model.Vertex}
-     * @protected
-     */
-    _rotation: null,
 
     /**
      * Defines a transformation from model space to world space. This is derived from
@@ -135,13 +121,11 @@ define([
      */
     _isGltf: false,
 
-    _init: function(id, meshData, args) {
-      this._super(id, args);
+    _setup: function(id, meshData, args) {
+      this._super(id, meshData, args);
 
       // Set generic properties .
       this._uniformScale = Setter.def(meshData.uniformScale, 1);
-      this._rotation = Setter.defCstr(meshData.rotation, Vertex);
-      this._scale = Setter.defCstr(meshData.scale, Vertex, [1, 1, 1]);
       this._geoLocation = Setter.defCstr(meshData.geoLocation, GeoPoint);
 
       // Set GLTF properties
@@ -177,15 +161,6 @@ define([
             this._normals[i] = normal;
           }, this);
         }
-      }
-
-      // Set the Mesh's style based on the hierarchy: a Mesh specific style,
-      // inherit the parent Feature's style, or use the Mesh default style.
-      if (meshData.color) {
-        // TODO(bpstudds): Work out the textures.
-        this.setStyle(new Style({fillColour: Colour.fromRGBA(meshData.color)}));
-      } else {
-        this.setStyle(args.style || Mesh.getDefaultStyle());
       }
     },
 

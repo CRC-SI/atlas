@@ -42,8 +42,8 @@ define([
      */
     _zIndexOffset: 0.1,
 
-    _init: function(id, data, args) {
-      this._super(id, args);
+    _setup: function(id, data, args) {
+      this._super(id, data, args);
       this._vertices = [];
       var vertices = data.vertices;
       if (Types.isString(vertices)) {
@@ -65,7 +65,6 @@ define([
       } else {
         throw new Error('Invalid vertices for entity ' + id);
       }
-      this._elevation = parseFloat(data.elevation) || this._elevation;
       this._zIndex = parseFloat(data.zIndex) || this._zIndex;
       this._zIndexOffset = parseFloat(data.zIndexOffset) || this._zIndexOffset;
     },

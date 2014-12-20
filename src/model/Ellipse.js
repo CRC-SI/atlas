@@ -20,7 +20,8 @@ define([
    * @param {Number} [ellipseData.height=0] - The extruded height of the Ellipse to form a prism.
    * @param {Number} [ellipseData.elevation] - The elevation of the base of the Ellipse.
    * @param {atlas.model.Colour} [ellipseData.color] - The fill colour of the Ellipse.
-   * @param {atlas.model.Style} [ellipseData.style=defaultStyle] - The Style to apply to the Ellipse.
+   * @param {atlas.model.Style} [ellipseData.style=defaultStyle] - The Style to apply to the
+   *    Ellipse.
    * @param {Object} [args] - Optional arguments describing the Ellipse.
    * @param {atlas.model.GeoEntity} [args.parent=null] - The parent entity of the Ellipse.
    * @returns {atlas.model.Ellipse}
@@ -39,13 +40,6 @@ define([
      * @private
      */
     _height: 0,
-
-    /**
-     * The elevation of the base of the Ellipse.
-     * @type {Number}
-     * @private
-     */
-    _elevation: 0,
 
     /**
      * The z-axis order as an integer in the range [0, Infinity]. Ellipses with higher zIndex will
@@ -85,7 +79,7 @@ define([
      * Constructs a new Ellipse
      * @ignore
      */
-    _init: function(id, ellipseData, args) {
+    _setup: function(id, ellipseData, args) {
       if (!ellipseData || !ellipseData.centroid) {
         throw new DeveloperError('Can not construct ellipse without centre.');
       } else if (!parseFloat(ellipseData.semiMajor)) {
@@ -99,23 +93,14 @@ define([
         ellipseData = id;
         id = ellipseData.id;
       }
-      this._super(id, args);
-
+      this._super(id, data, args);
       this._centroid = new GeoPoint(ellipseData.centroid);
       this._semiMajor = parseFloat(ellipseData.semiMajor);
       this._semiMinor = parseFloat(ellipseData.semiMinor) || this._semiMajor;
       this._rotation = new Vertex(ellipseData.rotation);
       this._height = parseFloat(ellipseData.height) || this._height;
-      this._elevation = parseFloat(ellipseData.elevation) || this._elevation;
       this._zIndex = parseFloat(ellipseData.zIndex) || this._zIndex;
       this._zIndexOffset = parseFloat(ellipseData.zIndexOffset) || this._zIndexOffset;
-      var style;
-      if (ellipseData.color) {
-        style = new Style({fillColour: ellipseData.color});
-      } else {
-        style = ellipseData.style || Style.getDefault();
-      }
-      this.setStyle(style);
     },
 
     // -------------------------------------------
@@ -190,13 +175,6 @@ define([
     },
 
     /**
-     * @returns {Number} The rotation of the Ellipse.
-     */
-    getRotation: function() {
-      return this._rotation;
-    },
-
-    /**
      * @returns {Number} The semi major axis of the Ellipse.
      */
     getSemiMajorAxis: function() {
@@ -252,10 +230,10 @@ define([
     },
 
     /**
-     * Scales the Ellipse by the given vector. This scaling can be uniform in all axis or non-uniform.
-     * A scaling factor of <code>1</code> has no effect. Factors lower or higher than <code>1</code>
-     * scale the GeoEntity down or up respectively. ie, <code>0.5</code> is half as big and
-     * <code>2</code> is twice as big.
+     * Scales the Ellipse by the given vector. This scaling can be uniform in all axis or
+     * non-uniform. A scaling factor of <code>1</code> has no effect. Factors lower or higher than
+     * <code>1</code> scale the GeoEntity down or up respectively. ie, <code>0.5</code> is half as
+     * big and <code>2</code> is twice as big.
      * @param {atlas.model.Vertex} scale - The vector to scale the Ellipse by.
      * @param {Number} scale.x - The scale along the semi major axis.
      * @param {Number} scale.y - The scale along the semi minor axis.
@@ -264,8 +242,8 @@ define([
       if (scale.x < 0 || scale.y < 0) {
         throw new DeveloperError('Can not scale Ellipse negatively');
       }
-      var major = this._semiMajor * (parseFloat(scale.x) || 1.0),
-          minor = this._semiMinor * (parseFloat(scale.y) || 1.0);
+      var major = this._semiMajor * (parseFloat(scale.x) || 1.0);
+      var minor = this._semiMinor * (parseFloat(scale.y) || 1.0);
       if (minor > major) {
         var tempMinor = minor;
         minor = major;
@@ -275,20 +253,9 @@ define([
       this._semiMajor = major;
       this._semiMinor = minor;
       this._super(scale);
-    },
-
-    /**
-     * Rotates the Ellipse by the given amount.
-     * @param {Number} rotation - Change in rotation in degrees. Positive rotates clockwise.
-     */
-    rotate: function(rotation, centroid) {
-      // TODO(aramk) Support rotation around any given centroid.
-      this._rotation += (parseFloat(rotation) || 0.0);
-      this._super(rotation);
     }
 
   });
 
   return Ellipse;
 });
-

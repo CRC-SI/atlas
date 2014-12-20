@@ -13,9 +13,10 @@ define([
   'atlas/model/Line',
   'atlas/model/Image',
   'atlas/model/GeoPoint',
+  'atlas/model/Vertex',
   'atlas/util/DeveloperError'
 ], function(Manager, ItemStore, Event, Log, Setter, Collection, Ellipse, Feature, GeoEntity, Mesh,
-            Polygon, Line, Image, GeoPoint, DeveloperError) {
+            Polygon, Line, Image, GeoPoint, Vertex, DeveloperError) {
 
   /**
    * @typedef atlas.entity.EntityManager
@@ -358,6 +359,13 @@ define([
      * @protected
      */
     _parseC3ML: function(c3ml) {
+      // Sanitize vertex properties to ensure they are the correct format.
+      ['scale', 'rotation'].forEach(function(property) {
+        var value = c3ml[property];
+        if (value && !(value instanceof Vertex)) {
+          c3ml[property] = new Vertex(value);
+        }
+      });
       var geometry;
       // Map of C3ML type to parse of that type.
       var parsers = {
@@ -367,7 +375,8 @@ define([
         image: this._parseC3MLimage
       };
       // Generate the Geometry for the C3ML type if it is supported.
-      parsers[c3ml.type] && (geometry = parsers[c3ml.type].call(this, c3ml));
+      var parser = parsers[c3ml.type];
+      var geometry = parser && parser.call(this, c3ml);
       return Setter.mixin(c3ml, geometry);
     },
 
