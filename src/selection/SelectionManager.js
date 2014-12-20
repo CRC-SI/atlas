@@ -153,7 +153,7 @@ define([
       var entities = this._managers.entity.getByIds(ids);
       var toSelectIds = [];
       var toSelectEntities = {};
-      var preSelectionIds = this.getSelectionIds();
+      var existingSelection = this.getSelectionIds();
       if (entities.length > 0) {
         entities.forEach(function(entity) {
           var id = entity.getId();
@@ -182,7 +182,7 @@ define([
           Log.debug('selected entities', toSelectIds);
         }
       }
-      this._handleSelectionChange(preSelectionIds);
+      this._handleSelectionChange(existingSelection);
     },
 
     /**
@@ -192,7 +192,7 @@ define([
     deselectEntities: function(ids) {
       var entities = this._managers.entity.getByIds(ids);
       var deselectedIds = [];
-      var preSelectionIds = this.getSelectionIds();
+      var existingSelection = this.getSelectionIds();
       if (entities.length > 0) {
         entities.forEach(function(entity) {
           var id = entity.getId();
@@ -206,18 +206,18 @@ define([
           Log.debug('deselected entities', deselectedIds);
         }
       }
-      this._handleSelectionChange(preSelectionIds);
+      this._handleSelectionChange(existingSelection);
     },
 
-    _handleSelectionChange: function(preSelectionIds) {
-      var postSelectionIds = this.getSelectionIds();
-      var changedSelectedIds = Arrays.difference(postSelectionIds, preSelectionIds);
-      var changedDeselectedIds = Arrays.difference(preSelectionIds, postSelectionIds);
-      if (changedSelectedIds.length > 0 || changedDeselectedIds.length > 0) {
+    _handleSelectionChange: function(existingSelection) {
+      var currentSelection = this.getSelectionIds();
+      var newSelection = Arrays.difference(currentSelection, existingSelection);
+      var newDeselection = Arrays.difference(existingSelection, currentSelection);
+      if (newSelection.length > 0 || newDeselection.length > 0) {
         this._managers.event.dispatchEvent(new Event(new EventTarget(),
             'entity/selection/change', {
-              selected: changedSelectedIds,
-              deselected: changedDeselectedIds
+              selected: newSelection,
+              deselected: newDeselection
             }));
       }
     },
@@ -242,11 +242,11 @@ define([
     /**
      * Selects multiple GeoEntities which are contained by the given Polygon.
      * @param {atlas.model.Polygon} boundingBox - The polygon defining the area to select
-     * GeoEntities.
+     *    GeoEntities.
      * @param {Boolean} [intersects=false] - If true, GeoEntities which intersect but are
-     *      not contained by the <code>boundingBox</code> are also selected.
+     *    not contained by the <code>boundingBox</code> are also selected.
      * @param {Boolean} [keepSelection=false] - If true, the current selection will be added
-     *      to rather than cleared.
+     *    to rather than cleared.
      */
     selectWithinPolygon: function() {
       throw new DeveloperError('Function not yet implemented');
@@ -256,11 +256,11 @@ define([
      * Selects multiple GeoEntities which are contained by rectangular area.
      * @param {atlas.model.Vertex} start - The first point defining the rectangular selection area.
      * @param {atlas.model.Vertex} finish - The second point defining the rectangular selection
-     * area.
+     *    area.
      * @param {Boolean} [intersects=false] - If true, GeoEntities which intersect but are not
-     *      contained by the <code>boundingBox</code> are also selected.
+     *    contained by the <code>boundingBox</code> are also selected.
      * @param {Boolean} [keepSelection=false] - If true, the current selection will be added
-     *      to rather than cleared.
+     *    to rather than cleared.
      */
     selectBox: function() {
       throw new DeveloperError('Function not yet implemented');

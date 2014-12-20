@@ -44,27 +44,7 @@ define([
 
     _setup: function(id, data, args) {
       this._super(id, data, args);
-      this._vertices = [];
-      var vertices = data.vertices;
-      if (Types.isString(vertices)) {
-        var wkt = WKT.getInstance();
-        var vertexArray = wkt.geoPointsFromWKT(vertices);
-        if (vertexArray[0] instanceof Array) {
-          // Polygon
-          this._vertices = vertexArray[0];
-        } else if (vertexArray[0] instanceof GeoPoint) {
-          // Line
-          this._vertices = vertexArray;
-        } else {
-          throw new Error('Invalid vertices for entity ' + id);
-        }
-      } else if (Types.isArrayLiteral(vertices)) {
-        this._vertices = Setter.def(vertices, []).map(function(vertex) {
-          return new GeoPoint(vertex);
-        });
-      } else {
-        throw new Error('Invalid vertices for entity ' + id);
-      }
+      this._vertices = this._getSanitizedVertices(data.vertices);
       this._zIndex = parseFloat(data.zIndex) || this._zIndex;
       this._zIndexOffset = parseFloat(data.zIndexOffset) || this._zIndexOffset;
     },
@@ -72,6 +52,32 @@ define([
     // -------------------------------------------
     // CONSTRUCTION
     // -------------------------------------------
+
+    /**
+     * @param {String|Array.<GeoPoint|Array>} vertices - Any vaid representation of vertices.
+     * @return {Array.<GeoPoint>} A copy of the given vertices in the format expected by this class.
+     */
+    _getSanitizedVertices: function(vertices) {
+      if (Types.isString(vertices)) {
+        var wkt = WKT.getInstance();
+        var vertexArray = wkt.geoPointsFromWKT(vertices);
+        if (vertexArray[0] instanceof Array) {
+          // Polygon
+          return vertexArray[0];
+        } else if (vertexArray[0] instanceof GeoPoint) {
+          // Line
+          return vertexArray;
+        } else {
+          throw new Error('Invalid vertices for entity ' + this.getId());
+        }
+      } else if (Types.isArrayLiteral(vertices)) {
+        return vertices.map(function(vertex) {
+          return new GeoPoint(vertex);
+        });
+      } else {
+        throw new Error('Invalid vertices for entity ' + this.getId());
+      }
+    },
 
     _build: function() {
       if (this.isDirty('entity') || this.isDirty('vertices') || this.isDirty('model')) {

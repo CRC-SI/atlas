@@ -241,18 +241,12 @@ define([
       var style = data.style || Style.getDefault();
       var color = data.color;
       var borderColor = data.borderColor;
-      if (color) {
-        color = color instanceof Colour ? color : new Colour(color);
-        style.setFillColour(color);
-      }
-      if (borderColor) {
-        borderColor = borderColor instanceof Colour ? borderColor : new Colour(borderColor);
-        style.setBorderColour(borderColor);
-      }
+      color && style.setFillColour(new Colour(color));
+      borderColor && style.setBorderColour(new Colour(borderColor));
       this.setStyle(style);
       this._elevation = parseFloat(data.elevation) || this._elevation;
-      this._scale = data.scale || new Vertex(1, 1, 1);
-      this._rotation = data.rotation || new Vertex(0, 0, 0);
+      this._scale = new Vertex(data.scale) || new Vertex(1, 1, 1);
+      this._rotation = new Vertex(data.rotation) || new Vertex(0, 0, 0);
       data.scale;
     },
 

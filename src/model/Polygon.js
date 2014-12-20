@@ -74,7 +74,7 @@ define([
         this._vertices.pop();
       }
       if (data.holes) {
-        this._holes = data.holes;
+        this._holes = this._getSanitizedVertices(data.holes);
       }
       this._height = parseFloat(data.height) || this._height;
     },
