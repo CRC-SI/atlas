@@ -106,16 +106,7 @@ define([
             if (!this.isEnabled()) { return; }
             if (!args.modifiers) args.modifiers = {};
 
-            var entityManager = this._managers.entity;
-            var selectedEntities = [];
-            if (args.entities && args.entities.length) {
-              selectedEntities = args.entities.map(function(id) {
-                return entityManager.getById(id);
-              });
-            } else if (args.entities === undefined) {
-              selectedEntities = entityManager.getAt(args.position);
-            }
-
+            var selectedEntities = this._managers.entity.getEntitiesFromArgs(args);
             var keepSelection = 'shift' in args.modifiers,
                 preSelectionIds = this.getSelectionIds();
             if (selectedEntities.length > 0) {

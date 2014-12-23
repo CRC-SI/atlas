@@ -27,7 +27,7 @@ define([
     },
 
     setup: function() {
-      this._bindEvents();
+      //this._bindEvents();
     },
 
     _bindEvents: function() {
@@ -54,8 +54,12 @@ define([
           source: 'intern',
           name: 'input/leftclick',
           callback: function(args) {
+            var selectedEntities = this._managers.entity.getEntitiesFromArgs(args);
+            if (selectedEntities.length == 0) {
+              return;
+            }
             var popupArgs = {
-              entity: args.entities[0],
+              entity: selectedEntities[0],
               position: args.position,
               scenePosition: args.sceneposition,
               title: ' ',

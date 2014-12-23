@@ -515,6 +515,7 @@ define([
      */
     getByIds: function(ids) {
       var entities = [];
+      ids = ids || [];
       ids.forEach(function(id) {
         var entity = this.getById(id);
         entity && entities.push(entity);
@@ -527,6 +528,14 @@ define([
      */
     getEntities: function() {
       return this._entities.asArray();
+    },
+
+    getEntitiesFromArgs: function(args) {
+      if (args.entities) {
+        return this.getByIds(args.entities);
+      } else {
+        return this.getAt(args.position);
+      }
     },
 
     /**

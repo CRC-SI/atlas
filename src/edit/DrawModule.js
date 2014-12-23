@@ -176,7 +176,7 @@ define([
     _add: function(args) {
       var handles = this._managers.edit.getHandles();
       var position = new Vertex(args.position);
-      var targetId = this._managers.render.getAt(args.position)[0];
+      var targetId = this._managers.entity.getEntitiesFromArgs(args)[0];
       var target = handles.get(targetId);
       var now = Date.now();
       var translationModule = this._managers.edit.getModule('translation');
@@ -217,7 +217,12 @@ define([
         return;
       }
 
-      var point = this._managers.render.geoPointFromScreenCoords(args.position);
+      var point;
+      if (args.sceneposition) {
+        point = this._managers.render.geoPointFromWorldCoords(args.sceneposition);
+      } else {
+        point = this._managers.render.geoPointFromScreenCoords(args.position);
+      }
       this._doAdd(point);
       this._executeHandlers(this._handlers.update);
     },

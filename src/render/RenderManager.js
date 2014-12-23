@@ -82,6 +82,23 @@ define([
     },
 
     /**
+     * Translates a world coordinate point into a geopoint
+     * @param {Object} [worldCoords] The world coordinates
+     */
+    geoPointFromWorldCoords: function(worldCoords) {
+      throw new DeveloperError("Can not call functions on abstract RenderManager");
+    },
+
+    /**
+     * Translates a screen coordinate point into a geopoint
+     * * @param {Object} [screenCoords] The screen coordinates in pixels
+     * @abstract
+     */
+    geoPointFromScreenCoords: function(screenCoords) {
+      throw new DeveloperError("Can not call functions on abstract RenderManager");
+    },
+
+    /**
      * Convenience function to check if a given object is a GeoEntity.
      * @private
      * @param  {Object}  entity The object to check.
