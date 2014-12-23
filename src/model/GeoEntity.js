@@ -188,7 +188,13 @@ define([
      */
     _parent: null,
 
-    _init: function(id, args) {
+    /**
+     * Whether the GeoEntity is fully set up. Rendering will be delayed until it is set up.
+     * @type {Boolean}
+     */
+    _isSetUp: false,
+
+    _init: function(id, data, args) {
       if (typeof id === 'object') {
         args = id;
         id = args.id;
@@ -196,7 +202,6 @@ define([
         args = args || {};
       }
       id = id.toString();
-
       if (!id || typeof id === 'object') {
         throw new DeveloperError('Can not create instance of GeoEntity without an ID');
       }
@@ -210,11 +215,20 @@ define([
       if (parentId) {
         parent = this._entityManager && this._entityManager.getById(parentId);
       }
-      // Call the superclass' (EventTarget) constructor.
       this._super(args.eventManager, parent);
       this.clean();
+      data = data || {};
+      this._setup(id, data, args);
+      this._isSetUp = true;
+    },
 
-      this.setStyle(args.style || Style.getDefault());
+    /**
+     * Sets up all properties on the GeoEntity on construction but before rendering.
+     * @param {String} id
+     * @param {Object} data - The data for construction.
+     * @param {Object} args - Additional data for construction.
+     */
+    _setup: function(id, data, args) {
       this._handles = new ItemStore();
       this._eventHandles = [];
       // TODO(aramk) This doesn't actually show - should call setVisibility(), but that means all
@@ -223,6 +237,16 @@ define([
       // (e.g. vertices) are set and _build() can safely be called from here.
       this._visible = Setter.def(args.show, false);
       this.setDirty('entity');
+
+      var style = data.style || Style.getDefault();
+      var color = data.color;
+      var borderColor = data.borderColor;
+      color && style.setFillColour(new Colour(color));
+      borderColor && style.setBorderColour(new Colour(borderColor));
+      this.setStyle(style);
+      this._elevation = parseFloat(data.elevation) || this._elevation;
+      this._scale = new Vertex(data.scale || {x: 1, y: 1, z: 1});
+      this._rotation = new Vertex(data.rotation || {x: 0, y: 0, z: 0});
     },
 
     // TODO(aramk) Use better dependency injection.
@@ -574,9 +598,6 @@ define([
      * @returns {atlas.model.Vertex}
      */
     getScale: function() {
-      if (!this._scale) {
-        this._scale = new Vertex(1, 1, 1);
-      }
       return this._scale;
     },
 
@@ -609,9 +630,6 @@ define([
      * @returns {atlas.model.Vertex}
      */
     getRotation: function() {
-      if (!this._rotation) {
-        this._rotation = new Vertex(0, 0, 0);
-      }
       return this._rotation;
     },
 
@@ -644,6 +662,8 @@ define([
       // TODO(aramk) Distinguish between this and destroying the entity, which should remove all
       // contained objects.
       this.hide();
+      // Ensure any selected entities are deselected so any event handlers listening are notified.
+      this.setSelected(false);
       this._cancelEventHandles();
       // TODO(aramk) We should try to keep consistent with these - either all entities have
       // references to managers or none do - otherwise we could have discrepancies in the entity
@@ -675,6 +695,7 @@ define([
      * @private
      */
     _update: function() {
+      if (!this._isSetUp) return;
       var isVisible = this.isVisible();
       if (isVisible && !this.isRenderable()) {
         this._build();

@@ -98,7 +98,11 @@ define([
     _displayMode: null,
 
     _init: function(id, args) {
-      this._super(id, args);
+      this._super(id, null, args);
+    },
+
+    _setup: function(id, data, args) {
+      this._super(id, data, args);
       var displayMode = args.displayMode;
       var propertyToDisplayMode = {
         mesh: Feature.DisplayMode.MESH,
@@ -117,7 +121,6 @@ define([
       }, this);
       this.setDisplayMode(displayMode);
       this._height = parseFloat(args.height) || 0.0;
-      this._elevation = parseFloat(args.elevation) || 0.0;
       this._initDelegation();
       this._initEvents();
     },

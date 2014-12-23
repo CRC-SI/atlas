@@ -23,10 +23,10 @@ define([
    *
    * @param {Object} args - Arguments to the constructor.
    * @param {String|HTMLElement} [args.parent=document] - The DOM ID or element instance to place
-   *    the Overlay on.
+   *     the Overlay on.
    * @param {String} [args.title] - A title to show in the overlay.
    * @param {String} [args.class] - The CSS class to apply to the <code><div</code> surrounding
-   *    the Overlay.
+   *     the Overlay.
    * @param {Boolean} [args.hasRemoveBtn=false] - Whether the Overlay should have a remove
    *    button. The default action of this button is to remove and destroy the Overlay.
    * @param {Function} [args.onRemove] - A callback that is called when the Overlay remove
@@ -39,9 +39,9 @@ define([
    *    so the callback should minimise/maximise the Overlay if this is required.
    * @param {Object} [args.position] - The position of the Overlay.
    * @param {Object} [args.position.top=0] - The dimension from the top of <code>parent</code>
-   *    to the top of the Overlay in pixels.
+   *     to the top of the Overlay in pixels.
    * @param {Object} [args.position.left=0] - The dimension from the left of <code>parent</code>
-   *    to the left of the Overlay in pixels.
+   *     to the left of the Overlay in pixels.
    * @param {Object} [args.position.bottom=undefined] - The dimension from the bottom of
    *    <code>parent</code> to the top of the Overlay in pixels.
    * @param {Object} [args.position.right=undefined] - The dimension from the right of

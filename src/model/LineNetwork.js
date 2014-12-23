@@ -64,7 +64,7 @@ define([
      */
     _nextLineId: 100000,
 
-    _init: function(id, networkData, args) {
+    _setup: function(id, networkData, args) {
       this._super(id, args);
       this._lineData = new ItemStore();
       this._lines = new ItemStore();
