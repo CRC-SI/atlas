@@ -23,14 +23,34 @@ define([
 
     _id: 'render',
 
+    /**
+     * Whether terrain is currently being shown.
+     * @type {Boolean}
+     */
+    _showTerrain: false,
+
     _init: function(managers) {
       this._super(managers);
+    },
+
+    setup: function() {
+      this.bindEvents();
+    },
+
+    bindEvents: function() {
+      var handlers = {
+        'extern': {
+          'terrain/show': this.setTerrainVisibility.bind(this, true),
+          'terrain/hide': this.setTerrainVisibility.bind(this, false)
+        }
+      };
+      this._managers.event.addNewEventHandlers(handlers);
     },
 
     /**
      * Show the given entity
      * @param {Number} entity The ID of the Entity to show.
-     * @returns {Boolean}       Whether the entity is shown.
+     * @returns {Boolean} Whether the entity is shown.
      * @abstract
      */
     show: function(entity) {
@@ -39,8 +59,8 @@ define([
 
     /**
      * Hide the given entity
-     * @param  {Number} entity The ID of the Entity to hide.
-     * @returns {Boolean}       Whether the entity is hidden.
+     * @param {Number} entity The ID of the Entity to hide.
+     * @returns {Boolean} Whether the entity is hidden.
      * @abstract
      */
     hide: function(entity) {
@@ -48,19 +68,14 @@ define([
     },
 
     /**
-     * Function to toggle on rendering of the current terrain model
-     * @abstract
+     * Function to toggle rendering of the current terrain model
+     * @param {Boolen} show - Whether to show the terrain.
+     *
+     * @listens ExternalEvent#selection/enable
+     * @listens ExternalEvent#selection/disable
      */
-    showTerrain: function() {
-      throw new DeveloperError('Can not call functions on abstract RenderManager');
-    },
-
-    /**
-     * Function to toggle off rendering the current terrain model.
-     * @abstract
-     */
-    hideTerrain: function() {
-      throw new DeveloperError('Can not call functions on abstract RenderManager');
+    setTerrainVisibility: function(show) {
+      this._showTerrain = show;
     },
 
     /**
@@ -84,8 +99,8 @@ define([
     /**
      * Convenience function to check if a given object is a GeoEntity.
      * @private
-     * @param  {Object}  entity The object to check.
-     * @returns {Boolean}        Whether the object is a GeoEntity.
+     * @param {Object} entity The object to check.
+     * @returns {Boolean} Whether the object is a GeoEntity.
      */
     _isEntity: function(entity) {
       return entity instanceof GeoEntity;
