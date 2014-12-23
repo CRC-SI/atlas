@@ -246,7 +246,7 @@ define([
      * @param {Boolean} [intersects=false] - If true, GeoEntities which intersect but are
      *    not contained by the <code>boundingBox</code> are also selected.
      * @param {Boolean} [keepSelection=false] - If true, the current selection will be added
-     *    to rather than cleared.
+     *     to rather than cleared.
      */
     selectWithinPolygon: function() {
       throw new DeveloperError('Function not yet implemented');
@@ -260,7 +260,7 @@ define([
      * @param {Boolean} [intersects=false] - If true, GeoEntities which intersect but are not
      *    contained by the <code>boundingBox</code> are also selected.
      * @param {Boolean} [keepSelection=false] - If true, the current selection will be added
-     *    to rather than cleared.
+     *     to rather than cleared.
      */
     selectBox: function() {
       throw new DeveloperError('Function not yet implemented');
