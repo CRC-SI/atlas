@@ -13,14 +13,14 @@ define([
    * @classdesc Represents a 2D ellipse.
    *
    * @param {Number} id - The ID of this Ellipse.
-   * @param {Object} ellipseData - Parameters regarding the Ellipse
-   * @param {atlas.model.GeoPoint} ellipseData.centroid - The centroid of the Ellipse.
-   * @param {Number} ellipseData.semiMajor - The semi major axis of the Ellipse.
-   * @param {Number} ellipseData.semiMinor - The semi minor axis of the Ellipse.
-   * @param {Number} [ellipseData.height=0] - The extruded height of the Ellipse to form a prism.
-   * @param {Number} [ellipseData.elevation] - The elevation of the base of the Ellipse.
-   * @param {atlas.model.Colour} [ellipseData.color] - The fill colour of the Ellipse.
-   * @param {atlas.model.Style} [ellipseData.style=defaultStyle] - The Style to apply to the
+   * @param {Object} data - Parameters regarding the Ellipse
+   * @param {atlas.model.GeoPoint} data.centroid - The centroid of the Ellipse.
+   * @param {Number} data.semiMajor - The semi major axis of the Ellipse.
+   * @param {Number} data.semiMinor - The semi minor axis of the Ellipse.
+   * @param {Number} [data.height=0] - The extruded height of the Ellipse to form a prism.
+   * @param {Number} [data.elevation] - The elevation of the base of the Ellipse.
+   * @param {atlas.model.Colour} [data.color] - The fill colour of the Ellipse.
+   * @param {atlas.model.Style} [data.style=defaultStyle] - The Style to apply to the
    *    Ellipse.
    * @param {Object} [args] - Optional arguments describing the Ellipse.
    * @param {atlas.model.GeoEntity} [args.parent=null] - The parent entity of the Ellipse.
@@ -79,28 +79,28 @@ define([
      * Constructs a new Ellipse
      * @ignore
      */
-    _setup: function(id, ellipseData, args) {
-      if (!ellipseData || !ellipseData.centroid) {
+    _setup: function(id, data, args) {
+      if (!data || !data.centroid) {
         throw new DeveloperError('Can not construct ellipse without centre.');
-      } else if (!parseFloat(ellipseData.semiMajor)) {
+      } else if (!parseFloat(data.semiMajor)) {
         throw new DeveloperError('Can not construct ellipse without semi major axis.');
       }
       args = Setter.mixin({}, args);
-      ellipseData = Setter.mixin({
+      data = Setter.mixin({
         rotation: 0
-      }, ellipseData);
+      }, data);
       if (typeof id === 'object') {
-        ellipseData = id;
-        id = ellipseData.id;
+        data = id;
+        id = data.id;
       }
       this._super(id, data, args);
-      this._centroid = new GeoPoint(ellipseData.centroid);
-      this._semiMajor = parseFloat(ellipseData.semiMajor);
-      this._semiMinor = parseFloat(ellipseData.semiMinor) || this._semiMajor;
-      this._rotation = new Vertex(ellipseData.rotation);
-      this._height = parseFloat(ellipseData.height) || this._height;
-      this._zIndex = parseFloat(ellipseData.zIndex) || this._zIndex;
-      this._zIndexOffset = parseFloat(ellipseData.zIndexOffset) || this._zIndexOffset;
+      this._centroid = new GeoPoint(data.centroid);
+      this._semiMajor = parseFloat(data.semiMajor);
+      this._semiMinor = parseFloat(data.semiMinor) || this._semiMajor;
+      this._rotation = new Vertex(data.rotation);
+      this._height = parseFloat(data.height) || this._height;
+      this._zIndex = parseFloat(data.zIndex) || this._zIndex;
+      this._zIndexOffset = parseFloat(data.zIndexOffset) || this._zIndexOffset;
     },
 
     // -------------------------------------------

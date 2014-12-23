@@ -245,9 +245,8 @@ define([
       borderColor && style.setBorderColour(new Colour(borderColor));
       this.setStyle(style);
       this._elevation = parseFloat(data.elevation) || this._elevation;
-      this._scale = new Vertex(data.scale) || new Vertex(1, 1, 1);
-      this._rotation = new Vertex(data.rotation) || new Vertex(0, 0, 0);
-      data.scale;
+      this._scale = new Vertex(data.scale || {x: 1, y: 1, z: 1});
+      this._rotation = new Vertex(data.rotation || {x: 0, y: 0, z: 0});
     },
 
     // TODO(aramk) Use better dependency injection.

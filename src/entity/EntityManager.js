@@ -359,13 +359,6 @@ define([
      * @protected
      */
     _parseC3ML: function(c3ml) {
-      // Sanitize vertex properties to ensure they are the correct format.
-      ['scale', 'rotation'].forEach(function(property) {
-        var value = c3ml[property];
-        if (value && !(value instanceof Vertex)) {
-          c3ml[property] = new Vertex(value);
-        }
-      });
       var geometry;
       // Map of C3ML type to parse of that type.
       var parsers = {

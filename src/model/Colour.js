@@ -153,14 +153,14 @@ define([
   /**
    * Function that creates a new Colour instance from the given RGBA values.
    * @param {Number|Array} red - The red value, where 0 is minimum intensity and 255 is maximum
-   * intensity. Alternatively, an array of 4 elements containing values for red, green, blue, and
-   * alpha in that order.
+   *     intensity. Alternatively, an array of 4 elements containing values for red, green, blue,
+   *     and alpha in that order.
    * @param {Number} [green] - The green value, where 0 is minimum intensity and 255 is maximum
-   * intensity.
+   *     intensity.
    * @param {Number} [blue] - The blue value, where 0 is minimum intensity and 255 is maximum
-   * intensity.
+   *     intensity.
    * @param {Number} [alpha] - The alpha value, where 0 is minimum intensity and 255 is maximum
-   * intensity.
+   *     intensity.
    * @returns {atlas.model.Colour}
    */
   Colour.fromRGBA = function(red, green, blue, alpha) {
@@ -174,6 +174,9 @@ define([
   /**
    * Generates an Atlas Colour object from a hsv value.
    * @param {Object} hsv - The HSV colour.
+   * @param {Number} hsv.h - The hue in the range [0, 100].
+   * @param {Number} hsv.s - The saturation in the range [0, 100].
+   * @param {Number} hsv.v - The value in the range [0, 100].
    * @returns {atlas.model.Colour} - The converted colour.
    */
   Colour.fromHsv = function(hsv) {
