@@ -1,4 +1,3 @@
-// Style.js
 define([
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Class',
@@ -14,12 +13,11 @@ define([
 
   /**
    * Constructs a new Style object.
-   * @class A Style object defines the colour and opacity of a polygon's
-   * fill and border.
+   * @classdesc Defines the fill and border materials of a polygon.
    *
    * @param {Object} [args]
-   * @param {atlas.model.Colour} [args.fillColour=Colour.GREEN] - The fill colour for the polygon.
-   * @param {atlas.model.Colour} [args.borderColour=Colour.GREEN] - The border colour for the
+   * @param {atlas.material.Material} [args.fillMaterial=Colour.GREEN] - The fill material for the polygon.
+   * @param {atlas.material.Material} [args.borderMaterial=Colour.GREEN] - The border material for the
    * polygon.
    * @param {Number} [args.borderWidth=1] - The border width for the polygon in pixels.
    *
@@ -28,18 +26,18 @@ define([
   Style = Class.extend( /** @lends atlas.model.Style# */ {
 
     /**
-     * Fill colour of this Style.
-     * @type {atlas.model.Colour}
+     * Fill material of this Style.
+     * @type {atlas.material.Material}
      * @private
      */
-    _fillColour: null,
+    _fillMaterial: null,
 
     /**
-     * Border colour of this Style.
-     * @type {atlas.model.Colour}
+     * Border material of this Style.
+     * @type {atlas.material.Material}
      * @private
      */
-    _borderColour: null,
+    _borderMaterial: null,
 
     /**
      * Border width in pixels of this Style.
@@ -50,8 +48,8 @@ define([
 
     _init: function(args) {
       args = args || {};
-      this.setFillColour(args.fillColour);
-      this.setBorderColour(args.borderColour);
+      this.setFillMaterial(args.fillMaterial);
+      this.setBorderMaterial(args.borderMaterial);
       this.setBorderWidth(Setter.def(args.borderWidth, 1));
     },
 
@@ -60,30 +58,30 @@ define([
     // -------------------------------------------
 
     /**
-     * Sets the Style's fill colour.
-     * @param {atlas.model.Colour} colour - The new fill colour.
-     * @returns {atlas.model.Colour} The original colour.
+     * Sets the Style's fill material.
+     * @param {atlas.material.Material} material - The new fill material.
+     * @returns {atlas.material.Material} The original material.
      */
-    setFillColour: function(colour) {
-      if (colour && !(colour instanceof Colour)) {
-        throw new DeveloperError('Feature fill colour only accepts an atlas.model.colour, not', colour);
+    setFillMaterial: function(material) {
+      if (material && !(material instanceof Material)) {
+        throw new DeveloperError('Invalid material');
       }
-      var original = this.getFillColour();
-      this._fillColour = colour;
+      var original = this.getFillMaterial();
+      this._fillMaterial = material;
       return original;
     },
 
     /**
-     * Sets the Style's border colour.
-     * @param {atlas.model.Colour} colour - The new border colour.
-     * @returns {atlas.model.Colour} The original border colour.
+     * Sets the Style's border material.
+     * @param {atlas.material.Material} material - The new border material.
+     * @returns {atlas.material.Material} The original border material.
      */
-    setBorderColour: function(colour) {
-      if (colour && !(colour instanceof Colour)) {
-        throw new DeveloperError('Feature border colour only accepts an atlas.model.colour, not', colour);
+    setBorderMaterial: function(material) {
+      if (material && !(material instanceof Material)) {
+        throw new DeveloperError('Invalid material');
       }
-      var original = this.getBorderColour;
-      this._borderColour = colour;
+      var original = this.getBorderMaterial();
+      this._borderMaterial = material;
       return original;
     },
 
@@ -100,17 +98,17 @@ define([
     },
 
     /**
-     * @returns {atlas.model.Colour} The Style's fill colour.
+     * @returns {atlas.material.Material} The Style's fill material.
      */
-    getFillColour: function() {
-      return this._fillColour;
+    getFillMaterial: function() {
+      return this._fillMaterial;
     },
 
     /**
-     * @returns {atlas.model.Colour} The Style's border colour.
+     * @returns {atlas.material.Material} The Style's border material.
      */
-    getBorderColour: function() {
-      return this._borderColour;
+    getBorderMaterial: function() {
+      return this._borderMaterial;
     },
 
     /**
@@ -125,8 +123,8 @@ define([
      * @returns {Boolean} Whether the given object is equal to this object.
      */
     equals: function(other) {
-      return other && this._colourEquals(this.getFillColour(), other.getFillColour()) &&
-          this._colourEquals(this.getBorderColour(), other.getBorderColour()) &&
+      return other && this._colourEquals(this.getFillMaterial(), other.getFillMaterial()) &&
+          this._colourEquals(this.getBorderMaterial(), other.getBorderMaterial()) &&
           this.getBorderWidth() === other.getBorderWidth();
     },
 
@@ -150,7 +148,7 @@ define([
    * @returns {Style}
    */
   Style.getDefault = function() {
-    return new Style({fillColour: new Colour('#ddd'), borderColour: new Colour('#999')});
+    return new Style({fillMaterial: new Colour('#ddd'), borderMaterial: new Colour('#999')});
   };
 
   /**
@@ -159,7 +157,7 @@ define([
    * @returns {Style}
    */
   Style.getDefaultSelected = function() {
-    return new Style({fillColour: Colour.RED, borderColour: Colour.BLACK});
+    return new Style({fillMaterial: Colour.RED, borderMaterial: Colour.BLACK});
   };
 
   return Style;

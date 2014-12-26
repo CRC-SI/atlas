@@ -1,9 +1,9 @@
 define([
   'atlas/lib/tinycolor',
   'atlas/util/AtlasMath',
-  'atlas/lib/utility/Class',
+  'atlas/material/Material',
   'atlas/util/FreezeObject'
-], function(tinycolor, AtlasMath, Class, freeze) {
+], function(tinycolor, AtlasMath, Material, freeze) {
   var __DEBUG__ = true;
 
   if (__DEBUG__) {
@@ -13,7 +13,7 @@ define([
   }
 
   /**
-   * @typedef atlas.model.Colour
+   * @typedef atlas.material.Color
    * @ignore
    */
   var Colour;
@@ -28,9 +28,10 @@ define([
    * @param {Number} [b=0.0] Blue component
    * @param {Number} [a=0.0] Alpha component
    *
-   * @class atlas.model.Colour
+   * @class atlas.material.Color
+   * @extends atlas.material.Material
    */
-  Colour = Class.extend(/** @lends atlas.model.Colour# */ {
+  Colour = Material.extend(/** @lends atlas.material.Color# */ {
 
     red: null,
     green: null,
@@ -114,9 +115,9 @@ define([
 
     /**
      * Linearly interpolates between this colour and another colour.
-     * @param {atlas.model.Colour} other - The end colour to interpolate to.
+     * @param {atlas.material.Color} other - The end colour to interpolate to.
      * @param {Number} lerpFactor - The linear interpolation factor in the range [0,1].
-     * @returns {atlas.model.Colour} The interpolated colour.
+     * @returns {atlas.material.Color} The interpolated colour.
      */
     interpolate: function(other, lerpFactor) {
       return this.interpolateByHue(other, lerpFactor);
@@ -124,9 +125,9 @@ define([
 
     /**
      * Linearly interpolates between this colour and another colour using the hue value.
-     * @param {atlas.model.Colour} other - The end colour to interpolate to.
+     * @param {atlas.material.Color} other - The end colour to interpolate to.
      * @param {Number} lerpFactor - The linear interpolation factor in the range [0,1].
-     * @returns {atlas.model.Colour} The interpolated colour.
+     * @returns {atlas.material.Color} The interpolated colour.
      */
     interpolateByHue: function(other, lerpFactor) {
       var hsv1 = this.toHsv();
@@ -136,7 +137,7 @@ define([
     },
 
     /**
-     * @param {atlas.model.Colour} other
+     * @param {atlas.material.Color} other
      * @returns {Boolean} Whether the given object is equal to this object.
      */
     equals: function(other) {
@@ -161,7 +162,7 @@ define([
    *     intensity.
    * @param {Number} [alpha] - The alpha value, where 0 is minimum intensity and 255 is maximum
    *     intensity.
-   * @returns {atlas.model.Colour}
+   * @returns {atlas.material.Color}
    */
   Colour.fromRGBA = function(red, green, blue, alpha) {
     if (red.length) {
@@ -177,7 +178,7 @@ define([
    * @param {Number} hsv.h - The hue in the range [0, 100].
    * @param {Number} hsv.s - The saturation in the range [0, 100].
    * @param {Number} hsv.v - The value in the range [0, 100].
-   * @returns {atlas.model.Colour} - The converted colour.
+   * @returns {atlas.material.Color} - The converted colour.
    */
   Colour.fromHsv = function(hsv) {
     var tiny = tinycolor(hsv).toRgb();

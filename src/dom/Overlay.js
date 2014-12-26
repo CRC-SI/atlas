@@ -444,7 +444,7 @@ define([
    * @param {Object} data - The map of attributes to values.
    * @param {String} [data.cssClass=''] - The CSS class of the tag.
    * @param {String} [data.id=''] - The ID of the tag.
-   * @param {atlas.model.Colour} [data.bgColour=null] - The CSS background-color to apply to the tag.
+   * @param {atlas.material.Color} [data.bgColour=null] - The CSS background-color to apply to the tag.
    * @returns {String} The HTML string of the attributes.
    */
   Overlay.parseAttributes = function(data) {

@@ -5,7 +5,7 @@ define([
   'atlas/events/EventTarget',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types',
-  'atlas/model/Colour',
+  'atlas/material/Color',
   'atlas/model/Rectangle',
   'atlas/model/Style',
   'atlas/model/Vertex',
@@ -241,8 +241,8 @@ define([
       var style = data.style || Style.getDefault();
       var color = data.color;
       var borderColor = data.borderColor;
-      color && style.setFillColour(new Colour(color));
-      borderColor && style.setBorderColour(new Colour(borderColor));
+      color && style.setFillMaterial(new Colour(color));
+      borderColor && style.setBorderMaterial(new Colour(borderColor));
       this.setStyle(style);
       this._elevation = parseFloat(data.elevation) || this._elevation;
       this._scale = new Vertex(data.scale || {x: 1, y: 1, z: 1});
@@ -535,9 +535,9 @@ define([
     /**
      * Modifies specific components of the GeoEntity's style.
      * @param {Object} newStyle - The new values for the Style components.
-     * @param {atlas.model.Colour} [newStyle.fillColour] - The new fill colour.
-     * @param {atlas.model.Colour} [newStyle.borderColour] - The new border colour.
-     * @param {Number} [newStyle.borderWidth] - The new border width colour.
+     * @param {atlas.material.Color} [newStyle.fillMaterial] - The new fill material.
+     * @param {atlas.material.Color} [newStyle.borderMaterial] - The new border material.
+     * @param {Number} [newStyle.borderWidth] - The new border width material.
      * @returns {Object} A mapping of parameters that have been changed to their old value.
      */
     // TODO(aramk) This is quite complicated - perhaps rely only on setStyle.
@@ -549,13 +549,13 @@ define([
       this.setDirty('style');
       var oldStyle = {};
       // Work out what's changing
-      newStyle.fillColour && (oldStyle.fillColour = this._style.getFillColour());
-      newStyle.borderColour && (oldStyle.borderColour = this._style.getBorderColour());
+      newStyle.fillMaterial && (oldStyle.fillMaterial = this._style.getFillMaterial());
+      newStyle.borderMaterial && (oldStyle.borderMaterial = this._style.getBorderMaterial());
       newStyle.borderWidth && (oldStyle.borderWidth = this._style.getBorderWidth());
       // Generate new style based on what's changed.
       newStyle = Setter.mixin({
-        fillColour: this._style.getFillColour(),
-        borderColour: this._style.getBorderColour(),
+        fillMaterial: this._style.getFillMaterial(),
+        borderMaterial: this._style.getBorderMaterial(),
         borderWidth: this._style.getBorderWidth()
       }, newStyle);
       return this.setStyle(newStyle)

@@ -2,7 +2,7 @@ define([
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types',
   'atlas/model/Style',
-  'atlas/model/Colour',
+  'atlas/material/Color',
   'atlas/lib/utility/Class',
   'atlas/util/DeveloperError',
   'atlas/util/NumberFormatter'
@@ -274,7 +274,7 @@ define([
     _disableEntity: function(id) {
       this._setEffect(id, 'disabled', true);
       var entity = this._entities[id],
-          disabledStyle = new Style({fillColour: Colour.GREY, borderColour: Colour.GREY,
+          disabledStyle = new Style({fillMaterial: Colour.GREY, borderMaterial: Colour.GREY,
             borderWidth: 1}),
           prevStyle = entity.setStyle(disabledStyle);
       entity.show();

@@ -1,6 +1,6 @@
 define([
   'atlas/lib/utility/Setter',
-  'atlas/model/Colour',
+  'atlas/material/Color',
   'atlas/model/Style',
   'atlas/util/DeveloperError',
   // Base class
@@ -22,9 +22,9 @@ define([
    *     an array of vertices describing the Polygon.
    * @param {Number} [data.height=0] - The extruded height of the Polygon to form a prism.
    * @param {Number} [data.elevation] - The elevation of the base of the Polygon (or prism).
-   * @param {atlas.model.Colour} [data.color] - The fill colour of the Polygon. Overrides the
+   * @param {atlas.material.Color} [data.color] - The fill colour of the Polygon. Overrides the
    *     given style.
-   * @param {atlas.model.Colour} [data.borderColor] - The border colour of the Polygon.
+   * @param {atlas.material.Color} [data.borderColor] - The border colour of the Polygon.
    *     Overrides the given style.
    * @param {atlas.model.Style} [data.style=Style.getDefault()] - The Style to apply to the
    *     Polygon.

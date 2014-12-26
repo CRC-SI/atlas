@@ -1,7 +1,7 @@
 define([
   'atlas/lib/utility/Setter',
   'atlas/model/Feature',
-  'atlas/model/Colour',
+  'atlas/material/Color',
   // Code under test.
   'atlas/visualisation/ColourProjection'
 ], function(Setter, Feature, Colour, ColourProjection) {
@@ -42,9 +42,9 @@ define([
           args = Setter.mixin({type: 'discrete', bins: 3, codomain: codomain}, args);
           colourProj = new ColourProjection(args);
           colourProj.render();
-          expect(colourProj._entities[0].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.RED});
-          expect(colourProj._entities[2].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.RED});
-          expect(colourProj._entities[4].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.RED});
+          expect(colourProj._entities[0].modifyStyle).toHaveBeenCalledWith({fillMaterial: Colour.RED});
+          expect(colourProj._entities[2].modifyStyle).toHaveBeenCalledWith({fillMaterial: Colour.RED});
+          expect(colourProj._entities[4].modifyStyle).toHaveBeenCalledWith({fillMaterial: Colour.RED});
         });
 
         it('with a single codomain', function() {
@@ -64,9 +64,9 @@ define([
           expect(colourProj._stats[0].entityIds).toEqual(['0', '1']);
           expect(colourProj._stats[1].entityIds).toEqual(['2']);
           expect(colourProj._stats[2].entityIds).toEqual(['3', '4']);
-          //expect(colourProj._entities[0].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.BLUE});
-          //expect(colourProj._entities[2].modifyStyle).toHaveBeenCalledWith({fill: Colour.BLUE});
-          //expect(colourProj._entities[4].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.RED});
+          //expect(colourProj._entities[0].modifyStyle).toHaveBeenCalledWith({fillMaterial: Colour.BLUE});
+          //expect(colourProj._entities[2].modifyStyle).toHaveBeenCalledWith({fillMaterial: Colour.BLUE});
+          //expect(colourProj._entities[4].modifyStyle).toHaveBeenCalledWith({fillMaterial: Colour.RED});
         });
       }); // End 'for a discrete projection'.
 
@@ -83,9 +83,9 @@ define([
           expect(colourProj._attributes[3].binId).toEqual(0);
           expect(colourProj._attributes[4].binId).toEqual(0);
           expect(colourProj._stats[0].entityIds).toEqual(['0', '1', '2', '3', '4']);
-          //expect(colourProj._entities[0].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.BLUE});
-          //expect(colourProj._entities[2].modifyStyle).toHaveBeenCalledWith({fill: Colour.BLUE});
-          //expect(colourProj._entities[4].modifyStyle).toHaveBeenCalledWith({fillColour: Colour.GREEN});
+          //expect(colourProj._entities[0].modifyStyle).toHaveBeenCalledWith({fillMaterial: Colour.BLUE});
+          //expect(colourProj._entities[2].modifyStyle).toHaveBeenCalledWith({fillMaterial: Colour.BLUE});
+          //expect(colourProj._entities[4].modifyStyle).toHaveBeenCalledWith({fillMaterial: Colour.GREEN});
         })
       });
 
@@ -102,7 +102,7 @@ define([
             colourProj.render();
             for (var i = 0; i < ids.length; i++) {
               var id = ids[i];
-              expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: newColour});
+              expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillMaterial: newColour});
               expect(someEntities[id].modifyStyle.calls.length).toEqual(1);
               expect(someEntities[id]._style._fillColour).toEqual(newColour);
             }
@@ -113,7 +113,7 @@ define([
             colourProj.render(ids);
             for (var i = 0; i < ids.length; i++) {
               var id = ids[i];
-              expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: newColour});
+              expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillMaterial: newColour});
               expect(someEntities[id].modifyStyle.calls.length).toEqual(1);
               expect(someEntities[id]._style._fillColour).toEqual(newColour);
             }
@@ -122,7 +122,7 @@ define([
           it('to one of it\'s GeoEntities', function() {
             var id = 1;
             colourProj.render(id);
-            expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: newColour});
+            expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillMaterial: newColour});
             expect(someEntities[id].modifyStyle.calls.length).toEqual(1);
             expect(someEntities[id]._style._fillColour).toEqual(newColour);
           });
@@ -142,7 +142,7 @@ define([
         // Expect to be changed
         for (var i = 0; i < ids.length; i++) {
           var id = ids[i];
-          expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: initialColour});
+          expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillMaterial: initialColour});
           expect(someEntities[id].modifyStyle.calls.length).toEqual(2);
           expect(someEntities[id]._style._fillColour).toEqual(initialColour);
         }
@@ -154,7 +154,7 @@ define([
         // Expect to be changed
         for (var i = 0; i < ids.length; i++) {
           var id = ids[i];
-          expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: initialColour});
+          expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillMaterial: initialColour});
           expect(someEntities[id].modifyStyle.calls.length).toEqual(2);
           expect(someEntities[id]._style._fillColour).toEqual(initialColour);
         }
@@ -165,7 +165,7 @@ define([
       it('to one of it\'s GeoEntities', function() {
         var id = 1;
         colourProj.unrender(id);
-        expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillColour: initialColour});
+        expect(someEntities[id].modifyStyle).toHaveBeenCalledWith({fillMaterial: initialColour});
         expect(someEntities[id].modifyStyle.calls.length).toEqual(2);
         expect(someEntities[id]._style._fillColour).toEqual(initialColour);
         // Expect to be unchanged

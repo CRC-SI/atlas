@@ -1,5 +1,5 @@
 define([
-  'atlas/model/Colour',
+  'atlas/material/Color',
   // Base class.
   'atlas/visualisation/AbstractProjection',
   'atlas/util/DeveloperError'
@@ -56,7 +56,7 @@ define([
 
     /**
      * Gets the legend for a discrete projection.
-     * @returns {Object} As per {@link atlas.model.ColourProjection~getLegend}
+     * @returns {Object} As per {@link atlas.material.ColorProjection~getLegend}
      * @private
      */
     _buildDiscreteLegend: function() {
@@ -87,7 +87,7 @@ define([
 
     /**
      * Gets the legend for a continuous projection.
-     * @returns {Object} As per {@link atlas.model.ColourProjection~getLegend}
+     * @returns {Object} As per {@link atlas.material.ColorProjection~getLegend}
      * @private
      */
     _buildContinuousLegend: function() {
@@ -123,7 +123,7 @@ define([
     getCurrentState: function() {
       var state = {};
       Object.keys(this._entities).forEach(function(id) {
-        state[id] = {fillColour: this._entities[id].getStyle().getFillColour()};
+        state[id] = {fillMaterial: this._entities[id].getStyle().getFillMaterial()};
       }, this);
       return state;
     },
@@ -182,12 +182,12 @@ define([
           attributes.absRatio :
               attributes.numBins === 1 ? 0.5 : attributes.binId / (attributes.numBins - 1);
       if ('fixedProj' in codomain) {
-        return {fillColour: codomain.fixedProj};
+        return {fillMaterial: codomain.fixedProj};
       } else if ('startProj' in codomain && 'endProj' in codomain) {
         var startColour = codomain['startProj'],
             endColour = codomain['endProj'],
             newColour = startColour.interpolate(endColour, regressionFactor);
-        return {fillColour: newColour};
+        return {fillMaterial: newColour};
       }
       throw new DeveloperError('Unsupported codomain supplied.');
     }

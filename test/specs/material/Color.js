@@ -12,7 +12,7 @@ define([
   /* Begin test case definitions */
   new TestCase({
 
-    name: 'atlas/model/Colour',
+    name: 'atlas/material/Color',
 
     setUp: function() {
       // summary:

@@ -1,6 +1,6 @@
 define([
   'atlas/lib/utility/Setter',
-  'atlas/model/Colour',
+  'atlas/material/Color',
   'atlas/model/GeoPoint',
   'atlas/model/Style',
   'atlas/model/Vertex',
@@ -28,7 +28,7 @@ define([
    * @param {Number} [data.uniformScale] - A uniform scale applied to the Mesh.
    * @param {Vertex} [data.scale] - A non-uniform scale applied to the Mesh.
    * @param {Vertex} [data.rotation] - A rotation applied to the Mesh.
-   * @param {atlas.model.Colour} [data.color] - A uniform color to apply to the Mesh.
+   * @param {atlas.material.Color} [data.color] - A uniform color to apply to the Mesh.
    * @param {String} [data.gltfUrl] - URL of GLTF data to construct the Mesh.
    * @param {Object} [data.gltf] - JSON GLTF object to construct the Mesh.
    * @param {Array.<Number>} [data.positions] - [C3ML] The array of vertex positions for the
@@ -108,7 +108,7 @@ define([
     /**
      * The uniform colour to apply to the Mesh if a texture is not defined.
      * TODO(bpstudds): Work out the textures.
-     * @type {atlas.model.Colour}
+     * @type {atlas.material.Color}
      * @protected
      * @deprecated
      */

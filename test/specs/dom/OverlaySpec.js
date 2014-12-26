@@ -1,5 +1,5 @@
 define([
-  'atlas/model/Colour',
+  'atlas/material/Color',
   '../../lib/simulate.js',
   // Code under test.
   'atlas/dom/Overlay'
