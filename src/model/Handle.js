@@ -18,7 +18,8 @@ define([
    * When a handle is modified, the Handle delegates these calls to the target GeoEntities.
    * @param {atlas.model.GeoPoint} [args.target] - The GeoPoint that is target to the Handle. If no
    * target is provided, the owner is considered the target.
-   * @param {atlas.model.GeoEntity} args.owner - The owner of the target {@link atlas.model.GeoPoint}.
+   * @param {atlas.model.GeoEntity} args.owner - The owner of the target
+   *     {@link atlas.model.GeoPoint}.
    * @param {Number} [args.dotRadius=1] - The diameter of the Handle's dot in metres.
    * @class atlas.model.Handle
    */
@@ -78,6 +79,7 @@ define([
       if (!owner) {
         throw new DeveloperError('Must provide owner.');
       }
+      this.setElevation(1);
       // TODO(aramk) Use dependency injection eventually.
       args.renderManager = owner._renderManager;
       args.eventManager = owner._eventManager;
@@ -103,7 +105,7 @@ define([
     // -------------------------------------------
 
     /**
-     * @params {atlas.model.GeoPoint} target
+     * @param {atlas.model.GeoPoint} target
      */
     setTarget: function(target) {
       this._target = target;
@@ -143,9 +145,9 @@ define([
      * @private
      */
     _delegateToTarget: function(method, args) {
-      var target = this.getTarget(),
-          index = this.getIndex(),
-          owner = this.getOwner();
+      var target = this.getTarget();
+      var index = this.getIndex();
+      var owner = this.getOwner();
       // Apply the method on the underlying vertex.
       if (!Types.isNullOrUndefined(index)) {
         // Since the Vertex methods produce new instances, set the result of the previous
