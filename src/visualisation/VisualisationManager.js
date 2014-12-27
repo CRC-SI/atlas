@@ -5,11 +5,11 @@ define([
   'atlas/util/DeveloperError',
   'atlas/dom/Overlay',
   'atlas/visualisation/AbstractProjection',
-  'atlas/visualisation/ColourProjection',
+  'atlas/visualisation/ColorProjection',
   'atlas/visualisation/DynamicProjection',
   'atlas/visualisation/HeightProjection',
   'atlas/lib/utility/Log'
-], function(Manager, ItemStore, Event, DeveloperError, Overlay, AbstractProjection, ColourProjection,
+], function(Manager, ItemStore, Event, DeveloperError, Overlay, AbstractProjection, ColorProjection,
             DynamicProjection, HeightProjection, Log) {
 
   /**
@@ -88,12 +88,12 @@ define([
           source: 'extern',
           name: 'projection/add',
           /* Creates a new projection.
-           * @param {String} args.type - The type of projection, either 'colour' or 'height'.
+           * @param {String} args.type - The type of projection, either 'color' or 'height'.
            * @param {Array.<String>} args.ids - An array of GeoEntity IDs that the projection
            * affects.
            * @param {Object} args.config - Constructor arguments as required by the type of
            * projection. Refer to {@link atlas.visualisation.AbstractProjection},
-           * {@link atlas.visualisation.ColourProjection}, and
+           * {@link atlas.visualisation.ColorProjection}, and
            * {@link atlas.visualisation.HeightProjection}.
            * @returns {atlas.visualisation.AbstractProjection} The new projection as
            * <code>args.projection</code>.
@@ -148,14 +148,14 @@ define([
           /*
            * Creates a new dynamic projection.
            * @param {Object} args
-           * @param {String} args.type - The type of projection, either 'colour' or 'height'.
+           * @param {String} args.type - The type of projection, either 'color' or 'height'.
            * @param {Array.<String>} args.ids - An array of GeoEntity ids that the projection
            * affects.
            * @param {Array.<Object>} args.data - An array of objects mapping index to a map of
            * GeoEntity id to it's parameter value for that index.
            * @param {Object} args.config - Constructor arguments as required by the type of
            * projection. Refer to {@link atlas.visualisation.AbstractProjection},
-           * {@link atlas.visualisation.ColourProjection}, and
+           * {@link atlas.visualisation.ColorProjection}, and
            * {@link atlas.visualisation.HeightProjection}.
            * @returns {atlas.visualisation.DynamicProjection} The new dynamic projection as
            * <code>args.projection</code>.
@@ -241,16 +241,16 @@ define([
     /**
      * Creates a new projection.
      * @param {Object} args
-     * @param {String} args.type - The type of projection, either 'colour' or 'height'.
+     * @param {String} args.type - The type of projection, either 'color' or 'height'.
      * @param {Array.<String>} args.ids - An array of GeoEntity IDs that the projection affects.
      * @param {Object} args.config - Constructor arguments as required by the type of projection.
      * Refer to {@link atlas.visualisation.AbstractProjection},
-     * {@link atlas.visualisation.ColourProjection}, and
+     * {@link atlas.visualisation.ColorProjection}, and
      * {@link atlas.visualisation.HeightProjection}.
      * @returns {atlas.visualisation.AbstractProjection} The new projection object.
      */
     createProjection: function(args) {
-      var Projection = args.type === 'colour' ? ColourProjection : HeightProjection;
+      var Projection = args.type === 'color' ? ColorProjection : HeightProjection;
 
       args.config.entities = {};
       args.ids.forEach(function(id) {
@@ -263,18 +263,18 @@ define([
     /**
      * Creates a new dynamic projection.
      * @param {Object} args
-     * @param {String} args.type - The type of projection, either 'colour' or 'height'.
+     * @param {String} args.type - The type of projection, either 'color' or 'height'.
      * @param {Array.<String>} args.ids - An array of GeoEntity ids that the projection affects.
      * @param {Array.<Object>} args.data - An array of objects mapping index to a map of GeoEntity
      * id to it's parameter value for that index.
      * @param {Object} args.config - Constructor arguments as required by the type of projection.
      * Refer to {@link atlas.visualisation.AbstractProjection},
-     * {@link atlas.visualisation.ColourProjection}, and
+     * {@link atlas.visualisation.ColorProjection}, and
      * {@link atlas.visualisation.HeightProjection}.
      * @returns {atlas.visualisation.DynamicProjection} The new dynamic projection object.
      */
     createDynamicProjection: function(args) {
-      var Projection = args.type === 'colour' ? ColourProjection : HeightProjection;
+      var Projection = args.type === 'color' ? ColorProjection : HeightProjection;
       // Set up the config for projection construction.
       args.config.values = {};
       args.config.entities = {};

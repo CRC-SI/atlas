@@ -11,7 +11,7 @@ define([
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(ItemStore, Event, EventTarget, Setter, Types, Colour, Rectangle, Style, Vertex,
+], function(ItemStore, Event, EventTarget, Setter, Types, Color, Rectangle, Style, Vertex,
             DeveloperError, WKT) {
   /**
    * @typedef atlas.model.GeoEntity
@@ -241,8 +241,8 @@ define([
       var style = data.style || Style.getDefault();
       var color = data.color;
       var borderColor = data.borderColor;
-      color && style.setFillMaterial(new Colour(color));
-      borderColor && style.setBorderMaterial(new Colour(borderColor));
+      color && style.setFillMaterial(new Color(color));
+      borderColor && style.setBorderMaterial(new Color(borderColor));
       this.setStyle(style);
       this._elevation = parseFloat(data.elevation) || this._elevation;
       this._scale = new Vertex(data.scale || {x: 1, y: 1, z: 1});

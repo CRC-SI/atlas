@@ -6,7 +6,7 @@ define([
   'atlas/model/Vertex',
   // Base class
   'atlas/model/GeoEntity'
-], function(Setter, Colour, GeoPoint, Style, Vertex, GeoEntity) {
+], function(Setter, Color, GeoPoint, Style, Vertex, GeoEntity) {
 
   /**
    * @typedef atlas.model.Mesh
@@ -106,13 +106,13 @@ define([
     _modelMatrix: null,
 
     /**
-     * The uniform colour to apply to the Mesh if a texture is not defined.
+     * The uniform color to apply to the Mesh if a texture is not defined.
      * TODO(bpstudds): Work out the textures.
      * @type {atlas.material.Color}
      * @protected
      * @deprecated
      */
-    _uniformColour: null,
+    _uniformColor: null,
 
     /**
      * True iff the Mesh is defined using GLTF input.

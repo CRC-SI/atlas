@@ -2,11 +2,11 @@ define([
   'doh/runner',
   'dam/TestCase',
   /* Code under test */
-  '../Colour'
-], function(doh, TestCase, Colour) {
+  '../Color'
+], function(doh, TestCase, Color) {
 
   /* Test globals go here */
-  var colour = new Colour();
+  var color = new Color();
 
 
   /* Begin test case definitions */
@@ -16,7 +16,7 @@ define([
 
     setUp: function() {
       // summary:
-      colour = new Colour(1, 1, 1, 1);
+      color = new Color(1, 1, 1, 1);
     },
 
     test_limit: function() {

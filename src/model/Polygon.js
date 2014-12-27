@@ -5,7 +5,7 @@ define([
   'atlas/util/DeveloperError',
   // Base class
   'atlas/model/VertexedEntity'
-], function(Setter, Colour, Style, DeveloperError, VertexedEntity) {
+], function(Setter, Color, Style, DeveloperError, VertexedEntity) {
 
   /**
    * @typedef atlas.model.Polygon
@@ -22,9 +22,9 @@ define([
    *     an array of vertices describing the Polygon.
    * @param {Number} [data.height=0] - The extruded height of the Polygon to form a prism.
    * @param {Number} [data.elevation] - The elevation of the base of the Polygon (or prism).
-   * @param {atlas.material.Color} [data.color] - The fill colour of the Polygon. Overrides the
+   * @param {atlas.material.Color} [data.color] - The fill color of the Polygon. Overrides the
    *     given style.
-   * @param {atlas.material.Color} [data.borderColor] - The border colour of the Polygon.
+   * @param {atlas.material.Color} [data.borderColor] - The border color of the Polygon.
    *     Overrides the given style.
    * @param {atlas.model.Style} [data.style=Style.getDefault()] - The Style to apply to the
    *     Polygon.

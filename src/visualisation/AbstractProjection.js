@@ -6,7 +6,7 @@ define([
   'atlas/lib/utility/Class',
   'atlas/util/DeveloperError',
   'atlas/util/NumberFormatter'
-], function(Setter, Types, Style, Colour, Class, DeveloperError, NumberFormatter) {
+], function(Setter, Types, Style, Color, Class, DeveloperError, NumberFormatter) {
 
   /**
    * @typedef atlas.visualisation.AbstractProjection
@@ -274,7 +274,7 @@ define([
     _disableEntity: function(id) {
       this._setEffect(id, 'disabled', true);
       var entity = this._entities[id],
-          disabledStyle = new Style({fillMaterial: Colour.GREY, borderMaterial: Colour.GREY,
+          disabledStyle = new Style({fillMaterial: Color.GREY, borderMaterial: Color.GREY,
             borderWidth: 1}),
           prevStyle = entity.setStyle(disabledStyle);
       entity.show();

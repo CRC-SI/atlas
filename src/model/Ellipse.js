@@ -7,7 +7,7 @@ define([
   // Base class
   'atlas/model/GeoEntity',
   'atlas/util/DeveloperError'
-], function(Setter, Colour, GeoPoint, Style, Vertex, GeoEntity, DeveloperError) {
+], function(Setter, Color, GeoPoint, Style, Vertex, GeoEntity, DeveloperError) {
 
   /**
    * @classdesc Represents a 2D ellipse.
@@ -19,7 +19,7 @@ define([
    * @param {Number} data.semiMinor - The semi minor axis of the Ellipse.
    * @param {Number} [data.height=0] - The extruded height of the Ellipse to form a prism.
    * @param {Number} [data.elevation] - The elevation of the base of the Ellipse.
-   * @param {atlas.material.Color} [data.color] - The fill colour of the Ellipse.
+   * @param {atlas.material.Color} [data.color] - The fill color of the Ellipse.
    * @param {atlas.model.Style} [data.style=defaultStyle] - The Style to apply to the
    *    Ellipse.
    * @param {Object} [args] - Optional arguments describing the Ellipse.

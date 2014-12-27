@@ -2,8 +2,8 @@ define([
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Class',
   'atlas/util/DeveloperError',
-  './Colour'
-], function(Setter, Class, DeveloperError, Colour) {
+  './Color'
+], function(Setter, Class, DeveloperError, Color) {
 
   /**
    * @typedef atlas.model.Style
@@ -16,8 +16,8 @@ define([
    * @classdesc Defines the fill and border materials of a polygon.
    *
    * @param {Object} [args]
-   * @param {atlas.material.Material} [args.fillMaterial=Colour.GREEN] - The fill material for the polygon.
-   * @param {atlas.material.Material} [args.borderMaterial=Colour.GREEN] - The border material for the
+   * @param {atlas.material.Material} [args.fillMaterial=Color.GREEN] - The fill material for the polygon.
+   * @param {atlas.material.Material} [args.borderMaterial=Color.GREEN] - The border material for the
    * polygon.
    * @param {Number} [args.borderWidth=1] - The border width for the polygon in pixels.
    *
@@ -123,17 +123,17 @@ define([
      * @returns {Boolean} Whether the given object is equal to this object.
      */
     equals: function(other) {
-      return other && this._colourEquals(this.getFillMaterial(), other.getFillMaterial()) &&
-          this._colourEquals(this.getBorderMaterial(), other.getBorderMaterial()) &&
+      return other && this._colorEquals(this.getFillMaterial(), other.getFillMaterial()) &&
+          this._colorEquals(this.getBorderMaterial(), other.getBorderMaterial()) &&
           this.getBorderWidth() === other.getBorderWidth();
     },
 
     // TODO(aramk) Abstract this.
-    _colourEquals: function(colourA, colourB) {
+    _colorEquals: function(colorA, colorB) {
       // Allow type coercion. If first condition fails, at least one of them is assumed to be an
-      // object, so if the second condition fails, either both are different objects, or colourA is
+      // object, so if the second condition fails, either both are different objects, or colorA is
       // falsey - both of which indicate they are not equal.
-      return (colourA == colourB) || (colourA && colourA.equals(colourB))
+      return (colorA == colorB) || (colorA && colorA.equals(colorB))
     }
 
   });
@@ -148,7 +148,7 @@ define([
    * @returns {Style}
    */
   Style.getDefault = function() {
-    return new Style({fillMaterial: new Colour('#ddd'), borderMaterial: new Colour('#999')});
+    return new Style({fillMaterial: new Color('#ddd'), borderMaterial: new Color('#999')});
   };
 
   /**
@@ -157,7 +157,7 @@ define([
    * @returns {Style}
    */
   Style.getDefaultSelected = function() {
-    return new Style({fillMaterial: Colour.RED, borderMaterial: Colour.BLACK});
+    return new Style({fillMaterial: Color.RED, borderMaterial: Color.BLACK});
   };
 
   return Style;

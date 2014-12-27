@@ -16,10 +16,10 @@ define([
    * @typedef atlas.material.Color
    * @ignore
    */
-  var Colour;
+  var Color;
 
   /**
-   * @classdesc Constructs a colour specified by red, green, blue and alpha
+   * @classdesc Constructs a color specified by red, green, blue and alpha
    * intensity values. The intensities can vary from <code>0.0</code>
    * (minimum intensity) to <code>1.0</code> (maximum intensity).
    *
@@ -31,7 +31,7 @@ define([
    * @class atlas.material.Color
    * @extends atlas.material.Material
    */
-  Colour = Material.extend(/** @lends atlas.material.Color# */ {
+  Color = Material.extend(/** @lends atlas.material.Color# */ {
 
     red: null,
     green: null,
@@ -77,7 +77,7 @@ define([
     // -------------------------------------------
 
     /**
-     * @returns {String} The colour as a string in the format
+     * @returns {String} The color as a string in the format
      *     'rbga([RED], [GREEN], [BLUE], [ALPHA])'
      */
     toString: function() {
@@ -86,7 +86,7 @@ define([
     },
 
     /**
-     * @returns {string} The colour as a string in the CSS hex format.
+     * @returns {string} The color as a string in the CSS hex format.
      */
     toHexString: function() {
       var hex = function(a) {
@@ -100,13 +100,13 @@ define([
     },
 
     toArray: function() {
-      return ['red', 'green', 'blue', 'alpha'].map(function(colourName) {
-        return this[colourName];
+      return ['red', 'green', 'blue', 'alpha'].map(function(colorName) {
+        return this[colorName];
       }, this);
     },
 
     /**
-     * @returns {Object} The colour as a tinycolor HSV object.
+     * @returns {Object} The color as a tinycolor HSV object.
      */
     toHsv: function() {
       var tiny = tinycolor(this.toString());
@@ -114,26 +114,26 @@ define([
     },
 
     /**
-     * Linearly interpolates between this colour and another colour.
-     * @param {atlas.material.Color} other - The end colour to interpolate to.
+     * Linearly interpolates between this color and another color.
+     * @param {atlas.material.Color} other - The end color to interpolate to.
      * @param {Number} lerpFactor - The linear interpolation factor in the range [0,1].
-     * @returns {atlas.material.Color} The interpolated colour.
+     * @returns {atlas.material.Color} The interpolated color.
      */
     interpolate: function(other, lerpFactor) {
       return this.interpolateByHue(other, lerpFactor);
     },
 
     /**
-     * Linearly interpolates between this colour and another colour using the hue value.
-     * @param {atlas.material.Color} other - The end colour to interpolate to.
+     * Linearly interpolates between this color and another color using the hue value.
+     * @param {atlas.material.Color} other - The end color to interpolate to.
      * @param {Number} lerpFactor - The linear interpolation factor in the range [0,1].
-     * @returns {atlas.material.Color} The interpolated colour.
+     * @returns {atlas.material.Color} The interpolated color.
      */
     interpolateByHue: function(other, lerpFactor) {
       var hsv1 = this.toHsv();
       var hsv2 = other.toHsv();
       hsv1.h = AtlasMath.lerp(hsv2.h, hsv1.h, lerpFactor);
-      return Colour.fromHsv(hsv1);
+      return Color.fromHsv(hsv1);
     },
 
     /**
@@ -152,7 +152,7 @@ define([
   // ---------------------------------------------
 
   /**
-   * Function that creates a new Colour instance from the given RGBA values.
+   * Function that creates a new Color instance from the given RGBA values.
    * @param {Number|Array} red - The red value, where 0 is minimum intensity and 255 is maximum
    *     intensity. Alternatively, an array of 4 elements containing values for red, green, blue,
    *     and alpha in that order.
@@ -164,25 +164,25 @@ define([
    *     intensity.
    * @returns {atlas.material.Color}
    */
-  Colour.fromRGBA = function(red, green, blue, alpha) {
+  Color.fromRGBA = function(red, green, blue, alpha) {
     if (red.length) {
-      return new Colour(red[0] / 255, red[1] / 255, red[2] / 255, red[3] / 255);
+      return new Color(red[0] / 255, red[1] / 255, red[2] / 255, red[3] / 255);
     } else {
-      return new Colour(red / 255, green / 255, blue / 255, alpha / 255);
+      return new Color(red / 255, green / 255, blue / 255, alpha / 255);
     }
   };
 
   /**
-   * Generates an Atlas Colour object from a hsv value.
-   * @param {Object} hsv - The HSV colour.
+   * Generates an Atlas Color object from a hsv value.
+   * @param {Object} hsv - The HSV color.
    * @param {Number} hsv.h - The hue in the range [0, 100].
    * @param {Number} hsv.s - The saturation in the range [0, 100].
    * @param {Number} hsv.v - The value in the range [0, 100].
-   * @returns {atlas.material.Color} - The converted colour.
+   * @returns {atlas.material.Color} - The converted color.
    */
-  Colour.fromHsv = function(hsv) {
+  Color.fromHsv = function(hsv) {
     var tiny = tinycolor(hsv).toRgb();
-    return new Colour(tiny.r / 255, tiny.g / 255, tiny.b / 255, 1);
+    return new Color(tiny.r / 255, tiny.g / 255, tiny.b / 255, 1);
   };
 
   // -------------------------------------------
@@ -191,12 +191,12 @@ define([
 
   // These constants are frozen. Any attempt to alter them may silently fail.
   // The Karma tests will fail with these objects frozen.
-  Colour.WHITE = freeze(new Colour(1, 1, 1, 1));
-  Colour.GREY = freeze(new Colour(0.7, 0.7, 0.7, 1));
-  Colour.BLACK = freeze(new Colour(0, 0, 0, 1));
-  Colour.RED = freeze(new Colour(1, 0, 0, 1));
-  Colour.GREEN = freeze(new Colour(0, 1, 0, 1));
-  Colour.BLUE = freeze(new Colour(0, 0, 1, 1));
+  Color.WHITE = freeze(new Color(1, 1, 1, 1));
+  Color.GREY = freeze(new Color(0.7, 0.7, 0.7, 1));
+  Color.BLACK = freeze(new Color(0, 0, 0, 1));
+  Color.RED = freeze(new Color(1, 0, 0, 1));
+  Color.GREEN = freeze(new Color(0, 1, 0, 1));
+  Color.BLUE = freeze(new Color(0, 0, 1, 1));
 
-  return Colour;
+  return Color;
 });
