@@ -4,6 +4,7 @@ define([
   // Base class
   'atlas/events/EventTarget',
   'atlas/lib/utility/Setter',
+  'atlas/lib/utility/Strings',
   'atlas/lib/utility/Types',
   'atlas/model/Rectangle',
   'atlas/material/Color',
@@ -13,8 +14,8 @@ define([
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(ItemStore, Event, EventTarget, Setter, Types, Rectangle, Color, CheckPattern, Material,
-            Style, Vertex, DeveloperError, WKT) {
+], function(ItemStore, Event, EventTarget, Setter, Strings, Types, Rectangle, Color, CheckPattern,
+            Material, Style, Vertex, DeveloperError, WKT) {
   /**
    * @typedef atlas.model.GeoEntity
    * @ignore
@@ -244,21 +245,18 @@ define([
       var color = data.color;
       var borderColor = data.borderColor;
 
-      var fillMaterial = data.fillMaterial;
-      if (fillMaterial) {
-        fillMaterial = this._parseMaterial(fillMaterial);
-      } else if (color) {
-        fillMaterial = new Color(color);
-      }
-      fillMaterial && style.setFillMaterial(fillMaterial);
-
-      var borderMaterial = data.borderMaterial;
-      if (borderMaterial) {
-        borderMaterial = this._parseMaterial(borderMaterial);
-      } else if (borderColor) {
-        borderMaterial = new Color(borderColor);
-      }
-      borderMaterial && style.setBorderMaterial(borderMaterial);
+      var colorTypes = {fill: 'color', border: 'borderColor'};
+      Object.keys(colorTypes).forEach(function(prefix) {
+        var value = data[colorTypes[prefix]];
+        var material = data[prefix + 'Material'];
+        if (material) {
+          material = this._parseMaterial(material);
+        } else if (color) {
+          // Color arrays are assumed to be in the range [0, 255] as per c3ml.
+          material = Types.isArrayLiteral(value) ? Color.fromRGBA(value) : new Color(value);
+        }
+        material && style['set' + Strings.toTitleCase(prefix) + 'Material'](material);
+      }, this);
 
       this.setStyle(style);
       this._elevation = parseFloat(data.elevation) || this._elevation;
