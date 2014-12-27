@@ -58,10 +58,10 @@ define([
     },
 
     _fromObj: function(obj) {
-      this.red = obj.red;
-      this.green = obj.green;
-      this.blue = obj.blue;
-      this.alpha = obj.alpha;
+      this.red = obj.red || 0;
+      this.green = obj.green || 0;
+      this.blue = obj.blue || 0;
+      this.alpha = obj.alpha || 0;
     },
 
     _fromStr: function(str) {
@@ -197,6 +197,7 @@ define([
   Color.RED = freeze(new Color(1, 0, 0, 1));
   Color.GREEN = freeze(new Color(0, 1, 0, 1));
   Color.BLUE = freeze(new Color(0, 0, 1, 1));
+  Color.YELLOW = freeze(new Color(1, 1, 0, 1));
 
   return Color;
 });

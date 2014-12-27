@@ -5,14 +5,16 @@ define([
   'atlas/events/EventTarget',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types',
-  'atlas/material/Color',
   'atlas/model/Rectangle',
+  'atlas/material/Color',
+  'atlas/material/CheckPattern',
+  'atlas/material/Material',
   'atlas/material/Style',
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(ItemStore, Event, EventTarget, Setter, Types, Color, Rectangle, Style, Vertex,
-            DeveloperError, WKT) {
+], function(ItemStore, Event, EventTarget, Setter, Types, Rectangle, Color, CheckPattern, Material,
+            Style, Vertex, DeveloperError, WKT) {
   /**
    * @typedef atlas.model.GeoEntity
    * @ignore
@@ -241,8 +243,23 @@ define([
       var style = data.style || Style.getDefault();
       var color = data.color;
       var borderColor = data.borderColor;
-      color && style.setFillMaterial(new Color(color));
-      borderColor && style.setBorderMaterial(new Color(borderColor));
+
+      var fillMaterial = data.fillMaterial;
+      if (fillMaterial) {
+        fillMaterial = this._parseMaterial(fillMaterial);
+      } else if (color) {
+        fillMaterial = new Color(color);
+      }
+      fillMaterial && style.setFillMaterial(fillMaterial);
+
+      var borderMaterial = data.borderMaterial;
+      if (borderMaterial) {
+        borderMaterial = this._parseMaterial(borderMaterial);
+      } else if (borderColor) {
+        borderMaterial = new Color(borderColor);
+      }
+      borderMaterial && style.setBorderMaterial(borderMaterial);
+
       this.setStyle(style);
       this._elevation = parseFloat(data.elevation) || this._elevation;
       this._scale = new Vertex(data.scale || {x: 1, y: 1, z: 1});
@@ -833,6 +850,33 @@ define([
       this._eventHandles.forEach(function(handle) {
         handle.cancel();
       });
+    },
+
+    // -------------------------------------------
+    // CONSTRUCTION
+    // -------------------------------------------
+
+    /**
+     * @param {Object} materialArgs
+     * @return {atlas.material.Material}
+     */
+    _parseMaterial: function(materialArgs) {
+      if (materialArgs instanceof Material) {
+        return materialArgs;
+      }
+      // TODO(aramk) Use injector so we don't have to include all the classes and can use the name
+      // as a look up (convention over configuration).
+      var type = materialArgs.type;
+      var typeMap = {
+        Color: Color,
+        CheckPattern: CheckPattern
+      };
+      var MaterialClass = typeMap[type];
+      if (MaterialClass) {
+        return new MaterialClass(materialArgs);
+      } else {
+        throw new Error('Unable to parse material');
+      }
     }
 
   });
