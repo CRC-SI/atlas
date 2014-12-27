@@ -19,7 +19,6 @@ define([
   Material = Class.extend( /** @lends atlas.model.Material# */ {
 
     _init: function(args) {
-      
     },
 
     /**

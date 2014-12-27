@@ -2,8 +2,8 @@ define([
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Class',
   'atlas/util/DeveloperError',
-  './Color',
-  './Material'
+  'atlas/material/Color',
+  'atlas/material/Material'
 ], function(Setter, Class, DeveloperError, Color, Material) {
 
   /**
@@ -125,17 +125,17 @@ define([
      * @returns {Boolean} Whether the given object is equal to this object.
      */
     equals: function(other) {
-      return other && this._colorEquals(this.getFillMaterial(), other.getFillMaterial()) &&
-          this._colorEquals(this.getBorderMaterial(), other.getBorderMaterial()) &&
+      return other && this._equals(this.getFillMaterial(), other.getFillMaterial()) &&
+          this._equals(this.getBorderMaterial(), other.getBorderMaterial()) &&
           this.getBorderWidth() === other.getBorderWidth();
     },
 
     // TODO(aramk) Abstract this.
-    _colorEquals: function(colorA, colorB) {
+    _equals: function(a, b) {
       // Allow type coercion. If first condition fails, at least one of them is assumed to be an
-      // object, so if the second condition fails, either both are different objects, or colorA is
+      // object, so if the second condition fails, either both are different objects, or a is
       // falsey - both of which indicate they are not equal.
-      return (colorA == colorB) || (colorA && colorA.equals(colorB))
+      return (a == b) || (a && a.equals(b))
     }
 
   });

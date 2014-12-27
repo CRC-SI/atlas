@@ -1,9 +1,9 @@
 define([
   'atlas/lib/tinycolor',
-  'atlas/util/AtlasMath',
   'atlas/material/Material',
+  'atlas/util/AtlasMath',
   'atlas/util/FreezeObject'
-], function(tinycolor, AtlasMath, Material, freeze) {
+], function(tinycolor, Material, AtlasMath, freeze) {
   var __DEBUG__ = true;
 
   if (__DEBUG__) {
