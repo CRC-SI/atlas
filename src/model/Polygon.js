@@ -1,7 +1,7 @@
 define([
   'atlas/lib/utility/Setter',
   'atlas/material/Color',
-  'atlas/model/Style',
+  'atlas/material/Style',
   'atlas/util/DeveloperError',
   // Base class
   'atlas/model/VertexedEntity'
@@ -26,7 +26,7 @@ define([
    *     given style.
    * @param {atlas.material.Color} [data.borderColor] - The border color of the Polygon.
    *     Overrides the given style.
-   * @param {atlas.model.Style} [data.style=Style.getDefault()] - The Style to apply to the
+   * @param {atlas.material.Style} [data.style=Style.getDefault()] - The Style to apply to the
    *     Polygon.
    * @param {Object} [args] - Option arguments describing the Polygon.
    * @param {atlas.model.GeoEntity} [args.parent=null] - The parent entity of the Polygon.

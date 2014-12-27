@@ -7,7 +7,7 @@ define([
   'atlas/lib/utility/Types',
   'atlas/material/Color',
   'atlas/model/Rectangle',
-  'atlas/model/Style',
+  'atlas/material/Style',
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
@@ -142,14 +142,14 @@ define([
 
     /**
      * The style of the GeoEntity when rendered.
-     * @type {atlas.model.Style}
+     * @type {atlas.material.Style}
      * @protected
      */
     _style: null,
 
     /**
      * The style of the GeoEntity before it was selected.
-     * @type {atlas.model.Style}
+     * @type {atlas.material.Style}
      * @protected
      */
     _preSelectStyle: null,
@@ -480,8 +480,8 @@ define([
 
     /**
      * Sets the Style for the GeoEntity.
-     * @param {atlas.model.Style} style - The new style to use.
-     * @returns {atlas.model.Style} The old style, or null if it was not changed.
+     * @param {atlas.material.Style} style - The new style to use.
+     * @returns {atlas.material.Style} The old style, or null if it was not changed.
      */
     setStyle: function(style) {
       var previousStyle = this.getStyle();
@@ -495,7 +495,7 @@ define([
     },
 
     /**
-     * @returns {atlas.model.Style}
+     * @returns {atlas.material.Style}
      */
     getStyle: function() {
       return this._style;

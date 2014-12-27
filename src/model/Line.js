@@ -1,6 +1,6 @@
 define([
   'atlas/model/GeoPoint',
-  'atlas/model/Style',
+  'atlas/material/Style',
   'atlas/material/Color',
   'atlas/model/VertexedEntity',
   'atlas/lib/OpenLayers',
@@ -30,7 +30,7 @@ define([
    *     given style.
    * @param {atlas.material.Color} [data.borderColor] - The border color of the Polygon.
    *     Overrides the given style.
-   * @param {atlas.model.Style} [data.style=Style.getDefault()] - The Style to apply to the
+   * @param {atlas.material.Style} [data.style=Style.getDefault()] - The Style to apply to the
    *     Polygon.
    * @class atlas.model.Line
    * @extends atlas.model.VertexedEntity

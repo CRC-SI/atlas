@@ -2,7 +2,7 @@ define([
   'atlas/lib/utility/Setter',
   'atlas/material/Color',
   'atlas/model/GeoPoint',
-  'atlas/model/Style',
+  'atlas/material/Style',
   'atlas/model/Vertex',
   // Base class
   'atlas/model/GeoEntity'

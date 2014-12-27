@@ -2,11 +2,12 @@ define([
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Class',
   'atlas/util/DeveloperError',
-  './Color'
-], function(Setter, Class, DeveloperError, Color) {
+  './Color',
+  './Material'
+], function(Setter, Class, DeveloperError, Color, Material) {
 
   /**
-   * @typedef atlas.model.Style
+   * @typedef atlas.material.Style
    * @ignore
    */
   var Style;
@@ -16,14 +17,15 @@ define([
    * @classdesc Defines the fill and border materials of a polygon.
    *
    * @param {Object} [args]
-   * @param {atlas.material.Material} [args.fillMaterial=Color.GREEN] - The fill material for the polygon.
-   * @param {atlas.material.Material} [args.borderMaterial=Color.GREEN] - The border material for the
-   * polygon.
+   * @param {atlas.material.Material} [args.fillMaterial=Color.GREEN] - The fill material for the
+   *     polygon.
+   * @param {atlas.material.Material} [args.borderMaterial=Color.GREEN] - The border material for
+   *     the polygon.
    * @param {Number} [args.borderWidth=1] - The border width for the polygon in pixels.
    *
-   * @class atlas.model.Style
+   * @class atlas.material.Style
    */
-  Style = Class.extend( /** @lends atlas.model.Style# */ {
+  Style = Class.extend( /** @lends atlas.material.Style# */ {
 
     /**
      * Fill material of this Style.
@@ -119,7 +121,7 @@ define([
     },
 
     /**
-     * @param {atlas.model.Style} other
+     * @param {atlas.material.Style} other
      * @returns {Boolean} Whether the given object is equal to this object.
      */
     equals: function(other) {

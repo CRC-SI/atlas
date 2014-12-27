@@ -1,7 +1,7 @@
 define([
   'atlas/lib/utility/Setter',
   'atlas/material/Color',
-  'atlas/model/Style',
+  'atlas/material/Style',
   'atlas/model/GeoPoint',
   'atlas/util/DeveloperError',
   'atlas/util/WKT',
@@ -24,7 +24,7 @@ define([
    * @param {Number} [imageData.height=0] - The extruded height of the Image to form a prism.
    * @param {Number} [imageData.elevation] - The elevation of the base of the Image (or prism).
    * @param {atlas.material.Color} [imageData.color] - The fill color of the Image (overridden/overrides Style)
-   * @param {atlas.model.Style} [imageData.style=defaultStyle] - The Style to apply to the Image.
+   * @param {atlas.material.Style} [imageData.style=defaultStyle] - The Style to apply to the Image.
    * @param {Object} [args] - Option arguments describing the Image.
    * @param {atlas.model.GeoEntity} [args.parent=null] - The parent entity of the Image.
    * @returns {atlas.model.Image}

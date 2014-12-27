@@ -1,7 +1,7 @@
 define([
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types',
-  'atlas/model/Style',
+  'atlas/material/Style',
   'atlas/material/Color',
   'atlas/lib/utility/Class',
   'atlas/util/DeveloperError',
