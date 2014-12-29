@@ -50,8 +50,8 @@ define([
 
     _init: function(args) {
       args = args || {};
-      this.setFillMaterial(args.fillMaterial);
-      this.setBorderMaterial(args.borderMaterial);
+      this.setFillMaterial(args.fillMaterial || Style.getDefaultFillMaterial());
+      this.setBorderMaterial(args.borderMaterial || Style.getDefaultBorderMaterial());
       this.setBorderWidth(Setter.def(args.borderWidth, 1));
     },
 
@@ -150,7 +150,23 @@ define([
    * @returns {Style}
    */
   Style.getDefault = function() {
-    return new Style({fillMaterial: new Color('#ddd'), borderMaterial: new Color('#999')});
+    return new Style();
+  };
+
+  /**
+   * @return {atlas.model.Material} The default fill {@link atlas.model.Material} used when
+   *     constructing a {@link atlas.model.Style}.
+   */
+  Style.getDefaultFillMaterial = function() {
+    return new Color('#ddd');
+  };
+
+  /**
+   * @return {atlas.model.Material} The default border {@link atlas.model.Material} used when
+   *     constructing a {@link atlas.model.Style}.
+   */
+  Style.getDefaultBorderMaterial = function() {
+    return new Color('#999');
   };
 
   /**

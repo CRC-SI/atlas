@@ -76,7 +76,10 @@ define([
       if (data.holes) {
         this._holes = this._getSanitizedVertices(data.holes);
       }
-      this._height = parseFloat(data.height) || this._height;
+      var height = data.height;
+      if (height) {
+        this.setHeight(height);
+      }
     },
 
     // -------------------------------------------

@@ -98,7 +98,7 @@ define([
     _displayMode: null,
 
     _init: function(id, args) {
-      this._super(id, null, args);
+      this._super(id, args, args);
     },
 
     _setup: function(id, data, args) {
@@ -120,7 +120,10 @@ define([
         }
       }, this);
       this.setDisplayMode(displayMode);
-      this._height = parseFloat(args.height) || 0.0;
+      var height = data.height;
+      if (height) {
+        this.setHeight(height);
+      }
       this._initDelegation();
       this._initEvents();
     },

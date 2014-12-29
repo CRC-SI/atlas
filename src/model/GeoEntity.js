@@ -241,24 +241,44 @@ define([
       this._visible = Setter.def(args.show, false);
       this.setDirty('entity');
 
-      var style = data.style || Style.getDefault();
-      var color = data.color;
-      var borderColor = data.borderColor;
+      var style;
+      var styleArgs = data.style;
+      var hasValidStyle = styleArgs instanceof Style;
+      if (hasValidStyle) {
+        style = styleArgs;
+      }
 
-      var colorTypes = {fill: 'color', border: 'borderColor'};
-      Object.keys(colorTypes).forEach(function(prefix) {
-        var value = data[colorTypes[prefix]];
-        var material = data[prefix + 'Material'];
-        if (material) {
-          material = this._parseMaterial(material);
-        } else if (color) {
-          // Color arrays are assumed to be in the range [0, 255] as per c3ml.
-          material = Types.isArrayLiteral(value) ? Color.fromRGBA(value) : new Color(value);
+      if (!hasValidStyle) {
+        // Support various ways of providing the style either in the data, in a "style" object and
+        // with various property names.
+        var styleMap = {
+          color: 'fillMaterial', fillColor: 'fillMaterial', borderColor: 'borderMaterial',
+          fillMaterial: 'fillMaterial', borderMaterial: 'borderMaterial'};
+        if (!styleArgs) {
+          styleArgs = data;
         }
-        material && style['set' + Strings.toTitleCase(prefix) + 'Material'](material);
-      }, this);
-
+        var finalStyleArgs = {};
+        Object.keys(styleMap).forEach(function(prop) {
+          var value = styleArgs[prop];
+          var styleProp = styleMap[prop];
+          if (value) {
+            if (!(value instanceof Material)) {
+              value = this._parseMaterial(value);
+            }
+            finalStyleArgs[styleProp] = value;
+          }
+        }, this);
+        style = new Style(finalStyleArgs);
+        var borderWidth = styleArgs.borderWidth;
+        if (borderWidth !== undefined) {
+          style.setBorderWidth(borderWidth);
+        }
+      }
+      if (!style) {
+        style = Style.getDefault();
+      }
       this.setStyle(style);
+
       this._elevation = parseFloat(data.elevation) || this._elevation;
       this._scale = new Vertex(data.scale || {x: 1, y: 1, z: 1});
       this._rotation = new Vertex(data.rotation || {x: 0, y: 0, z: 0});
@@ -855,23 +875,28 @@ define([
     // -------------------------------------------
 
     /**
-     * @param {Object} materialArgs
+     * @param {Object} args
      * @return {atlas.material.Material}
      */
-    _parseMaterial: function(materialArgs) {
-      if (materialArgs instanceof Material) {
-        return materialArgs;
+    _parseMaterial: function(args) {
+      if (args instanceof Material) {
+        return args;
+      } else if (Types.isString(args)) {
+        return new Color(args);
+      } else if (Types.isArrayLiteral(args)) {
+        // Color arrays are assumed to be in the range [0, 255] as per c3ml.
+        return Color.fromRGBA(args);
       }
       // TODO(aramk) Use injector so we don't have to include all the classes and can use the name
       // as a look up (convention over configuration).
-      var type = materialArgs.type;
+      var type = args.type;
       var typeMap = {
         Color: Color,
         CheckPattern: CheckPattern
       };
       var MaterialClass = typeMap[type];
       if (MaterialClass) {
-        return new MaterialClass(materialArgs);
+        return new MaterialClass(args);
       } else {
         throw new Error('Unable to parse material');
       }
