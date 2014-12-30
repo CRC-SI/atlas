@@ -243,14 +243,10 @@ define([
 
       var style;
       var styleArgs = data.style;
-      var hasValidStyle = styleArgs instanceof Style;
-      if (hasValidStyle) {
+      if (styleArgs instanceof Style) {
         style = styleArgs;
-      }
-
-      if (!hasValidStyle) {
-        // Support various ways of providing the style either in the data, in a "style" object and
-        // with various property names.
+      } else {
+        // Map of valid argument property names to internal Style property names.
         var styleMap = {
           color: 'fillMaterial', fillColor: 'fillMaterial', borderColor: 'borderMaterial',
           fillMaterial: 'fillMaterial', borderMaterial: 'borderMaterial'};
@@ -258,9 +254,10 @@ define([
           styleArgs = data;
         }
         var finalStyleArgs = {};
-        Object.keys(styleMap).forEach(function(prop) {
-          var value = styleArgs[prop];
-          var styleProp = styleMap[prop];
+        // Parse each style property as a material and create a style from it.
+        Object.keys(styleMap).forEach(function(key) {
+          var value = styleArgs[key];
+          var styleProp = styleMap[key];
           if (value) {
             if (!(value instanceof Material)) {
               value = this._parseMaterial(value);
@@ -884,7 +881,7 @@ define([
       } else if (Types.isString(args)) {
         return new Color(args);
       } else if (Types.isArrayLiteral(args)) {
-        // Color arrays are assumed to be in the range [0, 255] as per c3ml.
+        // Color arrays are assumed to be in the range [0, 255] as per C3ML.
         return Color.fromRGBA(args);
       }
       // TODO(aramk) Use injector so we don't have to include all the classes and can use the name

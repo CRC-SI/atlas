@@ -1,9 +1,10 @@
 define([
   'atlas/lib/tinycolor',
+  'atlas/lib/utility/Types',
   'atlas/material/Material',
   'atlas/util/AtlasMath',
   'atlas/util/FreezeObject'
-], function(tinycolor, Material, AtlasMath, freeze) {
+], function(tinycolor, Types, Material, AtlasMath, freeze) {
   var __DEBUG__ = true;
 
   if (__DEBUG__) {
@@ -23,10 +24,10 @@ define([
    * intensity values. The intensities can vary from <code>0.0</code>
    * (minimum intensity) to <code>1.0</code> (maximum intensity).
    *
-   * @param {Number} [r=0.0] Red component.
-   * @param {Number} [g=0.0] Green component
-   * @param {Number} [b=0.0] Blue component
-   * @param {Number} [a=0.0] Alpha component
+   * @param {Number} [red=0.0] Red component.
+   * @param {Number} [green=0.0] Green component
+   * @param {Number} [blue=0.0] Blue component
+   * @param {Number} [alpha=0.0] Alpha component
    *
    * @class atlas.material.Color
    * @extends atlas.material.Material
@@ -40,10 +41,11 @@ define([
 
     _init: function() {
       var firstArg = arguments[0];
-      var type = typeof firstArg;
-      if (type === 'object') {
+      if (Types.isArrayLiteral(firstArg)) {
+        this._fromRgba.apply(this, firstArg);
+      } else if (Types.isObject(firstArg)) {
         this._fromObj.apply(this, arguments);
-      } else if (type === 'string') {
+      } else if (Types.isString(firstArg)) {
         this._fromStr.apply(this, arguments);
       } else {
         this._fromRgba.apply(this, arguments);

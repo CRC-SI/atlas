@@ -17,11 +17,12 @@ define([
    * @classdesc Defines the fill and border materials of a polygon.
    *
    * @param {Object} [args]
-   * @param {atlas.material.Material} [args.fillMaterial=Color.GREEN] - The fill material for the
-   *     polygon.
-   * @param {atlas.material.Material} [args.borderMaterial=Color.GREEN] - The border material for
-   *     the polygon.
-   * @param {Number} [args.borderWidth=1] - The border width for the polygon in pixels.
+   * @param {atlas.material.Material} [args.fillMaterial=Style.getDefaultFillMaterial()] - The fill
+   *     material for the polygon.
+   * @param {atlas.material.Material} [args.borderMaterial=Style.getDefaultBorderMaterial()] - The
+   *     border material for the polygon.
+   * @param {Number} [args.borderWidth=Style.DEFAULT_BORDER_WIDTH] - The border width for the
+   *     polygon in pixels.
    *
    * @class atlas.material.Style
    */
@@ -52,7 +53,7 @@ define([
       args = args || {};
       this.setFillMaterial(args.fillMaterial || Style.getDefaultFillMaterial());
       this.setBorderMaterial(args.borderMaterial || Style.getDefaultBorderMaterial());
-      this.setBorderWidth(Setter.def(args.borderWidth, 1));
+      this.setBorderWidth(Setter.def(args.borderWidth, Style.DEFAULT_BORDER_WIDTH));
     },
 
     // -------------------------------------------
@@ -177,6 +178,8 @@ define([
   Style.getDefaultSelected = function() {
     return new Style({fillMaterial: Color.RED, borderMaterial: Color.BLACK});
   };
+
+  Style.DEFAULT_BORDER_WIDTH = 1;
 
   return Style;
 });

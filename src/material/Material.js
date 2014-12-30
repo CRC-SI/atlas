@@ -18,9 +18,6 @@ define([
    */
   Material = Class.extend( /** @lends atlas.model.Material# */ {
 
-    _init: function(args) {
-    },
-
     /**
      * @param {atlas.model.Material} other
      * @returns {Boolean} Whether the given object is equal to this object.

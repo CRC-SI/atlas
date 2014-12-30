@@ -14,8 +14,8 @@ define([
   /**
    * @classdesc A checkered pattern.
    *
-   * @param {atlas.material.Color} [lightColor=Color.WHITE] - The light square color.
-   * @param {atlas.material.Color} [darkColor=Color.BLACK] - The dark square color.
+   * @param {atlas.material.Color} [color1=Color.WHITE] color1
+   * @param {atlas.material.Color} [color2=Color.BLACK] color2
    * @param {atlas.model.Vertex} [repeat={x: 20, y: 20}] - The number of times to repeat the pattern
    *     in the x and y axes.
    *
@@ -24,24 +24,24 @@ define([
    */
   CheckPattern = Material.extend(/** @lends atlas.material.CheckPattern# */ {
 
-    lightColor: null,
-    darkColor: null,
+    color1: null,
+    color2: null,
     repeat: null,
 
     _init: function(args) {
       args = Setter.merge({
-        lightColor: 'white',
-        darkColor: 'black',
+        color1: 'white',
+        color2: 'black',
         repeat: {x: 20, y: 20}
       }, args);
-      this.lightColor = new Color(args.lightColor);
-      this.darkColor = new Color(args.darkColor);
+      this.color1 = new Color(args.color1);
+      this.color2 = new Color(args.color2);
       this.repeat = new Vertex(args.repeat);
     },
 
     equals: function(other) {
-      return other && this.lightColor.equals(other.lightColor) &&
-          this.darkColor.equals(other.darkColor) && this.repeat.equals(other.repeat);
+      return other && this.color1.equals(other.color1) &&
+          this.color2.equals(other.color2) && this.repeat.equals(other.repeat);
     }
 
   });

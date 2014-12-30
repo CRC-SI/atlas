@@ -6,6 +6,8 @@ specsConfig = [
   {name: 'dom/Overlay', run: true},
   {name: 'edit/EditManager', run: true},
   {name: 'entity/EntityManager', run: true},
+  {name: 'material/Color', run: true},
+  {name: 'material/Style', run: true},
   {name: 'model/Collection', run: true},
   {name: 'model/Ellipse', run: true},
   {name: 'model/Feature', run: true},

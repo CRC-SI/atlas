@@ -100,7 +100,7 @@ define([
 
     /**
      * @returns {atlas.model.Vertex} This vertex with each component converted to its absolute
-     * value.
+     *     value.
      */
     absolute: function() {
       return new Vertex(Math.abs(this.x), Math.abs(this.y), Math.abs(this.z))
