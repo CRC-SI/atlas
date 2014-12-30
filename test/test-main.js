@@ -6,6 +6,8 @@ specsConfig = [
   {name: 'dom/Overlay', run: true},
   {name: 'edit/EditManager', run: true},
   {name: 'entity/EntityManager', run: true},
+  {name: 'material/Color', run: true},
+  {name: 'material/Style', run: true},
   {name: 'model/Collection', run: true},
   {name: 'model/Ellipse', run: true},
   {name: 'model/Feature', run: true},
@@ -18,7 +20,7 @@ specsConfig = [
   {name: 'util/WKT', run: true},
   {name: 'visualisation/AbstractProjection', run: true},
   {name: 'visualisation/HeightProjection', run: true},
-  {name: 'visualisation/ColourProjection', run: true},
+  {name: 'visualisation/ColorProjection', run: true},
   {name: 'visualisation/DynamicProjection', run: true}
 ];
 

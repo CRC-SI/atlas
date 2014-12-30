@@ -1,9 +1,9 @@
 define([
-  'atlas/model/Colour',
+  'atlas/material/Color',
   '../../lib/simulate.js',
   // Code under test.
   'atlas/dom/Overlay'
-], function(Colour, simulate, Overlay) {
+], function(Color, simulate, Overlay) {
 
     var parent,
         position = {
@@ -285,7 +285,7 @@ define([
 
       it ('with inline tag styles', function() {
         var data = {
-          bgColour: Colour.RED
+          bgColor: Color.RED
         };
         var html = Overlay.parseAttributes(data);
         expect(html).toEqual(' style="background-color:#ff0000;"');
@@ -319,14 +319,14 @@ define([
           '</table>')
       });
 
-      it ('as a table with background colour', function() {
+      it ('as a table with background color', function() {
         var data = {
               rows: [
                 {
-                  cells: [ {value: '0', bgColour: Colour.RED}, {value: '10', bgColour: Colour.BLUE} ]
+                  cells: [ {value: '0', bgColor: Color.RED}, {value: '10', bgColor: Color.BLUE} ]
                 },
                 {
-                  cells: [ {value: '1'}, {value: '11', bgColour: Colour.GREEN} ]
+                  cells: [ {value: '1'}, {value: '11', bgColor: Color.GREEN} ]
                 }
               ]
             },

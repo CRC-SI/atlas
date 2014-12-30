@@ -1,14 +1,14 @@
 define([
   'atlas/model/GeoPoint',
-  'atlas/model/Style',
-  'atlas/model/Colour',
+  'atlas/material/Style',
+  'atlas/material/Color',
   'atlas/model/VertexedEntity',
   'atlas/lib/OpenLayers',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(GeoPoint, Style, Colour, VertexedEntity, OpenLayers, Setter, Types, DeveloperError,
+], function(GeoPoint, Style, Color, VertexedEntity, OpenLayers, Setter, Types, DeveloperError,
   WKT) {
 
   /**
@@ -26,11 +26,11 @@ define([
    *     GeoPoints describing the geometry of the Line.
    * @param {number|string} [data.width=10] - The width of the line. Assumed to be meters if a
    *     argument type is number, or pixels if the argument is a string with the format "[0-9]+px".
-   * @param {atlas.model.Colour} [data.color] - The fill colour of the Polygon. Overrides the
+   * @param {atlas.material.Color} [data.color] - The fill color of the Polygon. Overrides the
    *     given style.
-   * @param {atlas.model.Colour} [data.borderColor] - The border colour of the Polygon.
+   * @param {atlas.material.Color} [data.borderColor] - The border color of the Polygon.
    *     Overrides the given style.
-   * @param {atlas.model.Style} [data.style=Style.getDefault()] - The Style to apply to the
+   * @param {atlas.material.Style} [data.style=Style.getDefault()] - The Style to apply to the
    *     Polygon.
    * @class atlas.model.Line
    * @extends atlas.model.VertexedEntity

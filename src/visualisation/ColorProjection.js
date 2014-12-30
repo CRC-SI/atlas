@@ -1,20 +1,20 @@
 define([
-  'atlas/model/Colour',
+  'atlas/material/Color',
   // Base class.
   'atlas/visualisation/AbstractProjection',
   'atlas/util/DeveloperError'
-], function(Colour, AbstractProjection, DeveloperError) {
+], function(Color, AbstractProjection, DeveloperError) {
 
   /**
-   * @classdesc A ColourProjection is used to project GeoEntity parameter values
-   * onto the GeoEntity's colour.
-   * @class atlas.visualisation.ColourProjection
+   * @classdesc A ColorProjection is used to project GeoEntity parameter values
+   * onto the GeoEntity's color.
+   * @class atlas.visualisation.ColorProjection
    * @extends atlas.visualisation.AbstractProjection
    */
-  return AbstractProjection.extend(/** @lends atlas.visualisation.ColourProjection# */{
-    ARTIFACT: 'colour',
+  return AbstractProjection.extend(/** @lends atlas.visualisation.ColorProjection# */{
+    ARTIFACT: 'color',
 
-    DEFAULT_CODOMAIN: {startProj: Colour.RED, endProj: Colour.GREEN},
+    DEFAULT_CODOMAIN: {startProj: Color.RED, endProj: Color.GREEN},
 
     // -------------------------------------------
     // GETTERS AND SETTERS
@@ -56,7 +56,7 @@ define([
 
     /**
      * Gets the legend for a discrete projection.
-     * @returns {Object} As per {@link atlas.model.ColourProjection~getLegend}
+     * @returns {Object} As per {@link atlas.material.ColorProjection~getLegend}
      * @private
      */
     _buildDiscreteLegend: function() {
@@ -75,7 +75,7 @@ define([
         // TODO(bpstudds): This won't work with a fixed projection.
         var color = codomain.startProj.interpolate(codomain.endProj, regression);
         var elements = [
-          { bgColour: color, width: '1em' },
+          { bgColor: color, width: '1em' },
           { value: '&nbsp;&nbsp;&nbsp;' + round(bin.firstValue) },
           { value: '&nbsp;&ndash;&nbsp;' },
           { value: this._round(bin.lastValue) }
@@ -87,7 +87,7 @@ define([
 
     /**
      * Gets the legend for a continuous projection.
-     * @returns {Object} As per {@link atlas.model.ColourProjection~getLegend}
+     * @returns {Object} As per {@link atlas.material.ColorProjection~getLegend}
      * @private
      */
     _buildContinuousLegend: function() {
@@ -102,12 +102,12 @@ define([
         var codomain = this.getCodomain(i);
         [0, 0.25, 0.5, 0.75].forEach(function(f, i) {
           // TODO(bpstudds): This won't work with a fixed projection.
-          var colour1 = codomain.startProj.interpolate(codomain.endProj, f).toHexString();
-          var colour2 = codomain.startProj.interpolate(codomain.endProj, (f + 0.25)).toHexString();
+          var color1 = codomain.startProj.interpolate(codomain.endProj, f).toHexString();
+          var color2 = codomain.startProj.interpolate(codomain.endProj, (f + 0.25)).toHexString();
           var lowerBound = this._round(bin.firstValue + f * bin.range);
           var upperBound = this._round(bin.firstValue + (f + 0.25) * bin.range);
           var elements = [
-            { background: 'linear-gradient(to top,' + colour1 + ',' + colour2 +
+            { background: 'linear-gradient(to top,' + color1 + ',' + color2 +
                 ')', width: '1em' },
             { value: '&nbsp;&nbsp;&nbsp;' + lowerBound },
             { value: '&nbsp;&ndash;&nbsp;' },
@@ -123,7 +123,7 @@ define([
     getCurrentState: function() {
       var state = {};
       Object.keys(this._entities).forEach(function(id) {
-        state[id] = {fillColour: this._entities[id].getStyle().getFillColour()};
+        state[id] = {fillMaterial: this._entities[id].getStyle().getFillMaterial()};
       }, this);
       return state;
     },
@@ -140,11 +140,11 @@ define([
      */
     _render: function(entity, attributes) {
       // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
-      var newColour = this._regressProjectionValueFromCodomain(attributes,
+      var newColor = this._regressProjectionValueFromCodomain(attributes,
               this._configuration.codomain),
-          oldColour = entity.modifyStyle(newColour);
+          oldColor = entity.modifyStyle(newColor);
       entity.isVisible() && entity.show();
-      this._setEffects(entity.getId(), {oldValue: oldColour, newValue: newColour});
+      this._setEffects(entity.getId(), {oldValue: oldColor, newValue: newColor});
     },
 
     /**
@@ -156,9 +156,9 @@ define([
     _unrender: function(entity, params) {
       // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
       var id = entity.getId(),
-          oldColour = this._getEffect(id, 'oldValue');
-      if (oldColour) {
-        entity.modifyStyle(oldColour);
+          oldColor = this._getEffect(id, 'oldValue');
+      if (oldColor) {
+        entity.modifyStyle(oldColor);
       }
     },
 
@@ -182,12 +182,12 @@ define([
           attributes.absRatio :
               attributes.numBins === 1 ? 0.5 : attributes.binId / (attributes.numBins - 1);
       if ('fixedProj' in codomain) {
-        return {fillColour: codomain.fixedProj};
+        return {fillMaterial: codomain.fixedProj};
       } else if ('startProj' in codomain && 'endProj' in codomain) {
-        var startColour = codomain['startProj'],
-            endColour = codomain['endProj'],
-            newColour = startColour.interpolate(endColour, regressionFactor);
-        return {fillColour: newColour};
+        var startColor = codomain['startProj'],
+            endColor = codomain['endProj'],
+            newColor = startColor.interpolate(endColor, regressionFactor);
+        return {fillMaterial: newColor};
       }
       throw new DeveloperError('Unsupported codomain supplied.');
     }

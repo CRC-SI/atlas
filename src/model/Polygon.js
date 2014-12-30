@@ -1,11 +1,11 @@
 define([
   'atlas/lib/utility/Setter',
-  'atlas/model/Colour',
-  'atlas/model/Style',
+  'atlas/material/Color',
+  'atlas/material/Style',
   'atlas/util/DeveloperError',
   // Base class
   'atlas/model/VertexedEntity'
-], function(Setter, Colour, Style, DeveloperError, VertexedEntity) {
+], function(Setter, Color, Style, DeveloperError, VertexedEntity) {
 
   /**
    * @typedef atlas.model.Polygon
@@ -22,11 +22,11 @@ define([
    *     an array of vertices describing the Polygon.
    * @param {Number} [data.height=0] - The extruded height of the Polygon to form a prism.
    * @param {Number} [data.elevation] - The elevation of the base of the Polygon (or prism).
-   * @param {atlas.model.Colour} [data.color] - The fill colour of the Polygon. Overrides the
+   * @param {atlas.material.Color} [data.color] - The fill color of the Polygon. Overrides the
    *     given style.
-   * @param {atlas.model.Colour} [data.borderColor] - The border colour of the Polygon.
+   * @param {atlas.material.Color} [data.borderColor] - The border color of the Polygon.
    *     Overrides the given style.
-   * @param {atlas.model.Style} [data.style=Style.getDefault()] - The Style to apply to the
+   * @param {atlas.material.Style} [data.style=Style.getDefault()] - The Style to apply to the
    *     Polygon.
    * @param {Object} [args] - Option arguments describing the Polygon.
    * @param {atlas.model.GeoEntity} [args.parent=null] - The parent entity of the Polygon.
@@ -76,7 +76,10 @@ define([
       if (data.holes) {
         this._holes = this._getSanitizedVertices(data.holes);
       }
-      this._height = parseFloat(data.height) || this._height;
+      var height = data.height;
+      if (height) {
+        this.setHeight(height);
+      }
     },
 
     // -------------------------------------------

@@ -4,8 +4,8 @@ define([
   // Code under test
   'atlas/visualisation/AbstractProjection',
   'atlas/visualisation/HeightProjection',
-  'atlas/visualisation/ColourProjection'
-], function(Setter, Feature, AbstractProjection, HeightProjection, ColourProjection) {
+  'atlas/visualisation/ColorProjection'
+], function(Setter, Feature, AbstractProjection, HeightProjection, ColorProjection) {
 
   /**
    * Wrapper for the AbstractProjection test suite. This allows the test suite
@@ -225,5 +225,5 @@ define([
   parametrisedTestSuite('AbstractProjection', AbstractProjection);
   // TODO(bpstudds): Is it really necessary to run the tests over the subclasses? Maybe the tests can be inherited.
   //parametrisedTestSuite('HeightProjection', HeightProjection);
-  //parametrisedTestSuite('ColourProjection', ColourProjection);
+  //parametrisedTestSuite('ColorProjection', ColorProjection);
 });

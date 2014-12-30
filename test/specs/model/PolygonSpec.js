@@ -3,7 +3,7 @@ define([
   // Code under test
   'atlas/model/Polygon',
   'atlas/model/GeoPoint',
-  'atlas/model/Style',
+  'atlas/material/Style',
   'atlas/util/WKT'
 ], function(EventManager, Polygon, GeoPoint, Style, WKT) {
   describe('A Polygon', function() {

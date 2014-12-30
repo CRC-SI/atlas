@@ -4,15 +4,18 @@ define([
   // Base class
   'atlas/events/EventTarget',
   'atlas/lib/utility/Setter',
+  'atlas/lib/utility/Strings',
   'atlas/lib/utility/Types',
-  'atlas/model/Colour',
   'atlas/model/Rectangle',
-  'atlas/model/Style',
+  'atlas/material/Color',
+  'atlas/material/CheckPattern',
+  'atlas/material/Material',
+  'atlas/material/Style',
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(ItemStore, Event, EventTarget, Setter, Types, Colour, Rectangle, Style, Vertex,
-            DeveloperError, WKT) {
+], function(ItemStore, Event, EventTarget, Setter, Strings, Types, Rectangle, Color, CheckPattern,
+            Material, Style, Vertex, DeveloperError, WKT) {
   /**
    * @typedef atlas.model.GeoEntity
    * @ignore
@@ -142,14 +145,14 @@ define([
 
     /**
      * The style of the GeoEntity when rendered.
-     * @type {atlas.model.Style}
+     * @type {atlas.material.Style}
      * @protected
      */
     _style: null,
 
     /**
      * The style of the GeoEntity before it was selected.
-     * @type {atlas.model.Style}
+     * @type {atlas.material.Style}
      * @protected
      */
     _preSelectStyle: null,
@@ -238,12 +241,41 @@ define([
       this._visible = Setter.def(args.show, false);
       this.setDirty('entity');
 
-      var style = data.style || Style.getDefault();
-      var color = data.color;
-      var borderColor = data.borderColor;
-      color && style.setFillColour(new Colour(color));
-      borderColor && style.setBorderColour(new Colour(borderColor));
+      var style;
+      var styleArgs = data.style;
+      if (styleArgs instanceof Style) {
+        style = styleArgs;
+      } else {
+        // Map of valid argument property names to internal Style property names.
+        var styleMap = {
+          color: 'fillMaterial', fillColor: 'fillMaterial', borderColor: 'borderMaterial',
+          fillMaterial: 'fillMaterial', borderMaterial: 'borderMaterial'};
+        if (!styleArgs) {
+          styleArgs = data;
+        }
+        var finalStyleArgs = {};
+        // Parse each style property as a material and create a style from it.
+        Object.keys(styleMap).forEach(function(key) {
+          var value = styleArgs[key];
+          var styleProp = styleMap[key];
+          if (value) {
+            if (!(value instanceof Material)) {
+              value = this._parseMaterial(value);
+            }
+            finalStyleArgs[styleProp] = value;
+          }
+        }, this);
+        style = new Style(finalStyleArgs);
+        var borderWidth = styleArgs.borderWidth;
+        if (borderWidth !== undefined) {
+          style.setBorderWidth(borderWidth);
+        }
+      }
+      if (!style) {
+        style = Style.getDefault();
+      }
       this.setStyle(style);
+
       this._elevation = parseFloat(data.elevation) || this._elevation;
       this._scale = new Vertex(data.scale || {x: 1, y: 1, z: 1});
       this._rotation = new Vertex(data.rotation || {x: 0, y: 0, z: 0});
@@ -480,8 +512,8 @@ define([
 
     /**
      * Sets the Style for the GeoEntity.
-     * @param {atlas.model.Style} style - The new style to use.
-     * @returns {atlas.model.Style} The old style, or null if it was not changed.
+     * @param {atlas.material.Style} style - The new style to use.
+     * @returns {atlas.material.Style} The old style, or null if it was not changed.
      */
     setStyle: function(style) {
       var previousStyle = this.getStyle();
@@ -495,7 +527,7 @@ define([
     },
 
     /**
-     * @returns {atlas.model.Style}
+     * @returns {atlas.material.Style}
      */
     getStyle: function() {
       return this._style;
@@ -535,9 +567,9 @@ define([
     /**
      * Modifies specific components of the GeoEntity's style.
      * @param {Object} newStyle - The new values for the Style components.
-     * @param {atlas.model.Colour} [newStyle.fillColour] - The new fill colour.
-     * @param {atlas.model.Colour} [newStyle.borderColour] - The new border colour.
-     * @param {Number} [newStyle.borderWidth] - The new border width colour.
+     * @param {atlas.material.Color} [newStyle.fillMaterial] - The new fill material.
+     * @param {atlas.material.Color} [newStyle.borderMaterial] - The new border material.
+     * @param {Number} [newStyle.borderWidth] - The new border width material.
      * @returns {Object} A mapping of parameters that have been changed to their old value.
      */
     // TODO(aramk) This is quite complicated - perhaps rely only on setStyle.
@@ -549,13 +581,13 @@ define([
       this.setDirty('style');
       var oldStyle = {};
       // Work out what's changing
-      newStyle.fillColour && (oldStyle.fillColour = this._style.getFillColour());
-      newStyle.borderColour && (oldStyle.borderColour = this._style.getBorderColour());
+      newStyle.fillMaterial && (oldStyle.fillMaterial = this._style.getFillMaterial());
+      newStyle.borderMaterial && (oldStyle.borderMaterial = this._style.getBorderMaterial());
       newStyle.borderWidth && (oldStyle.borderWidth = this._style.getBorderWidth());
       // Generate new style based on what's changed.
       newStyle = Setter.mixin({
-        fillColour: this._style.getFillColour(),
-        borderColour: this._style.getBorderColour(),
+        fillMaterial: this._style.getFillMaterial(),
+        borderMaterial: this._style.getBorderMaterial(),
         borderWidth: this._style.getBorderWidth()
       }, newStyle);
       return this.setStyle(newStyle)
@@ -833,6 +865,38 @@ define([
       this._eventHandles.forEach(function(handle) {
         handle.cancel();
       });
+    },
+
+    // -------------------------------------------
+    // CONSTRUCTION
+    // -------------------------------------------
+
+    /**
+     * @param {Object} args
+     * @return {atlas.material.Material}
+     */
+    _parseMaterial: function(args) {
+      if (args instanceof Material) {
+        return args;
+      } else if (Types.isString(args)) {
+        return new Color(args);
+      } else if (Types.isArrayLiteral(args)) {
+        // Color arrays are assumed to be in the range [0, 255] as per C3ML.
+        return Color.fromRGBA(args);
+      }
+      // TODO(aramk) Use injector so we don't have to include all the classes and can use the name
+      // as a look up (convention over configuration).
+      var type = args.type;
+      var typeMap = {
+        Color: Color,
+        CheckPattern: CheckPattern
+      };
+      var MaterialClass = typeMap[type];
+      if (MaterialClass) {
+        return new MaterialClass(args);
+      } else {
+        throw new Error('Unable to parse material');
+      }
     }
 
   });

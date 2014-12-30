@@ -27,10 +27,10 @@ define([
      * @returns {Object} dms - The degree, minute, and second components.
      */
     toDMS: function(decimal) {
-      var degrees = decimal.toFixed(0),
-          dminutes = ((decimal - degrees) * 60),
-          minutes = dminutes.toFixed(0),
-          seconds = (dminutes - minutes).toFixed(0);
+      var degrees = decimal.toFixed(0);
+      var dminutes = ((decimal - degrees) * 60);
+      var minutes = dminutes.toFixed(0);
+      var seconds = (dminutes - minutes).toFixed(0);
       return {degrees: degrees, minutes: minutes, seconds: seconds};
     },
 

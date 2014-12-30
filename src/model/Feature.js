@@ -98,7 +98,7 @@ define([
     _displayMode: null,
 
     _init: function(id, args) {
-      this._super(id, null, args);
+      this._super(id, args, args);
     },
 
     _setup: function(id, data, args) {
@@ -120,7 +120,10 @@ define([
         }
       }, this);
       this.setDisplayMode(displayMode);
-      this._height = parseFloat(args.height) || 0.0;
+      var height = data.height;
+      if (height) {
+        this.setHeight(height);
+      }
       this._initDelegation();
       this._initEvents();
     },
@@ -283,14 +286,6 @@ define([
     // MODIFIERS
     // -------------------------------------------
 
-    /**
-     * Modifies specific components of the Feature's style.
-     * @param {Object} args - The new values for the Style components.
-     * @param {atlas.model.Colour} [args.fillColour] - The new fill colour.
-     * @param {atlas.model.Colour} [args.borderColour] - The new border colour.
-     * @param {Number} [args.borderWidth] - The new border width colour.
-     * @returns {atlas.model.Style} - The old style.
-     */
     modifyStyle: function(args) {
       var oldStyle = this._super(args);
       return this._delegateToForm('modifyStyle', arguments) || oldStyle;
