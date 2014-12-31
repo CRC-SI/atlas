@@ -82,13 +82,6 @@ define([
     _height: null,
 
     /**
-     * The elevation of the Feature.
-     * @type {Number}
-     * @protected
-     */
-    _elevation: null,
-
-    /**
      * The display mode of the Feature.
      * Mesh trumps Footprint, which trumps Line if they are both defined in terms of which is
      * displayed by default.
@@ -237,21 +230,10 @@ define([
     // TODO(aramk) A lot of these operations below should be calling _super() and being called on
     // each form (even those which are not visible)?
 
-    /**
-     * Sets the elevation of the base of the feature.
-     * @param {Number} elevation - The elevation of the feature.
-     */
     setElevation: function(elevation) {
-      var oldElevation = this._elevation;
-      this._elevation = elevation;
-      return this._delegateToForms('setElevation', arguments) || oldElevation;
-    },
-
-    /**
-     * @returns {number} The elevation of the base of the feature.
-     */
-    getElevation: function() {
-      return this._delegateToForm('getElevation') || this._elevation;
+      var result = this._super(elevation);
+      this._delegateToForms('setElevation', arguments);
+      return result;
     },
 
     /**

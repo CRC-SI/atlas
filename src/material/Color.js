@@ -1,10 +1,11 @@
 define([
   'atlas/lib/tinycolor',
+  'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types',
   'atlas/material/Material',
   'atlas/util/AtlasMath',
   'atlas/util/FreezeObject'
-], function(tinycolor, Types, Material, AtlasMath, freeze) {
+], function(tinycolor, Setter, Types, Material, AtlasMath, freeze) {
   var __DEBUG__ = true;
 
   if (__DEBUG__) {
@@ -134,7 +135,7 @@ define([
     interpolateByHue: function(other, lerpFactor) {
       var hsv1 = this.toHsv();
       var hsv2 = other.toHsv();
-      hsv1.h = AtlasMath.lerp(hsv2.h, hsv1.h, lerpFactor);
+      hsv1.h = AtlasMath.lerp(hsv2.h, hsv1.h, Setter.range(lerpFactor, 0, 1));
       return Color.fromHsv(hsv1);
     },
 

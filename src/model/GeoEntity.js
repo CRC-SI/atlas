@@ -276,7 +276,7 @@ define([
       }
       this.setStyle(style);
 
-      this._elevation = parseFloat(data.elevation) || this._elevation;
+      this.setElevation(data.elevation || 0);
       this._scale = new Vertex(data.scale || {x: 1, y: 1, z: 1});
       this._rotation = new Vertex(data.rotation || {x: 0, y: 0, z: 0});
     },
@@ -585,12 +585,12 @@ define([
       newStyle.borderMaterial && (oldStyle.borderMaterial = this._style.getBorderMaterial());
       newStyle.borderWidth && (oldStyle.borderWidth = this._style.getBorderWidth());
       // Generate new style based on what's changed.
-      newStyle = Setter.mixin({
+      newStyle = new Style(Setter.mixin({
         fillMaterial: this._style.getFillMaterial(),
         borderMaterial: this._style.getBorderMaterial(),
         borderWidth: this._style.getBorderWidth()
-      }, newStyle);
-      return this.setStyle(newStyle)
+      }, newStyle));
+      return this.setStyle(newStyle);
     },
 
     /**

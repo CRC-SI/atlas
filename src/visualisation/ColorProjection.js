@@ -61,10 +61,10 @@ define([
      */
     _buildDiscreteLegend: function() {
       var legend = {
-            'class': 'legend',
-            rows: []
-          },
-          codomain = this.getCodomain();
+        'class': 'legend',
+        rows: []
+      };
+      var codomain = this.getCodomain();
 
       // TODO(bpstudds): Does forEach iterate in order?
       // With the way discrete projections currently work, there can only be one codomain
@@ -75,10 +75,10 @@ define([
         // TODO(bpstudds): This won't work with a fixed projection.
         var color = codomain.startProj.interpolate(codomain.endProj, regression);
         var elements = [
-          { bgColor: color, width: '1em' },
-          { value: '&nbsp;&nbsp;&nbsp;' + round(bin.firstValue) },
-          { value: '&nbsp;&ndash;&nbsp;' },
-          { value: this._round(bin.lastValue) }
+          {bgColor: color, width: '1em'},
+          {value: '&nbsp;&nbsp;&nbsp;' + round(bin.firstValue)},
+          {value: '&nbsp;&ndash;&nbsp;'},
+          {value: this._round(bin.lastValue)}
         ];
         legend.rows.unshift({cells: elements});
       }
@@ -107,11 +107,10 @@ define([
           var lowerBound = this._round(bin.firstValue + f * bin.range);
           var upperBound = this._round(bin.firstValue + (f + 0.25) * bin.range);
           var elements = [
-            { background: 'linear-gradient(to top,' + color1 + ',' + color2 +
-                ')', width: '1em' },
-            { value: '&nbsp;&nbsp;&nbsp;' + lowerBound },
-            { value: '&nbsp;&ndash;&nbsp;' },
-            { value: upperBound }
+            {background: 'linear-gradient(to top,' + color1 + ',' + color2 + ')', width: '1em'},
+            {value: '&nbsp;&nbsp;&nbsp;' + lowerBound},
+            {value: '&nbsp;&ndash;&nbsp;'},
+            {value: upperBound}
           ];
           // TODO(bpstudds): This won't work with more than one bin.
           legend.rows.unshift({cells: elements});
@@ -141,8 +140,8 @@ define([
     _render: function(entity, attributes) {
       // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
       var newColor = this._regressProjectionValueFromCodomain(attributes,
-              this._configuration.codomain),
-          oldColor = entity.modifyStyle(newColor);
+              this._configuration.codomain);
+      var oldColor = entity.modifyStyle(newColor);
       entity.isVisible() && entity.show();
       this._setEffects(entity.getId(), {oldValue: oldColor, newValue: newColor});
     },
@@ -155,8 +154,8 @@ define([
      */
     _unrender: function(entity, params) {
       // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
-      var id = entity.getId(),
-          oldColor = this._getEffect(id, 'oldValue');
+      var id = entity.getId();
+      var oldColor = this._getEffect(id, 'oldValue');
       if (oldColor) {
         entity.modifyStyle(oldColor);
       }
@@ -184,13 +183,12 @@ define([
       if ('fixedProj' in codomain) {
         return {fillMaterial: codomain.fixedProj};
       } else if ('startProj' in codomain && 'endProj' in codomain) {
-        var startColor = codomain['startProj'],
-            endColor = codomain['endProj'],
-            newColor = startColor.interpolate(endColor, regressionFactor);
+        var startColor = codomain['startProj'];
+        var endColor = codomain['endProj'];
+        var newColor = startColor.interpolate(endColor, regressionFactor);
         return {fillMaterial: newColor};
       }
       throw new DeveloperError('Unsupported codomain supplied.');
     }
   });
 });
-

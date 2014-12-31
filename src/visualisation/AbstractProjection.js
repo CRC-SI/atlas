@@ -364,13 +364,13 @@ define([
     },
 
     /**
-     * Constructs an array of objects describing the bins, with each bin accept a equal
+     * Constructs an array of objects describing the bins, with each bin accepting an equal
      * range of values, depending on the total range specified (except for the largest bin
      * which can potential except values up to infinity).
      * @param {Number} numBins - The number of bins to construct.
      * @param {Number} firstValue - The first value accepted into the 'smallest' bin.
      * @param {Number} lastValue - The last value accepted into the 'largest' bin.
-     * @param {Number} acceptFinal - Whether the 'largest' bin should the value
+     * @param {Number} acceptFinal - Whether the 'largest' bin should accept the value
      *     <code>lastValue</code>.
      * @returns {Array.<Object>} The array of bin objects.
      * @private
