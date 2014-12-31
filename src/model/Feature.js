@@ -30,10 +30,6 @@ define([
    *     array of Vertices describing the footprint polygon.
    * @param {atlas.model.Mesh} [args.mesh=null] - The Mesh object for the Feature.
    * @param {Number} [args.height=0] - The extruded height when displaying as a extruded polygon.
-   * @param {Number} [args.elevation=0] - The elevation (from the terrain surface) to the base of
-   * the Mesh or Polygon.
-   * @param {Boolean} [args.show=false] - Whether the feature should be initially shown when
-   * created.
    * @param {String} [args.displayMode=Feature.DisplayMode.FOOTPRINT] - Initial display mode of
    * feature. Mesh trumps Footprint, which trumps Line if they are both defined in terms of which is
    * displayed by default.
@@ -79,7 +75,7 @@ define([
      * @type {Number}
      * @protected
      */
-    _height: null,
+    _height: 0,
 
     /**
      * The display mode of the Feature.
