@@ -29,7 +29,6 @@ define([
    * @param {String|Array.<atlas.model.GeoPoint>} [args.footprint=null] - Either a WKT string or
    *     array of Vertices describing the footprint polygon.
    * @param {atlas.model.Mesh} [args.mesh=null] - The Mesh object for the Feature.
-   * @param {Number} [args.height=0] - The extruded height when displaying as a extruded polygon.
    * @param {String} [args.displayMode=Feature.DisplayMode.FOOTPRINT] - Initial display mode of
    * feature. Mesh trumps Footprint, which trumps Line if they are both defined in terms of which is
    * displayed by default.
@@ -71,13 +70,6 @@ define([
     _image: null,
 
     /**
-     * The extrusion height of the Feature.
-     * @type {Number}
-     * @protected
-     */
-    _height: 0,
-
-    /**
      * The display mode of the Feature.
      * Mesh trumps Footprint, which trumps Line if they are both defined in terms of which is
      * displayed by default.
@@ -110,9 +102,7 @@ define([
       }, this);
       this.setDisplayMode(displayMode);
       var height = data.height;
-      if (height) {
-        this.setHeight(height);
-      }
+      if (height !== undefined) this.setHeight(height);
       this._initDelegation();
       this._initEvents();
     },
@@ -130,7 +120,7 @@ define([
       var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
         'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles',
         'getCentroid', 'getArea', 'getVertices', 'getOpenLayersGeometry', 'translate',
-        'scale', 'rotate', 'setScale', 'setRotation', 'setElevation'];
+        'scale', 'rotate', 'setScale', 'setRotation', 'setElevation', 'setHeight', 'getHeight'];
       methods.forEach(function(method) {
         this[method] = function() {
           return this._delegateToForm(method, arguments);
@@ -232,24 +222,6 @@ define([
       return result;
     },
 
-    /**
-     * Sets the extruded height of the Feature to form a prism.
-     * @param {Number} height - The extruded height of the feature.
-     * @returns {Number} The previous height.
-     */
-    setHeight: function(height) {
-      var oldHeight = this._height;
-      this._height = height;
-      return this._delegateToForms('setHeight', arguments) || oldHeight;
-    },
-
-    /**
-     * @returns {number} The extruded height of the Feature to form a prism.
-     */
-    getHeight: function() {
-      return this._delegateToForm('getHeight') || this._height;
-    },
-
     setStyle: function(style) {
       var oldStyle = this._style;
       this._style = style;
@@ -326,7 +298,6 @@ define([
      * Shows the Feature depending on its current <code>_displayMode</code>.
      */
     show: function() {
-      // TODO(aramk) delegate this to the setHeight setElevation.
       if (this._displayMode === Feature.DisplayMode.LINE) {
         this._mesh && this._mesh.hide();
         this._footprint && this._footprint.hide();
