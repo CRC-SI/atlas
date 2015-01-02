@@ -122,11 +122,16 @@ define([
     _isGltf: false,
 
     _setup: function(id, data, args) {
+      // Setting elevation in GeoEntity needs geoLocation.
+      var geoLocation = data.geoLocation;
+      if (!geoLocation) {
+        throw new Error('No geolocation provided for Mesh.');
+      }
+      this._geoLocation = new GeoPoint(geoLocation);
       this._super(id, data, args);
 
       // Set generic properties .
       this._uniformScale = Setter.def(data.uniformScale, 1);
-      this._geoLocation = Setter.defCstr(data.geoLocation, GeoPoint);
 
       // Set GLTF properties
       if (data.gltf) {

@@ -83,6 +83,9 @@ define([
     },
 
     _setup: function(id, data, args) {
+      // Delegation is necessary for calling setHeight().
+      this._initDelegation();
+      this._initEvents();
       this._super(id, data, args);
       var displayMode = args.displayMode;
       var propertyToDisplayMode = {
@@ -103,8 +106,6 @@ define([
       this.setDisplayMode(displayMode);
       var height = data.height;
       if (height !== undefined) this.setHeight(height);
-      this._initDelegation();
-      this._initEvents();
     },
 
     // -------------------------------------------
