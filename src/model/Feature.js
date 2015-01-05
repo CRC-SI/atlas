@@ -129,15 +129,19 @@ define([
       }, this);
     },
 
-    _delegateToForm: function(method, args) {
+    _delegateToForm: function(methodName, args) {
       var form = this.getForm();
-      return form && form[method].apply(form, args);
+      if (form) {
+        var method = form[methodName];
+        return method && method.apply(form, args);
+      }
     },
 
-    _delegateToForms: function(method, args) {
+    _delegateToForms: function(methodName, args) {
       var forms = this.getForms();
       forms.forEach(function(form) {
-        form[method].apply(form, args);
+        var method = form[methodName];
+        return method && method.apply(form, args);
       });
     },
 
