@@ -1,4 +1,6 @@
 *.sublime-workspace
+*.unity3d
+
 
 # Generated files #
 ###################
@@ -63,5 +65,3 @@ Thumbs.db
 #######
 .settings
 .idea
-*.unity3d
-.build*
