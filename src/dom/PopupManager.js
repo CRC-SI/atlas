@@ -2,9 +2,10 @@ define([
   'atlas/core/ItemStore',
   'atlas/core/Manager',
   'atlas/dom/Popup',
+  'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types'
-], function(ItemStore, Manager, Popup, Setter, Types) {
+], function(ItemStore, Manager, Popup, Log, Setter, Types) {
 
   // TODO(aramk) This duplicates the purpose of PopupFaculty in some ways.
 
@@ -16,7 +17,7 @@ define([
 
   /**
    * @classdesc Creates and manages a set of {@link atlas.dom.Popup} objects. When to visualise them
-   * is deliverately not handled by this manager.
+   * is deliberately not handled by this manager.
    *
    * @param {Object} managers - A mapping of Atlas manager types to the Manager instance.
    * @param {Object} [options] - Options to control the PopupManager's behaviour.
@@ -146,6 +147,11 @@ define([
         onCreate = args.onCreate
         handles = [];
       delete args.onCreate;
+      var popupId = Popup.ID_PREFIX + entity.getId();
+      if (this._popups.get(popupId)) {
+        Log.warn('Popup selection already set up for entity', entity);
+        return;
+      }
 
       var initPopup = function() {
         if (entityPopup) return;

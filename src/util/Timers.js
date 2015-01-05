@@ -2,11 +2,12 @@ define([
   'atlas/lib/utility/Setter',
   'atlas/lib/Q'
 ], function(Setter, Q) {
+
   /**
    * A set of timer utility methods.
+   * @module atlas.util.Timers
    */
   return {
-
     /**
      * Waits until the given predicate evaluates to a truthy value.
      * @param  {Function} predicate
@@ -49,6 +50,6 @@ define([
       }
       return df;
     }
-
   }
+
 });

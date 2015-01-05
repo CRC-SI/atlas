@@ -20,7 +20,7 @@ define([
    * expect this format. WKT and OpenLayers uses the opposite.
    * @class atlas.util.WKT
    */
-  WKT = Instances.defineGlobal(Class.extend({
+  WKT = Instances.defineGlobal(Class.extend(/** @lends atlas.util.WKT# */ {
 
     _init: function() {
       this.parser = new OpenLayers.Format.WKT();
@@ -137,11 +137,13 @@ define([
     openLayersPolygonFromVertices: function(vertices) {
       var points = this.openLayersPointsFromVertices(vertices);
       var ring = new OpenLayers.Geometry.LinearRing(points);
-      if (ring.components.length > 1) {
-        ring.components.pop();
+      var components = ring.components;
+      if (components.length > 1) {
+        components.pop();
       }
-      if (ring.components[0] != ring.components.slice(-1)) {
-        ring.components.push(ring.components[0]);
+      // Ensure the ring is closed.
+      if (components.length > 0 && components[0] !== components.slice(-1)) {
+        components.push(components[0]);
       }
       return new OpenLayers.Geometry.Polygon([ring]);
     },

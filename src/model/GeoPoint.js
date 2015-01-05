@@ -57,7 +57,7 @@ define([
         this._setFromArgs(args.x, args.y, args.z);
       } else {
         this._setFromArgs(args.longitude || args.lng, args.latitude || args.lat,
-                args.elevation || args.height);
+            args.elevation || args.height);
       }
     },
 
@@ -67,7 +67,7 @@ define([
       this.elevation = parseFloat(elevation) || 0.0;
     },
 
-    _validate: function () {
+    _validate: function() {
       if (this.longitude < -180 || this.longitude > 180) {
         throw new Error('Longitude is out of range [-180,180]: ' + this.longitude);
       } else if (this.latitude < -90 || this.latitude > 90) {
@@ -86,7 +86,7 @@ define([
      */
     subtract: function(other) {
       return new GeoPoint(this.longitude - other.longitude, this.latitude - other.latitude,
-              this.elevation - other.elevation);
+          this.elevation - other.elevation);
     },
 
     /**
@@ -96,7 +96,7 @@ define([
      */
     translate: function(other) {
       return new GeoPoint(this.longitude + other.longitude,
-              this.latitude + other.latitude, this.elevation + other.elevation);
+          this.latitude + other.latitude, this.elevation + other.elevation);
     },
 
     /**
@@ -185,63 +185,55 @@ define([
 
   });
 
-  return Setter.mixin(GeoPoint, {
-    // -------------------------------------------
-    // STATICS
-    // -------------------------------------------
+  /**
+   * Constructs a new {@link GeoPoint} from an object containing properties for latitude,
+   * longitude (both in radians), and height.
+   * @returns {atlas.model.GeoPoint}
+   * @static
+   */
+  GeoPoint.fromRadians = function(pos) {
+    var point = new GeoPoint(pos);
+    point.latitude = AtlasMath.toDegrees(point.latitude);
+    point.longitude = AtlasMath.toDegrees(point.longitude);
+    return point;
+  };
 
-    /**
-     * Constructs a new {@link GeoPoint} from an object containing properties for latitude,
-     * longitude (both in radians), and height.
-     * @returns {atlas.model.GeoPoint}
-     * @memberOf atlas.model.GeoPoint
-     * @static
-     */
-    fromRadians: function(pos) {
-      var point = new GeoPoint(pos);
-      point.latitude = AtlasMath.toDegrees(point.latitude);
-      point.longitude = AtlasMath.toDegrees(point.longitude);
-      return point;
-    },
+  /**
+   * Constructs a new GeoPoint from a Vertex object.
+   * @param {atlas.model.Vertex} vertex - The vertex.
+   * @param {Number} vertex.x - The longitude (horizontal position) in decimal degrees.
+   * @param {Number} vertex.y - The latitude (vertical position) in decimal degrees.
+   * @param {Number} vertex.z - The elevation in metres.
+   * @returns {atlas.model.GeoPoint}
+   * @static
+   */
+  GeoPoint.fromVertex = function(vertex) {
+    if (!vertex) return new GeoPoint();
+    return new GeoPoint(vertex.x, vertex.y, vertex.z);
+  };
 
-    /**
-     * Constructs a new GeoPoint from a Vertex object.
-     * @param {atlas.model.Vertex} vertex - The vertex.
-     * @param {Number} vertex.x - The longitude (horizontal position) in decimal degrees.
-     * @param {Number} vertex.y - The latitude (vertical position) in decimal degrees.
-     * @param {Number} vertex.z - The elevation in metres.
-     * @returns {atlas.model.GeoPoint}
-     * @memberOf atlas.model.GeoPoint
-     * @static
-     */
-    fromVertex: function(vertex) {
-      if (!vertex) {
-        return new GeoPoint();
-      }
-      return new GeoPoint(vertex.x, vertex.y, vertex.z);
-    },
+  /**
+   * Constructs a new GeoPoint from an object containing properties for latitude,
+   * longitude, and height.
+   * @param other - The object containing the geospatial data.
+   * @returns {atlas.model.GeoPoint}
+   * @static
+   */
+  GeoPoint.fromLatLngHeight = function(other) {
+    return new GeoPoint(other.lng, other.lat, other.height);
+  };
 
-    /**
-     * Constructs a new GeoPoint from an object containing properties for latitude,
-     * longitude, and height.
-     * @param other - The object containing the geospatial data.
-     * @returns {atlas.model.GeoPoint}
-     * @memberOf atlas.model.GeoPoint
-     * @static
-     */
-    fromLatLngHeight: function(other) {
-      return new GeoPoint(other.lng, other.lat, other.height);
-    },
+  /**
+   * Converts an array of GeoPoints to an array of Vertexes.
+   * @param {Array.<atlas.model.GeoPoint>} points
+   * @returns {Array.<atlas.model.Vertex>}
+   * @static
+   */
+  GeoPoint.arrayToVertices = function(points) {
+    return points.map(function(point) {
+      return point.toVertex();
+    });
+  };
 
-    /**
-     * @param {Array.<atlas.model.GeoPoint>} points
-     * @returns {Array.<atlas.model.Vertex>}
-     */
-    arrayToVertices: function (points) {
-      return points.map(function(point) {
-        return point.toVertex();
-      });
-    }
-
-  });
+  return GeoPoint;
 });

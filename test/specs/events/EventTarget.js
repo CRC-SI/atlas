@@ -4,7 +4,7 @@ define([
     '../Event',
     // Code under test
     '../EventTarget'
-], function (doh, TestCase, Event, EventTarget) {
+], function(doh, TestCase, Event, EventTarget) {
   var child;
   var parent;
   var grandparent;
@@ -19,7 +19,7 @@ define([
 
   new TestCase({
     name: 'events/tests/EventTarget',
-    setUp: function () {
+    setUp: function() {
       // Create an EventTarget hierarchy to test and 2 events to test with.
       child = new EventTarget();
       parent = new EventTarget();

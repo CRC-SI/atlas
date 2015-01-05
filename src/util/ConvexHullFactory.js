@@ -15,7 +15,7 @@ define([
    * Utility methods for constructing convex hulls.
    * @class atlas.util.ConvexHullFactory
    */
-  ConvexHullFactory = Instances.defineGlobal(Class.extend({
+  ConvexHullFactory = Instances.defineGlobal(Class.extend(/** @lends atlas.util.ConvexHullFactory# */ {
 
     /**
      * @param {Array.<atlas.model.GeoPoint>} vertices

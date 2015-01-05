@@ -1,12 +1,12 @@
 define([
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types',
-  'atlas/model/Style',
-  'atlas/model/Colour',
+  'atlas/material/Style',
+  'atlas/material/Color',
   'atlas/lib/utility/Class',
   'atlas/util/DeveloperError',
   'atlas/util/NumberFormatter'
-], function(Setter, Types, Style, Colour, Class, DeveloperError, NumberFormatter) {
+], function(Setter, Types, Style, Color, Class, DeveloperError, NumberFormatter) {
 
   /**
    * @typedef atlas.visualisation.AbstractProjection
@@ -20,12 +20,15 @@ define([
    * is used project the value of an Entity's parameter onto some renderable artifact.
    * @class atlas.visualisation.AbstractProjection
    * @param {Object} args - Arguments to construct the AbstractProjection
-   * @param {string} [args.id] - An ID for the Projection. If one isn't provided, one will be generated.
+   * @param {string} [args.id] - An ID for the Projection. If one isn't provided, one will be
+   *     generated.
    * @param {String} args.type - The type of projection, either 'discrete' or 'continuous'.
    * @param {String} args.title - The title of the Projection, used to generate the legend.
    * @param {String} args.caption - The caption of the projection, used to generate the legend.
-   * @param {Object.<String, atlas.model.GeoEntity>} args.entities - A map of GeoEntity ID to GeoEntity instances that are affected by the projection.
-   * @param {Object.<String, Number>} args.values - A map of GeoEntity ID to parameter value to be projected.
+   * @param {Object.<String, atlas.model.GeoEntity>} args.entities - A map of GeoEntity ID to
+   *     GeoEntity instances that are affected by the projection.
+   * @param {Object.<String, Number>} args.values - A map of GeoEntity ID to parameter value to be
+   *     projected.
    * @param {Object} [args.configuration] - Optional configuration of the projection.
    */
   AbstractProjection = Class.extend(/** @lends atlas.visualisation.AbstractProjection# */ {
@@ -105,9 +108,12 @@ define([
      * must be sorted in ascending order, so a bin's <code>firstValue</code> is not smaller than
      * the previous' <code>lastValue</code>.
      * @type {Array.<Object>}
-     * @property {Number} binId - The ID of a particular bin. Equivalent to the bin's index in the <code>_bins</code> array.
-     * @property {Number|String} firstValue - The first value accepted by this bin, or 'smallest' if there is no lower bound.
-     * @property {Number|String} lastValue - The last value accepted by this bin, or 'largest' if there is no upper bound.
+     * @property {Number} binId - The ID of a particular bin. Equivalent to the bin's index in the
+     *     <code>_bins</code> array.
+     * @property {Number|String} firstValue - The first value accepted by this bin, or 'smallest' if
+     *     there is no lower bound.
+     * @property {Number|String} lastValue - The last value accepted by this bin, or 'largest' if
+     *     there is no upper bound.
      */
     _bins: null,
 
@@ -242,8 +248,10 @@ define([
 
     /**
      * Process all (or a subset) of GeoEntities and applies a given function to them.
-     * @param {atlas.visualisation.AbstractProjection~UpdateEntityCb} f - The function to apply to the GeoEntities.
-     * @param {String|Array.<String>} [id] - Either a single GeoEntity ID, an array of IDs, or nothing.
+     * @param {atlas.visualisation.AbstractProjection~UpdateEntityCb} f - The function to apply to
+     *     the GeoEntities.
+     * @param {String|Array.<String>} [id] - Either a single GeoEntity ID, an array of IDs, or
+     *     nothing.
      * @private
      */
     _mapToEntitiesById: function(f, id) {
@@ -273,10 +281,10 @@ define([
      */
     _disableEntity: function(id) {
       this._setEffect(id, 'disabled', true);
-      var entity = this._entities[id],
-          disabledStyle = new Style({fillColour: Colour.GREY, borderColour: Colour.GREY,
-            borderWidth: 1}),
-          prevStyle = entity.setStyle(disabledStyle);
+      var entity = this._entities[id];
+      var disabledStyle = new Style({fillMaterial: Color.GREY, borderMaterial: Color.GREY,
+          borderWidth: 1});
+      var prevStyle = entity.setStyle(disabledStyle);
       entity.show();
       this._setEffect(id, 'prevStyle', prevStyle);
     },
@@ -288,8 +296,8 @@ define([
      */
     _enableEntity: function(id) {
       this._removeEffect(id, 'disabled');
-      var prevStyle = this._getEffect(id, 'prevStyle'),
-          entity = this._entities[id];
+      var prevStyle = this._getEffect(id, 'prevStyle');
+      var entity = this._entities[id];
       entity.setStyle(prevStyle);
       entity.show();
       this._removeEffect(id, 'prevStyle');
@@ -337,12 +345,12 @@ define([
      * @protected
      */
     _configureBins: function() {
-      var binConf = this._configuration.bins,
-          bins = [];
+      var binConf = this._configuration.bins;
+      var bins = [];
       if (!binConf || typeof binConf === 'number') {
         // Create bins by splitting up the range of input parameter values into equal divisions.
-        var numBins = binConf || 1,
-            populationStats = this._calculatePopulationStatistics();
+        var numBins = binConf || 1;
+        var populationStats = this._calculatePopulationStatistics();
         bins = this._configureEqualSizedBins(numBins, populationStats.min.value,
             populationStats.max.value, true);
       } else if (binConf instanceof Array) {
@@ -356,20 +364,21 @@ define([
     },
 
     /**
-     * Constructs an array of objects describing the bins, with each bin accept a equal
+     * Constructs an array of objects describing the bins, with each bin accepting an equal
      * range of values, depending on the total range specified (except for the largest bin
      * which can potential except values up to infinity).
      * @param {Number} numBins - The number of bins to construct.
      * @param {Number} firstValue - The first value accepted into the 'smallest' bin.
      * @param {Number} lastValue - The last value accepted into the 'largest' bin.
-     * @param {Number} acceptFinal - Whether the 'largest' bin should the value <code>lastValue</code>
+     * @param {Number} acceptFinal - Whether the 'largest' bin should accept the value
+     *     <code>lastValue</code>.
      * @returns {Array.<Object>} The array of bin objects.
      * @private
      */
     _configureEqualSizedBins: function(numBins, firstValue, lastValue, acceptFinal) {
-      var bins = [],
-          binFirst = firstValue,
-          binStep = (lastValue - firstValue) / numBins;
+      var bins = [];
+      var binFirst = firstValue;
+      var binStep = (lastValue - firstValue) / numBins;
       for (var i = 0; i < numBins; i++, binFirst += binStep) {
         bins.push({
           binId: i,
@@ -410,14 +419,14 @@ define([
     /**
      * Constructs an array of objects describing the bins using configurable data for
      * each bin.
-     * @param binArray
+     * @param {Array} binArray
      * @returns {Array}
      * @private
      */
     _configureBinsFromArray: function(binArray) {
-      var bins = [],
-          previousLastValue = Number.NEGATIVE_INFINITY,
-          numBins = binArray.length;
+      var bins = [];
+      var previousLastValue = Number.NEGATIVE_INFINITY;
+      var numBins = binArray.length;
       binArray.forEach(function(bin, i) {
         if (bin.firstValue === undefined || bin.firstValue === 'smallest') {
           bin.firstValue = Number.NEGATIVE_INFINITY;
@@ -454,8 +463,8 @@ define([
      */
     _calculateBinnedStatistics: function() {
       this._bins = this._configureBins();
-      var theStats = [],
-          sortedValues = [];
+      var theStats = [];
+      var sortedValues = [];
       // Sort all of the projections parameter values.
       Object.keys(this._values).forEach(function(id) {
         sortedValues.push({id: id, value: this._values[id]});
@@ -471,13 +480,14 @@ define([
           entityIds: [],
           count: 0,
           sum: 0,
-          // This primes the min/max search below. If no values fit into the bin, min/max will be incorrect.
+          // This primes the min/max search below. If no values fit into the bin, min/max will be
+          // incorrect.
           min: {id: null, value: bin.lastValue},
           max: {id: null, value: bin.firstValue}
         };
         for (i; i < sortedValues.length; i++) {
-          var thisId = sortedValues[i].id,
-              thisValue = parseFloat(sortedValues[i].value) || 0;
+          var thisId = sortedValues[i].id;
+          var thisValue = parseFloat(sortedValues[i].value) || 0;
           // Check value is still within the current bin.
           var inBin = bin.accept(thisValue);
           if (inBin === 1) {
@@ -489,10 +499,10 @@ define([
             binStats.count++;
             binStats.sum += thisValue;
             if (thisValue < binStats.min.value) {
-              binStats.min = { 'id': thisId, 'value': thisValue };
+              binStats.min = {id: thisId, value: thisValue};
             }
             if (thisValue > binStats.max.value) {
-              binStats.max = { 'id': thisId, 'value': thisValue };
+              binStats.max = {id: thisId, value: thisValue};
             }
           } // else value to small for this bin, try next value.
 
@@ -522,18 +532,18 @@ define([
       var ids = Object.keys(this._values);
       var stats = {'sum': 0};
       if (ids.length > 0) {
-        stats.min = { id: ids[0], value: this._values[ids[0]] };
-        stats.max = { id: ids[0], value: this._values[ids[0]] };
+        stats.min = {id: ids[0], value: this._values[ids[0]]};
+        stats.max = {id: ids[0], value: this._values[ids[0]]};
         stats.count = ids.length;
         // Calculate min, max, and sum values.
         ids.forEach(function(id) {
           var thisValue = this._values[id];
           stats.sum += parseInt(thisValue, 10) || 0;
           if (thisValue < stats.min.value) {
-            stats.min = { 'id': id, 'value': thisValue };
+            stats.min = {id: id, value: thisValue};
           }
           if (thisValue > stats.max.value) {
-            stats.max = { 'id': id, 'value': thisValue };
+            stats.max = {id: id, value: thisValue};
           }
         }, this);
         stats.average = stats.sum / stats.count;
@@ -557,9 +567,9 @@ define([
       this._stats.forEach(function(bin) {
         // and each entity which has a value in the bin.
         bin.entityIds.forEach(function(id) {
-          var thisValue = this._values[id],
-              thisAttribute = {},
-              divisor;
+          var thisValue = this._values[id];
+          var thisAttribute = {};
+          var divisor;
           if (thisValue !== undefined && thisValue !== null) {
             thisAttribute.binId = bin.binId;
             thisAttribute.numBins = bin.numBins;
@@ -704,7 +714,7 @@ define([
     /**
      * @param {String} id
      * @param {String} name
-     * @param value
+     * @param {atlas.visualisation.Effects} value
      * @private
      */
     _setEffect: function(id, name, value) {

@@ -6,8 +6,8 @@ define([
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types',
   'atlas/lib/utility/Class',
-  'jquery',
-], function (DomUtil, Event, EventTarget, Log, Setter, Types, Class, $) {
+  'jquery'
+], function(DomUtil, Event, EventTarget, Log, Setter, Types, Class, $) {
 
   /**
    * @typedef atlas.dom.Overlay
@@ -23,10 +23,10 @@ define([
    *
    * @param {Object} args - Arguments to the constructor.
    * @param {String|HTMLElement} [args.parent=document] - The DOM ID or element instance to place
-   *    the Overlay on.
+   *     the Overlay on.
    * @param {String} [args.title] - A title to show in the overlay.
    * @param {String} [args.class] - The CSS class to apply to the <code><div</code> surrounding
-   *    the Overlay.
+   *     the Overlay.
    * @param {Boolean} [args.hasRemoveBtn=false] - Whether the Overlay should have a remove
    *    button. The default action of this button is to remove and destroy the Overlay.
    * @param {Function} [args.onRemove] - A callback that is called when the Overlay remove
@@ -39,9 +39,9 @@ define([
    *    so the callback should minimise/maximise the Overlay if this is required.
    * @param {Object} [args.position] - The position of the Overlay.
    * @param {Object} [args.position.top=0] - The dimension from the top of <code>parent</code>
-   *    to the top of the Overlay in pixels.
+   *     to the top of the Overlay in pixels.
    * @param {Object} [args.position.left=0] - The dimension from the left of <code>parent</code>
-   *    to the left of the Overlay in pixels.
+   *     to the left of the Overlay in pixels.
    * @param {Object} [args.position.bottom=undefined] - The dimension from the bottom of
    *    <code>parent</code> to the top of the Overlay in pixels.
    * @param {Object} [args.position.right=undefined] - The dimension from the right of
@@ -143,7 +143,7 @@ define([
      * Constructor for the overlay
      * @ignore
      */
-    _init: function (args) {
+    _init: function(args) {
       // Set defaults
       args = Setter.merge({
         parent: document.body,
@@ -164,7 +164,7 @@ define([
       if (!args.parent) { throw new Error('Error attaching to element ' + args.parent)}
 
       // Sanitise the dimensions and positions passed in.
-      ['top', 'left', 'right', 'bottom'].forEach(function (p) {
+      ['top', 'left', 'right', 'bottom'].forEach(function(p) {
         args.position[p] === null && delete args.position[p];
       });
       args.dimensions.width === null && delete args.dimensions.width;
@@ -183,9 +183,9 @@ define([
       this._showMinimised = args.showMinimised;
 
       this._onRemove = Types.isFunction(args.onRemove) ? args.onRemove : null;
-      this._hasRemoveBtn = args.hasRemoveBtn || this._onRemove !== null;
+      this._hasRemoveBtn = args.hasRemoveBtn || !!this._onRemove;
       this._onEnabledChange = Types.isFunction(args.onEnabledChange) ? args.onEnabledChange : null;
-      this._hasEnableCheckbox = args.hasEnableCheckbox || this._onEnabledChange !== null;
+      this._hasEnableCheckbox = args.hasEnableCheckbox || !!this._onEnabledChange;
 
       // Construct element and append it to the parent.
       this._render();
@@ -265,7 +265,7 @@ define([
      * Sets whether the Overlay is minimised.
      * @param {boolean} isMinimised - The Overlay should be minimised.
      */
-    setMinimised: function (isMinimised) {
+    setMinimised: function(isMinimised) {
       var elems = this.getDomElements(),
         $content = $(elems.content),
         $enableCheckbox = $('.enable-overlay', elems.title);
@@ -287,23 +287,41 @@ define([
 
     /**
      * Hides the Overlay from view.
+     *
+     * @fires InternalEvent#overlay/hide
      */
     hide: function() {
       var dom = this.getDom();
       if (!this.isVisible() || !dom) { return; }
       $(dom).hide();
       this._isVisible = false;
+
+      /**
+       * The {@link atlas.dom.Overlay} was hidden from the DOM.
+       *
+       * @event InternalEvent#overlay/hide
+       * @type {atlas.events.Event}
+       */
       this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/hide'));
     },
 
     /**
      * Shows the overlay on the parent document.
+     *
+     * @fires InternalEvent#overlay/show
      */
     show: function() {
       var dom = this.getDom();
       if (this.isVisible() || !dom) { return; }
       $(dom).show();
       this._isVisible = true;
+
+      /**
+       * The {@link atlas.dom.Overlay} was shown on the DOM.
+       *
+       * @event InternalEvent#overlay/show
+       * @type {atlas.events.Event}
+       */
       this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/show'));
     },
 
@@ -331,6 +349,8 @@ define([
 
     /**
      * Removes the Overlay from the parent document.
+     *
+     * @fires InternalEvent#overlay/remove
      */
     remove: function() {
       if (!this._element || !this._element.parentElement) {
@@ -340,6 +360,13 @@ define([
       this.hide();
       $(this.getDom()).remove();
       this._element = null;
+
+      /**
+       * The {@link atlas.dom.Overlay} was removed from the DOM.
+       *
+       * @event InternalEvent#overlay/remove
+       * @type {atlas.events.Event}
+       */
       this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/remove'));
     },
 
@@ -362,7 +389,7 @@ define([
         // Wrap the title with an enable checkbox and remove button if necessary.
         title += '<div class="title">';
         if (this._hasEnableCheckbox) {
-          title += '<input type="checkbox" value="true" class="enable checkbox">'
+          title += '<input type="checkbox" class="enable checkbox" checked>'
         }
         title += '<div class="content">' + this._title + '</div>';
         if (this._hasRemoveBtn) {
@@ -386,7 +413,7 @@ define([
       // Add event handler to close button and checkbox
       if (this._hasRemoveBtn) {
         var removeFunction = this._onRemove ? '_onRemove' : 'remove';
-        $('.remove-overlay', element).click(function (e) {
+        $('.remove', element).click(function(e) {
           // 0 -> left click.
           if (e.button === 0) {
             this[removeFunction](e);
@@ -395,7 +422,7 @@ define([
       }
       if (this._hasEnableCheckbox) {
         var enableFunction = this._onEnabledChange ? '_onEnabledChange' : 'toggleMinimisation';
-        $('.enable-overlay', element).click(function (e) {
+        $('.enable.checkbox', element).click(function(e) {
           // 0 -> left click.
           if (e.button === 0) {
             this[enableFunction](e.target.value, e);
@@ -417,10 +444,10 @@ define([
    * @param {Object} data - The map of attributes to values.
    * @param {String} [data.cssClass=''] - The CSS class of the tag.
    * @param {String} [data.id=''] - The ID of the tag.
-   * @param {atlas.model.Colour} [data.bgColour=null] - The CSS background-color to apply to the tag.
+   * @param {atlas.material.Color} [data.bgColor=null] - The CSS background-color to apply to the tag.
    * @returns {String} The HTML string of the attributes.
    */
-  Overlay.parseAttributes = function (data) {
+  Overlay.parseAttributes = function(data) {
     // TODO(aramk) Rely on $.attr() instead.
     var html = '',
         style = '',
@@ -428,7 +455,7 @@ define([
     data.cssClass && (html += 'class="' + data.cssClass +'" ');
     data.id && (html += 'id="' + data.id +'" ');
     data.background && (style += 'background:' + data.background + ';');
-    data.bgColour && (style += 'background-color:' + data.bgColour.toHexString() + ';');
+    data.bgColor && (style += 'background-color:' + data.bgColor.toHexString() + ';');
     data.width && (style += 'width:' + data.width + ';');
     if (style !== '') {
       html += 'style="' + style +'"';
@@ -453,27 +480,27 @@ define([
    *   rows: [
    *     { id: 'row1_ID',
    *       cells: [
-   *         { value: 'cellContents', class: 'class', bgColour = Colour.RED, ... }
-   *         { value: 'cellContents2', bgColour = Colour.GREEN, ... }
+   *         { value: 'cellContents', class: 'class', bgColor = Color.RED, ... }
+   *         { value: 'cellContents2', bgColor = Color.GREEN, ... }
    *       ]
    *     },
    *     { id: 'row2_ID',
    *       cells: [
-   *         { value: 'cellContents', class: 'class', bgColour = Colour.RED, ... }
-   *         { value: 'cellContents2', bgColour = Colour.GREEN, ... }
+   *         { value: 'cellContents', class: 'class', bgColor = Color.RED, ... }
+   *         { value: 'cellContents2', bgColor = Color.GREEN, ... }
    *       ]
    *     }
    *   ]
    * }
    */
-  Overlay.generateTable = function (data) {
+  Overlay.generateTable = function(data) {
     if (!data || !data.rows) { return ''; }
     var tableAttributes = Overlay.parseAttributes(data),
         html = '<table ' + tableAttributes + '>';
-    data.rows.forEach(function (row) {
+    data.rows.forEach(function(row) {
       var rowAttributes = Overlay.parseAttributes(row);
       html += '<tr ' + rowAttributes + '>';
-      row.cells.forEach(function (cell) {
+      row.cells.forEach(function(cell) {
         var cellAttributes = Overlay.parseAttributes(cell);
         html += '<td ' + cellAttributes + '>' + (cell.value || '') + '</td>';
       });

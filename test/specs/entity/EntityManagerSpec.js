@@ -1,18 +1,18 @@
 define([
   // Code under test.
   'atlas/entity/EntityManager'
-], function (EntityManager) {
+], function(EntityManager) {
 
-  describe('An EntityManager', function () {
+  describe('An EntityManager', function() {
     var em,
         managers,
-        Handle = function (id) {
+        Handle = function(id) {
           this.id = id;
-          this.getId = function () { return this.id; };
+          this.getId = function() { return this.id; };
         },
         h1, h2;
 
-    beforeEach(function () {
+    beforeEach(function() {
       managers = {};
       em = new EntityManager(managers);
       h1 = new Handle('1');
@@ -20,7 +20,7 @@ define([
 
     });
 
-    afterEach(function () {
+    afterEach(function() {
       managers = null;
       em = null;
     });

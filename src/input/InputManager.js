@@ -5,6 +5,31 @@ define([
 ], function(Manager, Event, Keycode) {
 
   /**
+   * Atlas wrapper around a browser input event containing a standard set of properties.
+   * @typedef {atlas.events.Event} InternalEvent#InputEvent
+   *
+   * @property {String} args.name - The name of the Atlas event.
+   * @property {String} args.button - The name of the button (left, middle or right).
+   * @property {Object.<String, Boolean>} args.modifiers - Boolean flags for control keys that were
+   *     pressed when the event occurred.
+   * @property {Boolean} args.modifiers.shift - Whether the Shift key was pressed.
+   * @property {Boolean} args.modifiers.meta - Whether the Meta key was pressed.
+   * @property {Boolean} args.modifiers.alt - Whether the Alt key was pressed.
+   * @property {Boolean} args.modifiers.ctrl - Whether the Ctrl key was pressed.
+   * @property {Object} args.absPosition - Absolute mouse position in the browser window.
+   * @property {Number} args.absPosition.x - Absolute X position of the mouse.
+   * @property {Number} args.absPosition.y - Absolute Y position of the mouse.
+   * @property {Object} args.position - Mouse position relative to the top-left corner of the Atlas
+   *     DOM element.
+   * @property {Number} args.position.x - Relative X position of the mouse.
+   * @property {Number} args.position.y - Relative Y position of the mouse.
+   * @property {Object.<String, Number>} args.movement - The change in the mouse's position since
+   *     the last event.
+   * @property {Number} args.movement.dx - The change in the mouse's X position.
+   * @property {Number} args.movement.dy - The change in the mouse's Y position.
+   */
+
+  /**
    * @typedef atlas.input.InputManager
    * @ignore
    */
@@ -56,7 +81,8 @@ define([
 
     /**
      * Completes all initialisation that requires other Atlas managers.
-     * @param {String|HTMLElement} elem - The DOM ID or DOM element of the HTML element to receive events from.
+     * @param {String|HTMLElement} elem - The DOM ID or DOM element of the HTML element to receive
+     *     events from.
      */
     setup: function(elem) {
       // TODO(bpstudds): Pretty sure InputManager should respond to an 'dom/set' event, rather than be imperative.
@@ -65,14 +91,71 @@ define([
 
     /**
      * Creates bindings in the Atlas event system to HTML DOM mouse events.
+     *
+     * @fires InternalEvent#input/leftdown
+     * @fires InternalEvent#input/leftup
+     * @fires InternalEvent#input/middledown
+     * @fires InternalEvent#input/middleup
+     * @fires InternalEvent#input/rightdown
+     * @fires InternalEvent#input/rightup
+     * @fires InternalEvent#input/mousemove
+     * @fires InternalEvent#input/left/dblclick
      */
     createHtmlMouseBindings: function() {
       // Buttons to add event handlers for.
       var buttonIds = ['left', 'middle', 'right'];
+      var eventManager = this._managers.event;
 
-      // Helper function to construct the arguments for Atlas mouse events
+      /**
+       * The left mouse button was pressed.
+       * @event InternalEvent#input/leftdown
+       * @type {InternalEvent#InputEvent}
+       */
+      /**
+       *
+       * The left mouse button was unpressed.
+       * @event InternalEvent#input/leftup
+       * @type {InternalEvent#InputEvent}
+       */
+      /**
+       * The middle mouse button was pressed.
+       * @event InternalEvent#input/middledown
+       * @type {InternalEvent#InputEvent}
+       */
+      /**
+       * The middle mouse button was unpressed.
+       * @event InternalEvent#input/middleup
+       * @type {InternalEvent#InputEvent}
+       */
+      /**
+       * The right mouse button was pressed.
+       * @event InternalEvent#input/rightdown
+       * @type {InternalEvent#InputEvent}
+       */
+      /**
+       * The right mouse button was unpressed.
+       * @event InternalEvent#input/rightup
+       * @type {InternalEvent#InputEvent}
+       */
+      /**
+       * The mouse was moved.
+       * @event InternalEvent#input/mousemove
+       * @type {InternalEvent#InputEvent}
+       */
+      /**
+       * The left mouse button was double-clicked.
+       * @event InternalEvent#input/left/dblclick
+       * @type {InternalEvent#InputEvent}
+       */
+
+      /**
+       * Helper function to construct the arguments for Atlas mouse events.
+       * @param {String} name - The name of the Atlas event.
+       * @param {Event} e - The DOM event.
+       * @returns {Object}
+       */
       var makeMouseEventArgs = function(name, e) {
-        var absPosition = { x: e.clientX, y: e.clientY };
+        var absPosition = {x: e.clientX, y: e.clientY};
         var relPosition = this._managers.dom.translateEventCoords(absPosition),
             x = relPosition.x,
             y = relPosition.y;
@@ -82,7 +165,7 @@ define([
           modifiers: {},
           absPosition: absPosition,
           position: relPosition,
-          movement: { cx: x - this.__lastX, cy: y - this.__lastY }
+          movement: {dx: x - this.__lastX, dy: y - this.__lastY}
         };
         e.shiftKey && (args.modifiers.shift = true);
         e.metaKey && (args.modifiers.meta = true);
@@ -91,43 +174,54 @@ define([
         return args;
       }.bind(this);
 
+      /**
+       * Helper function to construct an Atlas mouse event.
+       * @param {String} name - The name of the Atlas event.
+       * @param {atlas.events.Event} e - The DOM event.
+       * @returns {atlas.events.Event}
+       */
+      var makeMouseEvent = function(name, e) {
+        var args = makeMouseEventArgs(name, e);
+        return new Event(null, args.name, args);
+      };
+
       // -------------------------------------------
       // Construct mouse event handlers
       // -------------------------------------------
-      var args, press;
+      var /** atlas.events.Event*/ event;
 
       // Mouse button down
       this._mouseHandlers.push({
         name: 'mousedown',
         cback: function(e) {
-          args = makeMouseEventArgs(buttonIds[e.button] + 'down', e);
-          this.__lastX = args.position.x;
-          this.__lastY = args.position.y;
-          this._managers.event.handleInternalEvent(args.name, args);
-        }.bind(this._managers.input)
+          event = makeMouseEvent(buttonIds[e.button] + 'down', e);
+          this.__lastX = event.getArgs().position.x;
+          this.__lastY = event.getArgs().position.y;
+          eventManager.dispatchEvent(event);
+        }.bind(this)
       });
 
       // Mouse button up
       this._mouseHandlers.push({
         name: 'mouseup',
         cback: function(e) {
-          args = makeMouseEventArgs(buttonIds[e.button] + 'up', e);
-          if (Math.abs(args.movement.cx + args.movement.cy) < InputManager.CLICK_SENSITIVITY) {
+          event = makeMouseEvent(buttonIds[e.button] + 'up', e);
+          var dxy = event.getArgs().movement.dx + event.getArgs().movement.dy;
+          if (Math.abs(dxy) < InputManager.CLICK_SENSITIVITY) {
             // If mouse moved less than the sensitivity, also emit a click event.
-            this._managers.event.handleInternalEvent('input/' + buttonIds[e.button] + 'click',
-                args);
+            var args = makeMouseEventArgs(buttonIds[e.button] + 'click', e);
+            eventManager.dispatchEvent(new Event(null, args.name, args));
           }
-          this._managers.event.handleInternalEvent(args.name, args);
-        }.bind(this._managers.input)
+          eventManager.dispatchEvent(event);
+        }
       });
 
       // Mouse move handler
       this._mouseHandlers.push({
         name: 'mousemove',
         cback: function(e) {
-          args = makeMouseEventArgs('mousemove', e);
-          this._managers.event.handleInternalEvent(args.name, args);
-        }.bind(this._managers.input)
+          eventManager.dispatchEvent(makeMouseEvent('mousemove', e));
+        }
       });
 
       // Double click handler
@@ -135,9 +229,8 @@ define([
         name: 'dblclick',
         cback: function(e) {
           // TODO(bpstudds): This will convert all double click events to left dbl click.
-          args = makeMouseEventArgs('left/dblclick', e);
-          this._managers.event.handleInternalEvent(args.name, args);
-        }.bind(this._managers.input)
+          eventManager.dispatchEvent(makeMouseEvent('left/dblclick', e));
+        }
       });
 
       // Add the event listeners to the current DOM element.

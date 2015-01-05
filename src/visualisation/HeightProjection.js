@@ -1,10 +1,12 @@
 define([
   'atlas/lib/utility/Log',
+  'atlas/lib/utility/Setter',
   'atlas/model/Feature',
   // Base class
   'atlas/visualisation/AbstractProjection',
+  'atlas/util/AtlasMath',
   'atlas/util/DeveloperError'
-], function(Log, Feature, AbstractProjection, DeveloperError) {
+], function(Log, Setter, Feature, AbstractProjection, AtlasMath, DeveloperError) {
 
   /**
    * @classdesc The HeightProjection represents a projection of Entity parameter values onto
@@ -52,8 +54,16 @@ define([
       var oldElevation = entity.getElevation();
       // TODO(bpstudds): Handle the case where an entity sits on two entities.
       // TODO(bpstudds): Handle the case where there's a hierarchy of 'parents'
-      var newElevation = this._getModifiedElevation(oldElevation, entity.getCentroid(),
-          entity.parent);
+      var newElevation;
+      var parent = entity.getParent();
+      if (!parent && oldHeight === 0 && oldElevation === 0) {
+        // If the entity had a height of 0 and no parent, the old top elevation of 0 will be
+        // incorrectly mapped to a new non-zero top elevation, causing other similar entities to
+        // stack. Avoid this by setting the new elevation to the old one.
+        newElevation = oldElevation;
+      } else {
+        newElevation = this._getModifiedElevation(oldElevation, entity.getCentroid(), parent);
+      }
       // Footprints can have elevation but not height. Generating height will cause an invalid
       // top elevation as applying height on the footprint will have no effect.
       var isFootprint = false;
@@ -73,7 +83,6 @@ define([
       this._setModifiedElevation(entity, oldElevation + oldHeight, newElevation + newHeight);
       entity.setElevation(newElevation);
       entity.setHeight(newHeight);
-      entity.isVisible() && entity.show();
     },
 
     /**
@@ -85,13 +94,11 @@ define([
      * @private
      */
     _getModifiedElevation: function(oldElevation, centroid, parent) {
-      var newElevations,
-          result = oldElevation,
-          parent = parent || null;
-
+      var newElevations;
+      var result = oldElevation;
+      var parent = parent || null;
       var modifiedElevations = this._modifiedElevations[parent];
       newElevations = modifiedElevations ? modifiedElevations[oldElevation] : null;
-
       if (newElevations) {
         // A 'stacked elevation' exists.
         if (newElevations.length === 1) {
@@ -101,8 +108,8 @@ define([
           // Find the sibling which was below this entity by finding the closest centroid to the
           // given centroid.
           var centroidVertex = centroid.toVertex();
-          var minId = 0,
-              minValue = centroidVertex.distanceSquared(newElevations[minId].centroid.toVertex());
+          var minId = 0;
+          var minValue = centroidVertex.distanceSquared(newElevations[minId].centroid.toVertex());
           for (var i = 1; i < newElevations.length; i++) {
             var temp = centroidVertex.distanceSquared(newElevations[i].centroid.toVertex());
             if (temp < minValue) {
@@ -127,8 +134,7 @@ define([
      * @private
      */
     _setModifiedElevation: function(entity, oldElevation, newElevation) {
-      var parent = entity.parent || null;
-
+      var parent = entity.getParent() || null;
       if (!this._modifiedElevations[parent]) {
         this._modifiedElevations[parent] = {};
       }
@@ -146,12 +152,11 @@ define([
      * @private
      */
     _unrender: function(entity, attributes) {
-      var id = entity.getId(),
-          oldValue = this._getEffect(id, 'oldValue');
+      var id = entity.getId();
+      var oldValue = this._getEffect(id, 'oldValue');
       if (oldValue) {
         entity.setElevation(oldValue.elevation);
         entity.setHeight(oldValue.height);
-        entity.isVisible() && entity.show();
       } else {
         Log.warn('Cannot unrender height and elevation - oldValue not defined', oldValue);
       }
@@ -165,11 +170,12 @@ define([
       }
       // TODO(bpstudds): Allow for more projection types then continuous and discrete?
       var regressionFactor = this._type === 'continuous' ?
-          attributes.absRatio : attributes.binId / attributes.numBins;
+          attributes.absRatio : (attributes.binId / attributes.numBins);
       if ('fixedProj' in codomain) {
         return codomain.fixedProj;
       } else if ('startProj' in codomain && 'endProj' in codomain) {
-        return codomain.startProj + regressionFactor * (codomain.endProj - codomain.startProj);
+        return AtlasMath.lerp(codomain.startProj, codomain.endProj,
+            Setter.range(regressionFactor, 0, 1));
       }
       throw new DeveloperError('Unsupported codomain supplied.');
     }

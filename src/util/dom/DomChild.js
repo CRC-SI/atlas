@@ -2,7 +2,7 @@
  * A utility class for managing the children of DOM Elements.
  */
 define([
-], function () {
+], function() {
   "use strict";
 
   /**
@@ -17,7 +17,7 @@ define([
      * @param {HTMLElement} element - The DOM node.
      * @returns {HTMLElement[]} A list of all child nodes.
      */
-    getChildren: function (element) {
+    getChildren: function(element) {
       if (!element || !element.hasChildNodes()) {
         return [];
       }
@@ -28,7 +28,7 @@ define([
 //      while ((sibling = sibling.nextElementSibling) !== null) {
 //        children.push(sibling);
 //      }
-      var untilArg2isNull = function (children, sibling) {
+      var untilArg2isNull = function(children, sibling) {
         if (sibling === null) return;
         children.push(sibling);
         untilArg2isNull(children, sibling.nextElementSibling);
@@ -41,7 +41,7 @@ define([
      * Removes all children from the given DOM node.
      * @param {HTMLElement} element - The DOM node.
      */
-    removeChildren: function (element) {
+    removeChildren: function(element) {
       var children = DomChild.getChildren(element);
       for (var child in children) {
         element.removeChild(child);
@@ -53,7 +53,7 @@ define([
      * @param {HTMLElement} element - The DOM node to add to.
      * @param {HTMLElement} child - The DOM node to add.
      */
-    addChild: function (element, child) {
+    addChild: function(element, child) {
       element.appendChild(child);
     },
 
@@ -62,8 +62,8 @@ define([
      * @param {HTMLElement} element - The DOM node to add to.
      * @param {HTMLElement[]} children - The list of nodes to add.
      */
-    addChildren: function (element, children) {
-      children.forEach(function (child) {
+    addChildren: function(element, children) {
+      children.forEach(function(child) {
         element.appendChild(child);
       });
     }

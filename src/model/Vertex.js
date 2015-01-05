@@ -4,7 +4,7 @@ define([
   'atlas/lib/utility/Class',
   'atlas/util/DeveloperError'
 ], function(Setter, Types, Class, DeveloperError) {
-  
+
   /**
    * @typedef atlas.model.Vertex
    * @ignore
@@ -20,7 +20,7 @@ define([
    * @param {Number} [z=0] - the 'z' coordinate.
    * @class atlas.model.Vertex
    */
-  Vertex = Setter.mixin(Class.extend(/** @lends atlas.model.Vertex# */ {
+  Vertex = Class.extend(/** @lends atlas.model.Vertex# */ {
 
     /**
      * The <code>x</code> coordinate.
@@ -99,7 +99,8 @@ define([
     },
 
     /**
-     * @returns {atlas.model.Vertex} This vertex with each component converted to its absolute value.
+     * @returns {atlas.model.Vertex} This vertex with each component converted to its absolute
+     *     value.
      */
     absolute: function() {
       return new Vertex(Math.abs(this.x), Math.abs(this.y), Math.abs(this.z))
@@ -149,8 +150,8 @@ define([
       args = Setter.mixin({
         dimension: 3
       }, args);
-      var dimension = args.dimension,
-          round = args.round;
+      var dimension = args.dimension;
+      var round = args.round;
       if (dimension !== undefined && (dimension < 2 || dimension > 3)) {
         throw new DeveloperError('Invalid dimensions');
       }
@@ -167,7 +168,7 @@ define([
     /**
      * @returns {atlas.model.Vertex} A deep copy of this object.
      */
-    clone: function () {
+    clone: function() {
       return new Vertex(this);
     },
 
@@ -175,28 +176,26 @@ define([
      * @param {atlas.model.Vertex} other
      * @returns {Boolean} Whether the given object is equal to this one.
      */
-    equals: function (other) {
+    equals: function(other) {
       return this.x === other.x && this.y === other.y && this.z === other.z;
     }
 
-  }), {
-
-    // -------------------------------------------
-    // STATICS
-    // -------------------------------------------
-
-    /**
-     * @param {Array.<atlas.model.Vertex>} vertices
-     * @param {Object} [args]
-     * @see #toArray
-     * @returns {Array.<Array.<Number>>} An array of the given vertices converted to arrays.
-     */
-    toArrays: function(vertices, args) {
-      return vertices.map(function(vertex) {
-        return vertex.toArray(args);
-      });
-    }
-
   });
+
+  /**
+   * Converts each {@link atlas.model.Vertex} object in an array into an array of numbers, and
+   * returns the array of all converted vertices.
+   * @param {Array.<atlas.model.Vertex>} vertices
+   * @param {Object} [args]
+   * @see #toArray
+   * @returns {Array.<Array.<Number>>} An array of the given vertices converted to arrays.
+   * @static
+   */
+  Vertex.toArrays = function(vertices, args) {
+    return vertices.map(function(vertex) {
+      return vertex.toArray(args);
+    });
+  };
+
   return Vertex;
 });

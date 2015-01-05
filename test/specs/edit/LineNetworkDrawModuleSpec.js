@@ -1,7 +1,7 @@
 define([
   // Code under test
   'atlas/edit/LineNetworkDrawModule'
-], function (LineNetworkDrawModule) {
+], function(LineNetworkDrawModule) {
   var ldnm;
 
 });

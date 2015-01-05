@@ -22,7 +22,7 @@ define([
       return position;
     },
 
-    setPositionBoundary: function (domNode, boundary) {
+    setPositionBoundary: function(domNode, boundary) {
       var left = boundary.left,
         right = boundary.right,
         top = boundary.top,

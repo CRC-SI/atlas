@@ -14,19 +14,16 @@
     flex-direction: column;
     border-radius: 4px;
     transition: opacity 0.25s ease-out, box-shadow 0.25s ease-out;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
     &:hover {
+      box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.4);
       opacity: 1;
-    }
-    &.popup {
-      box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
-      &:hover {
-        box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.4);
-      }
     }
     .hidden {
       display: none;
     }
     .enable.checkbox {
+      margin: 0;
       margin-right: 5px;
     }
     .content {
@@ -43,7 +40,6 @@
       // Formatting for Projection legend titles.
       font-size: 1.2em;
       padding: 5px;
-      padding-bottom: 0;
       &:hover > button {
         display: block;
       }
@@ -51,8 +47,18 @@
     }
     .body {
       padding: 5px;
+      padding-top: 0;
       flex-grow: 1;
       overflow: auto;
+      .overlay {
+        position: relative;
+        margin: 0;
+        margin-bottom: 5px;
+        box-shadow: none;
+        .body {
+          padding: 0;
+        }
+      }
     }
     // The 'table' selector is inefficient :(
     .legend table {
@@ -62,6 +68,23 @@
       text-align: right;
       font-size: 0.9em;
       font-family: "Consolas", monospace;
+    }
+    // Necessary for the popup triangle.
+    border-color: white;
+    &.popup {
+      &::after {
+        // Create a triangle on the bottom of the popup.
+        border-radius: 10px;
+        border-top: 20px solid;
+        content: '';
+        position: absolute;
+        left: 50%;
+        margin-left: -15px;
+        border-left: 20px solid transparent;
+        border-right: 20px solid transparent;
+        border-top-color: inherit;
+        margin-top: -4px;
+      }
     }
   }
 

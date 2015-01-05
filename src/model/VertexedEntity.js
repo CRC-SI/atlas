@@ -42,34 +42,42 @@ define([
      */
     _zIndexOffset: 0.1,
 
-    _init: function(id, data, args) {
-      this._super(id, args);
-      this._vertices = [];
-      var vertices = data.vertices;
-      if (Types.isString(vertices)) {
-        var wkt = WKT.getInstance(),
-            vertexArray = wkt.geoPointsFromWKT(vertices);
-        if (vertexArray[0] instanceof Array) {
-          // Polygon
-          this._vertices = vertexArray[0];
-        } else if (vertexArray[0] instanceof GeoPoint) {
-          // Line
-          this._vertices = vertexArray;
-        } else {
-          throw new Error('Invalid vertices for entity ' + id);
-        }
-      } else if (Types.isArrayLiteral(vertices)) {
-        this._vertices = Setter.def(vertices, []).map(function(vertex) {
-          return new GeoPoint(vertex);
-        });
-      } else {
-        throw new Error('Invalid vertices for entity ' + id);
-      }
+    _setup: function(id, data, args) {
+      this._super(id, data, args);
+      this._vertices = this._getSanitizedVertices(data.vertices);
+      this._zIndex = parseFloat(data.zIndex) || this._zIndex;
+      this._zIndexOffset = parseFloat(data.zIndexOffset) || this._zIndexOffset;
     },
 
     // -------------------------------------------
     // CONSTRUCTION
     // -------------------------------------------
+
+    /**
+     * @param {String|Array.<GeoPoint|Array>} vertices - Any vaid representation of vertices.
+     * @return {Array.<GeoPoint>} A copy of the given vertices in the format expected by this class.
+     */
+    _getSanitizedVertices: function(vertices) {
+      if (Types.isString(vertices)) {
+        var wkt = WKT.getInstance();
+        var vertexArray = wkt.geoPointsFromWKT(vertices);
+        if (vertexArray[0] instanceof Array) {
+          // Polygon
+          return vertexArray[0];
+        } else if (vertexArray[0] instanceof GeoPoint) {
+          // Line
+          return vertexArray;
+        } else {
+          throw new Error('Invalid vertices for entity ' + this.getId());
+        }
+      } else if (Types.isArrayLiteral(vertices)) {
+        return vertices.map(function(vertex) {
+          return new GeoPoint(vertex);
+        });
+      } else {
+        throw new Error('Invalid vertices for entity ' + this.getId());
+      }
+    },
 
     _build: function() {
       if (this.isDirty('entity') || this.isDirty('vertices') || this.isDirty('model')) {
@@ -190,7 +198,8 @@ define([
       if (index === undefined) {
         index = this._vertices.length - 1;
       }
-      if (-this._vertices.length <= index && index <= this._vertices.length - 1) {
+      var len = this._vertices.length;
+      if (-len <= index && index <= len - 1) {
         var removed = this._vertices.splice(index, 1)[0];
         this.setDirty('vertices');
         return removed;
@@ -223,6 +232,7 @@ define([
     setElevation: function(elevation) {
       this._super(elevation);
       this.setDirty('vertices');
+      this._update();
     },
 
     /**
@@ -230,9 +240,10 @@ define([
      * @param {Number} index
      */
     setZIndex: function(index) {
-      if (typeof index === 'number' && this._zIndex !== index) {
+      if (this._zIndex !== index) {
         this._zIndex = index;
         this.setDirty('vertices');
+        this._update();
       }
     },
 

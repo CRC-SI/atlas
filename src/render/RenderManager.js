@@ -11,7 +11,7 @@ define([
   var RenderManager;
 
   /**
-   * The RenderManager manages what is render and how it is rendered. The
+   * The RenderManager manages what is rendered and how it is rendered. The
    * RenderManager controls
    *     - the map imagery displayed on the globe
    *     - the terrain models displayed on the globe
@@ -19,7 +19,7 @@ define([
    *
    * @class atlas.render.RenderManager
    */
-  RenderManager = Manager.extend({
+  RenderManager = Manager.extend(/** @lends atlas.render.RenderManager# */ {
 
     _id: 'render',
 

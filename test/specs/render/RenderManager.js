@@ -4,7 +4,7 @@ define([
   'atlas/model/Feature',
   /* Code under test */
   '../RenderManager'
-], function (doh, TestCase, Feature, RenderManager) {
+], function(doh, TestCase, Feature, RenderManager) {
   "use strict";
 
   var managers;
@@ -16,7 +16,7 @@ define([
 
     name: 'atlas/render/RenderManager',
 
-    setUp: function () {
+    setUp: function() {
       // summary:
       managers = {
         dom: {},
@@ -30,7 +30,7 @@ define([
       };
     },
 
-    tearDown: function () {
+    tearDown: function() {
       renderManager = {};
       managers = {
         dom: {},
@@ -41,13 +41,13 @@ define([
       };
     },
 
-    testCreate: function () {
+    testCreate: function() {
       doh.assertTrue(renderManager instanceof RenderManager);
       doh.assertEqual(managers.render, renderManager);
       doh.assertEqual({}, renderManager._entities);
     },
 
-    testAddFeature: function () {
+    testAddFeature: function() {
       // TODO(aramk) Use createFeature on EntityManager instead.
       var feature = new Feature(0, args);
       renderManager.addFeature(0, args);
@@ -56,7 +56,7 @@ define([
       doh.assertEqual(managers.event, renderManager._entities[0]._eventManager);
     },
 
-    testAddFeatureObjId: function () {
+    testAddFeatureObjId: function() {
       args.id = 'blah';
       console.log(args);
       renderManager.addFeature(args); 
@@ -65,7 +65,7 @@ define([
       doh.assertEqual(managers.event, renderManager._entities[args.id]._eventManager);
     },
 
-    testAddFeatureNoId: function () {
+    testAddFeatureNoId: function() {
       var exception = "";
       try {
         renderManager.addFeature(args); 
@@ -75,14 +75,14 @@ define([
       doh.assertNotEqual("", exception);
     },
 
-    testRemoveEntity: function () {
+    testRemoveEntity: function() {
       renderManager.addFeature(0, args);
       console.log(renderManager);
       renderManager.removeEntity(0);
       doh.assertEqual(undefined, renderManager._entities[0]);
     },
 
-    testAddFeatureObjNoId: function () {
+    testAddFeatureObjNoId: function() {
       var exception = "";
       try {
         renderManager.addFeature({}); 

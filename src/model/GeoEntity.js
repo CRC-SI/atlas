@@ -4,16 +4,18 @@ define([
   // Base class
   'atlas/events/EventTarget',
   'atlas/lib/utility/Setter',
+  'atlas/lib/utility/Strings',
   'atlas/lib/utility/Types',
-  'atlas/model/Colour',
   'atlas/model/Rectangle',
-  'atlas/model/Style',
+  'atlas/material/Color',
+  'atlas/material/CheckPattern',
+  'atlas/material/Material',
+  'atlas/material/Style',
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(ItemStore, Event, EventTarget, Setter, Types, Colour, Rectangle, Style, Vertex,
-            DeveloperError, WKT) {
-
+], function(ItemStore, Event, EventTarget, Setter, Strings, Types, Rectangle, Color, CheckPattern,
+            Material, Style, Vertex, DeveloperError, WKT) {
   /**
    * @typedef atlas.model.GeoEntity
    * @ignore
@@ -47,7 +49,7 @@ define([
    * @extends atlas.events.EventTarget
    * @class atlas.model.GeoEntity
    */
-  GeoEntity = Setter.mixin(EventTarget.extend(/** @lends atlas.model.GeoEntity# */ {
+  GeoEntity = EventTarget.extend(/** @lends atlas.model.GeoEntity# */ {
     /**
      * The ID of the GeoEntity
      * @type {String}
@@ -143,14 +145,14 @@ define([
 
     /**
      * The style of the GeoEntity when rendered.
-     * @type {atlas.model.Style}
+     * @type {atlas.material.Style}
      * @protected
      */
     _style: null,
 
     /**
      * The style of the GeoEntity before it was selected.
-     * @type {atlas.model.Style}
+     * @type {atlas.material.Style}
      * @protected
      */
     _preSelectStyle: null,
@@ -189,7 +191,13 @@ define([
      */
     _parent: null,
 
-    _init: function(id, args) {
+    /**
+     * Whether the GeoEntity is fully set up. Rendering will be delayed until it is set up.
+     * @type {Boolean}
+     */
+    _isSetUp: false,
+
+    _init: function(id, data, args) {
       if (typeof id === 'object') {
         args = id;
         id = args.id;
@@ -197,7 +205,6 @@ define([
         args = args || {};
       }
       id = id.toString();
-
       if (!id || typeof id === 'object') {
         throw new DeveloperError('Can not create instance of GeoEntity without an ID');
       }
@@ -206,17 +213,25 @@ define([
       this._eventManager = args.eventManager;
       this._entityManager = args.entityManager;
       this._entityManager && this._entityManager.add(this.getId(), this);
-
       var parentId = args.parent;
       var parent;
       if (parentId) {
         parent = this._entityManager && this._entityManager.getById(parentId);
       }
-      // Call the superclass' (EventTarget) constructor.
       this._super(args.eventManager, parent);
       this.clean();
+      data = data || {};
+      this._setup(id, data, args);
+      this._isSetUp = true;
+    },
 
-      this.setStyle(args.style || GeoEntity.getDefaultStyle());
+    /**
+     * Sets up all properties on the GeoEntity on construction but before rendering.
+     * @param {String} id
+     * @param {Object} data - The data for construction.
+     * @param {Object} args - Additional data for construction.
+     */
+    _setup: function(id, data, args) {
       this._handles = new ItemStore();
       this._eventHandles = [];
       // TODO(aramk) This doesn't actually show - should call setVisibility(), but that means all
@@ -225,6 +240,45 @@ define([
       // (e.g. vertices) are set and _build() can safely be called from here.
       this._visible = Setter.def(args.show, false);
       this.setDirty('entity');
+
+      var style;
+      var styleArgs = data.style;
+      if (styleArgs instanceof Style) {
+        style = styleArgs;
+      } else {
+        // Map of valid argument property names to internal Style property names.
+        var styleMap = {
+          color: 'fillMaterial', fillColor: 'fillMaterial', borderColor: 'borderMaterial',
+          fillMaterial: 'fillMaterial', borderMaterial: 'borderMaterial'};
+        if (!styleArgs) {
+          styleArgs = data;
+        }
+        var finalStyleArgs = {};
+        // Parse each style property as a material and create a style from it.
+        Object.keys(styleMap).forEach(function(key) {
+          var value = styleArgs[key];
+          var styleProp = styleMap[key];
+          if (value) {
+            if (!(value instanceof Material)) {
+              value = this._parseMaterial(value);
+            }
+            finalStyleArgs[styleProp] = value;
+          }
+        }, this);
+        style = new Style(finalStyleArgs);
+        var borderWidth = styleArgs.borderWidth;
+        if (borderWidth !== undefined) {
+          style.setBorderWidth(borderWidth);
+        }
+      }
+      if (!style) {
+        style = Style.getDefault();
+      }
+      this.setStyle(style);
+
+      this.setElevation(data.elevation || 0);
+      this._scale = new Vertex(data.scale || {x: 1, y: 1, z: 1});
+      this._rotation = new Vertex(data.rotation || {x: 0, y: 0, z: 0});
     },
 
     // TODO(aramk) Use better dependency injection.
@@ -253,13 +307,14 @@ define([
     },
 
     /**
-     * @returns {atlas.model.GeoPoint} The centre-point of this GeoEntity.
+     * @returns {atlas.model.GeoPoint | null} The centre-point of this GeoEntity, or null if no
+     * centroid exists.
      */
     getCentroid: function() {
       if (!this._centroid) {
         this._centroid = this._calcCentroid();
       }
-      return this._centroid.clone();
+      return this._centroid ? this._centroid.clone() : null;
     },
 
     /**
@@ -274,7 +329,8 @@ define([
 
     _calcCentroid: function() {
       var wkt = WKT.getInstance();
-      return wkt.geoPointFromOpenLayersPoint(this.getOpenLayersGeometry().getCentroid());
+      var centroid = this.getOpenLayersGeometry().getCentroid();
+      return centroid ? wkt.geoPointFromOpenLayersPoint(centroid) : null;
     },
 
     /**
@@ -318,9 +374,10 @@ define([
      * @param {Number} elevation - The elevation of the base of the GeoEntity.
      */
     setElevation: function(elevation) {
-      if (typeof elevation === 'number' && this._elevation !== elevation) {
+      if (this._elevation !== elevation) {
         this._elevation = elevation;
         this.setDirty('model');
+        this._update();
       }
     },
 
@@ -455,8 +512,8 @@ define([
 
     /**
      * Sets the Style for the GeoEntity.
-     * @param {atlas.model.Style} style - The new style to use.
-     * @returns {atlas.model.Style} The old style, or null if it was not changed.
+     * @param {atlas.material.Style} style - The new style to use.
+     * @returns {atlas.material.Style} The old style, or null if it was not changed.
      */
     setStyle: function(style) {
       var previousStyle = this.getStyle();
@@ -470,7 +527,7 @@ define([
     },
 
     /**
-     * @returns {atlas.model.Style}
+     * @returns {atlas.material.Style}
      */
     getStyle: function() {
       return this._style;
@@ -510,9 +567,9 @@ define([
     /**
      * Modifies specific components of the GeoEntity's style.
      * @param {Object} newStyle - The new values for the Style components.
-     * @param {atlas.model.Colour} [newStyle.fillColour] - The new fill colour.
-     * @param {atlas.model.Colour} [newStyle.borderColour] - The new border colour.
-     * @param {Number} [newStyle.borderWidth] - The new border width colour.
+     * @param {atlas.material.Color} [newStyle.fillMaterial] - The new fill material.
+     * @param {atlas.material.Color} [newStyle.borderMaterial] - The new border material.
+     * @param {Number} [newStyle.borderWidth] - The new border width material.
      * @returns {Object} A mapping of parameters that have been changed to their old value.
      */
     // TODO(aramk) This is quite complicated - perhaps rely only on setStyle.
@@ -524,17 +581,16 @@ define([
       this.setDirty('style');
       var oldStyle = {};
       // Work out what's changing
-      newStyle.fillColour && (oldStyle.fillColour = this._style.getFillColour());
-      newStyle.borderColour && (oldStyle.borderColour = this._style.getBorderColour());
+      newStyle.fillMaterial && (oldStyle.fillMaterial = this._style.getFillMaterial());
+      newStyle.borderMaterial && (oldStyle.borderMaterial = this._style.getBorderMaterial());
       newStyle.borderWidth && (oldStyle.borderWidth = this._style.getBorderWidth());
       // Generate new style based on what's changed.
-      newStyle = Setter.mixin({
-        fillColour: this._style.getFillColour(),
-        borderColour: this._style.getBorderColour(),
+      newStyle = new Style(Setter.mixin({
+        fillMaterial: this._style.getFillMaterial(),
+        borderMaterial: this._style.getBorderMaterial(),
         borderWidth: this._style.getBorderWidth()
-      }, newStyle);
-      this._style = new Style(newStyle);
-      return oldStyle;
+      }, newStyle));
+      return this.setStyle(newStyle);
     },
 
     /**
@@ -574,9 +630,6 @@ define([
      * @returns {atlas.model.Vertex}
      */
     getScale: function() {
-      if (!this._scale) {
-        this._scale = new Vertex(1, 1, 1);
-      }
       return this._scale;
     },
 
@@ -609,9 +662,6 @@ define([
      * @returns {atlas.model.Vertex}
      */
     getRotation: function() {
-      if (!this._rotation) {
-        this._rotation = new Vertex(0, 0, 0);
-      }
       return this._rotation;
     },
 
@@ -636,17 +686,29 @@ define([
     /**
      * Removes the GeoEntity from rendering. This function should be overridden on subclasses to
      * accomplish any cleanup that may be required.
+     *
+     * @fires InternalEvent#entity/remove
      */
     remove: function() {
       this._super();
       // TODO(aramk) Distinguish between this and destroying the entity, which should remove all
       // contained objects.
       this.hide();
+      // Ensure any selected entities are deselected so any event handlers listening are notified.
+      this.setSelected(false);
       this._cancelEventHandles();
       // TODO(aramk) We should try to keep consistent with these - either all entities have
       // references to managers or none do - otherwise we could have discrepancies in the entity
       // manager like a removed entity still being referenced.
       this._entityManager && this._entityManager.remove(this._id);
+
+      /**
+       * Removal of an entity.
+       *
+       * @event InternalEvent#entity/remove
+       * @type {atlas.events.Event}
+       * @property {String} args.id - The ID of the removed entity.
+       */
       this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'entity/remove', {
         id: this.getId()
       }));
@@ -665,6 +727,7 @@ define([
      * @private
      */
     _update: function() {
+      if (!this._isSetUp) return;
       var isVisible = this.isVisible();
       if (isVisible && !this.isRenderable()) {
         this._build();
@@ -740,9 +803,19 @@ define([
 
     /**
      * Handles the behaviour when this entity is selected.
+     *
+     * @fires InternalEvent#entity/select
      */
     _onSelect: function() {
       this._setSelectStyle();
+
+      /**
+       * Selection of an entity.
+       *
+       * @event InternalEvent#entity/select
+       * @type {atlas.events.Event}
+       * @property {Array.<String>} args.ids - The IDs of the selected entities.
+       */
       this._eventManager.dispatchEvent(new Event(this, 'entity/select', {
         ids: [this.getId()]
       }));
@@ -750,9 +823,19 @@ define([
 
     /**
      * Handles the behaviour when this entity is selected.
+     *
+     * @fires InternalEvent#entity/deselect
      */
     _onDeselect: function() {
       this._revertSelectStyle();
+
+      /**
+       * Deselection of an entity.
+       *
+       * @event InternalEvent#entity/deselect
+       * @type {atlas.events.Event}
+       * @property {Array.<String>} args.ids - The IDs of the selected entities.
+       */
       this._eventManager.dispatchEvent(new Event(this, 'entity/deselect', {
         ids: [this.getId()]
       }));
@@ -760,7 +843,7 @@ define([
 
     _setSelectStyle: function() {
       this._preSelectStyle = this.getStyle();
-      this.setStyle(GeoEntity.getSelectedStyle());
+      this.setStyle(Style.getDefaultSelected());
     },
 
     _revertSelectStyle: function() {
@@ -782,28 +865,38 @@ define([
       this._eventHandles.forEach(function(handle) {
         handle.cancel();
       });
-    }
-
-  }), {
-
-    // -------------------------------------------------
-    // STATICS
-    // -------------------------------------------------
-
-    /**
-     * The default style of the entity.
-     * @returns {atlas.model.Style}
-     */
-    getDefaultStyle: function() {
-      return new Style({fillColour: Colour.GREEN, borderColour: Colour.BLACK});
     },
 
+    // -------------------------------------------
+    // CONSTRUCTION
+    // -------------------------------------------
+
     /**
-     * The style of the entity during selection.
-     * @returns {atlas.model.Style}
+     * @param {Object} args
+     * @return {atlas.material.Material}
      */
-    getSelectedStyle: function() {
-      return new Style({fillColour: Colour.RED, borderColour: Colour.BLACK});
+    _parseMaterial: function(args) {
+      if (args instanceof Material) {
+        return args;
+      } else if (Types.isString(args)) {
+        return new Color(args);
+      } else if (Types.isArrayLiteral(args)) {
+        // Color arrays are assumed to be in the range [0, 255] as per C3ML.
+        return Color.fromRGBA(args);
+      }
+      // TODO(aramk) Use injector so we don't have to include all the classes and can use the name
+      // as a look up (convention over configuration).
+      var type = args.type;
+      var typeMap = {
+        Color: Color,
+        CheckPattern: CheckPattern
+      };
+      var MaterialClass = typeMap[type];
+      if (MaterialClass) {
+        return new MaterialClass(args);
+      } else {
+        throw new Error('Unable to parse material');
+      }
     }
 
   });

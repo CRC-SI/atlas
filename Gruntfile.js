@@ -11,8 +11,9 @@ module.exports = function(grunt) {
   var SRC_DIR = 'src';
   var LIB_DIR = 'lib';
   var DIST_DIR = 'dist';
-  var DOCS_DIR = 'docs';
+  var JSDOCS_DIR = 'jsdocs';
   var BUILD_DIR = 'build';
+  var README_FILE = 'README.md';
   var RESOURCES_DIR = 'resources';
   var RESOURCES_BUILD_PATH = distPath(RESOURCES_DIR);
   var RE_AMD_MODULE = /\b(?:define|require)\s*\(/;
@@ -72,7 +73,7 @@ module.exports = function(grunt) {
         options: {
           stdout: true
         },
-        command: path.join('node_modules', '.bin', 'jsdoc') + ' -c jsdoc.conf.json -l'
+        command: path.join('node_modules', '.bin', 'jsdoc') + ' -c jsdoc.conf.json -l ' + README_FILE
       },
 
       // Compile JS source files.
@@ -158,7 +159,7 @@ module.exports = function(grunt) {
         files: [
           {
             expand: true,
-            cwd: DOCS_DIR,
+            cwd: JSDOCS_DIR,
             src: [
               path.join('**', '*')
             ]
@@ -191,14 +192,21 @@ module.exports = function(grunt) {
     karma: {
       options: {
         configFile: 'test/karma.conf.js',
-        runnerPort: 9876,
+        runnerPort: 9876
       },
       unit: {
-        browsers: ['Chrome', 'Firefox']
+        browsers: ['Firefox']
       },
       continuous: {
         singleRun: true,
         browsers: ['PhantomJS']
+      },
+      debug: {
+        singleRun: false,
+        // Click DEBUG on Karma page and open Dev Tools. Refresh to re-run.
+        browsers: ['Chrome'],
+        // Ensures source files are readable.
+        preprocessors: []
       }
     },
 
@@ -213,8 +221,8 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('compile-imports', 'Builds a RequireJS script to import all source files '
-      + 'which are AMD modules.', function() {
+  grunt.registerTask('compile-imports', 'Builds a RequireJS script to import all source files ' +
+      'which are AMD modules.', function() {
     console.log('Compiling modules for importing...');
     var findResults = findAmdModules(SRC_DIR),
         modules = findResults.modules,

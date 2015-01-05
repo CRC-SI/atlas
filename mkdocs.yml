@@ -1,0 +1,15 @@
+site_name: Atlas Documentation
+repo_url: https://github.com/urbanetic/atlas
+
+site_description: Documentation for the Atlas 3D geospatial rendering library.
+site_author: Oliver Lade
+site_favicon: img/favicon.png
+
+pages:
+- ['index.md', 'Introduction']
+- ['getting_started.md', 'Getting Started']
+- ['features.md', 'Features']
+- ['design.md', 'Design']
+- ['developers.md', 'Developers']
+#- ['implementing.md', 'Implementing']
+- ['license.md', 'License']

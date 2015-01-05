@@ -21,7 +21,7 @@ define([
    * @extends atlas.render.BaseEditModule
    * @class atlas.edit.DrawModule
    */
-  DrawModule = BaseEditModule.extend({
+  DrawModule = BaseEditModule.extend(/** @lends atlas.edit.DrawModule# */ {
 
     /**
      * The handles added during the current draw process. Used to store their sequence.
@@ -131,6 +131,7 @@ define([
      * added).
      * @param {Function} [args.create] - A callback invoked when drawing is complete.
      * @param {Function} [args.cancel] - A callback invoked when drawing is cancelled.
+     * @param {Function} [args.init] - A callback invoked when drawing is started.
      * @param {atlas.model.Feature.DisplayMode} [displayMode] - The display mode to use when drawing
      * the entity. {@link atlas.model.Feature.DisplayMode.FOOTPRINT} by default.
      * @private
@@ -149,11 +150,15 @@ define([
       this._setup();
       this._managers.edit.enableModule('translation');
       this._isDrawing = true;
+      init = args.init;
+      if (init) {
+        init({feature: this._feature});
+      }
     },
 
     /**
      * Executes the given handlers with the drawn object.
-     * @param handlers
+     * @param {Array.<Function>} handlers
      * @param  {atlas.model.Feature} [feature]
      * @private
      */
@@ -161,7 +166,9 @@ define([
       feature = feature || this._feature;
       handlers.forEach(function(handler) {
         handler.call(this, {
-          feature: feature
+          feature: feature,
+          form: this._getForm(),
+          line: this._getLine()
         });
       }, this);
     },
@@ -180,8 +187,8 @@ define([
       var target = handles.get(targetId);
       var now = Date.now();
       var translationModule = this._managers.edit.getModule('translation');
-      var form = this._getForm(),
-          line = this._getLine();
+      var form = this._getForm();
+      var line = this._getLine();
 
       if (this._lastClickTime) {
         var timeDiff = now - this._lastClickTime;
@@ -223,9 +230,9 @@ define([
     },
 
     _doAdd: function(point) {
-      var handles = this._managers.edit.getHandles(),
-          form = this._getForm(),
-          line = this._getLine();
+      var handles = this._managers.edit.getHandles();
+      var form = this._getForm();
+      var line = this._getLine();
       form.addVertex(point);
       if (form.getVertices().length <= 2) {
         line.addVertex(point);
