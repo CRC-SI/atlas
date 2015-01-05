@@ -28,18 +28,23 @@ define([
 
     /**
      * @param {String} wktStr - The WKT string to convert
-     * @returns {Array.<Array.<atlas.model.Vertex>> | Array.<atlas.model.Vertex>} The converted
-     * polygon.
+     * @returns {Array.<Array.<atlas.model.Vertex>>} The converted vertices.
      */
     verticesFromWKT: function(wktStr) {
-      var geometry = this.openLayersGeometryFromWKT(wktStr);
-      return geometry ? this.verticesFromOpenLayersGeometry(geometry) : null;
+      var points = wktStr.match(/([+-]?[\d\.]+\s*)+/g).map(function(match){
+        return match.split(/\s+/).map(function(component){
+          return parseFloat(component);
+        });
+      });
+      var vertices = points.map(function(point){
+        return new Vertex(point[1], point[0], point[2]);
+      });
+      return [vertices];
     },
 
     /**
      * @param {String} wktStr - The WKT string to convert
-     * @returns {Array.<Array.<atlas.model.GeoPoint>> | Array.<atlas.model.GeoPoint>} The converted
-     * polygon.
+     * @returns {Array.<Array.<atlas.model.GeoPoint>>} The converted polygon.
      */
     geoPointsFromWKT: function(wktStr) {
       return this._verticesToGeoPoints(this.verticesFromWKT(wktStr));
