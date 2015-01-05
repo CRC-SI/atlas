@@ -1,11 +1,13 @@
 var tests = [];
-specsConfig = [
+var specsConfig = [
   {name: 'camera/Camera', run: true},
+  {name: 'core/Api', run: true},
   {name: 'core/ItemStore', run: true},
   {name: 'dom/PopupFaculty', run: true},
   {name: 'dom/Overlay', run: true},
   {name: 'edit/EditManager', run: true},
   {name: 'entity/EntityManager', run: true},
+  {name: 'lib/AtlasBuilder', run: true},
   {name: 'model/Collection', run: true},
   {name: 'model/Ellipse', run: true},
   {name: 'model/Feature', run: true},
@@ -15,6 +17,7 @@ specsConfig = [
   {name: 'model/Mesh', run: true},
   {name: 'model/Polygon', run: true},
   {name: 'model/Rectangle', run: true},
+  {name: 'render/RenderManager', run: true},
   {name: 'util/WKT', run: true},
   {name: 'visualisation/AbstractProjection', run: true},
   {name: 'visualisation/HeightProjection', run: true},
