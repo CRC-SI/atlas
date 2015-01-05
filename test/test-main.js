@@ -28,6 +28,7 @@ specsConfig.forEach(function(config) {
   }
 });
 
+/* global requirejs */
 requirejs.config({
   // Karma serves files from '/base'.
   baseUrl: '/base',
@@ -45,9 +46,14 @@ requirejs.config({
 
   // Start tests running once requirejs is done.
   callback: function() {
+    /* global require */
     require(['atlas/lib/utility/Log'], function(Log) {
+      /* global GlobalLog: true */
+      GlobalLog = Log;
+
       Log.setLevel('debug');
-      window.__karma__.start()
-    })
+      /* global window */
+      window.__karma__.start();
+    });
   }
 });
