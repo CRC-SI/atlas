@@ -18,20 +18,20 @@ define([
   var ab;
 
   var _checkFeature = function(id) {
-    if (this._features[id]) {
+    if (ab.features[id]) {
       throw new Error('Tried to create feature with already existing ID');
     }
-    if (!Types.isString(id) || !Types.isNumber(id)) {
-      throw new Error('Tried to create feature with already existing ID');
+    if (!Types.isString(id) && !Types.isNumber(id)) {
+      throw new Error('Tried to create feature with a non-alphanumeric ID ' + id);
     }
   };
 
   var _checkForm = function(form) {
-    var id = this._currentFeatureId;
+    var id = ab.currentFeatureId;
     if (id === null) {
       throw new Error('Tried to create ellipse without creating a Feature');
     }
-    if (this._features[id][form]) {
+    if (ab.features[id][form]) {
       throw new Error('Tried to override existing form ' + form + ' for feature ID ' + id + '.');
     }
   };
@@ -96,7 +96,7 @@ define([
     // Create Features
     Object.keys(ab.features).forEach(function(id) {
       var args = ab.features[id];
-      entityManager.createFeature(args);
+      entityManager.createFeature(id, args);
     });
 
     // Clear builder scope

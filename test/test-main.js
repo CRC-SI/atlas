@@ -54,6 +54,11 @@ requirejs.config({
       /* global GlobalLog: true */
       GlobalLog = Log;
 
+      /* global Inspect: true */
+      Inspect = function(o) {
+        GlobalLog.debug(JSON.stringify(o, null, 4));
+      };
+
       Log.setLevel('debug');
       /* global window */
       window.__karma__.start();
