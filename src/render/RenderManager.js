@@ -24,10 +24,16 @@ define([
     _id: 'render',
 
     /**
+     * Map of event names to the event handle objects.
+     * @type {Object.<String, Object>}
+     */
+    _events: null,
+
+    /**
      * Whether terrain is currently being shown.
      * @type {Boolean}
      */
-    _showTerrain: false,
+    _terrainEnabled: false,
 
     _init: function(managers) {
       this._super(managers);
@@ -38,13 +44,14 @@ define([
     },
 
     bindEvents: function() {
+      this._events = {};
       var handlers = {
         'extern': {
-          'terrain/show': this.setTerrainVisibility.bind(this, true),
-          'terrain/hide': this.setTerrainVisibility.bind(this, false)
+          'terrain/enable': this.setTerrain.bind(this, true),
+          'terrain/disable': this.setTerrain.bind(this, false)
         }
       };
-      this._managers.event.addNewEventHandlers(handlers);
+      this._events = this._managers.event.addNewEventHandlers(handlers);
     },
 
     /**
@@ -68,14 +75,29 @@ define([
     },
 
     /**
-     * Function to toggle rendering of the current terrain model
-     * @param {Boolen} show - Whether to show the terrain.
+     * Function to toggle rendering of the current terrain model. This a no-op if
+     * <code>enable</code> is the same as the current terrain rendering state.
      *
-     * @listens ExternalEvent#selection/enable
-     * @listens ExternalEvent#selection/disable
+     * @param {Boolen} enable - Whether to enable the terrain.
+     *
+     * @listens ExternalEvent#terrain/enable
+     * @listens ExternalEvent#terrain/disable
      */
-    setTerrainVisibility: function(show) {
-      this._showTerrain = show;
+    setTerrain: function(enable) {
+      if (enable != this.isTerrainEnabled()) {
+        var entityShow = 'entity/show';
+        this._terrainEnabled = enable;
+        this._handleTerrainChange(enable);
+
+        if (enable) {
+          var renderManager = this;
+          this._events[entityShow] = this._managers.event.addEventHandler('extern',
+              entityShow, renderManager._handleEntityShowEvent.bind(this));
+        } else {
+          this._events[entityShow].cancel();
+          this._events[entityShow] = null;
+        }
+      }
     },
 
     /**
@@ -83,7 +105,7 @@ define([
      * @param {Object} [terrainParams] An object containing the terrain parameters.
      * @abstract
      */
-    setTerrain: function(terrainParams) {
+    setTerrainModel: function(terrainParams) {
       throw new DeveloperError('Can not call functions on abstract RenderManager');
     },
 
@@ -104,7 +126,46 @@ define([
      */
     _isEntity: function(entity) {
       return entity instanceof GeoEntity;
-    }
+    },
+
+    /**
+     * @returns {Boolean} Whether terrain is currently being rendered.
+     */
+    isTerrainEnabled: function() {
+      return this._terrainEnabled;
+    },
+
+    _handleEntityShowEvent: function(args) {
+      var entity = this._managers.entity.getById(args.id);
+      if (entity) {
+        this._handleEntityShow(true, entity);
+      }
+    },
+
+    /**
+     * Called when either the <code>entity/show</code> or <code>entity/hide</code> event occurs.
+     *
+     * @param {atlas.model.GeoEntity} entity - The entity being shown.
+     * @param {Boolen} visible - Whether the entity should be visible.
+     *
+     * @listens ExternalEvent#entity/show
+     * @listens ExternalEvent#entity/hide
+     *
+     * @abstract
+     */
+    _handleEntityShow: function(entity, visible) {},
+
+    /**
+     * Called when either the <code>terrain/show</code> or terrain/hide event occurs.
+     *
+     * @param {Boolean} enabled - Whether terrain is now enabled.
+     *
+     * @listens ExternalEvent#terrain/enable
+     * @listens ExternalEvent#terrain/disable
+     *
+     * @abstract
+     */
+    _handleTerrainChange: function(enabled) {}
 
   });
 
