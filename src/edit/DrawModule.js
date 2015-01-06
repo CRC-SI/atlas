@@ -291,9 +291,9 @@ define([
       // unregister before calling the handlers in case another draw session is started from within.
       var feature = this._feature;
       var handlers = this._handlers.create;
+      this._executeHandlers(handlers, feature);
       this._removeHandles();
       this._reset();
-      this._executeHandlers(handlers, feature);
       return true;
     },
 
