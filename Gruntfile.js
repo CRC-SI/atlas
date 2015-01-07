@@ -200,6 +200,12 @@ module.exports = function(grunt) {
       continuous: {
         singleRun: true,
         browsers: ['PhantomJS']
+      },
+      debug: {
+        // Click DEBUG on Karma page and open Dev Tools. Refresh to re-run.
+        browsers: ['Chrome'],
+        // Ensures source files are readable.
+        preprocessors: []
       }
     },
 
