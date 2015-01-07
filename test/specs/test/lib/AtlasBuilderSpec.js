@@ -9,7 +9,7 @@ define([
   describe('An AtlasBuilder', function() {
     it('should have some things defined on it which can be then overridden', function() {
       expect(typeof AtlasBuilder).toEqual('function');
-      expect(typeof AtlasBuilder.makeFeature).toEqual('function');
+      expect(typeof AtlasBuilder.build).toEqual('function');
     });
 
     it('should be able to create different forms on features', function() {
@@ -96,6 +96,16 @@ define([
       expect(form instanceof Ellipse).toBe(true);
       form = feature.getForm('line');
       expect(form instanceof Line).toBe(true);
+    });
+
+    describe('should fail', function() {
+      it('when creating a form without a feature', function() {
+        var runner = function() {
+          AtlasBuilder().ellipse({}).build();
+        };
+        expect(runner).toThrow();
+      });
+
     });
 
   });
