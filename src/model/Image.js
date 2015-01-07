@@ -1,13 +1,13 @@
 define([
   'atlas/lib/utility/Setter',
-  'atlas/model/Colour',
-  'atlas/model/Style',
+  'atlas/material/Color',
+  'atlas/material/Style',
   'atlas/model/GeoPoint',
   'atlas/util/DeveloperError',
   'atlas/util/WKT',
   // Base class
   'atlas/model/VertexedEntity'
-], function(Setter, Colour, Style, GeoPoint, DeveloperError, WKT, VertexedEntity) {
+], function(Setter, Color, Style, GeoPoint, DeveloperError, WKT, VertexedEntity) {
 
   /**
    * @typedef atlas.model.Image
@@ -23,8 +23,8 @@ define([
    * @param {string|Array.<atlas.model.GeoPoint>} [imageData.vertices=[]] - The vertices of the Image.
    * @param {Number} [imageData.height=0] - The extruded height of the Image to form a prism.
    * @param {Number} [imageData.elevation] - The elevation of the base of the Image (or prism).
-   * @param {atlas.model.Colour} [imageData.color] - The fill colour of the Image (overridden/overrides Style)
-   * @param {atlas.model.Style} [imageData.style=defaultStyle] - The Style to apply to the Image.
+   * @param {atlas.material.Color} [imageData.color] - The fill color of the Image (overridden/overrides Style)
+   * @param {atlas.material.Style} [imageData.style=defaultStyle] - The Style to apply to the Image.
    * @param {Object} [args] - Option arguments describing the Image.
    * @param {atlas.model.GeoEntity} [args.parent=null] - The parent entity of the Image.
    * @returns {atlas.model.Image}
@@ -54,8 +54,8 @@ define([
      * Constructs a new Image
      * @ignore
      */
-    _init: function(id, imageData, args) {
-      args = Setter.mixin({}, args);
+    _setup: function(id, imageData, args) {
+      args = args || {};
       this._super(id, imageData, args);
       // Don't have closed images.
       if (this._vertices.first === this._vertices.last) {
@@ -63,19 +63,6 @@ define([
       }
       if (imageData.image) {
         this._image = imageData.image;
-      }
-      // TODO(aramk) Abstract this into VertexedEntity.
-      this._elevation = parseFloat(imageData.elevation) || this._elevation;
-      this._zIndex = parseFloat(imageData.zIndex) || this._zIndex;
-      this._zIndexOffset = parseFloat(imageData.zIndexOffset) || this._zIndexOffset;
-      if (imageData.color) {
-        if (imageData.color instanceof Colour) {
-          this._style = new Style({fillColour: imageData.color});
-        } else {
-          this._style = new Style({fillColour: Colour.fromRGBA(imageData.color)});
-        }
-      } else {
-        this._style = imageData.style || Style.getDefault();
       }
     },
 

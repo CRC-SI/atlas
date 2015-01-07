@@ -200,7 +200,7 @@ define([
      * @example
      * <code>
      * constructRenderManager(theEventManager) {
-     *    theEventManager.addEventHandler('extern', 'entity/show', show.bind(this));
+     *     theEventManager.addEventHandler('extern', 'entity/show', show.bind(this));
      * };
      * </code>
      * @returns {.<String, atlas.events.EventManager.EventHandler>} An EventHandler for the event

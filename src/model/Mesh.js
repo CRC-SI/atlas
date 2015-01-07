@@ -1,12 +1,12 @@
 define([
   'atlas/lib/utility/Setter',
-  'atlas/model/Colour',
+  'atlas/material/Color',
   'atlas/model/GeoPoint',
-  'atlas/model/Style',
+  'atlas/material/Style',
   'atlas/model/Vertex',
   // Base class
   'atlas/model/GeoEntity'
-], function(Setter, Colour, GeoPoint, Style, Vertex, GeoEntity) {
+], function(Setter, Color, GeoPoint, Style, Vertex, GeoEntity) {
 
   /**
    * @typedef atlas.model.Mesh
@@ -22,25 +22,25 @@ define([
    *       will be used.
    *
    * @param {String} id - The ID of the Mesh object.
-   * @param {Object} meshData - The data required to define what is actually rendered.
-   * @param {GeoPoint} [meshData.geoLocation] - The geographic location the Mesh should be
+   * @param {Object} data - The data required to define what is actually rendered.
+   * @param {GeoPoint} [data.geoLocation] - The geographic location the Mesh should be
    *     rendered at.
-   * @param {Number} [meshData.uniformScale] - A uniform scale applied to the Mesh.
-   * @param {Vertex} [meshData.scale] - A non-uniform scale applied to the Mesh.
-   * @param {Vertex} [meshData.rotation] - A rotation applied to the Mesh.
-   * @param {atlas.model.Colour} [meshData.color] - A uniform color to apply to the Mesh.
-   * @param {String} [meshData.gltfUrl] - URL of GLTF data to construct the Mesh.
-   * @param {Object} [meshData.gltf] - JSON GLTF object to construct the Mesh.
-   * @param {Array.<Number>} [meshData.positions] - [C3ML] The array of vertex positions for the
+   * @param {Number} [data.uniformScale] - A uniform scale applied to the Mesh.
+   * @param {Vertex} [data.scale] - A non-uniform scale applied to the Mesh.
+   * @param {Vertex} [data.rotation] - A rotation applied to the Mesh.
+   * @param {atlas.material.Color} [data.color] - A uniform color to apply to the Mesh.
+   * @param {String} [data.gltfUrl] - URL of GLTF data to construct the Mesh.
+   * @param {Object} [data.gltf] - JSON GLTF object to construct the Mesh.
+   * @param {Array.<Number>} [data.positions] - [C3ML] The array of vertex positions for the
    *     Mesh. This should be a 1D array where every three elements describe a new vertex.
    *     Not used if either <code>gltf</code> or <code>gltfUrl</code> are provided.
-   * @param {Array.<Number>} [meshData.indices] - [C3ML] The array of triangle indices for the Mesh.
+   * @param {Array.<Number>} [data.indices] - [C3ML] The array of triangle indices for the Mesh.
    *     This should be a 1D array where every three elements are groubed together and describe a
    *     triangle forming the mesh. The value of each element is the index of a vertex in the
    *     positions array.
    *     Not used if either <code>gltf</code> or <code>gltfUrl</code> are provided.
-   * @param {Array.<Number>} [meshData.normals] - [C3ML] An array of normal vectors for each vertex
-   *     defined in <code>meshData.positions</code>.
+   * @param {Array.<Number>} [data.normals] - [C3ML] An array of normal vectors for each vertex
+   *     defined in <code>data.positions</code>.
    *     Not used if either <code>gltf</code> or <code>gltfUrl</code> are provided.
    * @param {Object} args - Both optional and required construction parameters.
    * @param {String} args.id - The ID of the GeoEntity. (Optional if both <code>id</code> and
@@ -90,25 +90,11 @@ define([
     _geoLocation: null,
 
     /**
-     * The scale of the mesh, along the X, Y, and Z axis.
-     * @type {atlas.model.Vertex}
-     * @protected
-     */
-    _scale: null,
-
-    /**
      * A uniform scale to apply to the Mesh. Explicitly for Meshes defined by GLTF.
      * @type {Number}
      * @protected
      */
     _uniformScale: null,
-
-    /**
-     * The rotation of the Mesh.
-     * @type {atlas.model.Vertex}
-     * @protected
-     */
-    _rotation: null,
 
     /**
      * Defines a transformation from model space to world space. This is derived from
@@ -120,13 +106,13 @@ define([
     _modelMatrix: null,
 
     /**
-     * The uniform colour to apply to the Mesh if a texture is not defined.
+     * The uniform color to apply to the Mesh if a texture is not defined.
      * TODO(bpstudds): Work out the textures.
-     * @type {atlas.model.Colour}
+     * @type {atlas.material.Color}
      * @protected
      * @deprecated
      */
-    _uniformColour: null,
+    _uniformColor: null,
 
     /**
      * True iff the Mesh is defined using GLTF input.
@@ -135,57 +121,51 @@ define([
      */
     _isGltf: false,
 
-    _init: function(id, meshData, args) {
-      this._super(id, args);
+    _setup: function(id, data, args) {
+      // Setting elevation in GeoEntity needs geoLocation.
+      var geoLocation = data.geoLocation;
+      if (!geoLocation) {
+        throw new Error('No geolocation provided for Mesh.');
+      }
+      this._geoLocation = new GeoPoint(geoLocation);
+      this._super(id, data, args);
 
       // Set generic properties .
-      this._uniformScale = Setter.def(meshData.uniformScale, 1);
-      this._rotation = Setter.defCstr(meshData.rotation, Vertex);
-      this._scale = Setter.defCstr(meshData.scale, Vertex, [1, 1, 1]);
-      this._geoLocation = Setter.defCstr(meshData.geoLocation, GeoPoint);
+      this._uniformScale = Setter.def(data.uniformScale, 1);
 
       // Set GLTF properties
-      if (meshData.gltf) {
-        this._gltf = meshData.gltf;
+      if (data.gltf) {
+        this._gltf = data.gltf;
       }
 
-      if (meshData.gltfUrl) {
-        this._gltfUrl = meshData.gltfUrl;
+      if (data.gltfUrl) {
+        this._gltfUrl = data.gltfUrl;
       }
       this._isGltf = !!(this._gltf || this._gltfUrl);
 
       // Set C3ML properties only if GLTF is not defined.
       if (!this.isGltf()) {
-        if (meshData.positions && meshData.positions.length) {
-          this._positions = new Float64Array(meshData.positions.length);
-          meshData.positions.forEach(function(position, i) {
+        if (data.positions && data.positions.length) {
+          this._positions = new Float64Array(data.positions.length);
+          data.positions.forEach(function(position, i) {
             this._positions[i] = position;
           }, this);
         }
 
-        if (meshData.triangles && meshData.triangles.length) {
-          this._indices = new Uint16Array(meshData.triangles.length);
-          meshData.triangles.forEach(function(triangle, i) {
+        if (data.triangles && data.triangles.length) {
+          this._indices = new Uint16Array(data.triangles.length);
+          data.triangles.forEach(function(triangle, i) {
             this._indices[i] = triangle;
           }, this);
         }
 
         // TODO(aramk) Normals not currently used.
-        if (meshData.normals && meshData.normals.length) {
-          this._normals = new Float64Array(meshData.normals.length);
-          meshData.normals.forEach(function(normal, i) {
+        if (data.normals && data.normals.length) {
+          this._normals = new Float64Array(data.normals.length);
+          data.normals.forEach(function(normal, i) {
             this._normals[i] = normal;
           }, this);
         }
-      }
-
-      // Set the Mesh's style based on the hierarchy: a Mesh specific style,
-      // inherit the parent Feature's style, or use the Mesh default style.
-      if (meshData.color) {
-        // TODO(bpstudds): Work out the textures.
-        this.setStyle(new Style({fillColour: Colour.fromRGBA(meshData.color)}));
-      } else {
-        this.setStyle(args.style || Mesh.getDefaultStyle());
       }
     },
 

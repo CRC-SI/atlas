@@ -158,7 +158,7 @@ define([
 
     /**
      * Executes the given handlers with the drawn object.
-     * @param handlers
+     * @param {Array.<Function>} handlers
      * @param  {atlas.model.Feature} [feature]
      * @private
      */
@@ -166,7 +166,9 @@ define([
       feature = feature || this._feature;
       handlers.forEach(function(handler) {
         handler.call(this, {
-          feature: feature
+          feature: feature,
+          form: this._getForm(),
+          line: this._getLine()
         });
       }, this);
     },
@@ -185,8 +187,8 @@ define([
       var target = handles.get(targetId);
       var now = Date.now();
       var translationModule = this._managers.edit.getModule('translation');
-      var form = this._getForm(),
-          line = this._getLine();
+      var form = this._getForm();
+      var line = this._getLine();
 
       if (this._lastClickTime) {
         var timeDiff = now - this._lastClickTime;
@@ -228,9 +230,9 @@ define([
     },
 
     _doAdd: function(point) {
-      var handles = this._managers.edit.getHandles(),
-          form = this._getForm(),
-          line = this._getLine();
+      var handles = this._managers.edit.getHandles();
+      var form = this._getForm();
+      var line = this._getLine();
       form.addVertex(point);
       if (form.getVertices().length <= 2) {
         line.addVertex(point);
@@ -289,9 +291,9 @@ define([
       // unregister before calling the handlers in case another draw session is started from within.
       var feature = this._feature;
       var handlers = this._handlers.create;
+      this._executeHandlers(handlers, feature);
       this._removeHandles();
       this._reset();
-      this._executeHandlers(handlers, feature);
       return true;
     },
 

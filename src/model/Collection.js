@@ -38,7 +38,7 @@ define([
     _entities: null,
 
     /**
-     * @param id
+     * @param {String} id
      * @param {Object} data
      * @param {Array.<String>} data.entities - A set of {@link GeoEntity} IDs.
      * @param {Object} args
@@ -46,8 +46,8 @@ define([
      * collection.
      * @private
      */
-    _init: function(id, data, args) {
-      this._super(id, args);
+    _setup: function(id, data, args) {
+      this._super(id, data, args);
       this._entities = new ItemStore();
       var entityIds = data.entities || [];
       entityIds.forEach(this.addEntity, this);

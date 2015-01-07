@@ -195,11 +195,18 @@ module.exports = function(grunt) {
         runnerPort: 9876
       },
       unit: {
-        browsers: ['Chrome', 'Firefox']
+        browsers: ['Firefox']
       },
       continuous: {
         singleRun: true,
         browsers: ['PhantomJS']
+      },
+      debug: {
+        singleRun: false,
+        // Click DEBUG on Karma page and open Dev Tools. Refresh to re-run.
+        browsers: ['Chrome'],
+        // Ensures source files are readable.
+        preprocessors: []
       }
     },
 
@@ -214,8 +221,8 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('compile-imports', 'Builds a RequireJS script to import all source files '
-      + 'which are AMD modules.', function() {
+  grunt.registerTask('compile-imports', 'Builds a RequireJS script to import all source files ' +
+      'which are AMD modules.', function() {
     console.log('Compiling modules for importing...');
     var findResults = findAmdModules(SRC_DIR),
         modules = findResults.modules,
