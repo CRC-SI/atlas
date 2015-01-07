@@ -1,15 +1,24 @@
 define([
   'atlas/core/Atlas',
+  'atlas/model/Ellipse',
+  'atlas/model/Line',
+  'atlas/model/Polygon',
   '../../../lib/AtlasBuilder.js'
-], function(Atlas, AtlasBuilder) {
+], function(Atlas, Ellipse, Line, Polygon, AtlasBuilder) {
 
   describe('An AtlasBuilder', function() {
-    it('should have some things defined on it.', function() {
+    it('should have some things defined on it which can be then overridden', function() {
       expect(typeof AtlasBuilder).toEqual('function');
       expect(typeof AtlasBuilder.makeFeature).toEqual('function');
-      expect(typeof AtlasBuilder.makeEllipse).toEqual('function');
-      expect(typeof AtlasBuilder.makePolygon).toEqual('function');
-      expect(typeof AtlasBuilder.build).toEqual('function');
+    });
+
+    it('should be able to create different forms on features', function() {
+      var ab = AtlasBuilder();
+
+      expect(typeof ab.feature).toEqual('function');
+      expect(typeof ab.ellipse).toEqual('function');
+      expect(typeof ab.line).toEqual('function');
+      expect(typeof ab.polygon).toEqual('function');
     });
 
     it('build() should be overridable', function() {
@@ -50,6 +59,43 @@ define([
         var feature = atlas.getManager('entity').getById('emptyFeature' + id);
         expect(feature).toBeDefined();
       });
+    });
+
+    it('should be able to make an Atlas with Features with forms', function() {
+      var ellipseCentroid = {x: 1, y: 1};
+      var ellipseRadius = 10;
+      var polygonVertices = [{x: 1, y: 1}, {x: 2, y: 1}, {x: 2, y: 2}, {x: 1, y: 2}];
+
+      var atlas = AtlasBuilder()
+        .feature('featureWithEllipse')
+          .ellipse({centroid: ellipseCentroid, semiMajor: ellipseRadius})
+        .feature('featureWithPolygon')
+          .polygon({vertices: polygonVertices})
+        .feature('featureWithEllipseAndPolygon')
+          .ellipse({centroid: ellipseCentroid, semiMajor: ellipseRadius})
+          .line({vertices: polygonVertices})
+        .build();
+
+      expect(atlas instanceof Atlas).toBe(true);
+      // Check featureWithEllipse
+      var feature = atlas.getManager('entity').getById('featureWithEllipse');
+      expect(feature).toBeDefined();
+      var form = feature.getForm();
+      expect(form instanceof Ellipse).toBe(true);
+
+      // Check featureWithPolygon
+      feature = atlas.getManager('entity').getById('featureWithPolygon');
+      expect(feature).toBeDefined();
+      form = feature.getForm();
+      expect(form instanceof Polygon).toBe(true);
+
+      // Check featureWithEllipseAndPolygon
+      feature = atlas.getManager('entity').getById('featureWithEllipseAndPolygon');
+      expect(feature).toBeDefined();
+      form = feature.getForm('extrusion');
+      expect(form instanceof Ellipse).toBe(true);
+      form = feature.getForm('line');
+      expect(form instanceof Line).toBe(true);
     });
 
   });

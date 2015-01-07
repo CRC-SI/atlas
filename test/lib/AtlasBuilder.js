@@ -1,10 +1,18 @@
 define([
+  'atlas/lib/utility/Strings',
   'atlas/lib/utility/Types',
   'atlas/core/Atlas',
   'atlas/model/Ellipse',
   'atlas/model/Feature',
+  'atlas/model/Line',
   'atlas/model/Polygon'
-], function(Types, Atlas, Ellipse, Feature, Polygon) {
+], function(Strings, Types, Atlas, Ellipse, Feature, Line, Polygon) {
+
+  var formConstructors = {
+    'ellipse': Ellipse,
+    'line': Line,
+    'polygon': Polygon
+  };
 
   /**
    * @typedef atlas.test.lib.AtlasBuilder
@@ -34,9 +42,12 @@ define([
    * @param {String} form - The form name.
    */
   var _validateForm = function(ab, form) {
+    if (!formConstructors[form]) {
+      throw new Error('Tried to create invalid form ' + form + '.');
+    }
     var id = ab.currentFeatureId;
-    if (id === null) {
-      throw new Error('Tried to create ellipse without creating a Feature');
+    if (!id || !ab.features[id]) {
+      throw new Error('Tried to create ' + form + ' without creating a Feature');
     }
     if (ab.features[id][form]) {
       throw new Error('Tried to override existing form ' + form + ' for feature ID ' + id + '.');
@@ -44,20 +55,12 @@ define([
   };
 
   /**
-   * Adds the Form builder function to the current builder scope.
+   * Adds the Form builder functions to the current builder scope that may be overridden.
    * @param {Object} scope - The scope of the current builder.
    */
   var _addFormBuildersToScope = function() {
-    Object.keys(AtlasBuilder).forEach(function(key) {
-      if (AtlasBuilder.hasOwnProperty(key)) {
-        var newKey = key;
-        if (key.match(/make*/)) {
-          newKey = newKey.substring(4);
-          newKey = newKey.toLowerCase();
-        }
-        _Builder.prototype[newKey] = AtlasBuilder[key];
-      }
-    });
+    _Builder.prototype.feature = AtlasBuilder.makeFeature;
+    _Builder.prototype.build = AtlasBuilder.build;
   };
 
   /**
@@ -70,7 +73,7 @@ define([
     /* jshint unused: false */
     this.dom = {};
     this.features = {};
-    this.currentFeatureId = {};
+    this.currentFeatureId = null;
   };
 
   /**
@@ -103,43 +106,20 @@ define([
     return this;
   };
 
-  /**
-   * Adds an Ellipse to the current Feature in the Builder scope.
-   *
-   * @param {Object.<x, y>} centroid - The centroid to assign to the Ellipse.
-   * @param {Number} semimajor - The semi major axis to assign to the Ellipse.
-   * @param {Number} [semiminor] - The semi minor axis to assign to the Ellipse.
-   *
-   * @returns {atlas.test.lib.AtlasBuilder}
-   */
-  AtlasBuilder.makeEllipse = function(centroid, semimajor, semiminor) {
-    _validateForm(this, 'ellipse');
-
+  _Builder.prototype._makeForm = function(name, components) {
+    _validateForm(this, name);
     var id = this.currentFeatureId;
-    this.features[id].ellipse = {
-      centroid: centroid,
-      semimajor: semimajor,
-      semiminor: semiminor
-    };
+    this.features[id][name] = components;
 
     return this;
   };
 
-  /**
-   * Adds a Polygon to the current Feature in the Builder scope.
-   *
-   * @param {Array.<Object.<x, y>>} vertices - Array of vertices to assign to the Polygon.
-   *
-   * @returns {atlas.test.lib.AtlasBuilder}
-   */
-  AtlasBuilder.makePolygon = function(vertices) {
-    _validateForm(this, 'polygon');
-    var id = this.currentFeatureId;
-    this.features[id].polygon = {
-      vertices: vertices
+  // Add make functions for the defined forms utilising _makeForm.
+  Object.keys(formConstructors).forEach(function(form) {
+    _Builder.prototype[form] = function(components) {
+      return this._makeForm(form, components);
     };
-    return this;
-  };
+  });
 
   /**
    * Finalises and builds the Atlas as defined by the current Builder scope.
@@ -147,6 +127,7 @@ define([
    */
   AtlasBuilder.build = function() {
     // TODO(bpstudds): Replace with the factory.
+
     // Create Atlas
     var features = this.features;
     var atlas = new Atlas();
@@ -154,6 +135,14 @@ define([
     // Create Features
     Object.keys(features).forEach(function(id) {
       var args = features[id];
+      args.show = false;
+      // Create forms on the Feature. Replace with Factory.
+      Object.keys(formConstructors).forEach(function(formName) {
+        if (args[formName]) {
+          args[formName].show = false;
+          args[formName] = new formConstructors[formName](id + formName, args[formName]);
+        }
+      });
       entityManager.createFeature(id, args);
     });
 
