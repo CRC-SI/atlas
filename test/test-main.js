@@ -56,7 +56,11 @@ requirejs.config({
 
       /* global Inspect: true */
       Inspect = function(o) {
-        GlobalLog.debug(JSON.stringify(o, null, 4));
+        if (typeof o !== 'string') {
+          // Strings don't get logged correctly if you "Stringify" them.
+          o = JSON.stringify(0, null, 4);
+        }
+        GlobalLog.debug(o);
       };
 
       Log.setLevel('debug');

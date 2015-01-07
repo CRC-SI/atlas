@@ -2,7 +2,6 @@ define([
   'atlas/core/Atlas',
   '../../../lib/AtlasBuilder.js'
 ], function(Atlas, AtlasBuilder) {
-  /* global Inspect */
 
   describe('An AtlasBuilder', function() {
     it('should have some things defined on it.', function() {
@@ -15,7 +14,6 @@ define([
 
     it('build() should be overridable', function() {
       var tempBuild = AtlasBuilder.build;
-
       AtlasBuilder.build = function() {
         return 'hello';
       };
@@ -25,23 +23,33 @@ define([
     });
 
     it('should be able to make an empty Atlas', function() {
-      Inspect(AtlasBuilder.toString());
       var atlas = AtlasBuilder().build();
       expect(atlas instanceof Atlas).toBe(true);
     });
 
-    it('should be able to make an Atlas with a Feature', function() {
+    it('should be able to make an Atlas with an empty Feature', function() {
       var atlas = AtlasBuilder()
         .feature('id1')
-          .ellipse({x: 1, y: 1}, 30)
         .build();
 
       var feature = atlas.getManager('entity').getById('id1');
       expect(atlas instanceof Atlas).toBe(true);
       expect(feature).toBeDefined();
-      expect(feature).toBeDefined();
-      // expect(feature.ellipse).toBeDefined();
-      // expect(feature.ellipse).toBeDefined();
+    });
+
+    it('should be able to make an Atlas with multiple empty Feature', function() {
+      var atlas = AtlasBuilder()
+        .feature('id1')
+        .feature('id2')
+        .feature('id3')
+        .feature('id4')
+        .build();
+
+      expect(atlas instanceof Atlas).toBe(true);
+      [1, 2, 3, 4].forEach(function(id) {
+        var feature = atlas.getManager('entity').getById('id' + id);
+        expect(feature).toBeDefined();
+      });
     });
 
   });

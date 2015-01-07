@@ -17,7 +17,12 @@ define([
    */
   var ab;
 
-  var _checkFeature = function(id) {
+  /**
+   * Checks that the given ID doesn't already exist and is a valid ID. Throws an error if the ID is
+   * invalid.
+   * @param {String} id - The Feature ID to validate.
+   */
+  var _validateFeatureId = function(id) {
     if (ab.features[id]) {
       throw new Error('Tried to create feature with already existing ID');
     }
@@ -26,7 +31,12 @@ define([
     }
   };
 
-  var _checkForm = function(form) {
+  /**
+   * Checks that the given form does not already exist, and that a Feature is currently being
+   * configured in the Builder scope. Throws an error if the form is invalid.
+   * @param {String} form - The form name.
+   */
+  var _validateForm = function(form) {
     var id = ab.currentFeatureId;
     if (id === null) {
       throw new Error('Tried to create ellipse without creating a Feature');
@@ -36,9 +46,13 @@ define([
     }
   };
 
-  var _addFormsToBuilder = function(scope) {
-    scope.ellipse = AtlasBuilder.makeEllipse.bind(ab);
-    scope.polygon = AtlasBuilder.makePolygon.bind(ab);
+  /**
+   * Adds the Form builder function to the current builder scope.
+   * @param {Object} scope - The scope of the current builder.
+   */
+  var _addFormBuildersToScope = function(scope) {
+    scope.ellipse = AtlasBuilder.makeEllipse.bind(scope);
+    scope.polygon = AtlasBuilder.makePolygon.bind(scope);
   };
 
   AtlasBuilder = function() {
@@ -48,25 +62,41 @@ define([
       currentFeatureId: null,
 
       // Build functions
-      feature: AtlasBuilder.makeFeature.bind(ab),
+      feature: AtlasBuilder.makeFeature.bind(this),
       // TODO(bpstudds): Any other random things that are required.
-      build: AtlasBuilder.build.bind(ab)
+      build: AtlasBuilder.build.bind(this)
     };
     return ab;
   };
 
+  /**
+   * Adds a new empty Feature to the current Builder scope.
+   *
+   * @param {String} id - The ID to assign to the Feature.
+   *
+   * @returns {atlas.test.lib.AtlasBuilder}
+   */
   AtlasBuilder.makeFeature = function(id) {
-    _checkFeature(id);
+    _validateFeatureId(id);
 
     ab.features[id] = {};
     ab.currentFeatureId = id;
 
-    _addFormsToBuilder(ab);
+    _addFormBuildersToScope(ab);
     return ab;
   };
 
+  /**
+   * Adds an Ellipse to the current Feature in the Builder scope.
+   *
+   * @param {Object.<x, y>} centroid - The centroid to assign to the Ellipse.
+   * @param {Number} semimajor - The semi major axis to assign to the Ellipse.
+   * @param {Number} [semiminor] - The semi minor axis to assign to the Ellipse.
+   *
+   * @returns {atlas.test.lib.AtlasBuilder}
+   */
   AtlasBuilder.makeEllipse = function(centroid, semimajor, semiminor) {
-    _checkForm('ellipse');
+    _validateForm('ellipse');
 
     var id = ab.currentFeatureId;
     ab.features[id].ellipse = {
@@ -77,8 +107,15 @@ define([
     return ab;
   };
 
+  /**
+   * Adds a Polygon to the current Feature in the Builder scope.
+   *
+   * @param {Array.<Object.<x, y>>} vertices - Array of vertices to assign to the Polygon.
+   *
+   * @returns {atlas.test.lib.AtlasBuilder}
+   */
   AtlasBuilder.makePolygon = function(vertices) {
-    _checkForm('polygon');
+    _validateForm('polygon');
     var id = ab.currentFeatureId;
     ab.features[id].polygon = {
       vertices: vertices
@@ -86,22 +123,22 @@ define([
     return ab;
   };
 
+  /**
+   * Finalises and builds the Atlas as defined by the current Builder scope.
+   * @returns {atlas.core.Atlas} The built Atlas.
+   */
   AtlasBuilder.build = function() {
+    // TODO(bpstudds): Replace with the factory.
     // Create Atlas
     var atlas = new Atlas();
     var entityManager = atlas.getManager('entity');
-
-    // TODO(bpstudds): Replace with the factory.
-
     // Create Features
     Object.keys(ab.features).forEach(function(id) {
       var args = ab.features[id];
       entityManager.createFeature(id, args);
     });
-
     // Clear builder scope
     ab = null;
-
     return atlas;
   };
 
