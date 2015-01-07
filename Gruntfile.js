@@ -204,6 +204,7 @@ module.exports = function(grunt) {
       debug: {
         // Click DEBUG on Karma page and open Dev Tools. Refresh to re-run.
         browsers: ['Chrome'],
+        singleRun: false,
         // Ensures source files are readable.
         preprocessors: []
       }
