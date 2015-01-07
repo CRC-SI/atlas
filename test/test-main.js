@@ -7,7 +7,8 @@ var specsConfig = [
   {name: 'dom/Overlay', run: true},
   {name: 'edit/EditManager', run: true},
   {name: 'entity/EntityManager', run: true},
-  {name: 'lib/AtlasBuilder', run: true},
+  {name: 'material/Color', run: true},
+  {name: 'material/Style', run: true},
   {name: 'model/Collection', run: true},
   {name: 'model/Ellipse', run: true},
   {name: 'model/Feature', run: true},
@@ -18,6 +19,7 @@ var specsConfig = [
   {name: 'model/Polygon', run: true},
   {name: 'model/Rectangle', run: true},
   {name: 'render/RenderManager', run: true},
+  {name: 'test/lib/AtlasBuilder', run: true},
   {name: 'util/WKT', run: true},
   {name: 'visualisation/AbstractProjection', run: true},
   {name: 'visualisation/HeightProjection', run: true},
@@ -58,7 +60,7 @@ requirejs.config({
       Inspect = function(o) {
         if (typeof o !== 'string') {
           // Strings don't get logged correctly if you "Stringify" them.
-          o = JSON.stringify(0, null, 4);
+          o = JSON.stringify(o, null, 4);
         }
         GlobalLog.debug(o);
       };
