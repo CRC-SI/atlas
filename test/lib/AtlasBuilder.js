@@ -21,62 +21,6 @@ define([
   var AtlasBuilder;
 
   /**
-   * Checks that the given ID doesn't already exist and is a valid ID. Throws an error if the ID is
-   * invalid.
-   * @param {Object} ab - The Builder scope to check in.
-   * @param {String} id - The Feature ID to validate.
-   */
-  var _validateFeatureId = function(ab, id) {
-    if (ab.features[id]) {
-      throw new Error('Tried to create feature with already existing ID');
-    }
-    if (!Types.isString(id) && !Types.isNumber(id)) {
-      throw new Error('Tried to create feature with a non-alphanumeric ID ' + id);
-    }
-  };
-
-  /**
-   * Checks that the given form does not already exist, and that a Feature is currently being
-   * configured in the Builder scope. Throws an error if the form is invalid.
-   * @param {Object} ab - The Builder scope to check in.
-   * @param {String} form - The form name.
-   */
-  var _validateForm = function(ab, form) {
-    if (!formConstructors[form]) {
-      throw new Error('Tried to create invalid form ' + form + '.');
-    }
-    var id = ab.currentFeatureId;
-    if (!id || !ab.features[id]) {
-      throw new Error('Tried to create ' + form + ' without creating a Feature');
-    }
-    if (ab.features[id][form]) {
-      throw new Error('Tried to override existing form ' + form + ' for feature ID ' + id + '.');
-    }
-  };
-
-  /**
-   * Adds the Form builder functions to the current builder scope that may be overridden.
-   * @param {Object} scope - The scope of the current builder.
-   */
-  var _addFormBuildersToScope = function() {
-    _Builder.prototype.feature = AtlasBuilder.makeFeature;
-    _Builder.prototype.build = AtlasBuilder.build;
-  };
-
-  /**
-   * Internal builder class. This is the object that is actually used as the builder.
-   * The use of an internal builder allows calling the builder without using "new", while
-   * maintaining a separate scope for each builder action.
-   * @ignore
-   */
-  var _Builder = function() {
-    /* jshint unused: false */
-    this.dom = {};
-    this.features = {};
-    this.currentFeatureId = null;
-  };
-
-  /**
    * A Builder for an Atlas instance.
    *
    * @class  atlas.test.lib.AtlasBuilder
@@ -91,35 +35,12 @@ define([
   };
 
   /**
-   * Adds a new empty Feature to the current Builder scope.
-   *
-   * @param {String} id - The ID to assign to the Feature.
-   *
-   * @returns {atlas.test.lib.AtlasBuilder}
+   * Adds the builder functions to the current builder scope that may be overridden.
+   * @param {Object} scope - The scope of the current builder.
    */
-  AtlasBuilder.makeFeature = function(id) {
-    _validateFeatureId(this, id);
-
-    this.features[id] = {};
-    this.currentFeatureId = id;
-
-    return this;
+  var _addFormBuildersToScope = function() {
+    _Builder.prototype.build = AtlasBuilder.build;
   };
-
-  _Builder.prototype._makeForm = function(name, components) {
-    _validateForm(this, name);
-    var id = this.currentFeatureId;
-    this.features[id][name] = components;
-
-    return this;
-  };
-
-  // Add make functions for the defined forms utilising _makeForm.
-  Object.keys(formConstructors).forEach(function(form) {
-    _Builder.prototype[form] = function(components) {
-      return this._makeForm(form, components);
-    };
-  });
 
   /**
    * Finalises and builds the Atlas as defined by the current Builder scope.
@@ -147,6 +68,82 @@ define([
     });
 
     return atlas;
+  };
+
+  /**
+   * Internal builder class. This is the object that is actually used as the builder.
+   * The use of an internal builder allows calling the builder without using "new", while
+   * maintaining a separate scope for each builder action.
+   * @ignore
+   */
+  var _Builder = function() {
+    /* jshint unused: false */
+    this.dom = {};
+    this.features = {};
+    this.currentFeatureId = null;
+  };
+
+  /**
+   * Adds a new empty Feature to the current Builder scope.
+   *
+   * @param {String} id - The ID to assign to the Feature.
+   *
+   * @returns {atlas.test.lib.AtlasBuilder}
+   */
+  _Builder.prototype.feature = function(id) {
+    this._validateFeatureId(id);
+
+    this.features[id] = {};
+    this.currentFeatureId = id;
+
+    return this;
+  };
+
+  _Builder.prototype._form = function(name, components) {
+    this._validateForm(name);
+    var id = this.currentFeatureId;
+    this.features[id][name] = components;
+
+    return this;
+  };
+
+  // Add make functions for the defined forms utilising _makeForm.
+  Object.keys(formConstructors).forEach(function(form) {
+    _Builder.prototype[form] = function(components) {
+      return this._form(form, components);
+    };
+  });
+
+  /**
+   * Checks that the given ID doesn't already exist and is a valid ID. Throws an error if the ID is
+   * invalid.
+   * @param {String} id - The Feature ID to validate.
+   */
+  _Builder.prototype._validateFeatureId = function(id) {
+    if (this.features[id]) {
+      throw new Error('Tried to create feature with already existing ID');
+    }
+    if (!Types.isString(id) && !Types.isNumber(id)) {
+      throw new Error('Tried to create feature with a non-alphanumeric ID ' + id);
+    }
+  };
+
+  /**
+   * Checks that the given form does not already exist, and that a Feature is currently being
+   * configured in the Builder scope. Throws an error if the form is invalid.
+   * @param {String} form - The form name.
+   */
+  _Builder.prototype._validateForm = function(form) {
+    if (!formConstructors[form]) {
+      throw new Error('Tried to create invalid form ' + form + '.');
+    }
+    var id = this.currentFeatureId;
+    if (!id || !this.features[id]) {
+      throw new Error('Tried to create ' + form + ' without creating a Feature');
+    }
+    if (this.features[id][form]) {
+      throw new Error('Tried to override existing form ' + form + ' for feature ID ' + id + '.');
+    }
   };
 
   // An example of how it would be used.
