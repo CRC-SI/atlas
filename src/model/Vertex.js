@@ -4,7 +4,7 @@ define([
   'atlas/lib/utility/Class',
   'atlas/util/DeveloperError'
 ], function(Setter, Types, Class, DeveloperError) {
-  
+
   /**
    * @typedef atlas.model.Vertex
    * @ignore
@@ -99,7 +99,8 @@ define([
     },
 
     /**
-     * @returns {atlas.model.Vertex} This vertex with each component converted to its absolute value.
+     * @returns {atlas.model.Vertex} This vertex with each component converted to its absolute
+     *     value.
      */
     absolute: function() {
       return new Vertex(Math.abs(this.x), Math.abs(this.y), Math.abs(this.z))
@@ -149,8 +150,8 @@ define([
       args = Setter.mixin({
         dimension: 3
       }, args);
-      var dimension = args.dimension,
-          round = args.round;
+      var dimension = args.dimension;
+      var round = args.round;
       if (dimension !== undefined && (dimension < 2 || dimension > 3)) {
         throw new DeveloperError('Invalid dimensions');
       }

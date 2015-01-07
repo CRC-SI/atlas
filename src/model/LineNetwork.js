@@ -17,7 +17,7 @@ define([
    * set of nodes and line data. The nodes are a set of {@link atlas.model.GeoPoint geographic
    * points}. The line data describes an individual line in the network. It consists of an array of
    * node indices which describe the geographic shape, and parameters which affect how the line is
-   * rendered (colour, texture, width, ...).
+   * rendered (color, texture, width, ...).
    * @class atlas.model.LineNetwork
    * @extends atlas.model.GeoEntity
    */
@@ -64,7 +64,7 @@ define([
      */
     _nextLineId: 100000,
 
-    _init: function(id, networkData, args) {
+    _setup: function(id, networkData, args) {
       this._super(id, args);
       this._lineData = new ItemStore();
       this._lines = new ItemStore();
@@ -272,7 +272,7 @@ define([
      * @private
      */
     _rebuildLine: function(lineId, modified) {
-      // TODO(bpstudds): Support changing colour, width, etc.
+      // TODO(bpstudds): Support changing color, width, etc.
       var lineObj = this._lines.get(lineId),
           lineData = this._lineData.get(lineId);
       if (modified === 'vertices' || modified === 'entity') {

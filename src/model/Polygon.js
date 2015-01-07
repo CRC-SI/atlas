@@ -1,11 +1,11 @@
 define([
   'atlas/lib/utility/Setter',
-  'atlas/model/Colour',
-  'atlas/model/Style',
+  'atlas/material/Color',
+  'atlas/material/Style',
   'atlas/util/DeveloperError',
   // Base class
   'atlas/model/VertexedEntity'
-], function(Setter, Colour, Style, DeveloperError, VertexedEntity) {
+], function(Setter, Color, Style, DeveloperError, VertexedEntity) {
 
   /**
    * @typedef atlas.model.Polygon
@@ -17,17 +17,17 @@ define([
    * @classdesc Represents a 2D polygon.
    *
    * @param {Number} id - The ID of this Polygon.
-   * @param {Object} polygonData - Data describing the Polygon.
-   * @param {String|Array.<atlas.model.GeoPoint>} [polygonData.vertices=[]] - Either a WKT string or
-   *   an array of vertices describing the Polygon.
-   * @param {Number} [polygonData.height=0] - The extruded height of the Polygon to form a prism.
-   * @param {Number} [polygonData.elevation] - The elevation of the base of the Polygon (or prism).
-   * @param {atlas.model.Colour} [polygonData.color] - The fill colour of the Polygon. Overrides the
-   *   given style.
-   * @param {atlas.model.Colour} [polygonData.borderColor] - The border colour of the Polygon.
-   *   Overrides the given style.
-   * @param {atlas.model.Style} [polygonData.style=defaultStyle] - The Style to apply to the
-   *   Polygon.
+   * @param {Object} data - Data describing the Polygon.
+   * @param {String|Array.<atlas.model.GeoPoint>} [data.vertices=[]] - Either a WKT string or
+   *     an array of vertices describing the Polygon.
+   * @param {Number} [data.height=0] - The extruded height of the Polygon to form a prism.
+   * @param {Number} [data.elevation] - The elevation of the base of the Polygon (or prism).
+   * @param {atlas.material.Color} [data.color] - The fill color of the Polygon. Overrides the
+   *     given style.
+   * @param {atlas.material.Color} [data.borderColor] - The border color of the Polygon.
+   *     Overrides the given style.
+   * @param {atlas.material.Style} [data.style=Style.getDefault()] - The Style to apply to the
+   *     Polygon.
    * @param {Object} [args] - Option arguments describing the Polygon.
    * @param {atlas.model.GeoEntity} [args.parent=null] - The parent entity of the Polygon.
    * @returns {atlas.model.Polygon}
@@ -66,31 +66,20 @@ define([
      * Constructs a new Polygon
      * @ignore
      */
-    _init: function(id, polygonData, args) {
-      polygonData = Setter.mixin({}, polygonData);
-      args = Setter.mixin({}, args);
-      this._super(id, polygonData, args);
+    _setup: function(id, data, args) {
+      this._super(id, data, args);
       // Don't have closed polygons.
       var len = this._vertices.length;
       if (this._vertices[0] === this._vertices[len - 1] && len > 1) {
         this._vertices.pop();
       }
-      if (polygonData.holes) {
-        this._holes = polygonData.holes;
+      if (data.holes) {
+        this._holes = this._getSanitizedVertices(data.holes);
       }
-      this._height = parseFloat(polygonData.height) || this._height;
-      var style = polygonData.style || Style.getDefault();
-      var color = polygonData.color;
-      var borderColor = polygonData.borderColor;
-      if (color) {
-        color = color instanceof Colour ? color : new Colour(color);
-        style.setFillColour(color);
+      var height = data.height;
+      if (height) {
+        this.setHeight(height);
       }
-      if (borderColor) {
-        borderColor = borderColor instanceof Colour ? borderColor : new Colour(borderColor);
-        style.setBorderColour(borderColor);
-      }
-      this.setStyle(style);
     },
 
     // -------------------------------------------

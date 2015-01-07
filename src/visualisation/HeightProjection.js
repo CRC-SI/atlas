@@ -1,10 +1,12 @@
 define([
   'atlas/lib/utility/Log',
+  'atlas/lib/utility/Setter',
   'atlas/model/Feature',
   // Base class
   'atlas/visualisation/AbstractProjection',
+  'atlas/util/AtlasMath',
   'atlas/util/DeveloperError'
-], function(Log, Feature, AbstractProjection, DeveloperError) {
+], function(Log, Setter, Feature, AbstractProjection, AtlasMath, DeveloperError) {
 
   /**
    * @classdesc The HeightProjection represents a projection of Entity parameter values onto
@@ -81,7 +83,6 @@ define([
       this._setModifiedElevation(entity, oldElevation + oldHeight, newElevation + newHeight);
       entity.setElevation(newElevation);
       entity.setHeight(newHeight);
-      entity.isVisible() && entity.show();
     },
 
     /**
@@ -93,9 +94,9 @@ define([
      * @private
      */
     _getModifiedElevation: function(oldElevation, centroid, parent) {
-      var newElevations,
-          result = oldElevation,
-          parent = parent || null;
+      var newElevations;
+      var result = oldElevation;
+      var parent = parent || null;
       var modifiedElevations = this._modifiedElevations[parent];
       newElevations = modifiedElevations ? modifiedElevations[oldElevation] : null;
       if (newElevations) {
@@ -107,8 +108,8 @@ define([
           // Find the sibling which was below this entity by finding the closest centroid to the
           // given centroid.
           var centroidVertex = centroid.toVertex();
-          var minId = 0,
-              minValue = centroidVertex.distanceSquared(newElevations[minId].centroid.toVertex());
+          var minId = 0;
+          var minValue = centroidVertex.distanceSquared(newElevations[minId].centroid.toVertex());
           for (var i = 1; i < newElevations.length; i++) {
             var temp = centroidVertex.distanceSquared(newElevations[i].centroid.toVertex());
             if (temp < minValue) {
@@ -151,12 +152,11 @@ define([
      * @private
      */
     _unrender: function(entity, attributes) {
-      var id = entity.getId(),
-          oldValue = this._getEffect(id, 'oldValue');
+      var id = entity.getId();
+      var oldValue = this._getEffect(id, 'oldValue');
       if (oldValue) {
         entity.setElevation(oldValue.elevation);
         entity.setHeight(oldValue.height);
-        entity.isVisible() && entity.show();
       } else {
         Log.warn('Cannot unrender height and elevation - oldValue not defined', oldValue);
       }
@@ -170,11 +170,12 @@ define([
       }
       // TODO(bpstudds): Allow for more projection types then continuous and discrete?
       var regressionFactor = this._type === 'continuous' ?
-          attributes.absRatio : attributes.binId / attributes.numBins;
+          attributes.absRatio : (attributes.binId / attributes.numBins);
       if ('fixedProj' in codomain) {
         return codomain.fixedProj;
       } else if ('startProj' in codomain && 'endProj' in codomain) {
-        return codomain.startProj + regressionFactor * (codomain.endProj - codomain.startProj);
+        return AtlasMath.lerp(codomain.startProj, codomain.endProj,
+            Setter.range(regressionFactor, 0, 1));
       }
       throw new DeveloperError('Unsupported codomain supplied.');
     }

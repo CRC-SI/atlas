@@ -13,9 +13,10 @@ define([
   'atlas/model/Line',
   'atlas/model/Image',
   'atlas/model/GeoPoint',
+  'atlas/model/Vertex',
   'atlas/util/DeveloperError'
 ], function(Manager, ItemStore, Event, Log, Setter, Collection, Ellipse, Feature, GeoEntity, Mesh,
-            Polygon, Line, Image, GeoPoint, DeveloperError) {
+            Polygon, Line, Image, GeoPoint, Vertex, DeveloperError) {
 
   /**
    * @typedef atlas.entity.EntityManager
@@ -367,7 +368,8 @@ define([
         image: this._parseC3MLimage
       };
       // Generate the Geometry for the C3ML type if it is supported.
-      parsers[c3ml.type] && (geometry = parsers[c3ml.type].call(this, c3ml));
+      var parser = parsers[c3ml.type];
+      var geometry = parser && parser.call(this, c3ml);
       return Setter.mixin(c3ml, geometry);
     },
 
@@ -383,7 +385,7 @@ define([
     _parseC3MLimage: function(c3ml) {
       return {
         image: {
-          vertices: this._parseCoordinates(c3ml.coordinates),
+          vertices: c3ml.coordinates,
           image: c3ml.image
         }
       };
@@ -398,7 +400,7 @@ define([
     _parseC3MLline: function(c3ml) {
       return {
         line: {
-          vertices: this._parseCoordinates(c3ml.coordinates),
+          vertices: c3ml.coordinates,
           color: c3ml.color,
           height: c3ml.height,
           elevation: c3ml.altitude
@@ -417,8 +419,8 @@ define([
         polygon: {
           // TODO(aramk) We need to standardize which one we use - were using "vertices" internally
           // but "coordinates" in c3ml.
-          vertices: this._parseCoordinates(c3ml.coordinates),
-          holes: this._parseHoles(c3ml.holes),
+          vertices: c3ml.coordinates,
+          holes: c3ml.holes,
           color: c3ml.color,
           height: c3ml.height,
           elevation: c3ml.altitude
@@ -444,42 +446,6 @@ define([
           rotation: c3ml.rotation
         }
       };
-    },
-
-    /**
-     * @param {Array.<Array|Object>} coordinates
-     * @returns {Array.<atlas.model.GeoPoint>} The convert coordinates.
-     * @protected
-     */
-    _parseCoordinates: function(coordinates) {
-      var vertices = [];
-      for (var i = 0; i < coordinates.length; i++) {
-        vertices.push(this._parseCoordinate(coordinates[i]));
-      }
-      return vertices;
-    },
-
-    /**
-     * Converts a coordinate object to a {@link atlas.model.GeoPoint}.
-     * @param {Array|Object} coordinate - The coordinate to be converted. Can be anything
-     * supported by {@link atlas.model.GeoPoint}.
-     * @returns {atlas.model.GeoPoint}
-     * @protected
-     */
-    _parseCoordinate: function(coordinate) {
-      return new GeoPoint(coordinate);
-    },
-
-    /**
-     * @param {Array.<Array.<Array|Object>>} holes
-     * @returns {Array.<Array.<atlas.model.GeoPoint>>}
-     * @private
-     */
-    _parseHoles: function(holes) {
-      holes = holes || [];
-      return holes.map(function(holesArray) {
-        return this._parseCoordinates(holesArray);
-      }.bind(this));
     },
 
     /**

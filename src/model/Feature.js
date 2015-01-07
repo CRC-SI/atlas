@@ -29,11 +29,6 @@ define([
    * @param {String|Array.<atlas.model.GeoPoint>} [args.footprint=null] - Either a WKT string or
    *     array of Vertices describing the footprint polygon.
    * @param {atlas.model.Mesh} [args.mesh=null] - The Mesh object for the Feature.
-   * @param {Number} [args.height=0] - The extruded height when displaying as a extruded polygon.
-   * @param {Number} [args.elevation=0] - The elevation (from the terrain surface) to the base of
-   * the Mesh or Polygon.
-   * @param {Boolean} [args.show=false] - Whether the feature should be initially shown when
-   * created.
    * @param {String} [args.displayMode=Feature.DisplayMode.FOOTPRINT] - Initial display mode of
    * feature. Mesh trumps Footprint, which trumps Line if they are both defined in terms of which is
    * displayed by default.
@@ -75,20 +70,6 @@ define([
     _image: null,
 
     /**
-     * The extrusion height of the Feature.
-     * @type {Number}
-     * @protected
-     */
-    _height: null,
-
-    /**
-     * The elevation of the Feature.
-     * @type {Number}
-     * @protected
-     */
-    _elevation: null,
-
-    /**
      * The display mode of the Feature.
      * Mesh trumps Footprint, which trumps Line if they are both defined in terms of which is
      * displayed by default.
@@ -98,7 +79,14 @@ define([
     _displayMode: null,
 
     _init: function(id, args) {
-      this._super(id, args);
+      this._super(id, args, args);
+    },
+
+    _setup: function(id, data, args) {
+      // Delegation is necessary for calling setHeight().
+      this._initDelegation();
+      this._initEvents();
+      this._super(id, data, args);
       var displayMode = args.displayMode;
       var propertyToDisplayMode = {
         mesh: Feature.DisplayMode.MESH,
@@ -116,10 +104,8 @@ define([
         }
       }, this);
       this.setDisplayMode(displayMode);
-      this._height = parseFloat(args.height) || 0.0;
-      this._elevation = parseFloat(args.elevation) || 0.0;
-      this._initDelegation();
-      this._initEvents();
+      var height = data.height;
+      if (height !== undefined) this.setHeight(height);
     },
 
     // -------------------------------------------
@@ -135,7 +121,7 @@ define([
       var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
         'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles',
         'getCentroid', 'getArea', 'getVertices', 'getOpenLayersGeometry', 'translate',
-        'scale', 'rotate', 'setScale', 'setRotation', 'setElevation'];
+        'scale', 'rotate', 'setScale', 'setRotation', 'setElevation', 'setHeight', 'getHeight'];
       methods.forEach(function(method) {
         this[method] = function() {
           return this._delegateToForm(method, arguments);
@@ -143,15 +129,19 @@ define([
       }, this);
     },
 
-    _delegateToForm: function(method, args) {
+    _delegateToForm: function(methodName, args) {
       var form = this.getForm();
-      return form && form[method].apply(form, args);
+      if (form) {
+        var method = form[methodName];
+        return method && method.apply(form, args);
+      }
     },
 
-    _delegateToForms: function(method, args) {
+    _delegateToForms: function(methodName, args) {
       var forms = this.getForms();
       forms.forEach(function(form) {
-        form[method].apply(form, args);
+        var method = form[methodName];
+        return method && method.apply(form, args);
       });
     },
 
@@ -231,39 +221,10 @@ define([
     // TODO(aramk) A lot of these operations below should be calling _super() and being called on
     // each form (even those which are not visible)?
 
-    /**
-     * Sets the elevation of the base of the feature.
-     * @param {Number} elevation - The elevation of the feature.
-     */
     setElevation: function(elevation) {
-      var oldElevation = this._elevation;
-      this._elevation = elevation;
-      return this._delegateToForms('setElevation', arguments) || oldElevation;
-    },
-
-    /**
-     * @returns {number} The elevation of the base of the feature.
-     */
-    getElevation: function() {
-      return this._delegateToForm('getElevation') || this._elevation;
-    },
-
-    /**
-     * Sets the extruded height of the Feature to form a prism.
-     * @param {Number} height - The extruded height of the feature.
-     * @returns {Number} The previous height.
-     */
-    setHeight: function(height) {
-      var oldHeight = this._height;
-      this._height = height;
-      return this._delegateToForms('setHeight', arguments) || oldHeight;
-    },
-
-    /**
-     * @returns {number} The extruded height of the Feature to form a prism.
-     */
-    getHeight: function() {
-      return this._delegateToForm('getHeight') || this._height;
+      var result = this._super(elevation);
+      this._delegateToForms('setElevation', arguments);
+      return result;
     },
 
     setStyle: function(style) {
@@ -280,14 +241,6 @@ define([
     // MODIFIERS
     // -------------------------------------------
 
-    /**
-     * Modifies specific components of the Feature's style.
-     * @param {Object} args - The new values for the Style components.
-     * @param {atlas.model.Colour} [args.fillColour] - The new fill colour.
-     * @param {atlas.model.Colour} [args.borderColour] - The new border colour.
-     * @param {Number} [args.borderWidth] - The new border width colour.
-     * @returns {atlas.model.Style} - The old style.
-     */
     modifyStyle: function(args) {
       var oldStyle = this._super(args);
       return this._delegateToForm('modifyStyle', arguments) || oldStyle;
@@ -350,7 +303,6 @@ define([
      * Shows the Feature depending on its current <code>_displayMode</code>.
      */
     show: function() {
-      // TODO(aramk) delegate this to the setHeight setElevation.
       if (this._displayMode === Feature.DisplayMode.LINE) {
         this._mesh && this._mesh.hide();
         this._footprint && this._footprint.hide();

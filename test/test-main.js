@@ -23,7 +23,7 @@ var specsConfig = [
   {name: 'util/WKT', run: true},
   {name: 'visualisation/AbstractProjection', run: true},
   {name: 'visualisation/HeightProjection', run: true},
-  {name: 'visualisation/ColourProjection', run: true},
+  {name: 'visualisation/ColorProjection', run: true},
   {name: 'visualisation/DynamicProjection', run: true}
 ];
 
