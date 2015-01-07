@@ -7,22 +7,18 @@ define([
 ], function(Types, Atlas, Ellipse, Feature, Polygon) {
 
   /**
-   * @typedef atlas.test.AtlasBuilder
+   * @typedef atlas.test.lib.AtlasBuilder
    * @ignore
    */
   var AtlasBuilder;
 
   /**
-   * The scope of the builder.
-   */
-  var ab;
-
-  /**
    * Checks that the given ID doesn't already exist and is a valid ID. Throws an error if the ID is
    * invalid.
+   * @param {Object} ab - The Builder scope to check in.
    * @param {String} id - The Feature ID to validate.
    */
-  var _validateFeatureId = function(id) {
+  var _validateFeatureId = function(ab, id) {
     if (ab.features[id]) {
       throw new Error('Tried to create feature with already existing ID');
     }
@@ -34,9 +30,10 @@ define([
   /**
    * Checks that the given form does not already exist, and that a Feature is currently being
    * configured in the Builder scope. Throws an error if the form is invalid.
+   * @param {Object} ab - The Builder scope to check in.
    * @param {String} form - The form name.
    */
-  var _validateForm = function(form) {
+  var _validateForm = function(ab, form) {
     var id = ab.currentFeatureId;
     if (id === null) {
       throw new Error('Tried to create ellipse without creating a Feature');
@@ -50,22 +47,43 @@ define([
    * Adds the Form builder function to the current builder scope.
    * @param {Object} scope - The scope of the current builder.
    */
-  var _addFormBuildersToScope = function(scope) {
-    scope.ellipse = AtlasBuilder.makeEllipse.bind(scope);
-    scope.polygon = AtlasBuilder.makePolygon.bind(scope);
+  var _addFormBuildersToScope = function() {
+    Object.keys(AtlasBuilder).forEach(function(key) {
+      if (AtlasBuilder.hasOwnProperty(key)) {
+        var newKey = key;
+        if (key.match(/make*/)) {
+          newKey = newKey.substring(4);
+          newKey = newKey.toLowerCase();
+        }
+        _Builder.prototype[newKey] = AtlasBuilder[key];
+      }
+    });
   };
 
-  AtlasBuilder = function() {
-    ab = {
-      dom: {},
-      features: {},
-      currentFeatureId: null,
+  /**
+   * Internal builder class. This is the object that is actually used as the builder.
+   * The use of an internal builder allows calling the builder without using "new", while
+   * maintaining a separate scope for each builder action.
+   * @ignore
+   */
+  var _Builder = function() {
+    /* jshint unused: false */
+    this.dom = {};
+    this.features = {};
+    this.currentFeatureId = {};
+  };
 
-      // Build functions
-      feature: AtlasBuilder.makeFeature.bind(this),
-      // TODO(bpstudds): Any other random things that are required.
-      build: AtlasBuilder.build.bind(this)
-    };
+  /**
+   * A Builder for an Atlas instance.
+   *
+   * @class  atlas.test.lib.AtlasBuilder
+   */
+  AtlasBuilder = function() {
+    // This is done on "construction" to allow form constructors (and 'build') to be overridden
+    // by Atlas implementations. Note: this won't matter when the entity Factory is implemented
+    _addFormBuildersToScope();
+    var ab = new _Builder();
+
     return ab;
   };
 
@@ -77,13 +95,12 @@ define([
    * @returns {atlas.test.lib.AtlasBuilder}
    */
   AtlasBuilder.makeFeature = function(id) {
-    _validateFeatureId(id);
+    _validateFeatureId(this, id);
 
-    ab.features[id] = {};
-    ab.currentFeatureId = id;
+    this.features[id] = {};
+    this.currentFeatureId = id;
 
-    _addFormBuildersToScope(ab);
-    return ab;
+    return this;
   };
 
   /**
@@ -96,15 +113,16 @@ define([
    * @returns {atlas.test.lib.AtlasBuilder}
    */
   AtlasBuilder.makeEllipse = function(centroid, semimajor, semiminor) {
-    _validateForm('ellipse');
+    _validateForm(this, 'ellipse');
 
-    var id = ab.currentFeatureId;
-    ab.features[id].ellipse = {
+    var id = this.currentFeatureId;
+    this.features[id].ellipse = {
       centroid: centroid,
       semimajor: semimajor,
       semiminor: semiminor
     };
-    return ab;
+
+    return this;
   };
 
   /**
@@ -115,12 +133,12 @@ define([
    * @returns {atlas.test.lib.AtlasBuilder}
    */
   AtlasBuilder.makePolygon = function(vertices) {
-    _validateForm('polygon');
-    var id = ab.currentFeatureId;
-    ab.features[id].polygon = {
+    _validateForm(this, 'polygon');
+    var id = this.currentFeatureId;
+    this.features[id].polygon = {
       vertices: vertices
     };
-    return ab;
+    return this;
   };
 
   /**
@@ -130,15 +148,15 @@ define([
   AtlasBuilder.build = function() {
     // TODO(bpstudds): Replace with the factory.
     // Create Atlas
+    var features = this.features;
     var atlas = new Atlas();
     var entityManager = atlas.getManager('entity');
     // Create Features
-    Object.keys(ab.features).forEach(function(id) {
-      var args = ab.features[id];
+    Object.keys(features).forEach(function(id) {
+      var args = features[id];
       entityManager.createFeature(id, args);
     });
-    // Clear builder scope
-    ab = null;
+
     return atlas;
   };
 

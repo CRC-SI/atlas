@@ -29,25 +29,25 @@ define([
 
     it('should be able to make an Atlas with an empty Feature', function() {
       var atlas = AtlasBuilder()
-        .feature('id1')
+        .feature('emptyFeature')
         .build();
 
-      var feature = atlas.getManager('entity').getById('id1');
+      var feature = atlas.getManager('entity').getById('emptyFeature');
       expect(atlas instanceof Atlas).toBe(true);
       expect(feature).toBeDefined();
     });
 
-    it('should be able to make an Atlas with multiple empty Feature', function() {
+    it('should be able to make an Atlas with multiple empty Features', function() {
       var atlas = AtlasBuilder()
-        .feature('id1')
-        .feature('id2')
-        .feature('id3')
-        .feature('id4')
+        .feature('emptyFeature1')
+        .feature('emptyFeature2')
+        .feature('emptyFeature3')
+        .feature('emptyFeature4')
         .build();
 
       expect(atlas instanceof Atlas).toBe(true);
       [1, 2, 3, 4].forEach(function(id) {
-        var feature = atlas.getManager('entity').getById('id' + id);
+        var feature = atlas.getManager('entity').getById('emptyFeature' + id);
         expect(feature).toBeDefined();
       });
     });
