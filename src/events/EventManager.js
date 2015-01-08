@@ -13,8 +13,8 @@ define([
    * @property {String} name - The name of the event being handled.
    * @property {Function} callback - Function to handle the event when it is published.
    * @property {Function} cancel - Function to cancel the event.
-   * @property {Function} isCancelled - Function that returns a Boolean of whether the event has been
-   *     cancelled with the <code>cancel</code> function.
+   * @property {Function} isCancelled - Function that returns a Boolean of whether the event has
+   *     been cancelled with the <code>cancel</code> function.
    */
 
   /**
@@ -83,8 +83,8 @@ define([
 
       // Propagate the event up the target hierarchy.
       while (event.getCurrentTarget()) {
-        var nextEvent,
-            parent;
+        var nextEvent;
+        var parent;
         if (event.isCancelled()) {
           break;
         }
@@ -117,7 +117,8 @@ define([
     /**
      * Registers a Host application with the EventManager.
      * @param {Function} callback - The event handler function in the registering Host application.
-     * @returns {Object} An EventListener object which can be used to deregister the Host from the event system.
+     * @returns {Object} An EventListener object which can be used to deregister the Host from the
+     *     event system.
      */
     registerHost: function(callback) {
       // Create the EventListener object.
@@ -213,7 +214,8 @@ define([
       } else if (source === 'intern') {
         allHandlers = this._internalEventHandlers;
       } else {
-        throw new DeveloperError('Must specify whether event handler is for "intern" or "extern" events.');
+        throw new DeveloperError('Must specify whether event handler is for "intern" or' +
+            '"extern" events.');
       }
       // Create new handler object
       var id = this._nextHandlerId++;
@@ -257,7 +259,8 @@ define([
       } else if (source === 'intern') {
         allHandlers = this._internalEventHandlers;
       } else {
-        throw new DeveloperError('Can not remove event without specifying "extern" or "intern" event');
+        throw new DeveloperError('Can not remove event without specifying "extern" ' +
+            'or "intern" event');
       }
       var handlers = allHandlers[name];
       if (handlers[id] === undefined) {
@@ -271,7 +274,8 @@ define([
      * Calls the registered event handlers for the given event.
      * @param {String} source - The source of the event, either 'extern' or 'intern'.
      * @param {String} name - The name of the event to handle.
-     * @param {Object} [args] - Optional event arguments that are passed to the event handler callback.
+     * @param {Object} [args] - Optional event arguments that are passed to the event
+     *     handler callback.
      */
     _handleEvent: function(source, name, args) {
       // Retrieve either intern or extern event handlers.
@@ -281,7 +285,8 @@ define([
       } else if (source === 'intern') {
         allHandlers = this._internalEventHandlers;
       } else {
-        throw new DeveloperError('Can not handle event without specifying "extern" or "intern" event');
+        throw new DeveloperError('Can not handle event without specifying "extern" or ' +
+            '"intern" event');
       }
       // Retrieve the list of event handlers for the given event type.
       var handlers = allHandlers[name];
@@ -295,7 +300,8 @@ define([
     /**
      * Convenience function to handle an internal event.
      * @param {String} name - The name of the event.
-     * @param {Object} args - Optional event arguments that are passed to the event handler callback.
+     * @param {Object} args - Optional event arguments that are passed to the event
+     *     handler callback.
      */
     handleInternalEvent: function(name, args) {
       this._handleEvent('intern', name, args);
@@ -304,7 +310,8 @@ define([
     /**
      * Convenience function to handle an external event.
      * @param {String} name - The name of the event.
-     * @param {Object} args - Optional event arguments that are passed to the event handler callback.
+     * @param {Object} args - Optional event arguments that are passed to the event handler
+     *     callback.
      */
     handleExternalEvent: function(name, args) {
       this._handleEvent('extern', name, args);
@@ -313,4 +320,3 @@ define([
 
   return EventManager;
 });
-

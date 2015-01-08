@@ -1,6 +1,7 @@
 var tests = [];
-specsConfig = [
+var specsConfig = [
   {name: 'camera/Camera', run: true},
+  {name: 'core/Api', run: true},
   {name: 'core/ItemStore', run: true},
   {name: 'dom/PopupFaculty', run: true},
   {name: 'dom/Overlay', run: true},
@@ -17,6 +18,8 @@ specsConfig = [
   {name: 'model/Mesh', run: true},
   {name: 'model/Polygon', run: true},
   {name: 'model/Rectangle', run: true},
+  {name: 'render/RenderManager', run: true},
+  {name: 'test/lib/AtlasBuilder', run: true},
   {name: 'util/WKT', run: true},
   {name: 'visualisation/AbstractProjection', run: true},
   {name: 'visualisation/HeightProjection', run: true},
@@ -30,6 +33,7 @@ specsConfig.forEach(function(config) {
   }
 });
 
+/* global requirejs */
 requirejs.config({
   // Karma serves files from '/base'.
   baseUrl: '/base',
@@ -47,9 +51,29 @@ requirejs.config({
 
   // Start tests running once requirejs is done.
   callback: function() {
+    /* global require */
     require(['atlas/lib/utility/Log'], function(Log) {
+      /* global GlobalLog: true */
+      GlobalLog = Log;
+
+      /* global Inspect: true */
+      Inspect = function(o, msg) {
+        msg = msg || '';
+        // Strings don't get logged correctly if you "Stringify" them.
+        if (typeof o !== 'string') {
+          // Functions need to be 'toString'ed rather than 'stringify'ed.
+          if (typeof o === 'function') {
+            o = o.toString();
+          } else {
+            o = JSON.stringify(o, null, 4);
+          }
+        }
+        GlobalLog.debug(msg + ': ', o);
+      };
+
       Log.setLevel('debug');
-      window.__karma__.start()
-    })
+      /* global window */
+      window.__karma__.start();
+    });
   }
 });

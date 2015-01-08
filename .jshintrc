@@ -1,6 +1,8 @@
 {
   "predef": [
-    "define"
+    "define",
+    "xit",
+    "xdescribe"
   ],
   "latedef": true,
   "undef": true,
