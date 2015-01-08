@@ -7,7 +7,7 @@ define([
 
   /**
    * An object that declares a callback function listening for a particular event.
-   * @typedef {Object} atlas.events.EventManager.EventHandler
+   * @typedef {Object} atlas.events.EventManager.EventHandle
    *
    * @property {Number} id - The ID of the event handler.
    * @property {String} name - The name of the event being handled.
