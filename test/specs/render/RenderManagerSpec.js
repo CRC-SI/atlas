@@ -39,13 +39,13 @@ define([
       };
     });
 
-    it('should be able to be constructed', function() {
+    it('can be constructed', function() {
       expect(renderManager instanceof RenderManager).toBe(true);
       expect(managers.render).toEqual(renderManager);
     });
 
     describe('(Terrain)', function() {
-      it('should be able to delegate terrain changes to subclasses', function() {
+      it('should delegate terrain changes to subclasses', function() {
         spyOn(renderManager, '_handleTerrainChange');
         // Do this so it's always changed.
         renderManager.setTerrain(!renderManager.isTerrainEnabled());

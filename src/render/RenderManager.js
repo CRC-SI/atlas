@@ -144,9 +144,11 @@ define([
 
     /**
      * Called when either the <code>entity/show</code> or <code>entity/hide</code> event occurs.
+     * This function is intended to be overriden by Atlas implementations that need to handle
+     * entity visibility changes.
      *
      * @param {atlas.model.GeoEntity} entity - The entity being shown.
-     * @param {Boolen} visible - Whether the entity should be visible.
+     * @param {Boolean} visible - Whether the entity should be visible.
      *
      * @listens ExternalEvent#entity/show
      * @listens ExternalEvent#entity/hide
@@ -157,6 +159,8 @@ define([
 
     /**
      * Called when either the <code>terrain/show</code> or terrain/hide event occurs.
+     * This function is intended to be overriden by Atlas implementations that need to handle
+     * terrain state changes.
      *
      * @param {Boolean} enabled - Whether terrain is now enabled.
      *
