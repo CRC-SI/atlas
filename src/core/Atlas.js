@@ -123,6 +123,14 @@ define([
       }
     },
 
+    /**
+     * @param {String} id - The ID of the Manager to retrieve.
+     * @returns {atlas.core.Manager} The Manager object.
+     */
+    getManager: function(id) {
+      return this._managers[id];
+    },
+
     // -------------------------------------------
     // API
     // -------------------------------------------

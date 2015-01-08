@@ -41,3 +41,17 @@
  * @event ExternalEvent#selection/disable
  * @type {atlas.events.Event}
  */
+
+/**
+ * A command to enable terrain.
+ *
+ * @event ExternalEvent#terrain/enable
+ * @type {atlas.events.Event}
+ */
+
+/**
+ * A command to disable terrain.
+ *
+ * @event ExternalEvent#terrain/disable
+ * @type {atlas.events.Event}
+ */
