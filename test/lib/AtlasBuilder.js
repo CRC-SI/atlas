@@ -1,4 +1,5 @@
 define([
+  'atlas/lib/utility/Log',
   'atlas/lib/utility/Strings',
   'atlas/lib/utility/Types',
   'atlas/core/Atlas',
@@ -6,8 +7,9 @@ define([
   'atlas/model/Feature',
   'atlas/model/Line',
   'atlas/model/Polygon'
-], function(Strings, Types, Atlas, Ellipse, Feature, Line, Polygon) {
+], function(Log, Strings, Types, Atlas, Ellipse, Feature, Line, Polygon) {
 
+  // TODO(bpstudds): Replace with the factory.
   var formConstructors = {
     'ellipse': Ellipse,
     'line': Line,
@@ -21,7 +23,7 @@ define([
   var AtlasBuilder;
 
   /**
-   * A Builder for an Atlas instance.
+   * @classdesc A Builder for an Atlas instance.
    *
    * @class  atlas.test.lib.AtlasBuilder
    */
@@ -30,25 +32,24 @@ define([
     // by Atlas implementations. Note: this won't matter when the entity Factory is implemented
     _addFormBuildersToScope();
     var ab = new _Builder();
-
     return ab;
   };
 
   /**
    * Adds the builder functions to the current builder scope that may be overridden.
+   *
    * @param {Object} scope - The scope of the current builder.
    */
   var _addFormBuildersToScope = function() {
-    _Builder.prototype.build = AtlasBuilder.build;
+    _Builder.prototype._build = AtlasBuilder.build;
   };
 
   /**
    * Finalises and builds the Atlas as defined by the current Builder scope.
+   *
    * @returns {atlas.core.Atlas} The built Atlas.
    */
   AtlasBuilder.build = function() {
-    // TODO(bpstudds): Replace with the factory.
-
     // Create Atlas
     var features = this.features;
     var atlas = new Atlas();
@@ -71,10 +72,11 @@ define([
   };
 
   /**
-   * Internal builder class. This is the object that is actually used as the builder.
+   * @classdesc Internal builder class. This is the object that is actually used as the builder.
    * The use of an internal builder allows calling the builder without using "new", while
    * maintaining a separate scope for each builder action.
-   * @ignore
+   *
+   * @class  atlas.test.lib.AtlasBuilder#_Builder
    */
   var _Builder = function() {
     /* jshint unused: false */
@@ -82,7 +84,9 @@ define([
     /**
      * Properties to assign to the DOM Manager of the constructed Atlas.
      * [UNUSED]
+     *
      * @type {Object}
+     *
      * @private
      */
     this.dom = {};
@@ -90,14 +94,18 @@ define([
     /**
      * Contains a map of Feature IDs to Feature prototypes that will be created on
      * the constructed Atlas.
+     *
      * @type {Object.<String, Object>}
+     *
      * @private
      */
     this.features = {};
 
     /**
      * The ID of the Feature prototype currently be configured in the Builder scope.
+     *
      * @type {String}
+     *
      * @private
      */
     this.currentFeatureId = null;
@@ -134,9 +142,24 @@ define([
     };
   });
 
+  _Builder.prototype.build = function() {
+    var result = this._build();
+    if (this.logDisabled) {
+      Log.on();
+    }
+    return result;
+  },
+
+  _Builder.prototype.noLog = function() {
+    this.logDisabled = true;
+    Log.off();
+    return this;
+  },
+
   /**
    * Checks that the given ID doesn't already exist and is a valid ID. Throws an error if the ID is
    * invalid.
+   *
    * @param {String} id - The Feature ID to validate.
    */
   _Builder.prototype._validateFeatureId = function(id) {
@@ -151,6 +174,7 @@ define([
   /**
    * Checks that the given form does not already exist, and that a Feature is currently being
    * configured in the Builder scope. Throws an error if the form is invalid.
+   *
    * @param {String} form - The form name.
    */
   _Builder.prototype._validateForm = function(form) {

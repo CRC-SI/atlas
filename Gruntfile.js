@@ -195,7 +195,11 @@ module.exports = function(grunt) {
         runnerPort: 9876
       },
       unit: {
-        browsers: ['Firefox']
+        browsers: ['Firefox', 'Chrome', 'Safari']
+      },
+      local: {
+        browsers: ['Firefox'],
+        preprocessors: []
       },
       continuous: {
         singleRun: true,

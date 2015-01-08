@@ -8,13 +8,14 @@ define([
   'atlas/events/EventManager',
   'atlas/input/InputManager',
   'atlas/render/RenderManager',
+  'atlas/render/TerrainManager',
   'atlas/selection/SelectionManager',
   'atlas/visualisation/VisualisationManager',
   'atlas/util/DeveloperError',
   'atlas/lib/utility/Class'
 ], function(CameraManager, DomManager, PopupFaculty, PopupManager, EditManager, EntityManager,
-  EventManager, InputManager, RenderManager, SelectionManager, VisualisationManager, DeveloperError,
-  Class) {
+  EventManager, InputManager, RenderManager, TerrainManager, SelectionManager, VisualisationManager,
+  DeveloperError, Class) {
 
   /**
    * @typedef atlas.core.Atlas
@@ -71,7 +72,7 @@ define([
      */
     _initManagers: function() {
       [CameraManager, DomManager, EditManager, EntityManager, EventManager, InputManager,
-        PopupManager, RenderManager, SelectionManager, VisualisationManager
+        PopupManager, RenderManager, TerrainManager, SelectionManager, VisualisationManager
       ].forEach(this.setManagerClass, this);
     },
 
