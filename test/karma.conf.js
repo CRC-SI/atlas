@@ -28,7 +28,7 @@ module.exports = function(config) {
 
     // Pre-process for code coverage
     preprocessors: {
-      //'atlas/src/**/*.js': 'coverage'
+      'atlas/src/**/*.js': 'coverage'
     },
 
     coverageReporter: {

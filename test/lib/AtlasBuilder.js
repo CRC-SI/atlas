@@ -78,8 +78,28 @@ define([
    */
   var _Builder = function() {
     /* jshint unused: false */
+
+    /**
+     * Properties to assign to the DOM Manager of the constructed Atlas.
+     * [UNUSED]
+     * @type {Object}
+     * @private
+     */
     this.dom = {};
+
+    /**
+     * Contains a map of Feature IDs to Feature prototypes that will be created on
+     * the constructed Atlas.
+     * @type {Object.<String, Object>}
+     * @private
+     */
     this.features = {};
+
+    /**
+     * The ID of the Feature prototype currently be configured in the Builder scope.
+     * @type {String}
+     * @private
+     */
     this.currentFeatureId = null;
   };
 

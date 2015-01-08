@@ -100,7 +100,7 @@ define([
     _scale: null,
 
     /**
-     * The counter-clockwise rotation of the GeoEntity in degrees. By default all components are
+     * The clockwise rotation of the GeoEntity in degrees. By default all components are
      * 0.
      * @type {atlas.model.Vertex}
      * @protected
@@ -637,11 +637,11 @@ define([
      * Rotates the GeoEntity by the given vector.
      * @param {atlas.model.Vertex} rotation - The vector to rotate the GeoEntity by.
      * @param {Number} rotation.x - The rotation about the <code>x</code> axis in degrees, negative
-     *      rotates clockwise, positive rotates counterclockwise.
+     *      rotates counterclockwise, positive rotates clockwise.
      * @param {Number} rotation.y - The rotation about the <code>y</code> axis in degrees, negative
-     *        rotates clockwise, positive rotates counterclockwise.
+     *      rotates counterclockwise, positive rotates clockwise.
      * @param {Number} rotation.z - The rotation about the <code>z</code> axis in degrees, negative
-     *      rotates clockwise, positive rotates counterclockwise.
+     *      rotates counterclockwise, positive rotates clockwise.
      * @param {GeoPoint} [centroid] - The centroid to use for rotating. By default this is the
      * centroid of the GeoEntity obtained from {@link #getCentroid}.
      */
