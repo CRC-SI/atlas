@@ -1,6 +1,7 @@
 # JSDoc Templates
 
 ## General rules
+
 * Follow the following general format;
   ```
   /**
@@ -17,6 +18,7 @@
 * Use '@returns' (cf. `@return`).
 
 ## JSDoc tips and tricks
+
 * In tags that define the "type" of an entity, you can use the following to fully qualify
   the name
     - `foo#baz`: baz is an instance member of foo.
@@ -24,6 +26,7 @@
     - `foo~qux`: qux is an inner member of foo.
 
 ## Order of tags
+
 1. Un-tagged Description
 1. @namespace
 1. @classdesc
@@ -37,14 +40,15 @@
 1. @fires
 1. @returns
 1. @class
-2. @extends
+1. @extends
 1. @abstract
 1. @static _Possibly before @returns?_
 1. @ignore
-1. 
 
 ## Examples
+
 ### Class definition
+
 ```js
 /**
  * @classdesc Description of class
@@ -57,10 +61,12 @@
 ```
 
 ### Events
+
 Events should be defined where they are dispatched. In Atlas, the event could either be a command or
 an internal event of Atlas. For example, a command's description might be "A command to select one 
 or more entities.", and for notification "The left mouse button was pressed". Two namespaces, 
 `ExternalEvent` and `InternalEvent`, exist to collect commands and internal events respectively.
+
 ```js
 /**
  * Description of the event.
@@ -71,6 +77,7 @@ or more entities.", and for notification "The left mouse button was pressed". Tw
 ```
 
 ### Function that handles an event
+
 ```js
 /**
  * Description of function
@@ -82,6 +89,7 @@ or more entities.", and for notification "The left mouse button was pressed". Tw
 ```
 
 ### Function that causes (fires) an event
+
 ```js
 /**
  * Function description.
