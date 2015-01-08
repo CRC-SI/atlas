@@ -27,10 +27,6 @@ define([
    * @classdesc EventManager is responsible for bubbling internal events up through the
    * internal event hierarchy, as well as out to the host application.
    *
-   * @param {Object} managers - A map of manager types to actual manager objects.
-   *       The map is maintained on the main Atlas facade object, but the instances
-   *       are created by each manager object upon creation.
-   *
    * @class atlas.events.EventManager
    */
   EventManager = Manager.extend(/** @lends atlas.events.EventManager# */ {

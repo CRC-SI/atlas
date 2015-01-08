@@ -11,6 +11,10 @@ define([
   /**
    * @classdesc Manages a distinct area of functionality.
    *
+   * @param {Object} managers - A map of manager types to actual manager objects.
+   *       The map is maintained on the main Atlas facade object, but the instances
+   *       are created by each manager object upon creation.
+   *
    * @class atlas.core.Manager
    * @abstract
    */

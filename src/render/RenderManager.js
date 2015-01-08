@@ -18,6 +18,7 @@ define([
    *     - the set of entities being displayed in the scene
    *
    * @class atlas.render.RenderManager
+   * @extends atlas.core.Manager
    */
   RenderManager = Manager.extend(/** @lends atlas.render.RenderManager# */ {
 
