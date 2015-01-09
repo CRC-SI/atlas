@@ -68,7 +68,6 @@ define([
      * be active, they should not be stored in <code>_eventHandles</code>.
      */
     _unbindEvents: function() {
-      // TODO(bpstudds):
       Objects.keys(this._eventHandles, function(handle) {
         handle.cancel();
       });

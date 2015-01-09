@@ -58,15 +58,14 @@ define([
       if (enable === undefined) {
         throw new DeveloperError('Must specify enable value');
       }
-      if (enable != this.isTerrainEnabled()) {
+      if (enable !== this.isTerrainEnabled()) {
         var entityShow = 'entity/show';
         this._enabled = enable;
         this._handleEnabledChange(enable);
 
         if (enable) {
-          var renderManager = this;
           this._eventHandles[entityShow] = this._managers.event.addEventHandler('extern',
-              entityShow, renderManager._handleEntityShowEvent.bind(this));
+              entityShow, this._handleEntityShowEvent.bind(this));
         } else {
           this._eventHandles[entityShow].cancel();
           this._eventHandles[entityShow] = null;
@@ -80,7 +79,7 @@ define([
      * @abstract
      */
     setTerrainModel: function(terrainParams) {
-      throw new DeveloperError('Can not call functions on abstract RenderManager');
+      throw new DeveloperError('Can not call functions on abstract TerrainManager');
     },
 
     /**
