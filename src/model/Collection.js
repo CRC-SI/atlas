@@ -108,28 +108,33 @@ define([
     /**
      * Calls the given method on each {@link atlas.model.GeoEntity} in this collection, passing the
      * given arguments.
-     * @param {String} method
+     * @param {String} methodName
      * @param {Array} args
      * @private
      */
-    _forEntities: function(method, args) {
+    _forEntities: function(methodName, args) {
       return this._entities.forEach(function(item) {
-        item[method].apply(item, args);
+        var method = item[methodName];
+        method && method.apply(item, args);
       });
     },
 
     /**
      * Calls the given method on each {@link atlas.model.GeoEntity} in this collection. Passes the
      * returned value to the given callback.
-     * @param {String} method
+     * @param {String} methodName
      * @param {Array} args
      * @param {Function} callback
      * @returns {Boolean} Whether the given callback succeeds for all entities.
      * @private
      */
-    _everyEntity: function(method, args, callback) {
+    _everyEntity: function(methodName, args, callback) {
       return this._entities.every(function(item) {
-        var value = item[method].apply(item, args);
+        var value;
+        var method = item[methodName];
+        if (method) {
+          value = method.apply(item, args);
+        }
         return callback(value);
       });
     },
@@ -137,15 +142,19 @@ define([
     /**
      * Calls the given method on each {@link atlas.model.GeoEntity} in this collection. Passes the
      * returned value to the given callback.
-     * @param {String} method
+     * @param {String} methodName
      * @param {Array} args
      * @param {Function} callback
      * @returns {Boolean} Whether the given callback succeeds for some entities.
      * @private
      */
-    _someEntity: function(method, args, callback) {
+    _someEntity: function(methodName, args, callback) {
       return this._entities.some(function(item) {
-        var value = item[method].apply(item, args);
+        var value;
+        var method = item[methodName];
+        if (method) {
+          value = method.apply(item, args);
+        }
         return callback(value);
       });
     },
@@ -154,7 +163,8 @@ define([
       // TODO(aramk) getHandles should create a new ItemStore and add all.
 
       // Call on all entities.
-      var forMethods = ['createHandles', 'addHandles', 'clearHandles', 'setStyle', 'modifyStyle'];
+      var forMethods = ['createHandles', 'addHandles', 'clearHandles', 'setStyle', 'modifyStyle',
+          'setHeight'];
       forMethods.forEach(function(method) {
         this[method] = function() {
           return this._forEntities(method, arguments);
