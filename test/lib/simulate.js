@@ -2,11 +2,12 @@
  * Function to simulate events to test DOM stuff.
  * Taken from http://stackoverflow.com/a/6158050
  */
-define([], function () {
+define([], function() {
 
-  function simulate(element, eventName) {
+  var simulate = function(element, eventName) {
     var options = extend(defaultOptions, arguments[2] || {});
-    var oEvent, eventType = null;
+    var oEvent;
+    var eventType = null;
 
     for (var name in eventMatchers) {
       if (eventMatchers[name].test(eventName)) {
@@ -19,6 +20,7 @@ define([], function () {
       throw new SyntaxError('Only HTMLEvents and MouseEvents interfaces are supported');
     }
 
+    /* global document */
     if (document.createEvent) {
       oEvent = document.createEvent(eventType);
       if (eventType == 'HTMLEvents') {
@@ -38,17 +40,19 @@ define([], function () {
       element.fireEvent('on' + eventName, oEvent);
     }
     return element;
-  }
+  };
 
-  function extend(destination, source) {
+  var extend = function(destination, source) {
     for (var property in source) {
       destination[property] = source[property];
     }
     return destination;
-  }
+  };
 
   var eventMatchers = {
+    // jscs:disable maximumLineLength
     'HTMLEvents': /^(?:load|unload|abort|error|select|change|submit|reset|focus|blur|resize|scroll)$/,
+    // jscs:enable
     'MouseEvents': /^(?:click|dblclick|mouse(?:down|up|over|move|out))$/
   };
 
