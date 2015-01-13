@@ -95,7 +95,7 @@ define([
     _handleEntityShowEvent: function(args) {
       var entity = this._managers.entity.getById(args.id);
       if (entity) {
-        this._handleEntityShow(true, entity);
+        this._handleEntityShow(entity, true);
       }
     },
 
