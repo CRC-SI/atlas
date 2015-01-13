@@ -1,7 +1,8 @@
 define([
   'atlas/core/Manager',
-  'atlas/util/DeveloperError'
-], function(Manager, DeveloperError) {
+  'atlas/util/DeveloperError',
+  'atlas/lib/utility/Log'
+], function(Manager, DeveloperError, Log) {
 
   /**
    * @typedef atlas.render.TerrainManager
@@ -64,9 +65,11 @@ define([
         this._handleEnabledChange(enable);
 
         if (enable) {
+          Log.info('Enabling terrain');
           this._eventHandles[entityShow] = this._managers.event.addEventHandler('extern',
               entityShow, this._handleEntityShowEvent.bind(this));
         } else {
+          Log.info('Disabling terrain');
           this._eventHandles[entityShow].cancel();
           this._eventHandles[entityShow] = null;
         }
