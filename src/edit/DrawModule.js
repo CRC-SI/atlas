@@ -167,8 +167,11 @@ define([
       handlers.forEach(function(handler) {
         handler.call(this, {
           feature: feature,
-          form: this._getForm(),
-          line: this._getLine()
+          // Pass the given feature (if any) to allow returning the forms without without relying on
+          // this._feature (which might be null if these handlers are executed after drawing has
+          // stopped).
+          form: this._getForm(undefined, feature),
+          line: this._getLine(feature)
         });
       }, this);
     },
@@ -291,9 +294,9 @@ define([
       // unregister before calling the handlers in case another draw session is started from within.
       var feature = this._feature;
       var handlers = this._handlers.create;
-      this._executeHandlers(handlers, feature);
       this._removeHandles();
       this._reset();
+      this._executeHandlers(handlers, feature);
       return true;
     },
 
@@ -338,12 +341,13 @@ define([
       this._isDrawing = false;
     },
 
-    _getForm: function(displayMode) {
-      return this._feature.getForm(displayMode || this._displayMode);
+    _getForm: function(displayMode, feature) {
+      feature = feature || this._feature;
+      return feature.getForm(displayMode || this._displayMode, feature);
     },
 
-    _getLine: function() {
-      return this._getForm(Feature.DisplayMode.LINE);
+    _getLine: function(feature) {
+      return this._getForm(Feature.DisplayMode.LINE, feature);
     },
 
     /**
