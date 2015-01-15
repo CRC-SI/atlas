@@ -7,6 +7,7 @@ define([
 ], function(Atlas, Ellipse, Line, Polygon, AtlasBuilder) {
 
   describe('An AtlasBuilder', function() {
+
     it('should have some things defined on it which can be then overridden', function() {
       expect(typeof AtlasBuilder).toEqual('function');
       expect(typeof AtlasBuilder.build).toEqual('function');

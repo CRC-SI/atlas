@@ -22,8 +22,10 @@ define([
     _id: 'terrain',
 
     /**
-     * Whether the Terrain is enabled. (Not the Manager itself).
+     * Whether the Terrain is enabled. (not the Manager itself).
+     *
      * @type {Boolean}
+     *
      * @private
      */
     _enabled: false,
@@ -78,7 +80,9 @@ define([
 
     /**
      * Sets the parameters required to render a terrain model.
+     *
      * @param {Object} [terrainParams] An object containing the terrain parameters.
+     *
      * @abstract
      */
     setTerrainModel: function(terrainParams) {
@@ -92,6 +96,12 @@ define([
       return this._enabled;
     },
 
+    /**
+     * Handles the <code>entity/show</code> event, parses the event arguments and then delegates to
+     * <code>_handleEntityShow</code> defined in subclasses.
+     *
+     * @param {Object} args - The entity/show event arguments.
+     */
     _handleEntityShowEvent: function(args) {
       var entity = this._managers.entity.getById(args.id);
       if (entity) {
