@@ -48,6 +48,11 @@ define([
     // FUNCTIONS
     // -------------------------------------------
 
+    /**
+     * Calculates the average for the given array of Numbers.
+     * @param {Array.<Number>} a - The numbers to calculate the average of.
+     * @returns {Number} The average.
+     */
     average: function(a) {
       if (!Types.isArrayLiteral(a)) {
         throw new Error('Tried to calculate average on something not an array.');
