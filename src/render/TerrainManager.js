@@ -64,7 +64,7 @@ define([
       if (enable !== this.isTerrainEnabled()) {
         var entityShow = 'entity/show';
         this._enabled = enable;
-        this._handleEnabledChange(enable);
+        this._handleEnabledChange();
 
         if (enable) {
           Log.info('Enabling terrain');
@@ -127,16 +127,15 @@ define([
     /**
      * Called when either the <code>terrain/show</code> or terrain/hide event occurs.
      * This function is intended to be overriden by Atlas implementations that need to handle
-     * terrain state changes.
-     *
-     * @param {Boolean} enabled - Whether terrain is now enabled.
+     * terrain state changes. When this function is called, <code>TerrainManager#_enabled</code>
+     * is already updated to the new value.
      *
      * @listens ExternalEvent#terrain/enable
      * @listens ExternalEvent#terrain/disable
      *
      * @abstract
      */
-    _handleEnabledChange: function(enabled) {}
+    _handleEnabledChange: function() {}
 
   });
 
