@@ -15,8 +15,6 @@ define([
   describe('An Atlas RenderManager', function() {
 
     beforeEach(function() {
-      /* global GlobalLog */
-      GlobalLog.setLevel('error');
       managers = {};
       entityManager = new EntityManager(managers);
       eventManager = new EventManager(managers);
@@ -26,7 +24,6 @@ define([
       // Construct the RenderManager
       renderManager = new RenderManager(managers);
       renderManager.setup();
-      GlobalLog.setLevel('debug');
     });
 
     afterEach(function() {

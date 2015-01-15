@@ -22,6 +22,7 @@ var specsConfig = [
   {name: 'render/TerrainManager', run: true},
   {name: 'test/lib/AtlasBuilder', run: true},
   {name: 'util/WKT', run: true},
+  {name: 'util/AtlasMath', run: true},
   {name: 'visualisation/AbstractProjection', run: true},
   {name: 'visualisation/HeightProjection', run: true},
   {name: 'visualisation/ColorProjection', run: true},
@@ -71,8 +72,7 @@ requirejs.config({
         }
         GlobalLog.debug(msg + ': ', o);
       };
-
-      Log.setLevel('debug');
+      Log.setLevel('error');
       /* global window */
       window.__karma__.start();
     });
