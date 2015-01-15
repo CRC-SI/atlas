@@ -1,5 +1,6 @@
 define([
-], function() {
+  'atlas/lib/utility/Types'
+], function(Types) {
 
   /**
    * Defines a bunch of handy math functions. That are probably defined elsewhere.
@@ -46,6 +47,22 @@ define([
     // -------------------------------------------
     // FUNCTIONS
     // -------------------------------------------
+
+    /**
+     * Calculates the average for the given array of Numbers.
+     * @param {Array.<Number>} a - The numbers to calculate the average of.
+     * @returns {Number} The average.
+     */
+    average: function(a) {
+      if (!Types.isArrayLiteral(a)) {
+        throw new Error('Tried to calculate average on something not an array.');
+      }
+      var sum = a.reduce(function(acc, x) {
+        return acc + x;
+      }, 0);
+      var length = a.length;
+      return length === 0 ? 0 : sum / length;
+    },
 
     /**
      * Linearly interpolates between two values.

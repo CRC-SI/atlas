@@ -7,9 +7,15 @@ define([
 ], function(Atlas, Ellipse, Line, Polygon, AtlasBuilder) {
 
   describe('An AtlasBuilder', function() {
+
     it('should have some things defined on it which can be then overridden', function() {
       expect(typeof AtlasBuilder).toEqual('function');
       expect(typeof AtlasBuilder.build).toEqual('function');
+    });
+
+    it('should be able to make an empty Atlas', function() {
+      var atlas = AtlasBuilder().build();
+      expect(atlas instanceof Atlas).toBe(true);
     });
 
     it('should be able to create different forms on features', function() {
@@ -29,11 +35,6 @@ define([
       var out = AtlasBuilder().build();
       expect(out).toEqual('hello');
       AtlasBuilder.build = tempBuild;
-    });
-
-    it('should be able to make an empty Atlas', function() {
-      var atlas = AtlasBuilder().build();
-      expect(atlas instanceof Atlas).toBe(true);
     });
 
     it('should be able to make an Atlas with an empty Feature', function() {

@@ -8,13 +8,14 @@ define([
   'atlas/events/EventManager',
   'atlas/input/InputManager',
   'atlas/render/RenderManager',
+  'atlas/render/TerrainManager',
   'atlas/selection/SelectionManager',
   'atlas/visualisation/VisualisationManager',
   'atlas/util/DeveloperError',
   'atlas/lib/utility/Class'
 ], function(CameraManager, DomManager, PopupFaculty, PopupManager, EditManager, EntityManager,
-  EventManager, InputManager, RenderManager, SelectionManager, VisualisationManager, DeveloperError,
-  Class) {
+  EventManager, InputManager, RenderManager, TerrainManager, SelectionManager, VisualisationManager,
+  DeveloperError, Class) {
 
   /**
    * @typedef atlas.core.Atlas
@@ -45,7 +46,8 @@ define([
     /**
      * A mapping of every manager type in Atlas to the manager instance. This object is created on
      * Atlas, but the manager instances are set by each manager upon creation.
-     * @type {Object}
+     * @type {Object.<String, atlas.core.Manager>}
+     * @private
      */
     _managers: {},
 
@@ -70,7 +72,7 @@ define([
      */
     _initManagers: function() {
       [CameraManager, DomManager, EditManager, EntityManager, EventManager, InputManager,
-        PopupManager, RenderManager, SelectionManager, VisualisationManager
+        PopupManager, RenderManager, TerrainManager, SelectionManager, VisualisationManager
       ].forEach(this.setManagerClass, this);
     },
 
@@ -210,7 +212,6 @@ define([
    * The class used to represent the Atlas environment value.
    * @type {atlas.core.Atlas.Environment}
    * @memberOf atlas.core.Atlas
-   * @static
    */
   Atlas.Environment = Environment;
 
@@ -219,15 +220,13 @@ define([
    * @type {atlas.core.Atlas.Environment}
    * @memberOf atlas.core.Atlas
    * @private
-   * @static
    */
   Atlas._environment = Environment.DEVELOPMENT;
 
   /**
    * Returns the current Atlas environment.
-   * @type {atlas.core.Atlas.Environment}
+   * @returns {atlas.core.Atlas.Environment}
    * @memberOf atlas.core.Atlas
-   * @static
    */
   Atlas.getEnvironment = function() {
     return Atlas._environment;

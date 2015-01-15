@@ -16,9 +16,9 @@ define([
 
   /**
    * @classdesc A Mesh represents a 3D renderable object in Atlas. The Mesh data can be defined
-   * using C3ML, the JSON of a GLTF resource, or a URL to a GLTF resource.
+   * using C3ML, the JSON of a glTF resource, or a URL to a glTF resource.
    *
-   * Note: The use of C3ML of deprecated. If both C3ML and GLTF are provided, the GLTF resources
+   * Note: The use of C3ML of deprecated. If both C3ML and glTF are provided, the glTF resources
    *       will be used.
    *
    * @param {String} id - The ID of the Mesh object.
@@ -26,11 +26,8 @@ define([
    * @param {GeoPoint} [data.geoLocation] - The geographic location the Mesh should be
    *     rendered at.
    * @param {Number} [data.uniformScale] - A uniform scale applied to the Mesh.
-   * @param {Vertex} [data.scale] - A non-uniform scale applied to the Mesh.
-   * @param {Vertex} [data.rotation] - A rotation applied to the Mesh.
-   * @param {atlas.material.Color} [data.color] - A uniform color to apply to the Mesh.
-   * @param {String} [data.gltfUrl] - URL of GLTF data to construct the Mesh.
-   * @param {Object} [data.gltf] - JSON GLTF object to construct the Mesh.
+   * @param {String} [data.gltfUrl] - URL of glTF data to construct the Mesh.
+   * @param {Object} [data.gltf] - JSON glTF object to construct the Mesh.
    * @param {Array.<Number>} [data.positions] - [C3ML] The array of vertex positions for the
    *     Mesh. This should be a 1D array where every three elements describe a new vertex.
    *     Not used if either <code>gltf</code> or <code>gltfUrl</code> are provided.
@@ -41,6 +38,12 @@ define([
    *     Not used if either <code>gltf</code> or <code>gltfUrl</code> are provided.
    * @param {Array.<Number>} [data.normals] - [C3ML] An array of normal vectors for each vertex
    *     defined in <code>data.positions</code>.
+   *     Not used if either <code>gltf</code> or <code>gltfUrl</code> are provided.
+   * @param {atlas.material.Color} [data.color] - [C3ML] A uniform color to apply to the Mesh.
+   *     Not used if either <code>gltf</code> or <code>gltfUrl</code> are provided.
+   * @param {Vertex} [data.scale] - [C3ML] A non-uniform scale applied to the Mesh.
+   *     Not used if either <code>gltf</code> or <code>gltfUrl</code> are provided.
+   * @param {Vertex} [data.rotation] - [C3ML] A rotation applied to the Mesh.
    *     Not used if either <code>gltf</code> or <code>gltfUrl</code> are provided.
    * @param {Object} args - Both optional and required construction parameters.
    * @param {String} args.id - The ID of the GeoEntity. (Optional if both <code>id</code> and
@@ -90,7 +93,7 @@ define([
     _geoLocation: null,
 
     /**
-     * A uniform scale to apply to the Mesh. Explicitly for Meshes defined by GLTF.
+     * A uniform scale to apply to the Mesh. Explicitly for Meshes defined by glTF.
      * @type {Number}
      * @protected
      */
@@ -115,7 +118,7 @@ define([
     _uniformColor: null,
 
     /**
-     * True iff the Mesh is defined using GLTF input.
+     * True iff the Mesh is defined using glTF input.
      * @type {Boolean}
      * @protected
      */
@@ -133,7 +136,7 @@ define([
       // Set generic properties .
       this._uniformScale = Setter.def(data.uniformScale, 1);
 
-      // Set GLTF properties
+      // Set glTF properties
       if (data.gltf) {
         this._gltf = data.gltf;
       }
@@ -143,7 +146,7 @@ define([
       }
       this._isGltf = !!(this._gltf || this._gltfUrl);
 
-      // Set C3ML properties only if GLTF is not defined.
+      // Set C3ML properties only if glTF is not defined.
       if (!this.isGltf()) {
         if (data.positions && data.positions.length) {
           this._positions = new Float64Array(data.positions.length);
