@@ -3,19 +3,19 @@ var specsConfig = [
   {name: 'camera/Camera', run: true},
   {name: 'core/Api', run: true},
   {name: 'core/ItemStore', run: true},
-  {name: 'dom/PopupFaculty', run: true},
-  {name: 'dom/Overlay', run: true},
-  {name: 'edit/EditManager', run: true},
+  {name: 'dom/PopupFaculty', run: false},
+  {name: 'dom/Overlay', run: false},
+  {name: 'edit/EditManager', run: false},
   {name: 'entity/EntityManager', run: true},
   {name: 'material/Color', run: true},
   {name: 'material/Style', run: true},
-  {name: 'model/Collection', run: true},
-  {name: 'model/Ellipse', run: true},
-  {name: 'model/Feature', run: true},
-  {name: 'model/Handle', run: true},
-  {name: 'model/Line', run: true},
-  {name: 'model/LineNetwork', run: true},
-  {name: 'model/Mesh', run: true},
+  {name: 'model/Collection', run: false},
+  {name: 'model/Ellipse', run: false},
+  {name: 'model/Feature', run: false},
+  {name: 'model/Handle', run: false},
+  {name: 'model/Line', run: false},
+  {name: 'model/LineNetwork', run: false},
+  {name: 'model/Mesh', run: true}, /// FIXME
   {name: 'model/Polygon', run: true},
   {name: 'model/Rectangle', run: true},
   {name: 'render/RenderManager', run: true},
@@ -23,17 +23,22 @@ var specsConfig = [
   {name: 'test/lib/AtlasBuilder', run: true},
   {name: 'util/WKT', run: true},
   {name: 'util/AtlasMath', run: true},
-  {name: 'visualisation/AbstractProjection', run: true},
-  {name: 'visualisation/HeightProjection', run: true},
-  {name: 'visualisation/ColorProjection', run: true},
-  {name: 'visualisation/DynamicProjection', run: true}
+  {name: 'visualisation/AbstractProjection', run: false},
+  {name: 'visualisation/HeightProjection', run: false},
+  {name: 'visualisation/ColorProjection', run: false},
+  {name: 'visualisation/DynamicProjection', run: false}
 ];
 
+var warnings = '\n';
 specsConfig.forEach(function(config) {
   if (config.run) {
     tests.push('/base/atlas/test/specs/' + config.name + 'Spec.js');
+  } else {
+    warnings += 'Not running test spec: ' + config.name + '\n';
   }
 });
+/* global console */
+warnings !== '\n' && console.log(warnings);
 
 /* global requirejs */
 requirejs.config({
