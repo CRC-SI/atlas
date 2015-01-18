@@ -151,7 +151,7 @@ define([
     /**
      * Generates a new Popup and shows it. The new popup is cached so it can be re-shown
      * if necessary.
-     * @param args
+     * @param {Object} args - Arguments to construct the popup.
      */
     show: function(args) {
       this._overlays = new ItemStore();
@@ -164,12 +164,11 @@ define([
         }.bind(this)*/
       }, args);
 
-      if (!args.entityId) {throw new DeveloperError('Must specify entity ID associated with popup.');}
+      if (!args.entityId) {throw new DeveloperError('Must specify entity ID associated to popup.');}
       if (!args.content) {throw new DeveloperError('Must content of popup.');}
       if (!args.position) {throw new DeveloperError('Must specify position of popup.');}
 
       args.id = args.entityId;
-
 
       var overlay = new Overlay(args);
       this._setOverlay(args.entityId, overlay);

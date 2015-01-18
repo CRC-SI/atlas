@@ -2,18 +2,18 @@ define([
   // Code under test
   'atlas/dom/PopupFaculty'
 ], function(PopupFaculty) {
-  var popupFaculty,
-      popup,
-      entityId = '0001',
-      html = '<p>Text</p>',
-      cssClass = 'aPopup',
-      domNode,
-      position = {top: 0, left: 0},
-      args = {
-        entityId: entityId,
-        position: position,
-        content: html
-      };
+  var popupFaculty;
+  var popup;
+  var entityId = '0001';
+  var html = '<p>Text</p>';
+  var cssClass = 'aPopup';
+  var domNode;
+  var position = {top: 0, left: 0};
+  var args = {
+    entityId: entityId,
+    position: position,
+    content: html
+  };
 
   describe('A PopupFaculty', function() {
 
@@ -34,9 +34,9 @@ define([
     });
 
     it('should be constructed with no EventManager or a valid one', function() {
-      var noArgs = function() { popupFaculty = new PopupFaculty(); },
-          emptyManager = function() { popupFaculty = new PopupFaculty({eventManager: {}}); },
-          incorrectManager = function() { popupFaculty = new PopupFaculty({eventManager: null}); };
+      var noArgs = function() { popupFaculty = new PopupFaculty(); };
+      var emptyManager = function() { popupFaculty = new PopupFaculty({eventManager: {}}); };
+      var incorrectManager = function() { popupFaculty = new PopupFaculty({eventManager: null}); };
 
       expect(noArgs).toThrow();
       expect(emptyManager).toThrow();
@@ -67,4 +67,5 @@ define([
     });
 
   });
+
 });
