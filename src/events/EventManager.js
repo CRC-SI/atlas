@@ -7,7 +7,7 @@ define([
 
   /**
    * An object that declares a callback function listening for a particular event.
-   * @typedef {Object} atlas.events.EventManager.EventHandler
+   * @typedef {Object} atlas.events.EventManager.EventHandle
    *
    * @property {Number} id - The ID of the event handler.
    * @property {String} name - The name of the event being handled.
@@ -27,10 +27,6 @@ define([
    * @classdesc EventManager is responsible for bubbling internal events up through the
    * internal event hierarchy, as well as out to the host application.
    *
-   * @param {Object} managers - A map of manager types to actual manager objects.
-   *       The map is maintained on the main Atlas facade object, but the instances
-   *       are created by each manager object upon creation.
-   *
    * @class atlas.events.EventManager
    */
   EventManager = Manager.extend(/** @lends atlas.events.EventManager# */ {
@@ -40,26 +36,30 @@ define([
     /**
      * Mapping of listener object IDs to the host application callback. Hosts
      * registered in this map receive every event that occurs (that is not cancelled).
+     *
      * @type {Object}
      */
     _hosts: null,
 
     /**
-     * Mapping of extern event names to a list of event handlers containing callback functions for
-     * handling the extern event.
-     * @type {Object.<String, atlas.events.EventManager.EventHandler>}
+     * Mapping of external event names to an array of callback functions registered to the
+     * corresponding event.
+     *
+     * @type {Object.<String, Array.<Function>>}
      */
     _externalEventHandlers: null,
 
     /**
-     * Mapping of internal event names to a list of event handlers containing callback functions for
-     * handling that event type. These callbacks may be internal or external to Atlas.
-     * @type {Object.<String, atlas.events.EventManager.EventHandler>}
+     * Mapping of internal event names to an array of callback functions registered to the
+     * corresponding event.
+     *
+     * @type {Object.<String, Array.<Function>>}
      */
     _internalEventHandlers: null,
 
     /**
      * Counter to determine the ID of the next handler that is registered.
+     *
      * @type {Number}
      */
     _nextHandlerId: null,
@@ -72,6 +72,7 @@ define([
 
     /**
      * Bubbles the given Event through its <code>target</code> Entity hierarchy.
+     *
      * @param {atlas.events.Event} event - The Event to be propagated.
      */
     dispatchEvent: function(event) {
@@ -116,9 +117,10 @@ define([
 
     /**
      * Registers a Host application with the EventManager.
+     *
      * @param {Function} callback - The event handler function in the registering Host application.
-     * @returns {Object} An EventListener object which can be used to deregister the Host from the
-     *     event system.
+     * @returns {atlas.events.EventManager.EventHandle} An EventHandle which can be used
+     *     to deregister the Host from the event system.
      */
     registerHost: function(callback) {
       // Create the EventListener object.
@@ -141,6 +143,7 @@ define([
     /**
      * Used to deregister a Host application from the Event system. Called by
      * the EventListener object returned when registering a Host.
+     *
      * @param  {Number} id - The ID of the Host application to remove.
      */
     _deregisterHost: function(id) {
@@ -149,11 +152,13 @@ define([
 
     /**
      * Allows for adding an array of event handlers.
+     *
      * @param {Object} handlers - An array of Objects describing the handlers to be added.
      *     The objects should have properties 'source', 'name', and 'callback' as per
      *     {@link atlas.events.EventManager#addEventHandler}.
-     * @returns {Object.<String, atlas.events.EventManager.EventHandler>} A map of handled event
-     *     names to EventHandler objects.
+     *
+     * @returns {Object.<String, atlas.events.EventManager.EventHandle>} A map of Event names to
+     *     the corresponding EventHandle.
      */
     addEventHandlers: function(handlers) {
       var eventHandlers = {};
@@ -176,8 +181,9 @@ define([
      *     of internal event names to callbacks.
      * @param {Object.<String, atlas.events.EventManager.EventHandler>} handlers.extern - A mapping
      *     of external event names to callbacks.
-     * @returns {Object.<String, .<String, atlas.events.EventManager.EventHandler>>} A map of event
-     *     name to EventHandler objects.
+     *
+     * @returns {Object.<String, atlas.events.EventManager.EventHandle>} A map of event names to
+     *     the corresponding EventHandles.
      */
     addNewEventHandlers: function(handlers) {
       var eventHandlers = {};
@@ -197,14 +203,16 @@ define([
      * @param {String} source - The source of the event, either 'extern' or 'intern'.
      * @param {String} name - The name of the event.
      * @param {Function} callback - Callback function to handle the event.
+     *
      * @example
      * <code>
      * constructRenderManager(theEventManager) {
      *     theEventManager.addEventHandler('extern', 'entity/show', show.bind(this));
      * };
      * </code>
-     * @returns {.<String, atlas.events.EventManager.EventHandler>} An EventHandler for the event
-     * that can be used to cancel the callback subscription.
+     *
+     * @returns {atlas.events.EventManager.EventHandle} An EventHandle for the event
+     *     that can be used to cancel the callback subscription.
      */
     addEventHandler: function(source, name, callback) {
       // Select the map of event handlers to add to.
@@ -247,6 +255,7 @@ define([
      * Removes the given event handler from the event system. Called by the
      *       EventListener object returned by
      *       {@link atlas.events.EventManager#addEventListener|addEventListener}.
+     *
      * @param {String} source - The source of the Event for the EventHandler being removed.
      * @param {String} name - The name of the event used to register the handler.
      * @param {String} id - The ID of the EventHandler being removed.
@@ -272,6 +281,7 @@ define([
 
     /**
      * Calls the registered event handlers for the given event.
+     *
      * @param {String} source - The source of the event, either 'extern' or 'intern'.
      * @param {String} name - The name of the event to handle.
      * @param {Object} [args] - Optional event arguments that are passed to the event
@@ -299,6 +309,7 @@ define([
 
     /**
      * Convenience function to handle an internal event.
+     *
      * @param {String} name - The name of the event.
      * @param {Object} args - Optional event arguments that are passed to the event
      *     handler callback.
@@ -309,6 +320,7 @@ define([
 
     /**
      * Convenience function to handle an external event.
+     *
      * @param {String} name - The name of the event.
      * @param {Object} args - Optional event arguments that are passed to the event handler
      *     callback.

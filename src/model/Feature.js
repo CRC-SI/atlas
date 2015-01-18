@@ -121,7 +121,7 @@ define([
       var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
         'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles',
         'getCentroid', 'getArea', 'getVertices', 'getOpenLayersGeometry', 'translate',
-        'scale', 'rotate', 'setScale', 'setRotation', 'setElevation', 'setHeight', 'getHeight'];
+        'scale', 'rotate', 'setScale', 'setRotation', 'setHeight', 'getHeight'];
       methods.forEach(function(method) {
         this[method] = function() {
           return this._delegateToForm(method, arguments);
@@ -222,6 +222,8 @@ define([
     // each form (even those which are not visible)?
 
     setElevation: function(elevation) {
+      // The elevation of a feature may be different from its form, but if we use setElevation()
+      // on the feature, both are modified.
       var result = this._super(elevation);
       this._delegateToForms('setElevation', arguments);
       return result;

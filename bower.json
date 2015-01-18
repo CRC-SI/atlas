@@ -24,7 +24,7 @@
     "Openlayers": "https://github.com/openlayers/openlayers.git#release-2.13.1",
     "Keycode": "https://github.com/mantelpiece/keycode.js.git#master",
     "tinycolor": "~1.0.0",
-    "utility": "https://bitbucket.org/mutopia/utility.git",
+    "utility": "https://bitbucket.org/mutopia/utility.git#master",
     "numeraljs": "~1.5.3",
     "less": "~1.7.0",
     "q": "~1.0.0",
