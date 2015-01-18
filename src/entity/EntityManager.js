@@ -283,7 +283,7 @@ define([
         id = args.id;
       }
       args = Setter.merge({
-        show: true
+        show: false
       }, args);
       if (id === undefined) {
         throw new DeveloperError('Can not create Feature without specifying ID');
