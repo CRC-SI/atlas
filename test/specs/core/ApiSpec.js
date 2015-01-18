@@ -1,12 +1,12 @@
 define([
-  'atlas/core/Atlas'
-], function(Atlas) {
+  '../../lib/AtlasBuilder.js'
+], function(AtlasBuilder) {
 
   var atlas;
 
   describe('An Atlas', function() {
     beforeEach(function() {
-      atlas = new Atlas();
+      atlas = AtlasBuilder().build();
     });
 
     it('should be able to enable and disable terrain', function() {
@@ -17,5 +17,29 @@ define([
       expect(atlas.getManager('terrain').isTerrainEnabled()).toBe(false);
     });
 
+    describe('GeoEntities:', function() {
+      it('should be able to create entities', function () {
+        atlas.publish('entity/create', {id: 'feature'});
+        expect(atlas.getManager('entity').getById('feature')).toBeDefined();
+      });
+
+      it('should be able to show and hide entities', function() {
+        atlas.publish('entity/create', {id: 'feature'});
+        atlas.publish('entity/show', {id: 'feature'});
+        expect(atlas.getManager('entity').getById('feature').isVisible()).toBe(true);
+
+        atlas.publish('entity/hide', {id: 'feature'});
+        expect(atlas.getManager('entity').getById('feature').isVisible()).toBe(false);
+      });
+
+      it('should throw when trying to show non-existant entities', function() {
+        expect(function() {
+          atlas.publish('entity/show', {id: 'fubar'});
+        }).toThrow();
+      });
+
+    });
+
   });
+
 });

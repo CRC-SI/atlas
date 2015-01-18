@@ -84,12 +84,17 @@ define([
       var handlers = [
         {
           source: 'extern',
+          name: 'entity/create',
+          callback: this.createFeature.bind(this)
+        },
+        {
+          source: 'extern',
           name: 'entity/show',
           callback: function(args) {
             Log.time('entity/show');
             var entity = this.getById(args.id);
             if (!entity) {
-              entity = this.createFeature(args.id, args);
+              throw new Error('Tried to show non-existing entity ' + args.id);
             } else {
               entity.show();
             }
@@ -359,7 +364,6 @@ define([
      * @protected
      */
     _parseC3ML: function(c3ml) {
-      var geometry;
       // Map of C3ML type to parse of that type.
       var parsers = {
         line: this._parseC3MLline,
