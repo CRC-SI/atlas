@@ -3,12 +3,14 @@
 ## General rules
 
 * Follow the following general format;
+
   ```
   /**
    * // Text seperated from '*' by a space
    * @...
    */
   ```
+
 * Empty newline between "blocks" of tags.
 * Parameters and properties must specify type, using the template `@param {Type} name - Description`
   or `@property {Type} name - Description`.
@@ -17,6 +19,7 @@
   character.
 * Use '@returns' (cf. `@return`).
 
+
 ## JSDoc tips and tricks
 
 * In tags that define the "type" of an entity, you can use the following to fully qualify
@@ -24,6 +27,7 @@
     - `foo#baz`: baz is an instance member of foo.
     - `foo.bar`: bar is a static member of foo.
     - `foo~qux`: qux is an inner member of foo.
+
 
 ## Order of tags
 
@@ -45,6 +49,7 @@
 1. @static _Possibly before @returns?_
 1. @ignore
 
+
 ## Examples
 
 ### Class definition
@@ -59,6 +64,7 @@
  * @class ... // Fully qualified class name
  */
 ```
+
 
 ### Events
 
@@ -76,6 +82,7 @@ or more entities.", and for notification "The left mouse button was pressed". Tw
  */
 ```
 
+
 ### Function that handles an event
 
 ```js
@@ -87,6 +94,7 @@ or more entities.", and for notification "The left mouse button was pressed". Tw
  * @listens ExternalEvent#...
  */
 ```
+
 
 ### Function that causes (fires) an event
 
