@@ -6,6 +6,7 @@
     "xdescribe"
   ],
   "jasmine": true,
+  "jquery": true,
   "latedef": true,
   "undef": true,
   "unused": "vars",

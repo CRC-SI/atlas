@@ -8,6 +8,7 @@ define([
   'atlas/lib/utility/Class',
   'jquery'
 ], function(DomUtil, Event, EventTarget, Log, Setter, Types, Class, $) {
+  /* global document */
 
   /**
    * @typedef atlas.dom.Overlay
