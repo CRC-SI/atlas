@@ -359,7 +359,6 @@ define([
      * @protected
      */
     _parseC3ML: function(c3ml) {
-      var geometry;
       // Map of C3ML type to parse of that type.
       var parsers = {
         line: this._parseC3MLline,
@@ -450,11 +449,11 @@ define([
 
     /**
      * Adds a new GeoEntity into the EntityManager.
-     * @param {String} id - The ID of the new GeoEntity.
      * @param {atlas.model.GeoEntity} entity - The new GeoEntity;
      * @returns {Boolean} True if the GeoEntity was added, false otherwise.
      */
-    add: function(id, entity) {
+    add: function(entity) {
+      var id = entity.getId();
       if (this._entities.get(id)) {
         Log.warn('tried to add entity', id, 'which already exists.');
         return false;
