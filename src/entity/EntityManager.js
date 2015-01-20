@@ -441,13 +441,11 @@ define([
     /**
      * Adds a new GeoEntity into the EntityManager.
      * @param {atlas.model.GeoEntity} entity - The new GeoEntity;
-     * @returns {Boolean} True if the GeoEntity was added, false otherwise.
      */
     add: function(entity) {
       var id = entity.getId();
       if (this._entities.get(id)) {
-        Log.warn('tried to add entity', id, 'which already exists.');
-        return false;
+        throw new Error('tried to add entity', id, 'which already exists.');
       }
       if (!(entity instanceof GeoEntity)) {
         throw new DeveloperError('Can not add entity which is not a subclass of ' +
@@ -455,7 +453,6 @@ define([
       }
       Log.debug('entityManager: added entity', id);
       this._entities.add(entity);
-      return true;
     },
 
     /**
@@ -628,7 +625,7 @@ define([
         if (!entity) throw new Error('Tried to ' + action + ' non-existent entity ' + id);
 
         visible ? entity.show() : entity.hide();
-      });
+      }, this);
       Log.timeEnd('entity/' + action);
     }
 
