@@ -84,27 +84,18 @@ define([
       var handlers = [
         {
           source: 'extern',
+          name: 'entity/create',
+          callback: this.createFeature.bind(this)
+        },
+        {
+          source: 'extern',
           name: 'entity/show',
-          callback: function(args) {
-            Log.time('entity/show');
-            var entity = this.getById(args.id);
-            if (!entity) {
-              entity = this.createFeature(args.id, args);
-            } else {
-              entity.show();
-            }
-            Log.timeEnd('entity/show');
-          }.bind(this)
+          callback: this.toggleEntityVisibility.bind(this, true)
         },
         {
           source: 'extern',
           name: 'entity/hide',
-          callback: function(args) {
-            Log.time('entity/hide');
-            var entity = this.getById(args.id);
-            entity.hide();
-            Log.timeEnd('entity/hide');
-          }.bind(this)
+          callback: this.toggleEntityVisibility.bind(this, false)
         },
         {
           source: 'extern',
@@ -278,7 +269,7 @@ define([
         id = args.id;
       }
       args = Setter.merge({
-        show: true
+        show: false
       }, args);
       if (id === undefined) {
         throw new DeveloperError('Can not create Feature without specifying ID');
@@ -450,13 +441,11 @@ define([
     /**
      * Adds a new GeoEntity into the EntityManager.
      * @param {atlas.model.GeoEntity} entity - The new GeoEntity;
-     * @returns {Boolean} True if the GeoEntity was added, false otherwise.
      */
     add: function(entity) {
       var id = entity.getId();
       if (this._entities.get(id)) {
-        Log.warn('tried to add entity', id, 'which already exists.');
-        return false;
+        throw new Error('tried to add entity', id, 'which already exists.');
       }
       if (!(entity instanceof GeoEntity)) {
         throw new DeveloperError('Can not add entity which is not a subclass of ' +
@@ -464,7 +453,6 @@ define([
       }
       Log.debug('entityManager: added entity', id);
       this._entities.add(entity);
-      return true;
     },
 
     /**
@@ -621,6 +609,32 @@ define([
      */
     getInRect: function(point1, point2) {
       throw new DeveloperError('EntityManager.getInRect not yet implemented.');
+    },
+
+    // -------------------------------------------
+    // ENTITY MODIFICATION
+    // -------------------------------------------
+
+    /**
+     * Sets the Visibility on a group of entities.
+     * @param {Boolean} visible - Whether the entities should be visible.
+     * @param {Object} args - Specifies the IDs of the GeoEntities to change.
+     * @param {String} [args.id] - The ID of a single GeoEntity to change.
+     * @param {Array.<String>} [args.ids] - An array of GeoEntity IDs to change. This overrides
+     *     <code>args.id</code> if it is given.
+     */
+    toggleEntityVisibility: function(visible, args) {
+      var ids = args.ids || [args.id];
+      var action = visible ? 'show' : 'hide';
+
+      Log.time('entity/' + action);
+      ids.forEach(function(id) {
+        var entity = this.getById(id);
+        if (!entity) throw new Error('Tried to ' + action + ' non-existent entity ' + id);
+
+        visible ? entity.show() : entity.hide();
+      }, this);
+      Log.timeEnd('entity/' + action);
     }
 
   });

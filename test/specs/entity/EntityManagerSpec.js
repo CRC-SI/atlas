@@ -1,8 +1,10 @@
 define([
+  'atlas/model/Feature',
   'atlas/model/GeoEntity',
   // Code under test.
-  'atlas/entity/EntityManager'
-], function(GeoEntity, EntityManager) {
+  'atlas/entity/EntityManager',
+  '../../lib/AtlasBuilder.js'
+], function(Feature, GeoEntity, EntityManager, AtlasBuilder) {
 
   describe('An EntityManager', function() {
     var em;
@@ -33,21 +35,61 @@ define([
     });
 
     describe('Features:', function() {
-      it('can create Features when', function() {
+      it('can create an empty Feature when a valid ID is given', function() {
         var id = 'featureId';
         var feature = em.createFeature(id, {});
         expect(feature).toBeDefined();
         expect(feature.getId()).toEqual(id);
       });
 
-      it('can register and store GeoEntity objects', function() {
+      it('cannot create a Feature if a duplicate ID is given', function() {
+        var id = 'featureId';
+        // Add once.
+        em.createFeature(id, {});
+        expect(function() {
+          // Try to add again.
+          em.createFeature(id, {});
+        }).toThrow();
+      });
+
+    });
+
+    describe('Entities:', function() {
+      it('can add GeoEntity objects to its store when the Entitys ID is not in use ', function() {
         var expected = new GeoEntity('id', {}, {});
         em.add(expected);
         var actual = em.getById('id');
         expect(actual).toEqual(expected);
       });
 
-      it('can retrieve all registered GeoEntitys as an array', function() {
+      it('cannot add GeoEntity objects if it\'s ID is in use ', function() {
+        var entity1 = new GeoEntity('id', {}, {});
+        var entity2 = new GeoEntity('id', {}, {});
+        // Add original
+        em.add(entity1);
+        expect(function() {
+          // Add new Entity with duplicate ID.
+          em.add(entity2);
+        }).toThrow();
+      });
+
+      it('cannot add objects which do not subclass GeoEntity', function() {
+        expect(function() {
+          em.add({});
+        }).toThrow();
+      });
+
+      it('shall return an empty array if all Entities are requested and none exist', function() {
+        var actual = em.getEntities();
+        expect(actual).toEqual([]);
+      });
+
+      it('shall return undefined if a non-existent Entity (by ID) is requested', function() {
+        var actual = em.getById('foo');
+        expect(actual).toBeUndefined();
+      });
+
+      it('can get all registered GeoEntitys as an array', function() {
         var expecteds = [];
         [0, 1, 2, 3].forEach(function(i) {
           expecteds.push(new GeoEntity('id' + i, {}, {}));
@@ -55,6 +97,90 @@ define([
         });
         em.getEntities().forEach(function(actual, i) {
           expect(actual).toEqual(expecteds[i]);
+        });
+      });
+
+      it('shall get the exact object reference when an Entity has been added', function() {
+        var expected = new GeoEntity({id: 'entity'});
+        em.add(expected);
+        var actual = em.getById('entity');
+        expect(actual).toBe(expected);
+      });
+
+      it('can remove GeoEntitys when they have been added', function() {
+        em.add(new GeoEntity({id: 'id'}));
+        expect(em.getById('id')).toBeDefined();
+        em.remove('id');
+        expect(em.getById('id')).toBeUndefined();
+      });
+
+      it('can show a GeoEntity by ID when it has been added', function() {
+        var args = {id: 'id0'};
+        var entity = new Feature(args);
+        em.add(entity);
+
+        expect(entity.isVisible()).toBe(false);
+        em.toggleEntityVisibility(true, args);
+        expect(entity.isVisible()).toBe(true);
+        em.toggleEntityVisibility(false, args);
+        expect(entity.isVisible()).toBe(false);
+      });
+
+      it('can show multiple GeoEntities by their IDs when they have been added', function() {
+        var entitys = [];
+        var ids = [];
+        [0, 1, 2, 3].forEach(function(i) {
+          ids.push('id' + i);
+          var entity = new Feature({id: 'id' + i});
+          entitys.push(entity);
+          em.add(entity);
+        });
+        [true, false].forEach(function(bool) {
+          em.toggleEntityVisibility(bool, {ids: ids});
+          entitys.forEach(function(entity) {
+            expect(entity.isVisible()).toBe(bool);
+          });
+        });
+
+      });
+
+    });
+
+    describe('Events:', function() {
+      var atlas;
+      var em;
+
+      beforeEach(function() {
+        atlas = AtlasBuilder().noLog()
+                  .feature('id0')
+                  .feature('id1')
+                  .feature('id2')
+                  .build();
+        em = atlas.getManager('entity');
+      });
+
+      afterEach(function() {
+        em = null;
+        atlas = null;
+      });
+
+      it('shall show a GeoEntity when an "entity/show" specifies a single ID', function() {
+        var id = 'id0';
+        atlas.publish('entity/show', {id: id});
+        expect(em.getById(id).isVisible()).toBe(true);
+        atlas.publish('entity/hide', {id: id});
+        expect(em.getById(id).isVisible()).toBe(false);
+      });
+
+      it('shall show multipe GeoEntitys when an "entity/show" specifies IDs', function() {
+        var ids = ['id0', 'id1', 'id0'];
+        atlas.publish('entity/show', {ids: ids});
+        ids.forEach(function(id) {
+          expect(em.getById(id).isVisible()).toBe(true);
+        });
+        atlas.publish('entity/hide', {ids: ids});
+        ids.forEach(function(id) {
+          expect(em.getById(id).isVisible()).toBe(false);
         });
       });
 

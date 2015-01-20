@@ -7,16 +7,26 @@ define([
 ], function(c3mlMesh, GeoPoint, Mesh, Vertex) {
   describe('A Mesh', function() {
 
-    var mesh, args;
+    var mesh, data, args;
 
     beforeEach(function() {
       args = {
         renderManager: {},
         eventManager: {}
       };
+      data = {
+        geoLocation: {
+          latitude: -37.8,
+          longitude: 144.96,
+          elevation: 0
+        }
+      };
     });
 
     afterEach(function() {
+      data.geoLocation = null;
+      data = null;
+      args = null;
       mesh = null;
     });
 
@@ -38,25 +48,28 @@ define([
       expect(mesh._indices).not.toBe(null);
     });
 
-    it('can be constructed with a GLTF url', function() {
-      mesh = new Mesh('id', {gltfUrl: 'www.whatever.com'}, args);
+    it('can be constructed with a glTF url', function() {
+      data.gltfUrl = 'www.whatever.com';
+      mesh = new Mesh('id', data, args);
       expect(mesh.getId()).toEqual('id');
-      expect(mesh._gltfUrl).toEqual('www.whatever.com');
+      expect(mesh._gltfUrl).toEqual(data.gltfUrl);
       expect(mesh.isGltf()).toBe(true);
       expect(mesh._positions).toBe(null);
       expect(mesh._indices).toBe(null);
     });
 
-    it('can be constructed with GLTF JSON', function() {
-      var gltfJson = {
+    it('can be constructed with glTF JSON', function() {
+      data.gltf = {
         a: 'totally gltf'
-      }
-      mesh = new Mesh('id', {gltf: gltfJson}, args);
+      };
+      mesh = new Mesh('id', data, args);
       expect(mesh.getId()).toEqual('id');
-      expect(mesh._gltf).toEqual(gltfJson);
+      expect(mesh._gltf).toEqual(data.gltf);
       expect(mesh.isGltf()).toBe(true);
       expect(mesh._positions).toBe(null);
       expect(mesh._indices).toBe(null);
     });
+
   });
+
 });

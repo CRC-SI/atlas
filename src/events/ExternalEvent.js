@@ -55,3 +55,24 @@
  * @event ExternalEvent#terrain/disable
  * @type {atlas.events.Event}
  */
+
+/**
+ * A command to create a new Feature.
+ *
+ * @event ExternalEvent#entity/create
+ * @type {atlas.events.Event}
+ */
+
+/**
+ * A command to show an existing Feature.
+ *
+ * @event ExternalEvent#entity/show
+ * @type {atlas.events.Event}
+ */
+
+/**
+ * A command to hide an existing Feature.
+ *
+ * @event ExternalEvent#entity/hide
+ * @type {atlas.events.Event}
+ */
