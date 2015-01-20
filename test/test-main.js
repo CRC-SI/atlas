@@ -29,11 +29,16 @@ var specsConfig = [
   {name: 'visualisation/DynamicProjection', run: true}
 ];
 
+var warnings = '\n';
 specsConfig.forEach(function(config) {
   if (config.run) {
     tests.push('/base/atlas/test/specs/' + config.name + 'Spec.js');
+  } else {
+    warnings += 'Not running test spec: ' + config.name + '\n';
   }
 });
+/* global console */
+warnings !== '\n' && console.log(warnings);
 
 /* global requirejs */
 requirejs.config({
