@@ -1,8 +1,10 @@
 define([
+  'atlas/model/Feature',
   'atlas/model/GeoEntity',
   // Code under test.
-  'atlas/entity/EntityManager'
-], function(GeoEntity, EntityManager) {
+  'atlas/entity/EntityManager',
+  '../../lib/AtlasBuilder.js'
+], function(Feature, GeoEntity, EntityManager, AtlasBuilder) {
 
   describe('An EntityManager', function() {
     var em;
@@ -110,6 +112,76 @@ define([
         expect(em.getById('id')).toBeDefined();
         em.remove('id');
         expect(em.getById('id')).toBeUndefined();
+      });
+
+      it('can show a GeoEntity by ID when it has been added', function() {
+        var args = {id: 'id0'};
+        var entity = new Feature(args);
+        em.add(entity);
+
+        expect(entity.isVisible()).toBe(false);
+        em.toggleEntityVisibility(true, args);
+        expect(entity.isVisible()).toBe(true);
+        em.toggleEntityVisibility(false, args);
+        expect(entity.isVisible()).toBe(false);
+      });
+
+      it('can show multiple GeoEntities by their IDs when they have been added', function() {
+        var entitys = [];
+        var ids = [];
+        [0, 1, 2, 3].forEach(function(i) {
+          ids.push('id' + i);
+          var entity = new Feature({id: 'id' + i});
+          entitys.push(entity);
+          em.add(entity);
+        });
+        [true, false].forEach(function(bool) {
+          em.toggleEntityVisibility(bool, {ids: ids});
+          entitys.forEach(function(entity) {
+            expect(entity.isVisible()).toBe(bool);
+          });
+        });
+
+      });
+
+    });
+
+    describe('Events:', function() {
+      var atlas;
+      var em;
+
+      beforeEach(function() {
+        atlas = AtlasBuilder().noLog()
+                  .feature('id0')
+                  .feature('id1')
+                  .feature('id2')
+                  .build();
+        em = atlas.getManager('entity');
+      });
+
+      afterEach(function() {
+        em = null;
+        atlas = null;
+      });
+
+      it('shall show a GeoEntity when an "entity/show" specifies a single ID', function() {
+        var id = 'id0';
+        atlas.publish('entity/show', {id: id});
+        expect(em.getById(id).isVisible()).toBe(true);
+        atlas.publish('entity/hide', {id: id});
+        expect(em.getById(id).isVisible()).toBe(false);
+      });
+
+      it('shall show multipe GeoEntitys when an "entity/show" specifies IDs', function() {
+        var ids = ['id0', 'id1', 'id0'];
+        atlas.publish('entity/show', {ids: ids});
+        ids.forEach(function(id) {
+          expect(em.getById(id).isVisible()).toBe(true);
+        });
+        atlas.publish('entity/hide', {ids: ids});
+        ids.forEach(function(id) {
+          expect(em.getById(id).isVisible()).toBe(false);
+        });
       });
 
     });

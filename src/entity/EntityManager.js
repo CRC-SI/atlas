@@ -615,6 +615,14 @@ define([
     // ENTITY MODIFICATION
     // -------------------------------------------
 
+    /**
+     * Sets the Visibility on a group of entities.
+     * @param {Boolean} visible - Whether the entities should be visible.
+     * @param {Object} args - Specifies the IDs of the GeoEntities to change.
+     * @param {String} [args.id] - The ID of a single GeoEntity to change.
+     * @param {Array.<String>} [args.ids] - An array of GeoEntity IDs to change. This overrides
+     *     <code>args.id</code> if it is given.
+     */
     toggleEntityVisibility: function(visible, args) {
       var ids = args.ids || [args.id];
       var action = visible ? 'show' : 'hide';
