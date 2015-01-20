@@ -2,22 +2,23 @@ define([
   // Code under test
   'atlas/dom/PopupFaculty'
 ], function(PopupFaculty) {
-  var popupFaculty,
-      popup,
-      entityId = '0001',
-      html = '<p>Text</p>',
-      cssClass = 'aPopup',
-      domNode,
-      position = {top: 0, left: 0},
-      args = {
-        entityId: entityId,
-        position: position,
-        content: html
-      };
+  var popupFaculty;
+  var popup;
+  var entityId = '0001';
+  var html = '<p>Text</p>';
+  var cssClass = 'aPopup';
+  var domNode;
+  var position = {top: 0, left: 0};
+  var args = {
+    entityId: entityId,
+    position: position,
+    content: html
+  };
 
   describe('A PopupFaculty', function() {
 
     beforeEach(function() {
+      /* global document */
       domNode = document.createElement('div');
       domNode.id = 'popupContainer';
     });
@@ -28,20 +29,16 @@ define([
     });
 
     it('should be constructed with a parent dom node', function() {
-      //popupFaculty = new PopupFaculty({parentDomNode: 'popupContainer'});
-      //expect(popupFaculty).not.toBeNull();
       popupFaculty = new PopupFaculty({parent: domNode});
       expect(popupFaculty).not.toBeNull();
     });
 
-    xit('should require an EventManager to be constructed', function() {
-      var noArgs = function() { popupFaculty = new PopupFaculty(); },
-          noManager = function() { popupFaculty = new PopupFaculty({}); },
-          emptyManager = function() { popupFaculty = new PopupFaculty({eventManager: {}}); },
-          incorrectManager = function() { popupFaculty = new PopupFaculty({eventManager: null}); };
+    it('should be constructed with no EventManager or a valid one', function() {
+      var noArgs = function() { popupFaculty = new PopupFaculty(); };
+      var emptyManager = function() { popupFaculty = new PopupFaculty({eventManager: {}}); };
+      var incorrectManager = function() { popupFaculty = new PopupFaculty({eventManager: null}); };
 
       expect(noArgs).toThrow();
-      expect(noManager).toThrow();
       expect(emptyManager).toThrow();
       expect(incorrectManager).toThrow();
     });
@@ -70,4 +67,5 @@ define([
     });
 
   });
+
 });

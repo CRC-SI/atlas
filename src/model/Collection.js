@@ -307,7 +307,7 @@ define([
     rotate: function(rotation, centroid) {
       // Rotation should be applied on each child entity around the same centroid - by default that
       // of the collection.
-      var centroid = centroid || this.getCentroid();
+      centroid = centroid || this.getCentroid();
       this._super(rotation, centroid);
       this._entities.forEach(function(entity) {
         entity.rotate(rotation, centroid);
