@@ -2,16 +2,16 @@ define([
   // Code under test.
   'atlas/edit/EditManager'
 ], function(EditManager) {
-  var em,
-      managers,
-      mockModule,
-      mockEntityManager,
-      e = {
-        position: {
-          x: 0,
-          y: 0
-        }
-      };
+  var em;
+  var managers;
+  var mockModule;
+  var mockEntityManager;
+  var e = {
+    position: {
+      x: 0,
+      y: 0
+    }
+  };
 
   describe('An EditManager', function() {
 
@@ -53,24 +53,24 @@ define([
     });
 
     it('can be enabled', function() {
+      // TODO(bpstudds): Why is this empty
     });
 
-
     it('can be disabled', function() {
-        em.enable();
-        em.onLeftDown(e);
-        em.onMouseMove(e);
-        em.onLeftUp(e);
-        expect(mockModule.startDrag).toHaveBeenCalled();
-        expect(mockModule.updateDrag).toHaveBeenCalled();
-        expect(mockModule.endDrag).toHaveBeenCalled();
-        em.disable();
-        em.onLeftDown(e);
-        em.onMouseMove(e);
-        em.onLeftUp(e);
-        expect(mockModule.startDrag.calls.length).toEqual(1);
-        expect(mockModule.updateDrag.calls.length).toEqual(1);
-        expect(mockModule.endDrag.calls.length).toEqual(1);
+      em.enable();
+      em.onLeftDown(e);
+      em.onMouseMove(e);
+      em.onLeftUp(e);
+      expect(mockModule.startDrag).toHaveBeenCalled();
+      expect(mockModule.updateDrag).toHaveBeenCalled();
+      expect(mockModule.endDrag).toHaveBeenCalled();
+      em.disable();
+      em.onLeftDown(e);
+      em.onMouseMove(e);
+      em.onLeftUp(e);
+      expect(mockModule.startDrag.calls.length).toEqual(1);
+      expect(mockModule.updateDrag.calls.length).toEqual(1);
+      expect(mockModule.endDrag.calls.length).toEqual(1);
     });
 
     describe('can handle input', function() {
@@ -94,8 +94,9 @@ define([
         em.onLeftUp(e);
         expect(mockModule.endDrag).toHaveBeenCalled();
       });
-    })
-  });
 
+    });
+
+  });
 
 });

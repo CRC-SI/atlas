@@ -1,21 +1,21 @@
 var tests = [];
 var specsConfig = [
   {name: 'camera/Camera', run: true},
-  {name: 'core/Api', run: true},
+  {name: 'core/Api', run: false, fix: 'merge in feature/entity-create-event'},
   {name: 'core/ItemStore', run: true},
-  {name: 'dom/PopupFaculty', run: false},
-  {name: 'dom/Overlay', run: false},
-  {name: 'edit/EditManager', run: false},
+  {name: 'dom/PopupFaculty', run: false, fix: 'Requires Overlay to be fixed'},
+  {name: 'dom/Overlay', run: false, fix: 'problems with jquery'},
+  {name: 'edit/EditManager', run: false, fix: 'tests totally out of date'},
   {name: 'entity/EntityManager', run: true},
   {name: 'material/Color', run: true},
   {name: 'material/Style', run: true},
-  {name: 'model/Collection', run: false},
+  {name: 'model/Collection', run: false, fix: 'setCentroid fails when collection is empty'},
   {name: 'model/Ellipse', run: false},
   {name: 'model/Feature', run: false},
   {name: 'model/Handle', run: false},
   {name: 'model/Line', run: false},
   {name: 'model/LineNetwork', run: false},
-  {name: 'model/Mesh', run: true}, /// FIXME
+  {name: 'model/Mesh', run: false, fix: 'merge in feature/entity-create-event'},
   {name: 'model/Polygon', run: true},
   {name: 'model/Rectangle', run: true},
   {name: 'render/RenderManager', run: true},
@@ -34,7 +34,9 @@ specsConfig.forEach(function(config) {
   if (config.run) {
     tests.push('/base/atlas/test/specs/' + config.name + 'Spec.js');
   } else {
-    warnings += 'Not running test spec: ' + config.name + '\n';
+    warnings += 'Not running test spec: ' + config.name;
+    config.fix && (warnings += ', fix: ' + config.fix);
+    warnings += '\n';
   }
 });
 /* global console */

@@ -8,6 +8,7 @@ define([
   'atlas/lib/utility/Class',
   'jquery'
 ], function(DomUtil, Event, EventTarget, Log, Setter, Types, Class, $) {
+  /* global document */
 
   /**
    * @typedef atlas.dom.Overlay
@@ -49,8 +50,10 @@ define([
    * @param {Object} [args.dimensions] - The dimensions of the Overlay. Dimensions are overridden
    *    if both <code>position.top</code> and <code>position.bottom</code> or
    *    <code>position.top</code> and <code>position.bottom</code> are defined.
-   * @param {Object} [args.dimensions.height] - The height of the Overlay, by default it fits the content.
-   * @param {Object} [args.dimensions.width] - The width of the Overlay, by default it fits the content.
+   * @param {Object} [args.dimensions.height] - The height of the Overlay, by default it fits
+   *     the content.
+   * @param {Object} [args.dimensions.width] - The width of the Overlay, by default it fits
+   *     the content.
    * @param {String} [args.content=''] - Either a plain text or HTML to be rendered in the Overlay.
    * @param {Boolean} [args.visible=true] - Whether the Overlay is visible.
    * @param {atlas.events.EventManager} [args.eventManager]
@@ -161,7 +164,7 @@ define([
       if (typeof args.parent === 'string') {
         args.parent = document.getElementById(args.parent);
       }
-      if (!args.parent) { throw new Error('Error attaching to element ' + args.parent)}
+      if (!args.parent) { throw new Error('Error attaching to element ' + args.parent); }
 
       // Sanitise the dimensions and positions passed in.
       ['top', 'left', 'right', 'bottom'].forEach(function(p) {
@@ -216,9 +219,9 @@ define([
      * @returns {{title: HTMLElement, content: HTMLElement}}
      */
     getDomElements: function() {
-      var overlay = this.getDom(),
-          title = $('.title', overlay)[0],
-          content = $('.body', overlay)[0];
+      var overlay = this.getDom();
+      var title = $('.title', overlay)[0];
+      var content = $('.body', overlay)[0];
       return {title: title, content: content};
     },
 
@@ -266,9 +269,9 @@ define([
      * @param {boolean} isMinimised - The Overlay should be minimised.
      */
     setMinimised: function(isMinimised) {
-      var elems = this.getDomElements(),
-        $content = $(elems.content),
-        $enableCheckbox = $('.enable-overlay', elems.title);
+      var elems = this.getDomElements();
+      var content = $(elems.content);
+      var enableCheckbox = $('.enable-overlay', elems.title);
       $content.toggle(!isMinimised);
       $enableCheckbox.prop('checked', !isMinimised);
     },
@@ -380,16 +383,16 @@ define([
       // TODO(aramk) Refactor to use jQuery.
       var $element = $('<div class="overlay"></div>');
       $element.addClass(this.getCssClass());
-      var element = this._element = $element[0],
-        $parent = $(this.getParentElement());
-
+      var element = this._element = $element[0];
+      var $parent = $(this.getParentElement());
       var title = '';
+
       if (this._title) {
         // Create HTML for title of overlay.
         // Wrap the title with an enable checkbox and remove button if necessary.
         title += '<div class="title">';
         if (this._hasEnableCheckbox) {
-          title += '<input type="checkbox" class="enable checkbox" checked>'
+          title += '<input type="checkbox" class="enable checkbox" checked>';
         }
         title += '<div class="content">' + this._title + '</div>';
         if (this._hasRemoveBtn) {
@@ -434,7 +437,6 @@ define([
     }
   }); // End class instance definition
 
-
   // -------------------------------------------
   // Statics
   // -------------------------------------------
@@ -444,21 +446,23 @@ define([
    * @param {Object} data - The map of attributes to values.
    * @param {String} [data.cssClass=''] - The CSS class of the tag.
    * @param {String} [data.id=''] - The ID of the tag.
-   * @param {atlas.material.Color} [data.bgColor=null] - The CSS background-color to apply to the tag.
+   * @param {atlas.material.Color} [data.bgColor=null] - The CSS background-color to apply
+   *     to the tag.
    * @returns {String} The HTML string of the attributes.
    */
   Overlay.parseAttributes = function(data) {
     // TODO(aramk) Rely on $.attr() instead.
-    var html = '',
-        style = '',
-        data = data || {};
-    data.cssClass && (html += 'class="' + data.cssClass +'" ');
-    data.id && (html += 'id="' + data.id +'" ');
+    var html = '';
+    var style = '';
+    data = data || {};
+
+    data.cssClass && (html += 'class="' + data.cssClass + '" ');
+    data.id && (html += 'id="' + data.id + '" ');
     data.background && (style += 'background:' + data.background + ';');
     data.bgColor && (style += 'background-color:' + data.bgColor.toHexString() + ';');
     data.width && (style += 'width:' + data.width + ';');
     if (style !== '') {
-      html += 'style="' + style +'"';
+      html += 'style="' + style + '"';
     }
     if (html === '') { return ''; }
     return html.trim();
@@ -495,8 +499,9 @@ define([
    */
   Overlay.generateTable = function(data) {
     if (!data || !data.rows) { return ''; }
-    var tableAttributes = Overlay.parseAttributes(data),
-        html = '<table ' + tableAttributes + '>';
+    var tableAttributes = Overlay.parseAttributes(data);
+    var html = '<table ' + tableAttributes + '>';
+
     data.rows.forEach(function(row) {
       var rowAttributes = Overlay.parseAttributes(row);
       html += '<tr ' + rowAttributes + '>';

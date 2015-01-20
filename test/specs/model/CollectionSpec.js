@@ -10,7 +10,11 @@ define([
 ], function(EntityManager, EventManager, Collection, GeoPoint, Polygon, Rectangle, WKT) {
   describe('A Collection', function() {
 
-    var collection, polygonA, polygonB, centroid, constructArgs;
+    var collection;
+    var polygonA;
+    var polygonB;
+    var centroid;
+    var constructArgs;
 
     beforeEach(function() {
       var managers = {};
@@ -20,8 +24,7 @@ define([
         entityManager: entityManager,
         eventManager: eventManager
       };
-      var footprintA =
-          'POLYGON ((-37.826731495464358 145.237709744708383,-37.82679037235421 145.237705952915746,-37.826788424406047 145.237562742764595,-37.826747996976231 145.237473553563689,-37.826702438444919 145.237482137149016,-37.82670417818575 145.237710588552915,-37.826731495464358 145.237709744708383))';
+      var footprintA = 'POLYGON ((-37.826731495464358 145.237709744708383,-37.82679037235421 145.237705952915746,-37.826788424406047 145.237562742764595,-37.826747996976231 145.237473553563689,-37.826702438444919 145.237482137149016,-37.82670417818575 145.237710588552915,-37.826731495464358 145.237709744708383))';
       var footprintB = 'POLYGON ((-37.826665517192573 145.237515259419183,-37.826664658962351 145.237656438291026,-37.826724305962919 145.23765472183058,-37.826721731272244 145.237514830304065,-37.826665517192573 145.237515259419183))';
       polygonA = new Polygon('a', {vertices: footprintA}, constructArgs);
       polygonB = new Polygon('b', {vertices: footprintB}, constructArgs);
