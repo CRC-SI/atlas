@@ -90,26 +90,12 @@ define([
         {
           source: 'extern',
           name: 'entity/show',
-          callback: function(args) {
-            Log.time('entity/show');
-            var entity = this.getById(args.id);
-            if (!entity) {
-              throw new Error('Tried to show non-existing entity ' + args.id);
-            } else {
-              entity.show();
-            }
-            Log.timeEnd('entity/show');
-          }.bind(this)
+          callback: this.toggleEntityVisibility.bind(this, true)
         },
         {
           source: 'extern',
           name: 'entity/hide',
-          callback: function(args) {
-            Log.time('entity/hide');
-            var entity = this.getById(args.id);
-            entity.hide();
-            Log.timeEnd('entity/hide');
-          }.bind(this)
+          callback: this.toggleEntityVisibility.bind(this, false)
         },
         {
           source: 'extern',
@@ -626,6 +612,24 @@ define([
      */
     getInRect: function(point1, point2) {
       throw new DeveloperError('EntityManager.getInRect not yet implemented.');
+    },
+
+    // -------------------------------------------
+    // ENTITY MODIFICATION
+    // -------------------------------------------
+
+    toggleEntityVisibility: function(visible, args) {
+      var ids = args.ids || [args.id];
+      var action = visible ? 'show' : 'hide';
+
+      Log.time('entity/' + action);
+      ids.forEach(function(id) {
+        var entity = this.getById(id);
+        if (!entity) throw new Error('Tried to ' + action + ' non-existent entity ' + id);
+
+        visible ? entity.show() : entity.hide();
+      });
+      Log.timeEnd('entity/' + action);
     }
 
   });
