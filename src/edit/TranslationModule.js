@@ -67,7 +67,7 @@ define([
     // },
 
     _provideTarget: function (args) {
-      args.target = this._managers.entity.getAt(args.position)[0];
+      args.target = this._managers.entity.getEntitiesFromArgs(args)[0];
       return args;
     },
 
@@ -85,7 +85,7 @@ define([
       this._managers.camera.lockCamera();
       // Initialise the translation.
       this._lastScreenCoords = {x: args.position.x, y: args.position.y};
-      this._originalLocation = this._lastLocation = this._cartographicLocation(args.position);
+      this._originalLocation = this._lastLocation = this._cartographicLocation(args);
     },
 
     /**
@@ -119,7 +119,7 @@ define([
 
     _translateFromEventArgs: function (args) {
       this._lastScreenCoords = {x: args.position.x, y: args.position.y};
-      var cartLocation = this._cartographicLocation(args.position);
+      var cartLocation = this._cartographicLocation(args);
       this._translate(this._lastLocation, cartLocation);
       this._lastLocation = cartLocation;
     },
@@ -155,8 +155,8 @@ define([
      * @returns {atlas.model.GeoPoint}
      * @private
      */
-    _cartographicLocation: function(screenPos) {
-      return this._managers.render.geoPointFromScreenCoords(screenPos);
+    _cartographicLocation: function(args) {
+      return this._managers.render.geoPointFromArgs(args);
     },
 
     /**

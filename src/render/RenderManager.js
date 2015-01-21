@@ -98,6 +98,14 @@ define([
       throw new DeveloperError("Can not call functions on abstract RenderManager");
     },
 
+    geoPointFromArgs: function(args) {
+      if (args.sceneposition) {
+        return this.geoPointFromWorldCoords(args.sceneposition);
+      } else {
+        return this.geoPointFromScreenCoords(args.position);
+      }
+    },
+
     /**
      * Convenience function to check if a given object is a GeoEntity.
      * @private
