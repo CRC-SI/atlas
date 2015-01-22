@@ -142,13 +142,17 @@ define([
 
     toJson: function(args) {
       args = args || {};
-      return Setter.merge(this._super(), {
+      var json = Setter.merge(this._super(), {
         type: 'polygon',
-        height: this.getHeight(),
-        holes: args.holes || this.getHoles().map(function(vertex) {
-          return vertex.toArray();
-        })
+        height: this.getHeight()
       });
+      var holes = args.holes || this.getHoles();
+      if (holes) {
+        json.holes = holes.map(function(vertex) {
+          return vertex.toArray();
+        });
+      }
+      return json;
     },
 
     // -------------------------------------------
