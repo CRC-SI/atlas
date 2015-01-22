@@ -3,6 +3,7 @@ var specsConfig = [
   {name: 'camera/Camera', run: true},
   {name: 'core/Api', run: false, fix: 'merge in feature/entity-create-event'},
   {name: 'core/ItemStore', run: true},
+  {name: 'dom/DomManager', run: true},
   {name: 'dom/PopupFaculty', run: false, fix: 'Requires Overlay to be fixed'},
   {name: 'dom/Overlay', run: false, fix: 'problems with jquery'},
   {name: 'edit/EditManager', run: false, fix: 'tests totally out of date'},

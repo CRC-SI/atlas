@@ -7,145 +7,101 @@ define([
 
   var domManager;
   var managers;
-  var htmlBody;
-  var docFrag;
-  var container;
-  var cesium;
-  var earth;
-  var testDiv;
 
-  var createDomTestBed = function() {
-    // Define some DOM elements to test with.
-    htmlBody = document.body;
-    docFrag = document.createDocumentFragment();
-    container = document.createElement('div');
-    cesium = document.createElement('div');
-    earth = document.createElement('div');
-    testDiv = document.createElement('div');
-    // And set up the DOM elements.
-    testDiv.id = 'testDiv';
-    container.id = 'testBed';
-    container.classList.add('hidden');
-    cesium.id = 'cesium';
-    earth.id = 'earth';
-    container.appendChild(cesium);
-    container.appendChild(earth);
-    docFrag.appendChild(container);
-    htmlBody.appendChild(docFrag);
-  };
+  var containerId = 'fake-container';
+  var cesiumDivId = 'cesium';
+  var earthDivId = 'earth';
 
   /* Begin test case definitions */
   describe('A DomManager', function() {
     beforeEach(function() {
-      // Create DOM elements for testing.
-      createDomTestBed();
+      // Create DOM elements to 'render' into
+      var container = document.createElement('div');
+      var cesiumDiv = document.createElement('div');
+      cesiumDiv.id = cesiumDivId;
+      var earthDiv = document.createElement('div');
+      earthDiv.id = earthDivId;
+      container.id = containerId;
+      container.appendChild(cesiumDiv);
+      container.appendChild(earthDiv);
+      document.body.appendChild(container);
+
       // Mock atlas managers as required.
       managers = {
         dom: {},
         render: {},
         event: {}
       };
-      // Mock populateDom function on DomManager.
-      DomManager.prototype.populateDom = function(id) {
-        GlobalLog.debug('  populating');
-        var elem = document.getElementById(id);
-        var testDiv = document.createElement('div');
-        testDiv.id = 'testDiv';
-        elem.appendChild(testDiv);
-        GlobalLog.debug('  populated');
-      };
+
       // Create DomManager objct.
       domManager = new DomManager(managers);
+      spyOn(domManager, 'populateDom');
+      GlobalLog.setLevel('debug');
     });
 
     afterEach(function() {
-      domManager = {};
-      managers = {};
+      domManager = null;
+      managers = null;
       // Remove test bed DOM elements.
-      var testBed = document.getElementById('testBed');
-      document.body.removeChild(testBed);
-      htmlBody = docFrag = container = cesium = earth = testDiv = null;
+      var container = document.getElementById(containerId);
+      document.body.removeChild(container);
+      GlobalLog.setLevel('error');
     });
 
-    /**
-     * Tests that the DomManager is correctly initialised when a DOM ID is not passed to
-     * the constructor.
-     */
-    it('should be created ', function() {
+    it('should not assign an element or make the element visible when constructing', function() {
+      // Construction occurs in beforeEach
       expect(domManager instanceof DomManager).toBe(true);
       expect(managers.dom).toBe(domManager);
       expect(domManager._visible).toBe(false);
       expect(domManager._currentDomId).toBe(null);
+      expect(domManager._currentDomNode).toBe(null);
     });
 
-    /**
-     * Tests that the DomManager correctly initialises when a DOM ID is
-     * passed to the constructor. Tests that the given dom is 'populated'
-     * and is visible.
-     */
-    it('created', function() {
-      domManager = new DomManager(managers, 'cesium');
-      var cesium = document.getElementById('cesium');
-      var testDiv = document.getElementById('testDiv');
+    it('should default to not showing the node when setting the dom node', function() {
+      domManager.setDom('cesium');
+      var cesiumDiv = document.getElementById('cesium');
+      expect(domManager.populateDom).toHaveBeenCalled();
 
-      expect(domManager instanceof DomManager).toBe(true);
-      expect(managers.dom).toEqual(domManager);
-      expect(domManager._visible).toEqual(true);
-      expect(domManager._currentDomId).toEqual('cesium');
-      // Check mock DOM element created.
-      expect(testDiv).toEqual(null);
-      expect(cesium.children[0]).toEqual(testDiv);
-      expect(cesium.classList.contains('hidden')).toBe(true, 'Div should be initially visible');
+      expect(cesiumDiv).not.toEqual(null);
+      expect(cesiumDiv.classList.contains('hidden')).toBe(true);
+    });
+
+    it('should set and display Atlas in a given node when requested', function() {
+      var cesiumDiv = document.getElementById('cesium');
+      domManager.setDom('cesium', true);
+      expect(domManager.populateDom).toHaveBeenCalled();
+
+      expect(cesiumDiv).not.toEqual(null);
+      expect(cesiumDiv.classList.contains('hidden')).toBe(false);
     });
 
     /**
      * Tests that the show and hide functions work.
      */
-    it('show hide', function() {
-      var cesium = document.getElementById('cesium');
-      domManager = new DomManager(managers, 'cesium');
+    it('should be able to show the dom node when it is hidden, and vice versa', function() {
+      var cesiumDiv = document.getElementById('cesium');
+      // Default to hidden
+      domManager.setDom('cesium');
 
-      expect(cesium.classList[0]).toEqual('hidden', 'Div should be initially visible');
-      domManager.hide();
-      expect(cesium.classList[0]).toEqual('hidden', 'Div should be hidden');
+      expect(cesiumDiv.classList.contains('hidden')).not.toEqual(false);
       domManager.show();
-      expect(cesium.classList[0]).toEqual('hidden', 'Div should be visible');
+      expect(cesiumDiv.classList.contains('hidden')).not.toEqual(true);
+      domManager.hide();
+      expect(cesiumDiv.classList.contains('hidden')).not.toEqual(false);
     });
 
     /**
      * Tests that the toggleVisisbility function works.
      */
-    it('toggles', function() {
-      var cesium = document.getElementById('cesium');
-      domManager = new DomManager(managers, 'cesium');
-      expect(cesium.classList[0]).toEqual('hidden', 'Div should be initially visible');
-      domManager.toggleVisibility();
-      expect(cesium.classList[0]).toEqual('hidden', 'Div should be hidden');
-      domManager.toggleVisibility();
-      expect(cesium.classList[0]).toEqual('hidden', 'Div should be visible');
-    });
+    it('should be able to toggle visisbility', function() {
+      domManager.setDom('cesium', true);
+      var cesiumDiv = document.getElementById(cesiumDivId);
 
-    /**
-     * Tests setting Atlas' DOM element. Checks that the test div is placed into
-     * the div with id passed into setDom. Checks that the DOM element is visible.
-     */
-    it('sets DOM', function() {
-      domManager.setDom('cesium');
-      var testDiv = document.getElementById('testDiv');
-      expect(testDiv).toEqual(null);
-      expect(cesium.children[0]).toEqual(testDiv);
-      expect(cesium.classList.contains('hidden')).toBe(true, 'Div should be visible');
-    });
-
-    /**
-     * Tests setting Atlas' DOM element without showing Atlas.
-     */
-    it('sets DOM without showing Atlas', function() {
-      domManager.setDom('cesium', false);
-      var testDiv = document.getElementById('testDiv');
-      expect(testDiv).toEqual(null);
-      expect(cesium.children[0]).toEqual(testDiv);
-      expect(cesium.classList.contains('hidden')).toBe(true, 'Div should not be visible');
+      expect(cesiumDiv.classList.contains('hidden')).not.toEqual(true);
+      domManager.hide();
+      expect(cesiumDiv.classList.contains('hidden')).not.toEqual(false);
+      domManager.show();
+      expect(cesiumDiv.classList.contains('hidden')).not.toEqual(true);
     });
 
     /**
@@ -154,16 +110,16 @@ define([
      * Checks that the DOM element is visible.
      */
     it('can move the DOM', function() {
-      domManager.setDom('cesium');
-      // Initialise DOM in cesium.
-      var testDiv = document.getElementById('testDiv');
-      expect(testDiv).toEqual(null);
-      expect(cesium.children[0]).toEqual(testDiv);
-      // Move DOM into 'earth'.
-      expect('earth');
-      expect(cesium.children[0]).toEqual(undefined);
-      expect(earth.children[0]).toEqual(testDiv);
-      expect(earth.classList.contains('hidden')).toBe(true, 'Div should be visible');
+      domManager.setDom(cesiumDivId, true);
+      var cesiumDiv = document.getElementById(cesiumDivId);
+      var earthDiv = document.getElementById(earthDivId);
+
+      expect(cesiumDiv.classList.contains('hidden')).not.toEqual(true);
+      expect(earthDiv.classList.contains('hidden')).not.toEqual(true);
+
+      domManager.setDom(earthDivId, true);
+      expect(earthDiv.classList.contains('hidden')).not.toEqual(true);
+      expect(cesiumDiv.classList.contains('hidden')).not.toEqual(false);
     });
 
   });
