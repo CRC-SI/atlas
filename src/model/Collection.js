@@ -277,7 +277,8 @@ define([
     },
 
     getAppearance: function() {
-      throw new DeveloperError('Collection does not have an appearance - request from each entity.');
+      throw new DeveloperError('Collection does not have an appearance - request from each ' +
+          'entity.');
     },
 
     getElevation: function() {
@@ -298,6 +299,15 @@ define([
       } else {
         return Math.max.apply(null, values);
       }
+    },
+
+    toJson: function() {
+      return Setter.merge(this._super(), {
+        type: 'collection',
+        children: this._entities.map(function(entity) {
+          return entity.getId();
+        })
+      });
     },
 
     // -------------------------------------------

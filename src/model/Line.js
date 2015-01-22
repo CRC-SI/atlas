@@ -88,6 +88,13 @@ define([
      */
     edit: function() {
       throw new DeveloperError('Can not call methods on abstract Line.');
+    },
+
+    toJson: function() {
+      return Setter.merge(this._super(), {
+        type: 'line',
+        width: this.getWidth()
+      });
     }
 
   });

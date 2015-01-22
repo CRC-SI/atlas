@@ -70,6 +70,12 @@ define([
     // GETTERS AND SETTERS
     // -------------------------------------------
 
+    toJson: function() {
+      return Setter.merge(this._super(), {
+        type: 'image'
+      });
+    },
+
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------

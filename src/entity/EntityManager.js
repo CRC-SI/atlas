@@ -109,9 +109,9 @@ define([
         },
         {
           source: 'extern',
-          name: 'entity/show/bulk',
+          name: 'entity/create/bulk',
           callback: function(args) {
-            Log.time('entity/show/bulk');
+            Log.time('entity/create/bulk');
             var ids;
             if (args.features) {
               ids = this.bulkCreate(args.features);
@@ -123,7 +123,7 @@ define([
             if (args.callback) {
               args.callback(ids);
             }
-            Log.timeEnd('entity/show/bulk');
+            Log.timeEnd('entity/create/bulk');
           }.bind(this)
         },
         {

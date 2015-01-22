@@ -186,12 +186,6 @@ define([
     _eventHandles: null,
 
     /**
-     * @type {atlas.events.EventTarget}
-     * @protected
-     */
-    _parent: null,
-
-    /**
      * Whether the GeoEntity is fully set up. Rendering will be delayed until it is set up.
      * @type {Boolean}
      */
@@ -558,6 +552,33 @@ define([
      */
     getAppearance: function() {
       return this._appearance;
+    },
+
+    /**
+     * @return {Object}
+     */
+    toJson: function() {
+      var json = {
+        id: this.getId(),
+        scale: this.getScale().toArray(),
+        rotation: this.getRotation().toArray(),
+        altitude: this.getElevation(),
+        show: this.isVisible()
+      };
+      var style = this.getStyle();
+      if (style) {
+        // TODO(aramk) Do this once we migrate from c3ml to aeon. For now only "color" is supported.
+        // json.style = style.toJson();
+        var fillMaterial = style.getFillMaterial();
+        if (fillMaterial instanceof Color) {
+          json.color = fillMaterial.toArray();
+        }
+      }
+      var parent = this.getParent();
+      if (parent) {
+        json.parentId = parent.getId();
+      }
+      return json;
     },
 
     // -------------------------------------------
