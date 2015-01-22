@@ -81,12 +81,11 @@ define([
 
     /**
      * Completes all initialisation that requires other Atlas managers.
-     * @param {String|HTMLElement} elem - The DOM ID or DOM element of the HTML element to receive
-     *     events from.
      */
-    setup: function(elem) {
-      // TODO(bpstudds): Pretty sure InputManager should respond to an 'dom/set' event, rather than be imperative.
-      this._element = typeof elem === 'string' ? document.getElementById(elem) : elem;
+    setup: function() {
+      // TODO(bpstudds): Pretty sure InputManager should respond to an 'dom/set' event, rather
+      // than be imperative.
+      this._element = this._managers.dom.getDom();
     },
 
     /**
@@ -156,9 +155,9 @@ define([
        */
       var makeMouseEventArgs = function(name, e) {
         var absPosition = {x: e.clientX, y: e.clientY};
-        var relPosition = this._managers.dom.translateEventCoords(absPosition),
-            x = relPosition.x,
-            y = relPosition.y;
+        var relPosition = this._managers.dom.translateEventCoords(absPosition);
+        var x = relPosition.x;
+        var y = relPosition.y;
         var args = {
           name: 'input/' + name,
           button: buttonIds[e.button],
@@ -248,7 +247,7 @@ define([
       var domEventNames = ['keydown', 'keypress', 'keyup'];
       domEventNames.forEach(function(name) {
         var thisEvent = 'input/' + name;
-        document.addEventListener(name, function(e) {
+        this._element.addEventListener(name, function(e) {
           var translatedKey = Keycode.translate_event(e);
           var args = {
             'name': thisEvent,
