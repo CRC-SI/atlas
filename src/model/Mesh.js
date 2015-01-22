@@ -149,25 +149,16 @@ define([
       // Set C3ML properties only if glTF is not defined.
       if (!this.isGltf()) {
         if (data.positions && data.positions.length) {
-          this._positions = new Float64Array(data.positions.length);
-          data.positions.forEach(function(position, i) {
-            this._positions[i] = position;
-          }, this);
+          this._positions = new Float64Array(data.positions);
         }
 
         if (data.triangles && data.triangles.length) {
-          this._indices = new Uint16Array(data.triangles.length);
-          data.triangles.forEach(function(triangle, i) {
-            this._indices[i] = triangle;
-          }, this);
+          this._indices = new Uint32Array(data.triangles);
         }
 
         // TODO(aramk) Normals not currently used.
         if (data.normals && data.normals.length) {
-          this._normals = new Float64Array(data.normals.length);
-          data.normals.forEach(function(normal, i) {
-            this._normals[i] = normal;
-          }, this);
+          this._normals = new Float64Array(data.normals);
         }
       }
     },
