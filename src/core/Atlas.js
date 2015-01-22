@@ -89,7 +89,7 @@ define([
      */
     _setup: function() {
       // These managers are set up later.
-      var delayedSetupManagers = ['input'];
+      var delayedSetupManagers = ['input', 'terrain'];
       // var ignoredManagersMap = {};
       for (var id in this._managers) {
         if (delayedSetupManagers.indexOf(id) === -1) {
@@ -142,6 +142,7 @@ define([
       this._managers.dom.setDom(dom, true);
       // Hook up the InputManager to the selected DOM element.
       this._managers.input.setup(dom);
+      this._managers.terrain.setup();
       // TODO(bpstudds): Work out all this dependency injection stuff.
       // this._faculties = {};
       // this._faculties.popup = new PopupFaculty();

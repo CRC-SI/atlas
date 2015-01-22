@@ -90,6 +90,20 @@ define([
       if (x < lo) return lo;
       if (x > hi) return hi;
       return x;
+    },
+
+    /**
+     * Given an array of numbers, the maximum is returned.
+     * @param {Array.<Number>} array - An array of numbers.
+     * @returns {Number} The maximum number
+     */
+    max: function(array) {
+      return array.reduce(function(acc, value) {
+        if (value > acc) {
+          acc = value;
+        }
+        return acc;
+      }, array[0]);
     }
   };
 
