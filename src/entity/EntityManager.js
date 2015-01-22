@@ -4,6 +4,7 @@ define([
   'atlas/events/Event',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
+  'atlas/lib/topsort',
   'atlas/model/Collection',
   'atlas/model/Ellipse',
   'atlas/model/Feature',
@@ -15,8 +16,8 @@ define([
   'atlas/model/GeoPoint',
   'atlas/model/Vertex',
   'atlas/util/DeveloperError'
-], function(Manager, ItemStore, Event, Log, Setter, Collection, Ellipse, Feature, GeoEntity, Mesh,
-            Polygon, Line, Image, GeoPoint, Vertex, DeveloperError) {
+], function(Manager, ItemStore, Event, Log, Setter, topsort, Collection, Ellipse, Feature,
+            GeoEntity, Mesh, Polygon, Line, Image, GeoPoint, Vertex, DeveloperError) {
 
   /**
    * @typedef atlas.entity.EntityManager
@@ -316,28 +317,32 @@ define([
      */
     bulkCreate: function(c3mls) {
       var ids = [];
-      var collections = {};
+      var edges = [];
+      var c3mlMap = {};
+      // Topologically sort the c3ml based on the "children" field. Reverse the list so that each
+      // entity is created before its parents to ensure they're available when requested.
       c3mls.forEach(function(c3ml) {
         var id = c3ml.id;
+        var children = c3ml.children;
+        if (children) {
+          children.forEach(function(childId) {
+            edges.push([c3ml.id, childId]);
+          })
+        }
+        c3mlMap[id] = c3ml;
+      });
+      var sortedIds = topsort(edges);
+      sortedIds.reverse();
+      sortedIds.forEach(function(id) {
+        var c3ml = c3mlMap[id];
         var entity = this.getById(id);
         if (!entity) {
           // TODO(aramk) This is only performed for bulk requests and is inconsistent - clean up
           // the API for consistency.
           var c3mlData = this._parseC3ML(c3ml);
-          if (c3ml.type === 'collection') {
-            collections[id] = c3mlData;
-          } else {
-            this.createFeature(id, c3mlData);
-          }
+          this.createFeature(id, c3mlData);
           ids.push(id);
         }
-      }, this);
-      // Create collections (if any) after all other entities.
-      // TODO(aramk) Topologically sort all entities (including collections) based on their
-      // parents/children.
-      Object.keys(collections).forEach(function(id) {
-        var c3mlData = collections[id];
-        this.createCollection(id, c3mlData);
       }, this);
       return ids;
     },

@@ -2,7 +2,8 @@
 ({
   baseUrl: '../src',
   packages: [
-    {name: 'jquery', location: '../lib', main: 'jquery'}
+    {name: 'jquery', location: '../lib', main: 'jquery'},
+    {name: 'atlas/lib/topsort', location: '../lib/topsort/lib', main: 'topsort'}
   ],
   paths: {
     'atlas': '',
