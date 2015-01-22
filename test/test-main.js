@@ -51,7 +51,6 @@ requirejs.config({
     {name: 'jquery', location: 'atlas/lib', main: 'jquery.js'},
     {name: 'atlas/lib', location: 'atlas/lib'},
     {name: 'atlas/lib/utility', location: 'atlas/lib/utility/src'},
-    {name: 'atlas/lib/topsort', location: 'atlas/lib/topsort/lib', main: 'topsort'},
     {name: 'atlas/assets', location: 'atlas/assets'}, // Only need this for testing
     {name: 'atlas', location: 'atlas/src'}
   ],
