@@ -318,21 +318,31 @@ define([
     bulkCreate: function(c3mls) {
       var ids = [];
       var edges = [];
+      var childrenMap = {};
       var c3mlMap = {};
-      // Topologically sort the c3ml based on the "children" field. Reverse the list so that each
-      // entity is created before its parents to ensure they're available when requested.
+      // Topologically sort the c3ml based on the "children" field.
       c3mls.forEach(function(c3ml) {
         var id = c3ml.id;
         var children = c3ml.children;
         if (children) {
           children.forEach(function(childId) {
             edges.push([c3ml.id, childId]);
+            childrenMap[childId] = true;
           })
         }
         c3mlMap[id] = c3ml;
       });
       var sortedIds = topsort(edges);
+      // Reverse the list so that each entity is created before its parents to ensure they're
+      // available when requested.
       sortedIds.reverse();
+      // Add any entities which are not part of a hierarchy and weren't in the topological sort.
+      c3mls.forEach(function(c3ml) {
+        var id = c3ml.id;
+        if (!childrenMap[id]) {
+          sortedIds.push(id);
+        }
+      });
       sortedIds.forEach(function(id) {
         var c3ml = c3mlMap[id];
         var entity = this.getById(id);
