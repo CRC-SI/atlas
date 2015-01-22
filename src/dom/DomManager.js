@@ -79,12 +79,12 @@ define([
       var showNow = Setter.def(show, false);
       var newDomNode = typeof elem === 'string' ? document.getElementById(elem) : elem;
 
-      // Add atlas specific class name to node
-      DomClass.add(newDomNode, DomManager.ATLAS_CSS_CLASS);
-
       if (!newDomNode) {
         throw new DeveloperError('DOM node not found: ' + elem);
       }
+
+      // Add atlas specific class name to node.
+      DomClass.add(newDomNode, DomManager.ATLAS_CSS_CLASS);
 
       // Move existing DOM if there is one.
       Log.debug('setting DOM node', elem);
