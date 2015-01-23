@@ -84,8 +84,8 @@ define([
      *     'rbga([RED], [GREEN], [BLUE], [ALPHA])'
      */
     toString: function() {
-      return 'rgba(' + [this.red * 255, this.green * 255, this.blue * 255, this.alpha].join(', ') +
-          ')';
+      return 'rgba(' + [this.red * 255, this.green * 255, this.blue * 255,
+          this.alpha * 255].join(', ') + ')';
     },
 
     /**
@@ -178,7 +178,7 @@ define([
    * @returns {atlas.material.Color}
    */
   Color.fromRGBA = function(red, green, blue, alpha) {
-    if (red.length) {
+    if (red.length !== undefined) {
       return new Color(red[0] / 255, red[1] / 255, red[2] / 255, red[3] / 255);
     } else {
       return new Color(red / 255, green / 255, blue / 255, alpha / 255);
