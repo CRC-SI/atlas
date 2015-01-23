@@ -274,7 +274,7 @@ define([
       }, args);
       if (id === undefined) {
         throw new DeveloperError('Can not create Feature without specifying ID');
-      } else if (this._entities.get(id)) {
+      } else if (this.getById(id)) {
         throw new DeveloperError('Can not create Feature with a duplicate ID');
       } else {
         this._bindDeps(args);
@@ -345,14 +345,11 @@ define([
       });
       sortedIds.forEach(function(id) {
         var c3ml = c3mlMap[id];
-        var entity = this.getById(id);
-        if (!entity) {
-          // TODO(aramk) This is only performed for bulk requests and is inconsistent - clean up
-          // the API for consistency.
-          var c3mlData = this._parseC3ML(c3ml);
-          this.createFeature(id, c3mlData);
-          ids.push(id);
-        }
+        // TODO(aramk) This is only performed for bulk requests and is inconsistent - clean up
+        // the API for consistency.
+        var c3mlData = this._parseC3ML(c3ml);
+        this.createFeature(id, c3mlData);
+        ids.push(id);
       }, this);
       return ids;
     },
@@ -448,7 +445,9 @@ define([
           color: c3ml.color,
           geoLocation: c3ml.geoLocation,
           scale: c3ml.scale,
-          rotation: c3ml.rotation
+          rotation: c3ml.rotation,
+          gltf: c3ml.gltf,
+          gltfUrl: c3ml.gltfUrl
         }
       };
     },
@@ -460,7 +459,7 @@ define([
     add: function(entity) {
       var id = entity.getId();
       if (this._entities.get(id)) {
-        throw new Error('tried to add entity', id, 'which already exists.');
+        throw new Error('Tried to add entity ' + id + ' which already exists.');
       }
       if (!(entity instanceof GeoEntity)) {
         throw new DeveloperError('Can not add entity which is not a subclass of ' +

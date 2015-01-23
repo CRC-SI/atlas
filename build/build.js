@@ -2,7 +2,7 @@
 ({
   baseUrl: '../src',
   packages: [
-    {name: 'jquery', location: '../lib', main: 'jquery'},
+    {name: 'jquery', location: '../lib', main: 'jquery'}
   ],
   paths: {
     'atlas': '',

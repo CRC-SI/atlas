@@ -120,8 +120,8 @@ define([
     _initDelegation: function() {
       var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
         'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles',
-        'getCentroid', 'getArea', 'getVertices', 'getOpenLayersGeometry', 'translate',
-        'scale', 'rotate', 'setScale', 'setRotation', 'setHeight', 'getHeight'];
+        'getCentroid', 'getArea', 'getVertices', 'getOpenLayersGeometry', 'getBoundingBox',
+        'translate', 'scale', 'rotate', 'setScale', 'setRotation', 'setHeight', 'getHeight'];
       methods.forEach(function(method) {
         this[method] = function() {
           return this._delegateToForm(method, arguments);
