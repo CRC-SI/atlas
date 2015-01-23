@@ -220,6 +220,7 @@ define([
       this._eventManager = args.eventManager;
       this._entityManager = args.entityManager;
       this._entityManager && this._entityManager.add(this);
+      this._selectable = Setter.def(args.selectable, true);
       var parentId = args.parent;
       var parent;
       if (parentId) {
