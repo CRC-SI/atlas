@@ -98,12 +98,7 @@ define([
      * @returns {Number} The maximum number
      */
     max: function(array) {
-      return array.reduce(function(acc, value) {
-        if (value > acc) {
-          acc = value;
-        }
-        return acc;
-      }, array[0]);
+      return Math.max.apply(null, array);
     }
   };
 

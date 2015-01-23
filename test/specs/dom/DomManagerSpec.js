@@ -3,7 +3,7 @@ define([
   'atlas/dom/DomManager'
 ], function(DomManager) {
   'use strict';
-  /* global document,GlobalLog */
+  /* global document*/
 
   var domManager;
   var managers;
@@ -36,7 +36,6 @@ define([
       // Create DomManager objct.
       domManager = new DomManager(managers);
       spyOn(domManager, 'populateDom');
-      GlobalLog.setLevel('debug');
     });
 
     afterEach(function() {
@@ -45,7 +44,6 @@ define([
       // Remove test bed DOM elements.
       var container = document.getElementById(containerId);
       document.body.removeChild(container);
-      GlobalLog.setLevel('error');
     });
 
     it('should not assign an element or make the element visible when constructing', function() {
