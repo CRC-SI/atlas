@@ -26,6 +26,7 @@ define([
   /**
    * The type of execution environment. The build tool will set this to
    * {@link Environment.PRODUCTION}.
+   *
    * @typedef {Object} atlas.core.Atlas.Environment
    */
   var Environment = {
@@ -46,10 +47,21 @@ define([
     /**
      * A mapping of every manager type in Atlas to the manager instance. This object is created on
      * Atlas, but the manager instances are set by each manager upon creation.
+     *
      * @type {Object.<String, atlas.core.Manager>}
+     *
      * @private
      */
     _managers: {},
+
+    /**
+     * An array on manager IDs which will be setup after all other managers have been setup.
+     *
+     * @type {Array.<String>}
+     *
+     * @private
+     */
+    _delayedSetupManagers: ['input', 'terrain'],
 
     _managerClasses: {},
 
@@ -89,7 +101,7 @@ define([
      */
     _setup: function() {
       // These managers are set up later.
-      var delayedSetupManagers = ['input'];
+      var delayedSetupManagers = ['input', 'terrain'];
       // var ignoredManagersMap = {};
       for (var id in this._managers) {
         if (delayedSetupManagers.indexOf(id) === -1) {
@@ -138,17 +150,11 @@ define([
     // -------------------------------------------
 
     attachTo: function(elem) {
-      var dom = typeof elem === 'string' ? document.getElementById(elem) : elem;
-      this._managers.dom.setDom(dom, true);
-      // Hook up the InputManager to the selected DOM element.
-      this._managers.input.setup(dom);
-      // TODO(bpstudds): Work out all this dependency injection stuff.
-      // this._faculties = {};
-      // this._faculties.popup = new PopupFaculty();
-      // this._faculties.popup.setup({
-      //   parentDomNode: elem,
-      //   eventManager: this._managers.event
-      // })
+      this._managers.dom.setDom(elem, true);
+      // Setup delayed managers.
+      this._delayedSetupManagers.forEach(function(id) {
+        this._managers[id].setup();
+      }, this);
     },
 
     getCameraMetrics: function() {
