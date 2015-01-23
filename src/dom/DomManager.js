@@ -27,22 +27,13 @@ define([
     _id: 'dom',
 
     /**
-     * The ID of the current DOM node.
-     *
-     * @type {String}
-     *
-     * @private
-     */
-    _currentDomId: null,
-
-    /**
      * The current DOM node.
      *
      * @type {HTMLElement}
      *
      * @private
      */
-    _currentDomNode: null,
+    _domNode: null,
 
     // TODO(bpstudds): What is the property for?
     _rendered: null,
@@ -88,9 +79,9 @@ define([
 
       // Move existing DOM if there is one.
       Log.debug('setting DOM node', elem);
-      if (this._currentDomNode !== null) {
-        Log.debug('moving atlas from', this._currentDomNode, 'to', newDomNode);
-        var curDomNode = this._currentDomNode;
+      if (this._domNode !== null) {
+        var curDomNode = this.getDom();
+        Log.debug('moving atlas from', curDomNode, 'to', newDomNode);
 
         // Hide the current dom node
         DomClass.add(curDomNode, 'hidden');
@@ -101,7 +92,7 @@ define([
 
         Log.debug('moved atlas into', newDomNode);
       }
-      this._currentDomNode = newDomNode;
+      this._domNode = newDomNode;
 
       // Show in new location if required.
       if (showNow) {
@@ -119,7 +110,7 @@ define([
      * @returns {HTMLElement} The current DOM node used by Atlas.
      */
     getDom: function() {
-      return this._currentDomNode;
+      return this._domNode;
     },
 
     /**
@@ -144,11 +135,11 @@ define([
     },
 
     getHeight: function() {
-      return this._currentDomNode.offsetHeight;
+      return this.getDom().offsetHeight;
     },
 
     getWidth: function() {
-      return this._currentDomNode.offsetWidth;
+      return this.getDom().offsetWidth;
     },
 
     // -------------------------------------------
@@ -168,7 +159,7 @@ define([
      */
     show: function() {
       if (!this._visible) {
-        DomClass.remove(this._currentDomNode, 'hidden');
+        DomClass.remove(this.getDom(), 'hidden');
         this._visible = true;
       }
     },
@@ -178,7 +169,7 @@ define([
      */
     hide: function() {
       if (this._visible) {
-        DomClass.add(this._currentDomNode, 'hidden');
+        DomClass.add(this.getDom(), 'hidden');
         this._visible = false;
       }
     },
@@ -191,13 +182,14 @@ define([
     }
 
   }),
-      // -------------------------------------------
-      // STATICS
-      // -------------------------------------------
-      {
-        ATLAS_CSS_CLASS: 'atlas'
-      }
+    // -------------------------------------------
+    // STATICS
+    // -------------------------------------------
+    {
+      ATLAS_CSS_CLASS: 'atlas'
+    }
   ); // End class static definitions.
 
   return DomManager;
+
 });

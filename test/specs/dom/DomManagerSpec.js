@@ -51,8 +51,7 @@ define([
       expect(domManager instanceof DomManager).toBe(true);
       expect(managers.dom).toBe(domManager);
       expect(domManager._visible).toBe(false);
-      expect(domManager._currentDomId).toBe(null);
-      expect(domManager._currentDomNode).toBe(null);
+      expect(domManager.getDom()).toBe(null);
     });
 
     it('should default to not showing the node when setting the dom node', function() {
