@@ -85,7 +85,7 @@ define([
     setup: function() {
       // TODO(bpstudds): Pretty sure InputManager should respond to an 'dom/set' event, rather
       // than be imperative.
-      this._element = this._managers.dom.getDom();
+      this._element = this._managers.dom.getDomNode();
     },
 
     /**
