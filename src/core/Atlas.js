@@ -101,7 +101,7 @@ define([
      */
     _setup: function() {
       // These managers are set up later.
-      var delayedSetupManagers = ['input'];
+      var delayedSetupManagers = ['input', 'terrain'];
       // var ignoredManagersMap = {};
       for (var id in this._managers) {
         if (delayedSetupManagers.indexOf(id) === -1) {
