@@ -24,6 +24,13 @@ define([
      */
     equals: function(other) {
       throw new DeveloperError('Cannot call abstact method Material#equals()');
+    },
+
+    /**
+     * @return {Object}
+     */
+    toJson: function() {
+      throw new DeveloperError('Cannot call abstact method Material#toJson()');
     }
 
   });

@@ -137,7 +137,9 @@ define([
         diff = diff.componentwiseMultiply(scale);
         this._vertices[i] = centroid.translate(GeoPoint.fromVertex(diff));
       }, this);
-      this._height *= scale.z;
+      if (this._height !== undefined) {
+        this._height *= scale.z;
+      }
       this._super(scale);
     },
 
@@ -148,7 +150,7 @@ define([
     // that affect the primitives in atlas-cesium. At the same time, atlas should perform all the
     // calculations the provider (atlas-cesium) should only be visualising, so we likely need
     // matrix transformations in Atlas, which is more work for now.
-    // rotate: function(rotation) 
+    // rotate: function(rotation)
     //   this._super(rotation);
     // },
 
@@ -252,6 +254,15 @@ define([
      */
     getZIndex: function() {
       return this._zIndex;
+    },
+
+    toJson: function(args) {
+      args = args || {};
+      return Setter.merge(this._super(), {
+        coordinates: args.coordinates || this.getVertices().map(function(vertex) {
+          return vertex.toArray();
+        })
+      });
     }
 
   });

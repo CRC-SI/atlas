@@ -166,6 +166,13 @@ define([
     },
 
     /**
+     * @return {Object}
+     */
+    toJson: function() {
+      return {x: this.x, y: this.y, z: this.z};
+    },
+
+    /**
      * @returns {atlas.model.Vertex} A deep copy of this object.
      */
     clone: function() {

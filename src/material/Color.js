@@ -146,6 +146,16 @@ define([
     equals: function(other) {
       return other && this.red === other.red && this.green === other.green &&
           this.blue === other.blue && this.alpha === other.alpha;
+    },
+
+    toJson: function() {
+      return {
+        type: 'Color',
+        red: this.red,
+        green: this.green,
+        blue: this.blue,
+        alpha: this.alpha,
+      }
     }
 
   });

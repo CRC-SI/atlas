@@ -18,14 +18,14 @@ define([
     });
 
     describe('GeoEntities:', function() {
-      it('should be able to create entities', function () {
+      it('should be able to create entities', function() {
         atlas.publish('entity/create', {id: 'feature'});
         expect(atlas.getManager('entity').getById('feature')).toBeDefined();
         // The entity should be invisible by default.
         expect(atlas.getManager('entity').getById('feature').isVisible()).toBe(false);
       });
 
-      it('should be able to create entities and immediately show it', function () {
+      it('should be able to create entities and immediately show it', function() {
         atlas.publish('entity/create', {id: 'feature', show: true});
         expect(atlas.getManager('entity').getById('feature')).toBeDefined();
         expect(atlas.getManager('entity').getById('feature').isVisible()).toBe(true);

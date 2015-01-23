@@ -239,6 +239,19 @@ define([
       return this._delegateToForm('getStyle') || this._style;
     },
 
+    toJson: function() {
+      var json = this._super();
+      Object.keys(Feature.DisplayMode).forEach(function(key) {
+        var mode = Feature.DisplayMode[key];
+        var propName = mode.replace('_');
+        var form = this.getForm(mode);
+        if (form) {
+          json[propName] = form.toJson();
+        }
+      }, this);
+      return json;
+    },
+
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------
