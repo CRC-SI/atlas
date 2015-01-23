@@ -80,7 +80,7 @@ define([
       // Move existing DOM if there is one.
       Log.debug('setting DOM node', elem);
       if (this._domNode !== null) {
-        var curDomNode = this.getDom();
+        var curDomNode = this.getDomNode();
         Log.debug('moving atlas from', curDomNode, 'to', newDomNode);
 
         // Hide the current dom node
@@ -109,7 +109,7 @@ define([
     /**
      * @returns {HTMLElement} The current DOM node used by Atlas.
      */
-    getDom: function() {
+    getDomNode: function() {
       return this._domNode;
     },
 
@@ -123,7 +123,7 @@ define([
      * @returns {Object} An object with relative x and y coordinates.
      */
     translateEventCoords: function(screenCoords) {
-      var element = this.getDom();
+      var element = this.getDomNode();
       var style = window.getComputedStyle(element);
       var getCss = function(css) {
         return parseInt(style.getPropertyValue(css).replace('px', '')) || 0;
@@ -135,11 +135,11 @@ define([
     },
 
     getHeight: function() {
-      return this.getDom().offsetHeight;
+      return this.getDomNode().offsetHeight;
     },
 
     getWidth: function() {
-      return this.getDom().offsetWidth;
+      return this.getDomNode().offsetWidth;
     },
 
     // -------------------------------------------
@@ -159,7 +159,7 @@ define([
      */
     show: function() {
       if (!this._visible) {
-        DomClass.remove(this.getDom(), 'hidden');
+        DomClass.remove(this.getDomNode(), 'hidden');
         this._visible = true;
       }
     },
@@ -169,7 +169,7 @@ define([
      */
     hide: function() {
       if (this._visible) {
-        DomClass.add(this.getDom(), 'hidden');
+        DomClass.add(this.getDomNode(), 'hidden');
         this._visible = false;
       }
     },
