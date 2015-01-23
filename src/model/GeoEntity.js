@@ -158,6 +158,13 @@ define([
     _preSelectStyle: null,
 
     /**
+     * Whether the GeoEntity can be selected.
+     * @type {Boolean}
+     * @private
+     */
+    _selectable: true,
+
+    /**
      * Whether the GeoEntity is selected.
      * @type {Boolean}
      * @protected
@@ -508,6 +515,14 @@ define([
      */
     clean: function() {
       this._dirty = {};
+    },
+
+    setSelectable: function(selectable) {
+      this._selectable = !!selectable;
+    },
+
+    isSelectable: function() {
+      return this._selectable;
     },
 
     /**
