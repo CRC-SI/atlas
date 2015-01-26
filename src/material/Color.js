@@ -64,7 +64,7 @@ define([
       this.red = obj.red || 0;
       this.green = obj.green || 0;
       this.blue = obj.blue || 0;
-      this.alpha = obj.alpha || 0;
+      this.alpha = obj.alpha || 1;
     },
 
     _fromStr: function(str) {

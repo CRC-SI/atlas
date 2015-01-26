@@ -10,6 +10,7 @@ define([
   'atlas/model/Feature',
   'atlas/model/GeoEntity',
   'atlas/model/Mesh',
+  'atlas/model/Point',
   'atlas/model/Polygon',
   'atlas/model/Line',
   'atlas/model/Image',
@@ -17,7 +18,7 @@ define([
   'atlas/model/Vertex',
   'atlas/util/DeveloperError'
 ], function(Manager, ItemStore, Event, Log, Setter, topsort, Collection, Ellipse, Feature,
-            GeoEntity, Mesh, Polygon, Line, Image, GeoPoint, Vertex, DeveloperError) {
+            GeoEntity, Mesh, Point, Polygon, Line, Image, GeoPoint, Vertex, DeveloperError) {
 
   /**
    * @typedef atlas.entity.EntityManager
@@ -52,6 +53,7 @@ define([
       Image: Image,
       Line: Line,
       Mesh: Mesh,
+      Point: Point,
       Polygon: Polygon,
       Collection: Collection
     },
