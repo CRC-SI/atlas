@@ -152,16 +152,19 @@ define([
     },
 
     /**
-     * Returns an array of terrain elevation for the given <code>GeoPoints</code>.
+     * Returns an array of terrain elevation for the given <code>GeoPoints</code>, or
+     * an empty array if the all of the GeoPoints do not reside within the terrain.
      *
      * @param {Array.<atlas.model.GeoPoint>} geoPoints - The GeoPoints to retrieve the terrain
      *     elevation for.
      * @returns {Array.<Number>}
      */
     sampleTerrain: function(geoPoints) {
-      return geoPoints.map(this.sampleTerrainAtPoint, this).filter(function(element) {
+      var elevations = geoPoints.map(this.sampleTerrainAtPoint, this).filter(function(element) {
         return !!element;
       });
+      if (!elevations) {return [];}
+      return elevations;
     },
 
     /**
