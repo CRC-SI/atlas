@@ -27,12 +27,12 @@ define([
     south: null,
 
     /**
-     * @type {Number} The east side's latitude in decimal degrees.
+     * @type {Number} The east side's longitude in decimal degrees.
      */
     east: null,
 
     /**
-     * @type {Number} The west side's latitude in decimal degrees.
+     * @type {Number} The west side's longitude in decimal degrees.
      */
     west: null,
 
@@ -92,6 +92,11 @@ define([
     // -------------------------------------------------
     // OPERATIONS
     // -------------------------------------------------
+
+    containsPoint: function(point) {
+      return (this.south <= point.latitude && point.latitude <= this.north &&
+              this.west <= point.longitude && point.longitude <= this.east);
+    },
 
     /**
      * Subtracts a Rectangle from this Rectangle. This has the negative effect of
