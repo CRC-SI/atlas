@@ -14,6 +14,7 @@ var specsConfig = [
   {name: 'model/Ellipse', run: false},
   {name: 'model/Feature', run: false},
   {name: 'model/Handle', run: false},
+  {name: 'model/HeightMap', run: true},
   {name: 'model/Line', run: false},
   {name: 'model/LineNetwork', run: false},
   {name: 'model/Mesh', run: false, fix: 'merge in feature/entity-create-event'},
