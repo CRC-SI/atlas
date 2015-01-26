@@ -366,10 +366,11 @@ define([
     _parseC3ML: function(c3ml) {
       // Map of C3ML type to parse of that type.
       var parsers = {
-        line: this._parseC3MLline,
-        mesh: this._parseC3MLmesh,
-        polygon: this._parseC3MLpolygon,
-        image: this._parseC3MLimage
+        point: this._parseC3mlPoint,
+        line: this._parseC3mlLine,
+        mesh: this._parseC3mlMesh,
+        polygon: this._parseC3mlPolygon,
+        image: this._parseC3mlImage
       };
       // Generate the Geometry for the C3ML type if it is supported.
       var parser = parsers[c3ml.type];
@@ -381,12 +382,30 @@ define([
     // Mix in new parameters.
 
     /**
+     * Parses a C3ML point object to an format supported by Atlas.
+     * @param {Object} c3ml - The C3ML object to be parsed
+     * @returns {Object} The parsed C3ML.
+     * @private
+     */
+    _parseC3mlPoint: function(c3ml) {
+      return {
+        point: {
+          position: c3ml.position,
+          latitude: c3ml.latitude,
+          longitude: c3ml.longitude,
+          elevation: c3ml.elevation,
+          color: c3ml.color,
+        }
+      };
+    },
+
+    /**
      * Parses a C3ML image object to an format supported by Atlas.
      * @param {Object} c3ml - The C3ML object to be parsed
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLimage: function(c3ml) {
+    _parseC3mlImage: function(c3ml) {
       return {
         image: {
           vertices: c3ml.coordinates,
@@ -401,7 +420,7 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLline: function(c3ml) {
+    _parseC3mlLine: function(c3ml) {
       return {
         line: {
           vertices: c3ml.coordinates,
@@ -418,7 +437,7 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLpolygon: function(c3ml) {
+    _parseC3mlPolygon: function(c3ml) {
       return {
         polygon: {
           // TODO(aramk) We need to standardize which one we use - were using "vertices" internally
@@ -438,7 +457,7 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLmesh: function(c3ml) {
+    _parseC3mlMesh: function(c3ml) {
       return {
         mesh: {
           positions: c3ml.positions,
