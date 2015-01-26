@@ -320,7 +320,7 @@ define([
     bulkCreate: function(c3mls) {
       var ids = [];
       var edges = [];
-      var childrenMap = {};
+      var sortMap = {};
       var c3mlMap = {};
       // Topologically sort the c3ml based on the "children" field.
       c3mls.forEach(function(c3ml) {
@@ -328,9 +328,12 @@ define([
         var children = c3ml.children;
         if (children) {
           children.forEach(function(childId) {
-            edges.push([c3ml.id, childId]);
-            childrenMap[childId] = true;
-          })
+            edges.push([id, childId]);
+            sortMap[id] = sortMap[childId] = true;
+          });
+        }
+        if (c3mlMap[id]) {
+          throw new Error('Duplicate IDs for c3mls: ' + id);
         }
         c3mlMap[id] = c3ml;
       });
@@ -341,7 +344,7 @@ define([
       // Add any entities which are not part of a hierarchy and weren't in the topological sort.
       c3mls.forEach(function(c3ml) {
         var id = c3ml.id;
-        if (!childrenMap[id]) {
+        if (!sortMap[id]) {
           sortedIds.push(id);
         }
       });
@@ -373,7 +376,11 @@ define([
         image: this._parseC3mlImage
       };
       // Generate the Geometry for the C3ML type if it is supported.
-      var parser = parsers[c3ml.type];
+      var type = c3ml.type;
+      if (!type) {
+        throw new Error('C3ml must have type parameter.');
+      }
+      var parser = parsers[type];
       var geometry = parser && parser.call(this, c3ml);
       return Setter.mixin(c3ml, geometry);
     },
