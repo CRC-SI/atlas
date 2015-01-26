@@ -148,6 +148,58 @@ define([
       localGeoLocation.coord.x += this._shiftX;
       localGeoLocation.coord.y += this._shiftY;
       return new GeoPoint.fromUtm(localGeoLocation);
+    },
+
+    /**
+     * Returns an array of terrain elevation for the given <code>GeoPoints</code>.
+     *
+     * @param {Array.<atlas.model.GeoPoint>} geoPoints - The GeoPoints to retrieve the terrain
+     *     elevation for.
+     * @returns {Array.<Number>}
+     */
+    sampleTerrain: function(geoPoints) {
+      return geoPoints.map(this.sampleTerrainAtPoint, this).filter(function(element) {
+        return !!element;
+      });
+    },
+
+    /**
+     * Returns the elevation for at a given GeoPoint, or null if that GeoPoint is not within the
+     * defined terrain elevation model.
+     * @param {[type]} geoPoint [description]
+     * @returns {[type]} [description]
+     */
+    sampleTerrainAtPoint: function(geoPoint) {
+      if (!this._pointInModel(geoPoint)) {return null;}
+      var row = this._getModelRowIndex(geoPoint.latitude);
+      var col = this._getModelColIndex(geoPoint.longitude);
+      return this._elevationData[row][col];
+    },
+
+    _getModelRowIndex: function(latitude) {
+      var north = this._modelExtent.getNorth();
+      var south = this._modelExtent.getSouth();
+      return this._lerpResolution(north, south, latitude);
+    },
+
+    _getModelColIndex: function(longitude) {
+      var east = this._modelExtent.getEast();
+      var west = this._modelExtent.getWest();
+      return this._lerpResolution(east, west, longitude);
+    },
+
+    _lerpResolution: function(hi, lo, value) {
+      var f = value - lo;
+      var diff = hi - lo;
+      if (f === diff) {
+        return this._resolution - 1;
+      }
+      var index = Math.abs(Math.floor(f / diff * this._resolution));
+      return index;
+    },
+
+    _pointInModel: function(geoPoint) {
+      return this._modelExtent.containsPoint(geoPoint);
     }
 
   });

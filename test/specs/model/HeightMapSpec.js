@@ -101,6 +101,44 @@ define([
         expect(rect.north).toBeGreaterThan(rect.south, 'North south');
         expect(rect.east).toBeGreaterThan(rect.west, 'East west');
       });
+
+    });
+
+    it('should return the nearest terrain elevation when the given GeoPoint is within the terrain' +
+        'model and at the centre', function() {
+      heightmap = new HeightMap(args);
+
+      var height = heightmap.sampleTerrainAtPoint(new GeoPoint({latitude: -37, longitude: 145}));
+      expect(height).toEqual(23);
+    });
+
+    it('should return the nearest terrain elevation when the given GeoPoint is within the terrain' +
+        'model and not at the centre', function() {
+      heightmap = new HeightMap(args);
+
+      // Northern edge at the centre
+      var height = heightmap.sampleTerrainAtPoint(new GeoPoint({latitude: -37.00004729949923,
+          longitude: 145}));
+      expect(height).toEqual(3);
+    });
+
+    it('should return the nearest terrain elevation when the given GeoPoint is within the terrain' +
+        'model and not at the centre', function() {
+      heightmap = new HeightMap(args);
+
+      // South east corner
+      var height = heightmap.sampleTerrainAtPoint(new GeoPoint({latitude: -36.99995263411956,
+          longitude: 145.0000590099906}));
+      expect(height).toEqual(45);
+    });
+
+    it('should return an array of heights when given an array of GeoPoints', function() {
+      heightmap = new HeightMap(args);
+      var points = [new GeoPoint({latitude: -37, longitude: 145}),
+                    new GeoPoint({latitude: -37.00004729949923, longitude: 145}),
+                    new GeoPoint({latitude: -36.99995263411956, longitude: 145.0000590099906})];
+
+      expect(heightmap.sampleTerrain(points)).toEqual([23, 3, 45]);
     });
 
   });
