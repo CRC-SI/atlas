@@ -1,10 +1,12 @@
 define([
   'atlas/lib/utility/Setter',
+  'atlas/lib/utility/Types',
   'atlas/model/GeoPoint',
   'atlas/util/DeveloperError',
   // Base class
-  'atlas/model/VertexedEntity'
-], function(Setter, GeoPoint, DeveloperError, VertexedEntity) {
+  'atlas/model/VertexedEntity',
+  'atlas/util/WKT'
+], function(Setter, Types, GeoPoint, DeveloperError, VertexedEntity, WKT) {
 
   /**
    * @typedef atlas.model.Point
@@ -17,8 +19,9 @@ define([
    *
    * @param {Number} id - The ID of this Point.
    * @param {Object} data - Data describing the Point.
-   * @param {atlas.model.GeoPoint} [data.vertices=[]] - Either a WKT string or
-   *     an array of vertices describing the Point.
+   * @param {atlas.model.GeoPoint|String} [data.position] The position of the Point. This can
+   *     optionally be a WKT string. If not provided, both <code>longitude</code> and
+   *     <code>latitude</code> are expected.
    * @param {Number} [data.longitude]
    * @param {Number} [data.latitude]
    * @param {Number} [data.elevation] - The elevation of the base of the Point.
@@ -30,19 +33,26 @@ define([
   Point = VertexedEntity.extend(/** @lends atlas.model.Point# */ {
 
     /**
-     * The primitive point model.
+     * The position of the Point.
      * @type {atlas.model.GeoPoint}
      */
-    _point: null,
+    _position: null,
 
     /**
      * Constructs a new Point.
      * @ignore
      */
     _setup: function(id, data, args) {
-      this._point = new GeoPoint({longitude: data.longitude, latitude: data.latitude,
-          elevation: data.elevation});
-      data.vertices = [this._point];
+      var position = data.position;
+      if (Types.isString(position)) {
+        var wkt = WKT.getInstance();
+        position = wkt.geoPointsFromWKT(position)[0][0];
+      } else if (!position) {
+        position = new GeoPoint({longitude: data.longitude, latitude: data.latitude,
+            elevation: data.elevation});
+      }
+      this._position = position;
+      data.vertices = [position];
       this._super(id, data, args);
     },
 
@@ -54,7 +64,7 @@ define([
      * @return {atlas.model.GeoPoint} The primitive point model.
      */
     getPosition: function() {
-      return this._point.clone();
+      return this._position.clone();
     },
 
     toJson: function() {
