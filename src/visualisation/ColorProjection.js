@@ -9,12 +9,24 @@ define([
    * @classdesc A ColorProjection is used to project GeoEntity parameter values
    * onto the GeoEntity's color.
    * @class atlas.visualisation.ColorProjection
+   * @param {Object} args - Arguments to construct the ColorProjection
+   * @param {Number} [args.opacity] - The opacity of the colors. This overrides the opacity of the
+   *     colors in the codomain.
    * @extends atlas.visualisation.AbstractProjection
    */
   return AbstractProjection.extend(/** @lends atlas.visualisation.ColorProjection# */{
-    ARTIFACT: 'color',
 
+    ARTIFACT: 'color',
     DEFAULT_CODOMAIN: {startProj: Color.RED, endProj: Color.GREEN},
+
+    _init: function(args) {
+      this._super(args);
+      var opacity = args.opacity;
+      if (opacity !== undefined) {
+        var codomain = this._configuration.codomain;
+        codomain.startProj.alpha = codomain.endProj.alpha = opacity;
+      }
+    },
 
     // -------------------------------------------
     // GETTERS AND SETTERS
@@ -180,11 +192,11 @@ define([
       var regressionFactor = this._type === 'continuous' ?
           attributes.absRatio :
               attributes.numBins === 1 ? 0.5 : attributes.binId / (attributes.numBins - 1);
-      if ('fixedProj' in codomain) {
+      if (codomain.fixedProj) {
         return {fillMaterial: codomain.fixedProj};
-      } else if ('startProj' in codomain && 'endProj' in codomain) {
-        var startColor = codomain['startProj'];
-        var endColor = codomain['endProj'];
+      } else if (codomain.startProj && codomain.endProj) {
+        var startColor = codomain.startProj;
+        var endColor = codomain.endProj;
         var newColor = startColor.interpolate(endColor, regressionFactor);
         return {fillMaterial: newColor};
       }

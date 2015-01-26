@@ -270,8 +270,8 @@ define([
      */
     setMinimised: function(isMinimised) {
       var elems = this.getDomElements();
-      var content = $(elems.content);
-      var enableCheckbox = $('.enable-overlay', elems.title);
+      var $content = $(elems.content);
+      var $enableCheckbox = $('.enable-overlay', elems.title);
       $content.toggle(!isMinimised);
       $enableCheckbox.prop('checked', !isMinimised);
     },
