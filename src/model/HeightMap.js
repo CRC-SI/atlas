@@ -173,7 +173,8 @@ define([
       if (!this._pointInModel(geoPoint)) {return null;}
       var row = this._getModelRowIndex(geoPoint.latitude);
       var col = this._getModelColIndex(geoPoint.longitude);
-      return this._elevationData[row][col];
+      var elevation = this._elevationData[row][col];
+      return elevation === HeightMap.NULL_ELEVATION ? null : elevation;
     },
 
     _getModelRowIndex: function(latitude) {
@@ -203,6 +204,13 @@ define([
     }
 
   });
+
+  /**
+   * Value signify that a particular sample point for the terrain model is not set, and thus the
+   * terrain should default to some value.
+   * @type {Number}
+   */
+  HeightMap.NULL_ELEVATION = -1000000;
 
   return HeightMap;
 
