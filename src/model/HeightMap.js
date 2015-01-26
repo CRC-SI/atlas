@@ -93,8 +93,8 @@ define([
       var centroidUtm = this._geoLocation.toUtm();
       var zone = centroidUtm.zone;
       var isSouthern = centroidUtm.isSouthern;
-      var centroidX = centroidUtm.coord.x + this._shiftX;
-      var centroidY = centroidUtm.coord.y + this._shiftY;
+      var centroidX = centroidUtm.coord.x; // + this._shiftX;
+      var centroidY = centroidUtm.coord.y; // + this._shiftY;
 
       var north = GeoPoint.fromUtm({
         coord: {
@@ -142,6 +142,7 @@ define([
     },
 
     _centroidFromGeoLocation: function() {
+      return new GeoPoint(this._geoLocation);
       var localGeoLocation = this._geoLocation.toUtm();
 
       // TODO(bpstudds): Update this when the actual height map format changes.
