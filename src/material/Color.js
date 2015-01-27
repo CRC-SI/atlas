@@ -99,12 +99,20 @@ define([
         }
         return str;
       };
-      return '#' + hex(this.red * 255) + hex(this.green * 255) + hex(this.blue * 255);
+      return '#' + hex(this.red * 255) + hex(this.green * 255) + hex(this.blue * 255)
+          + hex(this.alpha * 255);
     },
 
-    toArray: function() {
+    /**
+     * @param {Boolean} [isFloat=true] Whether the values are in floating point [0-1] or integers
+     *     [0-255].
+     * @return {Array}
+     */
+    toArray: function(isFloat) {
+      isFloat = Setter.def(isFloat, true);
       return ['red', 'green', 'blue', 'alpha'].map(function(colorName) {
-        return this[colorName];
+        var value = this[colorName];
+        return isFloat ? value : value * 255;
       }, this);
     },
 

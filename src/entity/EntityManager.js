@@ -352,38 +352,58 @@ define([
         var c3ml = c3mlMap[id];
         // TODO(aramk) This is only performed for bulk requests and is inconsistent - clean up
         // the API for consistency.
-        var c3mlData = this._parseC3ML(c3ml);
+        var c3mlData = this._parseC3ml(c3ml);
         this.createFeature(id, c3mlData);
         ids.push(id);
       }, this);
       return ids;
     },
 
-    /**
-     * Takes a object conforming to C3ML and converts it to a format expected by
-     * Atlas.
-     * @param {Object} c3ml - The C3ML object.
-     * @returns {Object} An Atlas readable object representing the C3ML object.
-     * @protected
-     */
-    _parseC3ML: function(c3ml) {
+    _getParserForType: function(type) {
       // Map of C3ML type to parse of that type.
       var parsers = {
         point: this._parseC3mlPoint,
         line: this._parseC3mlLine,
         mesh: this._parseC3mlMesh,
         polygon: this._parseC3mlPolygon,
-        image: this._parseC3mlImage
+        image: this._parseC3mlImage,
+        feature: this._parseC3mlFeature
       };
+      return parsers[type];
+    },
+
+    /**
+     * Takes a object conforming to C3ML and converts it to a format expected by the Feature
+     * constructor.
+     * @param {Object} c3ml - The C3ML object.
+     * @returns {Object} An Atlas readable object representing the C3ML object.
+     * @protected
+     */
+    _parseC3ml: function(c3ml) {
       // Generate the Geometry for the C3ML type if it is supported.
       var type = c3ml.type;
-      var parser = parsers[type];
+      if (!type) {
+        throw new Error('C3ml must have type parameter.');
+      }
+      var parser = this._getParserForType(type);
       var geometry = parser && parser.call(this, c3ml);
       return Setter.mixin(c3ml, geometry);
     },
 
     // TODO(aramk) For all parsers - reuse the objects passed rather than creating new ones.
     // Mix in new parameters.
+
+    _parseC3mlFeature: function(c3ml) {
+      Object.keys(Feature.JsonPropertyToDisplayMode).forEach(function(type) {
+        var typeC3ml = c3ml[type];
+        if (typeC3ml) {
+          var parser = this._getParserForType(type);
+          var geometry = parser && parser.call(this, typeC3ml);
+          Setter.mixin(c3ml, geometry);
+        }
+      }, this);
+      return c3ml;
+    },
 
     /**
      * Parses a C3ML point object to an format supported by Atlas.
