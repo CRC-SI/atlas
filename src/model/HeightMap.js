@@ -88,14 +88,15 @@ define([
       }
 
       this._modelExtent = this._calculateExtent();
-      this._displayExtent();
+      window.cesiumAtlas && this._displayExtent();
     },
 
     _calculateExtent: function() {
       var centroidUtm = this._geoLocation.toUtm();
       var zone = centroidUtm.zone;
       var isSouthern = centroidUtm.isSouthern;
-      Log.debug('Calculating height map extent with centroid half shift');
+
+      // TODO(bpstudds): Work out how to position height map so it works.
       var centroidX = centroidUtm.coord.x + (this._shiftX / 2);
       var centroidY = centroidUtm.coord.y + (this._shiftY / 2);
 
@@ -108,25 +109,25 @@ define([
       utm.coord = {
         x: centroidX,
         y: centroidY + (this._height / 2),
-      }
+      };
       var north = GeoPoint.fromUtm(utm).latitude;
 
       utm.coord = {
         x: centroidX,
         y: centroidY - (this._height / 2),
-      }
+      };
       var south = GeoPoint.fromUtm(utm).latitude;
 
       utm.coord = {
         x: centroidX + (this._width / 2),
         y: centroidY
-      }
+      };
       var east = GeoPoint.fromUtm(utm).longitude;
 
       utm.coord = {
         x: centroidX - (this._width / 2),
         y: centroidY
-      }
+      };
       var west = GeoPoint.fromUtm(utm).longitude;
 
       var extent = new Rectangle(north, south, east, west);
@@ -152,7 +153,16 @@ define([
       });
     },
 
+    /**
+     * Converts the GeoLocation of the HeightMap into the centroid, accounting for any offset of
+     * the HeightMap.
+     *
+     * @returns {atlas.model.GeoPoint}
+     * @public
+     */
     _centroidFromGeoLocation: function() {
+      // TODO(bpstudds): Confirm with Geoff how the offset works, currently seems like it is not
+      // required.
       return new GeoPoint(this._geoLocation);
       var localGeoLocation = this._geoLocation.toUtm();
 
