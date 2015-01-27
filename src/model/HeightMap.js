@@ -181,13 +181,13 @@ define([
     _getModelColIndex: function(longitude) {
       var east = this._modelExtent.getEast();
       var west = this._modelExtent.getWest();
-      return this._lerpResolution(east, west, longitude);
+      return this._lerpResolution(west, east, longitude);
     },
 
     _lerpResolution: function(hi, lo, value) {
-      var f = value - lo;
-      var diff = hi - lo;
-      if (f === diff) {
+      var f = value - hi;
+      var diff = lo - hi;
+      if (Math.abs(f) === Math.abs(diff)) {
         return this._resolution - 1;
       }
       var index = Math.abs(Math.floor(f / diff * this._resolution));
