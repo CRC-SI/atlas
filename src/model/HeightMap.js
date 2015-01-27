@@ -1,9 +1,10 @@
 define([
   'atlas/lib/utility/Class',
+  'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/model/GeoPoint',
   'atlas/model/Rectangle'
-], function(Class, Setter, GeoPoint, Rectangle) {
+], function(Class, Log, Setter, GeoPoint, Rectangle) {
   /**
    * @typedef {atlas.model.HeightMap}
    * @ignore
@@ -96,49 +97,39 @@ define([
       var centroidX = centroidUtm.coord.x; // + this._shiftX;
       var centroidY = centroidUtm.coord.y; // + this._shiftY;
 
-      var north = GeoPoint.fromUtm({
-        coord: {
-          x: centroidX - (this._height / 2),
-          y: centroidY
-        },
+      var utm = {
         zone: zone,
         isSouthern: isSouthern
-      }).latitude;
+      };
 
-      var south = GeoPoint.fromUtm({
-        coord: {
-          x: centroidX + (this._height / 2),
-          y: centroidY
-        },
-        zone: zone,
-        isSouthern: isSouthern
-      }).latitude;
-
-      var east = GeoPoint.fromUtm({
-        coord: {
-          x: centroidX,
-          y: centroidY + (this._width / 2)
-        },
-        zone: zone,
-        isSouthern: isSouthern
-      }).longitude;
-
-      var west = GeoPoint.fromUtm({
-        coord: {
-          x: centroidX,
-          y: centroidY - (this._width / 2)
-        },
-        zone: zone,
-        isSouthern: isSouthern
-      }).longitude;
-
-      // TODO(bpstudds): Why do the north/south and east/west need to be swapped? Something to do
-      // with UTM?
-      if (isSouthern) {
-        return new Rectangle(north, south, east, west);
-      } else {
-        return new Rectangle(south, north, west, east);
+      // Calculate limits of extent
+      utm.coord = {
+        x: centroidX,
+        y: centroidY + (this._height / 2),
       }
+      var north = GeoPoint.fromUtm(utm).latitude;
+
+      utm.coord = {
+        x: centroidX,
+        y: centroidY - (this._height / 2),
+      }
+      var south = GeoPoint.fromUtm(utm).latitude;
+
+      utm.coord = {
+        x: centroidX + (this._width / 2),
+        y: centroidY
+      }
+      var east = GeoPoint.fromUtm(utm).longitude;
+
+      utm.coord = {
+        x: centroidX - (this._width / 2),
+        y: centroidY
+      }
+      var west = GeoPoint.fromUtm(utm).longitude;
+
+      var extent = new Rectangle(north, south, east, west);
+      console.log('Heightmap extent ', extent);
+      return extent;
     },
 
     _centroidFromGeoLocation: function() {
