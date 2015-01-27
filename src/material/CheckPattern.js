@@ -47,8 +47,8 @@ define([
     toJson: function() {
       return {
         type: 'CheckPattern',
-        color1: this.color1.toHexString(),
-        color2: this.color2.toHexString(),
+        color1: this.color1.toString(),
+        color2: this.color2.toString(),
         repeat: this.repeat.toJson(),
       }
     }

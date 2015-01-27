@@ -5,19 +5,24 @@ define([
 
     describe ('can be constructed', function() {
 
-      it ('with a string', function() {
-        var color = new Color('red');
-        expect(color.toHexString()).toEqual('#ff0000');
+      it ('with a name string', function() {
+        expect(new Color('red').toHexString()).toEqual('#ff0000');
+      });
+
+      it ('with an rgba string', function() {
+        var value = 'rgba(255, 0, 0, 0.5)';
+        var color = new Color(value);
+        expect(color.toString()).toEqual(value);
+        color.alpha = 1;
+        expect(color.toString()).toEqual('rgba(255, 0, 0, 1)');
       });
 
       it ('with arguments', function() {
-        var color = new Color(1, 0, 0);
-        expect(color.toHexString()).toEqual('#ff0000');
+        expect(new Color(1, 0, 0).toHexString()).toEqual('#ff0000');
       });
 
       it ('with an array', function() {
-        var color = new Color([1, 0, 0, 0]);
-        expect(color.toHexString()).toEqual('#ff0000');
+        expect(new Color([1, 0, 0, 0]).toHexString()).toEqual('#ff0000');
       });
 
       it ('with an object', function() {
@@ -25,6 +30,13 @@ define([
         expect(color.toHexString()).toEqual('#ff0000');
       });
 
+    });
+
+    it ('can be converted to rgba', function() {
+      var color = new Color('red');
+      expect(color.toString()).toEqual('rgba(255, 0, 0, 1)');
+      color.alpha = 0.5;
+      expect(color.toString()).toEqual('rgba(255, 0, 0, 0.5)');
     });
 
   });

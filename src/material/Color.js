@@ -85,11 +85,12 @@ define([
      */
     toString: function() {
       return 'rgba(' + [this.red * 255, this.green * 255, this.blue * 255,
-          this.alpha * 255].join(', ') + ')';
+          this.alpha].join(', ') + ')';
     },
 
     /**
-     * @returns {string} The color as a string in the CSS hex format.
+     * @returns {string} The color as a string in the CSS hex format. This cannot include alpha. Use
+     *     {@link #toString()} if this is needed.
      */
     toHexString: function() {
       var hex = function(a) {
@@ -99,8 +100,7 @@ define([
         }
         return str;
       };
-      return '#' + hex(this.red * 255) + hex(this.green * 255) + hex(this.blue * 255)
-          + hex(this.alpha * 255);
+      return '#' + hex(this.red * 255) + hex(this.green * 255) + hex(this.blue * 255);
     },
 
     /**
