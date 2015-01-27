@@ -88,14 +88,16 @@ define([
       }
 
       this._modelExtent = this._calculateExtent();
+      this._displayExtent();
     },
 
     _calculateExtent: function() {
       var centroidUtm = this._geoLocation.toUtm();
       var zone = centroidUtm.zone;
       var isSouthern = centroidUtm.isSouthern;
-      var centroidX = centroidUtm.coord.x; // + this._shiftX;
-      var centroidY = centroidUtm.coord.y; // + this._shiftY;
+      Log.debug('Calculating height map extent with centroid half shift');
+      var centroidX = centroidUtm.coord.x + (this._shiftX / 2);
+      var centroidY = centroidUtm.coord.y + (this._shiftY / 2);
 
       var utm = {
         zone: zone,
@@ -128,8 +130,26 @@ define([
       var west = GeoPoint.fromUtm(utm).longitude;
 
       var extent = new Rectangle(north, south, east, west);
-      console.log('Heightmap extent ', extent);
       return extent;
+    },
+
+    _displayExtent: function() {
+      var extent = {north: this._modelExtent.getNorth(), south: this._modelExtent.getSouth(),
+          east: this._modelExtent.getEast(), west: this._modelExtent.getWest()};
+
+      window.cesiumAtlas.publish('entity/create', {
+        id: 'heightmap-extent',
+        polygon: {
+          vertices: [
+            {latitude: extent.north, longitude: extent.west}, // NW
+            {latitude: extent.north, longitude: extent.east}, // NE
+            {latitude: extent.south, longitude: extent.east}, // SE
+            {latitude: extent.south, longitude: extent.west}  // SW
+          ],
+          elevation: 0
+        },
+        show: true
+      });
     },
 
     _centroidFromGeoLocation: function() {
