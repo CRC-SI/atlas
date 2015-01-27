@@ -57,6 +57,11 @@ define([
      * given sample point. The data is in row-major order, where rows are parallel to the lines
      * of latitude.
      *
+     * The "top left" element (ie. <code>_elevationData[0][0]</code>) is the north west corner, with
+     * horizontal rows down to the south east corner. The geographic position of the top left element
+     * is <code>this._shiftX</code> east and <code>this._shiftY</code> north of
+     * <code>this._geoLocation</code>
+     *
      * @type {Array.Array.<Number>}
      * @private
      */
@@ -88,7 +93,7 @@ define([
       }
 
       this._modelExtent = this._calculateExtent();
-      window.cesiumAtlas && this._displayExtent();
+      // window.cesiumAtlas && this._displayExtent();
     },
 
     _calculateExtent: function() {
@@ -97,8 +102,8 @@ define([
       var isSouthern = centroidUtm.isSouthern;
 
       // TODO(bpstudds): Work out how to position height map so it works.
-      var centroidX = centroidUtm.coord.x + (this._shiftX / 2);
-      var centroidY = centroidUtm.coord.y + (this._shiftY / 2);
+      var centroidX = centroidUtm.coord.x + this._shiftX + (this._width / 2);
+      var centroidY = centroidUtm.coord.y + this._shiftY - (this._height / 2);
 
       var utm = {
         zone: zone,
@@ -189,31 +194,57 @@ define([
     },
 
     /**
-     * Returns the elevation for at a given GeoPoint, or null if that GeoPoint is not within the
-     * defined terrain elevation model.
-     * @param {[type]} geoPoint [description]
-     * @returns {[type]} [description]
+     * Returns the elevation for at a given GeoPoint, or <code>null</code> if that GeoPoint is not
+     * within the defined terrain elevation model.
+     *
+     * @param {atlas.model.GeoPoint} geoPoint - The point to sample at.
+     * @returns {Number|null} The terrain elevation or <code>null</code> if the point is not in the
+     *     terrain model.
      */
     sampleTerrainAtPoint: function(geoPoint) {
-      if (!this._pointInModel(geoPoint)) {return null;}
+      if (!this._pointInModel(geoPoint)) {
+        console.log('Sampled point not in terrain');
+        return null;
+      }
+      // TODO(bpstudds): Confirm all this with Geoff.
       var row = this._getModelRowIndex(geoPoint.latitude);
       var col = this._getModelColIndex(geoPoint.longitude);
-      var elevation = this._elevationData[row][col];
+      var elevation = this._elevationData[col][row];
       return elevation === HeightMap.NULL_ELEVATION ? null : elevation;
     },
 
+    /**
+     * Determines the row index into the terrain model for the given value of latitude.
+     *
+     * @param {Number} latitude - The latitude.
+     * @returns {Number} The index.
+     */
     _getModelRowIndex: function(latitude) {
       var north = this._modelExtent.getNorth();
       var south = this._modelExtent.getSouth();
       return this._lerpResolution(north, south, latitude);
     },
 
+    /**
+     * Determines the column index into the terrain model for the given value of longitude.
+     *
+     * @param {Number} longitude - The longitude.
+     * @returns {Number} The index.
+     */
     _getModelColIndex: function(longitude) {
       var east = this._modelExtent.getEast();
       var west = this._modelExtent.getWest();
       return this._lerpResolution(west, east, longitude);
     },
 
+    /**
+     * Given a value and an upper and lower bound; an index into the terrain model (either
+     * in eastings or northings) is determined by interpolating the models resolution (the model
+     * array's dimensions) by where <code>value</code> falls between <code>hi</code> and
+     * <code>lo</code>.
+     *
+     * @returns {Number} The index.
+     */
     _lerpResolution: function(hi, lo, value) {
       var f = value - hi;
       var diff = lo - hi;
