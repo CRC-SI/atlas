@@ -216,7 +216,7 @@ define([
         throw new DeveloperError('Can not create instance of GeoEntity without an ID');
       }
       this._id = id.toString();
-      this._renderManager = Setter.require(args, 'renderManager', 'GeoEntity');
+      this._renderManager = Setter.def(args.renderManager, 'need to create with RenderManager');
       this._eventManager = args.eventManager;
       this._entityManager = args.entityManager;
       this._entityManager && this._entityManager.add(this);
