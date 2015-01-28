@@ -13,6 +13,7 @@ var specsConfig = [
   {name: 'model/Collection', run: false, fix: 'setCentroid fails when collection is empty'},
   {name: 'model/Ellipse', run: false},
   {name: 'model/Feature', run: false},
+  {name: 'model/GeoPoint', run: true},
   {name: 'model/Handle', run: false},
   {name: 'model/Line', run: false},
   {name: 'model/LineNetwork', run: false},
