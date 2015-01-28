@@ -15,15 +15,15 @@ define([
   var Point;
 
   /**
-   * @classdesc Represents a single point.
+   * @classdesc Represents a single point that can be rendered.
    *
    * @param {Number} id - The ID of this Point.
    * @param {Object} data - Data describing the Point.
    * @param {atlas.model.GeoPoint|String} [data.position] The position of the Point. This can
    *     optionally be a WKT string. If not provided, both <code>longitude</code> and
    *     <code>latitude</code> are expected.
-   * @param {Number} [data.longitude]
-   * @param {Number} [data.latitude]
+   * @param {Number} [data.longitude] - The longitude in decimal degrees.
+   * @param {Number} [data.latitude] - The latitude in decimal degrees.
    * @param {Number} [data.elevation] - The elevation of the base of the Point.
    * @returns {atlas.model.Point}
    *
@@ -61,7 +61,7 @@ define([
     // -------------------------------------------
 
     /**
-     * @return {atlas.model.GeoPoint} The primitive point model.
+     * @returns {atlas.model.GeoPoint} The primitive point model.
      */
     getPosition: function() {
       return this._position.clone();
