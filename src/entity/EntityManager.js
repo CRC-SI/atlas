@@ -10,6 +10,7 @@ define([
   'atlas/model/Feature',
   'atlas/model/GeoEntity',
   'atlas/model/Mesh',
+  'atlas/model/Point',
   'atlas/model/Polygon',
   'atlas/model/Line',
   'atlas/model/Image',
@@ -17,7 +18,7 @@ define([
   'atlas/model/Vertex',
   'atlas/util/DeveloperError'
 ], function(Manager, ItemStore, Event, Log, Setter, topsort, Collection, Ellipse, Feature,
-            GeoEntity, Mesh, Polygon, Line, Image, GeoPoint, Vertex, DeveloperError) {
+            GeoEntity, Mesh, Point, Polygon, Line, Image, GeoPoint, Vertex, DeveloperError) {
 
   /**
    * @typedef atlas.entity.EntityManager
@@ -52,6 +53,7 @@ define([
       Image: Image,
       Line: Line,
       Mesh: Mesh,
+      Point: Point,
       Polygon: Polygon,
       Collection: Collection
     },
@@ -318,7 +320,7 @@ define([
     bulkCreate: function(c3mls) {
       var ids = [];
       var edges = [];
-      var childrenMap = {};
+      var sortMap = {};
       var c3mlMap = {};
       // Topologically sort the c3ml based on the "children" field.
       c3mls.forEach(function(c3ml) {
@@ -326,9 +328,12 @@ define([
         var children = c3ml.children;
         if (children) {
           children.forEach(function(childId) {
-            edges.push([c3ml.id, childId]);
-            childrenMap[childId] = true;
-          })
+            edges.push([id, childId]);
+            sortMap[id] = sortMap[childId] = true;
+          });
+        }
+        if (c3mlMap[id]) {
+          throw new Error('Duplicate IDs for c3mls: ' + id);
         }
         c3mlMap[id] = c3ml;
       });
@@ -339,7 +344,7 @@ define([
       // Add any entities which are not part of a hierarchy and weren't in the topological sort.
       c3mls.forEach(function(c3ml) {
         var id = c3ml.id;
-        if (!childrenMap[id]) {
+        if (!sortMap[id]) {
           sortedIds.push(id);
         }
       });
@@ -364,13 +369,18 @@ define([
     _parseC3ML: function(c3ml) {
       // Map of C3ML type to parse of that type.
       var parsers = {
-        line: this._parseC3MLline,
-        mesh: this._parseC3MLmesh,
-        polygon: this._parseC3MLpolygon,
-        image: this._parseC3MLimage
+        point: this._parseC3mlPoint,
+        line: this._parseC3mlLine,
+        mesh: this._parseC3mlMesh,
+        polygon: this._parseC3mlPolygon,
+        image: this._parseC3mlImage
       };
       // Generate the Geometry for the C3ML type if it is supported.
-      var parser = parsers[c3ml.type];
+      var type = c3ml.type;
+      if (!type) {
+        throw new Error('C3ml must have type parameter.');
+      }
+      var parser = parsers[type];
       var geometry = parser && parser.call(this, c3ml);
       return Setter.mixin(c3ml, geometry);
     },
@@ -379,12 +389,30 @@ define([
     // Mix in new parameters.
 
     /**
+     * Parses a C3ML point object to an format supported by Atlas.
+     * @param {Object} c3ml - The C3ML object to be parsed
+     * @returns {Object} The parsed C3ML.
+     * @private
+     */
+    _parseC3mlPoint: function(c3ml) {
+      return {
+        point: {
+          position: c3ml.position,
+          latitude: c3ml.latitude,
+          longitude: c3ml.longitude,
+          elevation: c3ml.elevation,
+          color: c3ml.color,
+        }
+      };
+    },
+
+    /**
      * Parses a C3ML image object to an format supported by Atlas.
      * @param {Object} c3ml - The C3ML object to be parsed
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLimage: function(c3ml) {
+    _parseC3mlImage: function(c3ml) {
       return {
         image: {
           vertices: c3ml.coordinates,
@@ -399,7 +427,7 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLline: function(c3ml) {
+    _parseC3mlLine: function(c3ml) {
       return {
         line: {
           vertices: c3ml.coordinates,
@@ -416,7 +444,7 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLpolygon: function(c3ml) {
+    _parseC3mlPolygon: function(c3ml) {
       return {
         polygon: {
           // TODO(aramk) We need to standardize which one we use - were using "vertices" internally
@@ -436,7 +464,7 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLmesh: function(c3ml) {
+    _parseC3mlMesh: function(c3ml) {
       return {
         mesh: {
           positions: c3ml.positions,

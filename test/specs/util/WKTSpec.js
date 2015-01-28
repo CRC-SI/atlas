@@ -62,6 +62,10 @@ define([
       expect(wkt.geoPointsFromWKT(wktPointStr)).toEqual([[singleGeoPoint]]);
     });
 
+    it('can convert a geopoint to a WKT point', function() {
+      expect(wkt.wktFromGeoPoint(singleGeoPoint)).toEqual(wktPointStr);
+    });
+
     it('can convert open layers geometry to vertices', function() {
       expect(wkt.verticesFromOpenLayersGeometry(openLayersPolygon)).toEqual([polyVertices]);
     });
