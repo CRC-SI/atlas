@@ -135,8 +135,11 @@ define([
     interpolateByHue: function(other, lerpFactor) {
       var hsv1 = this.toHsv();
       var hsv2 = other.toHsv();
-      hsv1.h = AtlasMath.lerp(hsv2.h, hsv1.h, Setter.range(lerpFactor, 0, 1));
-      return Color.fromHsv(hsv1);
+      lerpFactor = Setter.range(lerpFactor, 0, 1);
+      hsv1.h = AtlasMath.lerp(hsv2.h, hsv1.h, lerpFactor);
+      var color = Color.fromHsv(hsv1);
+      color.alpha = AtlasMath.lerp(this.alpha, other.alpha, lerpFactor);
+      return color;
     },
 
     /**
@@ -146,6 +149,10 @@ define([
     equals: function(other) {
       return other && this.red === other.red && this.green === other.green &&
           this.blue === other.blue && this.alpha === other.alpha;
+    },
+
+    clone: function() {
+      return new Color(this.toJson());
     },
 
     toJson: function() {

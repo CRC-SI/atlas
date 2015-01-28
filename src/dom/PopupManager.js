@@ -107,7 +107,7 @@ define([
         args.entity = this._managers.entity.getById(entity);
       }
       args = Setter.merge({
-        parent: this._managers.dom.getDom()
+        parent: this._managers.dom.getDomNode()
       }, args);
       if (Types.isFunction(content)) {
         args.content = content(args);

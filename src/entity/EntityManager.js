@@ -377,9 +377,6 @@ define([
       };
       // Generate the Geometry for the C3ML type if it is supported.
       var type = c3ml.type;
-      if (!type) {
-        throw new Error('C3ml must have type parameter.');
-      }
       var parser = parsers[type];
       var geometry = parser && parser.call(this, c3ml);
       return Setter.mixin(c3ml, geometry);
