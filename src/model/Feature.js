@@ -260,14 +260,14 @@ define([
       var json = this._super();
       Object.keys(Feature.DisplayMode).forEach(function(key) {
         var displayMode = Feature.DisplayMode[key];
-        var propName = this.getJsonPropertyFromDisplayMode(displayMode);
-        if (json[propName]) {
-          // Avoid re-running toJson() for form classes which can span multiple display modes
-          // (e.g. Polygon and Ellipse).
+        var form = this.getForm(displayMode);
+        if (!form) {
           return;
         }
-        var form = this.getForm(displayMode);
-        if (form) {
+        var propName = this.getJsonPropertyFromDisplayMode(displayMode);
+        if (json[propName] === undefined) {
+          // Avoid re-running toJson() for form classes which can span multiple display modes
+          // (e.g. Polygon and Ellipse).
           json[propName] = form.toJson();
         }
       }, this);
