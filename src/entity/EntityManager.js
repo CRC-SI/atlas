@@ -353,11 +353,13 @@ define([
         // Children may be rendered in a previous draw call so we should skip those.
         if (!this.getById(id)) {
           var c3mlData = this._parseC3ml(c3ml);
-          if (c3mlData.type === 'collection') {
-            this.createCollection(id, c3mlData);
-          } else {
+          // TODO(aramk) Disabled for now since it causes issues in MeshCollectionPrototype related
+          // to translate() being called recursively for all entities.
+          // if (c3mlData.type === 'collection') {
+          //   this.createCollection(id, c3mlData);
+          // } else {
             this.createFeature(id, c3mlData);
-          }
+          // }
           ids.push(id);
         }
       }, this);
