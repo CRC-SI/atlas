@@ -263,6 +263,10 @@ define([
 
     isPolygon: function(wktStr) {
       return this._isType(wktStr, 'POLYGON');
+    },
+
+    isWKT: function(wktStr) {
+      return this.isPoint(wktStr) || this.isLineString(wktStr) || this.isPolygon(wktStr);
     }
 
   }));

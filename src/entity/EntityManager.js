@@ -350,11 +350,16 @@ define([
       });
       sortedIds.forEach(function(id) {
         var c3ml = c3mlMap[id];
-        // TODO(aramk) This is only performed for bulk requests and is inconsistent - clean up
-        // the API for consistency.
-        var c3mlData = this._parseC3ml(c3ml);
-        this.createFeature(id, c3mlData);
-        ids.push(id);
+        // Children may be rendered in a previous draw call so we should skip those.
+        if (!this.getById(id)) {
+          var c3mlData = this._parseC3ml(c3ml);
+          if (c3mlData.type === 'collection') {
+            this.createCollection(id, c3mlData);
+          } else {
+            this.createFeature(id, c3mlData);
+          }
+          ids.push(id);
+        }
       }, this);
       return ids;
     },
