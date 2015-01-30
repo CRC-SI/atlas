@@ -210,7 +210,7 @@ define([
         throw new DeveloperError('Can not create instance of GeoEntity without an ID');
       }
       this._id = id.toString();
-      this._renderManager = Setter.def(args.renderManager, 'need to create with RenderManager');
+      this._renderManager = Setter.def(args.renderManager);
       this._eventManager = args.eventManager;
       this._entityManager = args.entityManager;
       this._entityManager && this._entityManager.add(this);
@@ -512,10 +512,17 @@ define([
       this._dirty = {};
     },
 
+    /**
+     * Sets whether the GeoEntity can be selected.
+     * @param {Boolean} selectable - True iff the GeoEntity can be selected.
+     */
     setSelectable: function(selectable) {
-      this._selectable = !!selectable;
+      this._selectable = selectable;
     },
 
+    /**
+     * @returns {Boolean} Whether the GeoEntity can be selected.
+     */
     isSelectable: function() {
       return this._selectable;
     },

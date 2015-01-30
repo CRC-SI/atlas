@@ -257,12 +257,11 @@ define([
    */
   GeoPoint.fromUtm = function(utm) {
     var latlon = GeoPoint._converter.toWgs(utm).coord;
-    var coord = {
+    return new GeoPoint({
       latitude: latlon.lat,
       longitude: latlon.lon,
       elevation: 0
-    };
-    return new GeoPoint(coord);
+    });
   };
 
   /**

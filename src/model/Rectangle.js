@@ -89,6 +89,15 @@ define([
       ];
     },
 
+    toJson: function() {
+      return {
+        north: this.getNorth(),
+        south: this.getSouth(),
+        east: this.getEast(),
+        west: this.getWest()
+      };
+    },
+
     // -------------------------------------------------
     // OPERATIONS
     // -------------------------------------------------

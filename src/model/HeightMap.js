@@ -115,7 +115,6 @@ define([
       }
 
       this._modelExtent = this._calculateExtent();
-      // window.cesiumAtlas && this._displayExtent();
     },
 
     _calculateExtent: function() {
@@ -153,13 +152,11 @@ define([
       };
       var west = GeoPoint.fromUtm(utm).longitude;
 
-      var extent = new Rectangle(north, south, east, west);
-      return extent;
+      return new Rectangle(north, south, east, west);
     },
 
     _displayExtent: function() {
-      var extent = {north: this._modelExtent.getNorth(), south: this._modelExtent.getSouth(),
-          east: this._modelExtent.getEast(), west: this._modelExtent.getWest()};
+      var extent = this._modelExtent.toJson();
 
       window.cesiumAtlas.publish('entity/create', { // jshint ignore: line
         id: 'heightmap-extent',
@@ -191,7 +188,7 @@ define([
      * the HeightMap, in UTM format.
      *
      * @returns {UTM}
-     * @public
+     * @private
      */
     _centroidUtmFromGeoLocation: function() {
       var geoLocationUtm = this._geoLocation.toUtm();
@@ -223,8 +220,7 @@ define([
       var elevations = geoPoints.map(this.sampleTerrainAtPoint, this).filter(function(element) {
         return !!element;
       });
-      if (!elevations) {return [];}
-      return elevations;
+      return elevations ? elevations : [];
     },
 
     /**
@@ -236,7 +232,7 @@ define([
      *     terrain model.
      */
     sampleTerrainAtPoint: function(geoPoint) {
-      if (!this._pointInModel(geoPoint)) {
+      if (!this._containsPoint(geoPoint)) {
         return null;
       }
       var northSouth = this._getNorthSouthIndex(geoPoint.latitude);
@@ -289,7 +285,12 @@ define([
       return index;
     },
 
-    _pointInModel: function(geoPoint) {
+    /**
+     * @param {atlas.model.GeoPoint} geoPoint - GeoPoint to check.
+     * @returns {Boolean} True if the given GeoPoint is contained in the elevation model.
+     * @private
+     */
+    _containsPoint: function(geoPoint) {
       return this._modelExtent.containsPoint(geoPoint);
     }
 
