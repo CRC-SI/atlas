@@ -250,19 +250,27 @@ define([
     },
 
     _isType: function(wktStr, type) {
-      return typeof wktStr === 'string' && wktStr.indexOf(type) !== -1;
+      if (!Types.isString(wktStr)) {
+        return false;
+      }
+      wktStr = wktStr.trim();
+      return wktStr.indexOf(type) === 0;
     },
 
     isPoint: function(wktStr) {
       return this._isType(wktStr, 'POINT');
     },
 
-    isLineString: function(wktStr) {
+    isLine: function(wktStr) {
       return this._isType(wktStr, 'LINESTRING');
     },
 
     isPolygon: function(wktStr) {
       return this._isType(wktStr, 'POLYGON');
+    },
+
+    isWKT: function(wktStr) {
+      return this.isPoint(wktStr) || this.isLine(wktStr) || this.isPolygon(wktStr);
     }
 
   }));

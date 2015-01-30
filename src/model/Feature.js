@@ -2,12 +2,13 @@ define([
   'atlas/events/Event',
   'atlas/lib/utility/Objects',
   'atlas/lib/utility/Setter',
+  'atlas/model/Ellipse',
   'atlas/model/Mesh',
   'atlas/model/Polygon',
   'atlas/util/DeveloperError',
   // Base class.
   'atlas/model/GeoEntity'
-], function(Event, Objects, Setter, Mesh, Polygon, DeveloperError, GeoEntity) {
+], function(Event, Objects, Setter, Ellipse, Mesh, Polygon, DeveloperError, GeoEntity) {
 
   /**
    * @typedef atlas.model.Feature
@@ -95,16 +96,8 @@ define([
       this._initEvents();
       this._super(id, data, args);
       var displayMode = args.displayMode;
-      var propertyToDisplayMode = {
-        mesh: Feature.DisplayMode.MESH,
-        ellipse: Feature.DisplayMode.EXTRUSION,
-        point: Feature.DisplayMode.POINT,
-        polygon: Feature.DisplayMode.EXTRUSION,
-        line: Feature.DisplayMode.LINE,
-        image: Feature.DisplayMode.IMAGE
-      };
-      Object.keys(propertyToDisplayMode).forEach(function(prop) {
-        var mode = propertyToDisplayMode[prop];
+      Object.keys(Feature.JsonPropertyToDisplayMode).forEach(function(prop) {
+        var mode = Feature.JsonPropertyToDisplayMode[prop];
         var form = args[prop];
         if (form) {
           this.setForm(mode, form);
@@ -207,6 +200,22 @@ define([
       }
     },
 
+    getJsonPropertyFromDisplayMode: function(displayMode) {
+      var form = this.getForm(displayMode);
+      if (displayMode === Feature.DisplayMode.FOOTPRINT ||
+          displayMode === Feature.DisplayMode.EXTRUSION) {
+        if (form instanceof Polygon) {
+          return 'polygon';
+        } else if (form instanceof Ellipse) {
+          return 'ellipse';
+        } else {
+          throw new Error('Unrecognized form for display mode: ' + displayMode);
+        }
+      } else {
+        return displayMode;
+      }
+    },
+
     setSelected: function(selected) {
       // Ensure a selection event is fired for the feature as well. Since setSelected alters the
       // style and it will replace the style of the entity before it is considered selected, and
@@ -250,13 +259,22 @@ define([
     toJson: function() {
       var json = this._super();
       Object.keys(Feature.DisplayMode).forEach(function(key) {
-        var mode = Feature.DisplayMode[key];
-        var propName = mode.replace('_');
-        var form = this.getForm(mode);
-        if (form) {
+        var displayMode = Feature.DisplayMode[key];
+        var form = this.getForm(displayMode);
+        if (!form) {
+          return;
+        }
+        var propName = this.getJsonPropertyFromDisplayMode(displayMode);
+        if (json[propName] === undefined) {
+          // Avoid re-running toJson() for form classes which can span multiple display modes
+          // (e.g. Polygon and Ellipse).
           json[propName] = form.toJson();
         }
       }, this);
+      Setter.merge(json, {
+        type: 'feature',
+        displayMode: this.getDisplayMode(),
+      });
       return json;
     },
 
@@ -478,6 +496,15 @@ define([
     EXTRUSION: 'extrusion',
     MESH: 'mesh',
     IMAGE: 'image'
+  };
+
+  Feature.JsonPropertyToDisplayMode = {
+    mesh: Feature.DisplayMode.MESH,
+    ellipse: Feature.DisplayMode.EXTRUSION,
+    point: Feature.DisplayMode.POINT,
+    polygon: Feature.DisplayMode.EXTRUSION,
+    line: Feature.DisplayMode.LINE,
+    image: Feature.DisplayMode.IMAGE
   };
 
   /**

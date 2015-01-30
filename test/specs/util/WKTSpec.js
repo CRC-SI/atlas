@@ -89,5 +89,14 @@ define([
       expect(polygon.components[0].components.length).toEqual(0);
     });
 
+    it('can check whether a string is WKT', function() {
+      expect(wkt.isPoint(wktPointStr)).toEqual(true);
+      expect(wkt.isPolygon(wktPolygonStr)).toEqual(true);
+      expect(wkt.isLine(wktLineStr)).toEqual(true);
+      expect(wkt.isWKT(wktPointStr)).toEqual(true);
+      expect(wkt.isWKT(wktPolygonStr)).toEqual(true);
+      expect(wkt.isWKT(wktLineStr)).toEqual(true);
+    });
+
   });
 });

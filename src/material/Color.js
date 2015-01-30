@@ -85,11 +85,12 @@ define([
      */
     toString: function() {
       return 'rgba(' + [this.red * 255, this.green * 255, this.blue * 255,
-          this.alpha * 255].join(', ') + ')';
+          this.alpha].join(', ') + ')';
     },
 
     /**
-     * @returns {string} The color as a string in the CSS hex format.
+     * @returns {String} The color as a string in the CSS hex format. This doesn't include alpha.
+     *     Use {@link #toString()} if this is needed.
      */
     toHexString: function() {
       var hex = function(a) {
@@ -102,9 +103,17 @@ define([
       return '#' + hex(this.red * 255) + hex(this.green * 255) + hex(this.blue * 255);
     },
 
-    toArray: function() {
+    /**
+     * @param {Object} [args]
+     * @param {Boolean} [args.floatValues=true] If true, the values are in floating point [0-1].
+     *     Otherwise, they are in integers [0-255].
+     * @return {Array} An array of colors in the form [red, green, blue, alpha].
+     */
+    toArray: function(args) {
+      args = Setter.mixin({floatValues: true}, args);
       return ['red', 'green', 'blue', 'alpha'].map(function(colorName) {
-        return this[colorName];
+        var value = this[colorName];
+        return args.floatValues ? value * 255 : value;
       }, this);
     },
 
