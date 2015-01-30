@@ -39,5 +39,11 @@ define([
       expect(color.toString()).toEqual('rgba(255, 0, 0, 0.5)');
     });
 
+    it ('can be converted to an array', function() {
+      var color = new Color('red');
+      expect(color.toArray()).toEqual([255, 0, 0, 255]);
+      expect(color.toArray({floatValues: false})).toEqual([1, 0, 0, 1]);
+    });
+
   });
 });

@@ -380,8 +380,8 @@ define([
     },
 
     /**
-     * Takes a object conforming to C3ML and converts it to a format expected by the Feature
-     * constructor.
+     * Takes an object conforming to the C3ML standard and converts it to a format expected by the
+     * Feature constructor.
      * @param {Object} c3ml - The C3ML object.
      * @returns {Object} An Atlas readable object representing the C3ML object.
      * @protected
@@ -390,7 +390,7 @@ define([
       // Generate the Geometry for the C3ML type if it is supported.
       var type = c3ml.type;
       if (!type) {
-        throw new Error('C3ml must have type parameter.');
+        throw new Error('C3ML must have type parameter.');
       }
       var parser = this._getParserForType(type);
       var geometry = parser && parser.call(this, c3ml);
