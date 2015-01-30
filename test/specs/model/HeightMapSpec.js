@@ -10,50 +10,46 @@ define([
     /* global GlobalLog */
     /* jshint unused:false */
 
-    // var extent = {
-    //   north: -37.00004729949923,
-    //   south: -36.99995263411956,
-    //   east: 145.0000590099906,
-    //   west: 144.99994098343888
-    // };
+    var centroid = {latitude: -37, longitude: 145};
 
-    var extent = {north: -36.997747768691234, south: -37.00225223036757,
-        east: 145.00280803129112, west: 144.99719197525744};
-
-    // Calculated from args.geoLocation using
+    // Calculated from centroid using
     //     http://home.hiwaay.net/~taylorc/toolbox/geography/geoutm.html
     var centroidUtm = {easting: 322037.8102203241, northing: 5903257.940913517};
 
-    // Calculated by +/- 250m (args.width or args.height / 2)
-    var northUtm = {easting: 322037.8102203241, northing: 5903507.940913517};
-    var southUtm = {easting: 322037.8102203241, northing: 5903007.940913517};
+    // Centre edge points, calculated by +/- 250m or +/- 300m (args.width or args.height / 2) for
+    // east/west or north/south.
+    var northUtm = {easting: 322037.8102203241, northing: 5903557.940913517};
+    var southUtm = {easting: 322037.8102203241, northing: 5902957.940913517};
     var eastUtm = {easting: 322287.8102203241, northing: 5903257.940913517};
     var westUtm = {easting: 321787.8102203241, northing: 5903257.940913517};
 
     // Calculated from above UTM coords using
     //     http://home.hiwaay.net/~taylorc/toolbox/geography/geoutm.html
-    var north = {latitude: -36.99774776869124, longitude: 145.0000590099906};
-    var south = {latitude: -37.002252230367574, longitude: 144.99994098343888};
+    var north = {latitude: -36.99729732231739, longitude: 145.0000708112027};
+    var south = {latitude: -37.002702676328965, longitude: 144.99992917934057};
     var east = {latitude: -37.000047299499236, longitude: 145.0028080312911};
     var west = {latitude: -36.99995263411956, longitude: 144.9971919752574};
 
-    var centre = {latitude: -37, longitude: 145};
     var farSouthEast = {latitude: -37.00225223036756, longitude: 145.0028080312911};
     var midSouthWest = {latitude: -37.0011, longitude: 144.9986};
 
     beforeEach(function() {
       args = {
-        geoLocation: new GeoPoint(centre),
+        geoLocation: new GeoPoint(centroid),
         resolution: 5,
         width: 500,
-        height: 500,
-        points: [[1, 2, 3, 4, 5], [11, 12, 13, 14, 15], [21, 22, 23, 24, 25], [31, 32, 33, 34, 35],
-            [41, 42, 43, 44, 45]]
+        height: 600,
+        points: [[1,  2,  3,  4,  5],
+                [11, 12, 13, 14, 15],
+                [21, 22, 23, 24, 25],
+                [31, 32, 33, 34, 35],
+                [41, 42, 43, 44, 45]]
       };
       GlobalLog.setLevel('debug');
     });
 
     afterEach(function() {
+      args.x = null;
       heightmap = null;
       GlobalLog.setLevel('error');
     });
@@ -79,24 +75,24 @@ define([
     });
 
     // TODO(bpstudds): Centroid offset is currently ignored.
-    xit('can calculate the actual centroid when the geolocation is offset', function() {
+    it('can calculate the actual centroid when the geolocation is offset', function() {
       args.x = 100;
       heightmap = new HeightMap(args);
       var actual = heightmap._centroidFromGeoLocation();
       expect(actual).toBeDefined();
-      expect(actual.longitude).toBeCloseTo(145.001, 3);
-      expect(actual.latitude).toBeCloseTo(-37.0, 1);
+      expect(actual.longitude).toBeCloseTo(145.0011, 4);
+      expect(actual.latitude).toBeCloseTo(-37.0, 4);
+    });
+
+    it('can calculate the actual centroid when there is no offset', function() {
+      heightmap = new HeightMap(args);
+      var actual = heightmap._centroidFromGeoLocation();
+      expect(actual).toBeDefined();
+      expect(actual.longitude).toBeCloseTo(145, 10);
+      expect(actual.latitude).toBeCloseTo(-37, 10);
     });
 
     describe('Extent:', function() {
-      it('can calculate the actual centroid when there is no offset', function() {
-        heightmap = new HeightMap(args);
-        var actual = heightmap._centroidFromGeoLocation();
-        expect(actual).toBeDefined();
-        expect(actual.longitude).toBeCloseTo(145, 10);
-        expect(actual.latitude).toBeCloseTo(-37, 10);
-      });
-
       it('can calculate the extent of the terrain model when in the southern hemisphere',
           function() {
         heightmap = new HeightMap(args);
@@ -138,7 +134,7 @@ define([
         'model and at the centre', function() {
       heightmap = new HeightMap(args);
 
-      var height = heightmap.sampleTerrainAtPoint(new GeoPoint(centre));
+      var height = heightmap.sampleTerrainAtPoint(new GeoPoint(centroid));
       expect(height).toEqual(23);
     });
 
@@ -171,7 +167,7 @@ define([
 
     it('should return an array of heights when given an array of GeoPoints', function() {
       heightmap = new HeightMap(args);
-      var points = [new GeoPoint(centre),
+      var points = [new GeoPoint(centroid),
                     new GeoPoint(north),
                     new GeoPoint(farSouthEast)];
 

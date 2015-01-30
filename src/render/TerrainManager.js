@@ -32,6 +32,7 @@ define([
 
     _init: function(managers) {
       this._super(managers);
+      this._enabled = false;
     },
 
     setup: function() {

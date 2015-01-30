@@ -81,7 +81,6 @@ requirejs.config({
         }
         GlobalLog.debug(msg + ': ', o);
       };
-      Log.setLevel('error');
       /* global window */
       window.__karma__.start();
     });

@@ -21,7 +21,9 @@ define([
   HeightMap = Class.extend(/** @lends atlas.model.HeightMap# */ {
 
     /**
-     * The geographic location of the centre of the height map.
+     * The geographic location of the origin of the height map. If <code>_offsetX</code> and
+     * <code>offsetY</code> are both <code>0</code> this corresponds to the centroid of
+     * the HeightMap.
      *
      * @type {atlas.model.GeoPoint}
      * @private
@@ -29,7 +31,25 @@ define([
     _geoLocation: null,
 
     /**
-     * The height (parallel to longitude lines) of the height map, in metres.
+     * The offset of the HeightMap from it's origin along the UTM eastings axis, in metres. Note;
+     * positive eastings are in the east direction.
+     *
+     * @type {Number}
+     * @private
+     */
+    _offsetX: null,
+
+    /**
+     * The offset of the HeightMap from it's origin along the UTM northings axis, in metres. Note;
+     * positive northings are in the north direction.
+     *
+     * @type {Number}
+     * @private
+     */
+    _offsetY: null,
+
+    /**
+     * The height (parallel to UTM northings) of the height map, in metres.
      *
      * @type {Number}
      * @private
@@ -37,7 +57,7 @@ define([
     _height: null,
 
     /**
-     * The width (parallel to latitude lines) of the height map square, in metres.
+     * The width (parallel to UTM eastings) of the height map square, in metres.
      *
      * @type {Number}
      * @private
@@ -54,13 +74,15 @@ define([
 
     /**
      * The elevation data model for the height map. Each element is the height of the terrain at the
-     * given sample point. The data is in row-major order, where rows are parallel to the lines
-     * of latitude.
+     * given sample point.
      *
-     * The "top left" element (ie. <code>_elevationData[0][0]</code>) is the north west corner, with
-     * horizontal rows down to the south east corner. The geographic position of the top left element
-     * is <code>this._shiftX</code> east and <code>this._shiftY</code> north of
-     * <code>this._geoLocation</code>
+     * The "top left" element (ie. <code>_elevationData[0][0]</code>) is the north west corner. The
+     * innermost array proceeds eastwards as its index increases and the outer array working
+     * southwards as its index increases. ie <code>_elevationData[0][5]</code> is further east and
+     * <code>_elevationData[5][0]</code> is further south.
+     *
+     * The geographic position of the top left element is <code>this._offsetX</code> east and
+     * <code>this._offsetY</code> north of <code>this._geoLocation</code>
      *
      * @type {Array.Array.<Number>}
      * @private
@@ -76,14 +98,14 @@ define([
     _modelExtent: null,
 
     _init: function(args) {
-      this._geoLocation = new GeoPoint(Setter.require(args, 'geoLocation'));
-      this._resolution = Setter.require(args, 'resolution');
-      this._width = Setter.require(args, 'width');
-      this._height = Setter.require(args, 'height');
-      this._elevationData = Setter.require(args, 'points');
+      this._geoLocation = new GeoPoint(Setter.require(args, 'geoLocation', 'HeightMap'));
+      this._resolution = Setter.require(args, 'resolution', 'HeightMap');
+      this._width = Setter.require(args, 'width', 'HeightMap');
+      this._height = Setter.require(args, 'height', 'HeightMap');
+      this._elevationData = Setter.require(args, 'points', 'HeightMap');
 
-      this._shiftX = Setter.def(args.x, 0);
-      this._shiftY = Setter.def(args.z, 0);
+      this._offsetX = Setter.def(args.x, 0);
+      this._offsetY = Setter.def(args.z, 0);
 
       if (this._elevationData.length !== this._resolution) {
         throw new Error('Terrain model resolution does not match data');
@@ -101,9 +123,13 @@ define([
       var zone = centroidUtm.zone;
       var isSouthern = centroidUtm.isSouthern;
 
-      // TODO(bpstudds): Work out how to position height map so it works.
-      var centroidX = centroidUtm.coord.x + this._shiftX + (this._width / 2);
-      var centroidY = centroidUtm.coord.y + this._shiftY - (this._height / 2);
+      // If the HeightMap is offset, the actual centroid is determined using the _offsetX and
+      // _offsetY, and then shifting for the height or width. Otherwise, the offset is zero.
+      var offsetX = this._offsetX ? this._offsetX + (this._width / 2) : 0;
+      var offsetY = this._offsetY ? this._offsetY + (this._height / 2) : 0;
+
+      var centroidX = centroidUtm.coord.x + offsetX;
+      var centroidY = centroidUtm.coord.y + offsetY;
 
       var utm = {
         zone: zone,
@@ -143,7 +169,7 @@ define([
       var extent = {north: this._modelExtent.getNorth(), south: this._modelExtent.getSouth(),
           east: this._modelExtent.getEast(), west: this._modelExtent.getWest()};
 
-      window.cesiumAtlas.publish('entity/create', {
+      window.cesiumAtlas.publish('entity/create', { // jshint ignore: line
         id: 'heightmap-extent',
         polygon: {
           vertices: [
@@ -159,6 +185,13 @@ define([
     },
 
     /**
+     * @returns {atlas.model.GeoLocation} The GeoLocation of the HeightMap.
+     */
+    getGeoLocation: function() {
+      return new GeoPoint(this._geoLocation);
+    },
+
+    /**
      * Converts the GeoLocation of the HeightMap into the centroid, accounting for any offset of
      * the HeightMap.
      *
@@ -166,14 +199,11 @@ define([
      * @public
      */
     _centroidFromGeoLocation: function() {
-      // TODO(bpstudds): Confirm with Geoff how the offset works, currently seems like it is not
-      // required.
-      return new GeoPoint(this._geoLocation);
       var localGeoLocation = this._geoLocation.toUtm();
 
       // TODO(bpstudds): Update this when the actual height map format changes.
-      localGeoLocation.coord.x += this._shiftX;
-      localGeoLocation.coord.y += this._shiftY;
+      localGeoLocation.coord.x += this._offsetX;
+      localGeoLocation.coord.y += this._offsetY;
       return new GeoPoint.fromUtm(localGeoLocation);
     },
 
@@ -203,13 +233,13 @@ define([
      */
     sampleTerrainAtPoint: function(geoPoint) {
       if (!this._pointInModel(geoPoint)) {
-        console.log('Sampled point not in terrain');
         return null;
       }
-      // TODO(bpstudds): Confirm all this with Geoff.
-      var row = this._getModelRowIndex(geoPoint.latitude);
-      var col = this._getModelColIndex(geoPoint.longitude);
-      var elevation = this._elevationData[col][row];
+      var northSouth = this._getNorthSouthIndex(geoPoint.latitude);
+      var eastWest = this._getEastWestIndex(geoPoint.longitude);
+
+      var elevation = this._elevationData[northSouth][eastWest];
+
       return elevation === HeightMap.NULL_ELEVATION ? null : elevation;
     },
 
@@ -219,7 +249,7 @@ define([
      * @param {Number} latitude - The latitude.
      * @returns {Number} The index.
      */
-    _getModelRowIndex: function(latitude) {
+    _getNorthSouthIndex: function(latitude) {
       var north = this._modelExtent.getNorth();
       var south = this._modelExtent.getSouth();
       return this._lerpResolution(north, south, latitude);
@@ -231,7 +261,7 @@ define([
      * @param {Number} longitude - The longitude.
      * @returns {Number} The index.
      */
-    _getModelColIndex: function(longitude) {
+    _getEastWestIndex: function(longitude) {
       var east = this._modelExtent.getEast();
       var west = this._modelExtent.getWest();
       return this._lerpResolution(west, east, longitude);
