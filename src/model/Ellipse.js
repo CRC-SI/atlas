@@ -30,31 +30,6 @@ define([
    * @extends atlas.model.GeoEntity
    */
   var Ellipse = GeoEntity.extend(/** @lends atlas.model.Ellipse# */ {
-    // TODO(aramk) Either put docs on params and document the getters and setters which don't have
-    // obvious usage/logic.
-    // TODO(aramk) Units for height etc. are open to interpretation - define them as metres in docs.
-
-    /**
-     * The extruded height of the Ellipse (if rendered as extruded Ellipse).
-     * @type {Number}
-     * @private
-     */
-    _height: 0,
-
-    /**
-     * The z-axis order as an integer in the range [0, Infinity]. Ellipses with higher zIndex will
-     * appear on top.
-     * @type {Number}
-     * @private
-     */
-    _zIndex: 0,
-
-    /**
-     * The z-axis offset for z-index used to separate different indices.
-     * @type {Number}
-     * @private
-     */
-    _zIndexOffset: 0.1,
 
     /**
      * The semi major axis of the ellipse in metres.
@@ -99,8 +74,6 @@ define([
       this._semiMinor = parseFloat(data.semiMinor) || this._semiMajor;
       this._rotation = new Vertex(data.rotation);
       this._height = parseFloat(data.height) || this._height;
-      this._zIndex = parseFloat(data.zIndex) || this._zIndex;
-      this._zIndexOffset = parseFloat(data.zIndexOffset) || this._zIndexOffset;
     },
 
     // -------------------------------------------
@@ -159,8 +132,7 @@ define([
      * @param {Number} height The extruded height of the building.
      */
     setHeight: function(height) {
-      // TODO(aramk) Throw error if height is not number?
-      if (typeof height === 'number' && this._height !== height) {
+      if (this._height !== height) {
         this._height = height;
         this.setDirty('vertices');
         this._update();
@@ -186,25 +158,6 @@ define([
      */
     getSemiMinorAxis: function() {
       return this._semiMinor;
-    },
-
-    /**
-     * Sets the z-axis order. Ellipses with higher zIndex will appear on top.
-     * @param {Number} index
-     */
-    setZIndex: function(index) {
-      if (typeof index === 'number' && this._zIndex !== index) {
-        this._zIndex = index;
-        this.setDirty('vertices');
-        this._update();
-      }
-    },
-
-    /**
-     * @returns {Number} The z-axis order.
-     */
-    getZIndex: function() {
-      return this._zIndex;
     },
 
     // -------------------------------------------

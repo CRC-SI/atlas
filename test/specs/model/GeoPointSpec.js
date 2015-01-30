@@ -36,6 +36,20 @@ define([
         expect(other).toEqual(geoPoint);
         expect(other).not.toBe(geoPoint);
       });
+
+      it('from defaults', function() {
+        var other = new GeoPoint();
+        expect(other.latitude).toEqual(0);
+        expect(other.longitude).toEqual(0);
+        expect(other.elevation).toEqual(0);
+      });
+    });
+
+    it('cannot be constructed with invalid values', function() {
+      var foo = function() {
+        var other = new GeoPoint(10000, 20000);
+      }
+      expect(foo).toThrow();
     });
 
     it('can be subtracted', function() {

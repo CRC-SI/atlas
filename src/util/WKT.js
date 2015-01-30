@@ -193,6 +193,15 @@ define([
     },
 
     /**
+     * @param {atlas.model.GeoPoint} point
+     * @return {String}
+     */
+    wktFromGeoPoint: function(point) {
+      var point = this.openLayersPointsFromGeoPoints([point])[0];
+      return this.parser.extractGeometry(point);
+    },
+
+    /**
      * Scales a polygon formed by a series of Vertices.
      * @param {Array.<atlas.model.Vertex>} vertices - The vertices to scale.
      * @param {atlas.model.Vertex} scaleBy - Defines the factors to scale by.

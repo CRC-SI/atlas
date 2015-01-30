@@ -4,19 +4,21 @@ define([
   'atlas/events/Event',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
+  'atlas/lib/topsort',
   'atlas/model/Collection',
   'atlas/model/Ellipse',
   'atlas/model/Feature',
   'atlas/model/GeoEntity',
   'atlas/model/Mesh',
+  'atlas/model/Point',
   'atlas/model/Polygon',
   'atlas/model/Line',
   'atlas/model/Image',
   'atlas/model/GeoPoint',
   'atlas/model/Vertex',
   'atlas/util/DeveloperError'
-], function(Manager, ItemStore, Event, Log, Setter, Collection, Ellipse, Feature, GeoEntity, Mesh,
-            Polygon, Line, Image, GeoPoint, Vertex, DeveloperError) {
+], function(Manager, ItemStore, Event, Log, Setter, topsort, Collection, Ellipse, Feature,
+            GeoEntity, Mesh, Point, Polygon, Line, Image, GeoPoint, Vertex, DeveloperError) {
 
   /**
    * @typedef atlas.entity.EntityManager
@@ -51,6 +53,7 @@ define([
       Image: Image,
       Line: Line,
       Mesh: Mesh,
+      Point: Point,
       Polygon: Polygon,
       Collection: Collection
     },
@@ -109,9 +112,9 @@ define([
         },
         {
           source: 'extern',
-          name: 'entity/show/bulk',
+          name: 'entity/create/bulk',
           callback: function(args) {
-            Log.time('entity/show/bulk');
+            Log.time('entity/create/bulk');
             var ids;
             if (args.features) {
               ids = this.bulkCreate(args.features);
@@ -123,7 +126,7 @@ define([
             if (args.callback) {
               args.callback(ids);
             }
-            Log.timeEnd('entity/show/bulk');
+            Log.timeEnd('entity/create/bulk');
           }.bind(this)
         },
         {
@@ -273,7 +276,7 @@ define([
       }, args);
       if (id === undefined) {
         throw new DeveloperError('Can not create Feature without specifying ID');
-      } else if (this._entities.get(id)) {
+      } else if (this.getById(id)) {
         throw new DeveloperError('Can not create Feature with a duplicate ID');
       } else {
         this._bindDeps(args);
@@ -316,28 +319,42 @@ define([
      */
     bulkCreate: function(c3mls) {
       var ids = [];
-      var collections = {};
+      var edges = [];
+      var sortMap = {};
+      var c3mlMap = {};
+      // Topologically sort the c3ml based on the "children" field.
       c3mls.forEach(function(c3ml) {
         var id = c3ml.id;
-        var entity = this.getById(id);
-        if (!entity) {
-          // TODO(aramk) This is only performed for bulk requests and is inconsistent - clean up
-          // the API for consistency.
-          var c3mlData = this._parseC3ML(c3ml);
-          if (c3ml.type === 'collection') {
-            collections[id] = c3mlData;
-          } else {
-            this.createFeature(id, c3mlData);
-          }
-          ids.push(id);
+        var children = c3ml.children;
+        if (children) {
+          children.forEach(function(childId) {
+            edges.push([id, childId]);
+            sortMap[id] = sortMap[childId] = true;
+          });
         }
-      }, this);
-      // Create collections (if any) after all other entities.
-      // TODO(aramk) Topologically sort all entities (including collections) based on their
-      // parents/children.
-      Object.keys(collections).forEach(function(id) {
-        var c3mlData = collections[id];
-        this.createCollection(id, c3mlData);
+        if (c3mlMap[id]) {
+          throw new Error('Duplicate IDs for c3mls: ' + id);
+        }
+        c3mlMap[id] = c3ml;
+      });
+      var sortedIds = topsort(edges);
+      // Reverse the list so that each entity is created before its parents to ensure they're
+      // available when requested.
+      sortedIds.reverse();
+      // Add any entities which are not part of a hierarchy and weren't in the topological sort.
+      c3mls.forEach(function(c3ml) {
+        var id = c3ml.id;
+        if (!sortMap[id]) {
+          sortedIds.push(id);
+        }
+      });
+      sortedIds.forEach(function(id) {
+        var c3ml = c3mlMap[id];
+        // TODO(aramk) This is only performed for bulk requests and is inconsistent - clean up
+        // the API for consistency.
+        var c3mlData = this._parseC3ML(c3ml);
+        this.createFeature(id, c3mlData);
+        ids.push(id);
       }, this);
       return ids;
     },
@@ -352,13 +369,15 @@ define([
     _parseC3ML: function(c3ml) {
       // Map of C3ML type to parse of that type.
       var parsers = {
-        line: this._parseC3MLline,
-        mesh: this._parseC3MLmesh,
-        polygon: this._parseC3MLpolygon,
-        image: this._parseC3MLimage
+        point: this._parseC3mlPoint,
+        line: this._parseC3mlLine,
+        mesh: this._parseC3mlMesh,
+        polygon: this._parseC3mlPolygon,
+        image: this._parseC3mlImage
       };
       // Generate the Geometry for the C3ML type if it is supported.
-      var parser = parsers[c3ml.type];
+      var type = c3ml.type;
+      var parser = parsers[type];
       var geometry = parser && parser.call(this, c3ml);
       return Setter.mixin(c3ml, geometry);
     },
@@ -367,12 +386,30 @@ define([
     // Mix in new parameters.
 
     /**
+     * Parses a C3ML point object to an format supported by Atlas.
+     * @param {Object} c3ml - The C3ML object to be parsed
+     * @returns {Object} The parsed C3ML.
+     * @private
+     */
+    _parseC3mlPoint: function(c3ml) {
+      return {
+        point: {
+          position: c3ml.position,
+          latitude: c3ml.latitude,
+          longitude: c3ml.longitude,
+          elevation: c3ml.elevation,
+          color: c3ml.color,
+        }
+      };
+    },
+
+    /**
      * Parses a C3ML image object to an format supported by Atlas.
      * @param {Object} c3ml - The C3ML object to be parsed
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLimage: function(c3ml) {
+    _parseC3mlImage: function(c3ml) {
       return {
         image: {
           vertices: c3ml.coordinates,
@@ -387,7 +424,7 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLline: function(c3ml) {
+    _parseC3mlLine: function(c3ml) {
       return {
         line: {
           vertices: c3ml.coordinates,
@@ -404,7 +441,7 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLpolygon: function(c3ml) {
+    _parseC3mlPolygon: function(c3ml) {
       return {
         polygon: {
           // TODO(aramk) We need to standardize which one we use - were using "vertices" internally
@@ -424,7 +461,7 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLmesh: function(c3ml) {
+    _parseC3mlMesh: function(c3ml) {
       return {
         mesh: {
           positions: c3ml.positions,
@@ -433,7 +470,9 @@ define([
           color: c3ml.color,
           geoLocation: c3ml.geoLocation,
           scale: c3ml.scale,
-          rotation: c3ml.rotation
+          rotation: c3ml.rotation,
+          gltf: c3ml.gltf,
+          gltfUrl: c3ml.gltfUrl
         }
       };
     },
@@ -445,7 +484,7 @@ define([
     add: function(entity) {
       var id = entity.getId();
       if (this._entities.get(id)) {
-        throw new Error('tried to add entity', id, 'which already exists.');
+        throw new Error('Tried to add entity ' + id + ' which already exists.');
       }
       if (!(entity instanceof GeoEntity)) {
         throw new DeveloperError('Can not add entity which is not a subclass of ' +

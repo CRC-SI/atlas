@@ -137,6 +137,18 @@ define([
       // object, so if the second condition fails, either both are different objects, or a is
       // falsey - both of which indicate they are not equal.
       return (a == b) || (a && a.equals(b))
+    },
+
+    /**
+     * @return {Object}
+     */
+    toJson: function() {
+      var json = {};
+      var fillMaterial = this.getFillMaterial();
+      var borderMaterial = this.getBorderMaterial();
+      if (fillMaterial) { json.fillMaterial = fillMaterial.toJson(); }
+      if (borderMaterial) { json.borderMaterial = borderMaterial.toJson(); }
+      return json;
     }
 
   });

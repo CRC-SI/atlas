@@ -64,7 +64,7 @@ define([
       this.red = obj.red || 0;
       this.green = obj.green || 0;
       this.blue = obj.blue || 0;
-      this.alpha = obj.alpha || 0;
+      this.alpha = obj.alpha || 1;
     },
 
     _fromStr: function(str) {
@@ -84,8 +84,8 @@ define([
      *     'rbga([RED], [GREEN], [BLUE], [ALPHA])'
      */
     toString: function() {
-      return 'rgba(' + [this.red * 255, this.green * 255, this.blue * 255, this.alpha].join(', ') +
-          ')';
+      return 'rgba(' + [this.red * 255, this.green * 255, this.blue * 255,
+          this.alpha * 255].join(', ') + ')';
     },
 
     /**
@@ -135,8 +135,11 @@ define([
     interpolateByHue: function(other, lerpFactor) {
       var hsv1 = this.toHsv();
       var hsv2 = other.toHsv();
-      hsv1.h = AtlasMath.lerp(hsv2.h, hsv1.h, Setter.range(lerpFactor, 0, 1));
-      return Color.fromHsv(hsv1);
+      lerpFactor = Setter.range(lerpFactor, 0, 1);
+      hsv1.h = AtlasMath.lerp(hsv2.h, hsv1.h, lerpFactor);
+      var color = Color.fromHsv(hsv1);
+      color.alpha = AtlasMath.lerp(this.alpha, other.alpha, lerpFactor);
+      return color;
     },
 
     /**
@@ -146,6 +149,20 @@ define([
     equals: function(other) {
       return other && this.red === other.red && this.green === other.green &&
           this.blue === other.blue && this.alpha === other.alpha;
+    },
+
+    clone: function() {
+      return new Color(this.toJson());
+    },
+
+    toJson: function() {
+      return {
+        type: 'Color',
+        red: this.red,
+        green: this.green,
+        blue: this.blue,
+        alpha: this.alpha,
+      }
     }
 
   });
@@ -168,7 +185,7 @@ define([
    * @returns {atlas.material.Color}
    */
   Color.fromRGBA = function(red, green, blue, alpha) {
-    if (red.length) {
+    if (red.length !== undefined) {
       return new Color(red[0] / 255, red[1] / 255, red[2] / 255, red[3] / 255);
     } else {
       return new Color(red / 255, green / 255, blue / 255, alpha / 255);

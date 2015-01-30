@@ -42,6 +42,15 @@ define([
     equals: function(other) {
       return other && this.color1.equals(other.color1) &&
           this.color2.equals(other.color2) && this.repeat.equals(other.repeat);
+    },
+
+    toJson: function() {
+      return {
+        type: 'CheckPattern',
+        color1: this.color1.toHexString(),
+        color2: this.color2.toHexString(),
+        repeat: this.repeat.toJson(),
+      }
     }
 
   });

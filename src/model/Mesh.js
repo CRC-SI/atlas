@@ -187,6 +187,23 @@ define([
 
     isGltf: function() {
       return this._isGltf;
+    },
+
+    toJson: function(args) {
+      args = args || {};
+      var json = Setter.merge(this._super(), {
+        type: 'mesh',
+        geoLocation: this.getGeoLocation()
+      });
+      if (this.isGltf()) {
+        json.gltf = Setter.clone(this._gltf);
+        json.gltfUrl = this._gltfUrl;
+      } else {
+        json.positions = args.positions || Setter.clone(this._positions);
+        json.triangles = Setter.clone(this._indices);
+        json.normals = Setter.clone(this._normals);
+      }
+      return json;
     }
 
   });

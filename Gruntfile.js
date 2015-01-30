@@ -108,15 +108,16 @@ module.exports = function(grunt) {
     copy: {
       bowerDep: {
         files: [
-          {src: libPath('Requirejs', 'require.js'), dest: libPath('require.js')},
-          {src: libPath('tinycolor', 'tinycolor.js'), dest: libPath('tinycolor.js')},
+          {src: libPath('graham_scan', 'src',
+              'graham_scan.js'), dest: libPath('ConvexHullGrahamScan.js')},
+          {src: libPath('jquery', 'dist', 'jquery.min.js'), dest: JQUERY_LIB_PATH},
           {src: libPath('Keycode', 'keycode.js'), dest: libPath('keycode.js')},
           {src: libPath('numeraljs', 'min', 'numeral.min.js'), dest: libPath('numeral.js')},
           {src: libPath('q', 'q.js'), dest: libPath('Q.js')},
-          {src: libPath('utm-converter', 'src', 'converter.js'), dest: libPath('UtmConverter.js')},
-          {src: libPath('graham_scan', 'src',
-              'graham_scan.js'), dest: libPath('ConvexHullGrahamScan.js')},
-          {src: libPath('jquery', 'dist', 'jquery.min.js'), dest: JQUERY_LIB_PATH}
+          {src: libPath('Requirejs', 'require.js'), dest: libPath('require.js')},
+          {src: libPath('tinycolor', 'tinycolor.js'), dest: libPath('tinycolor.js')},
+          {src: libPath('topsort', 'lib', 'topsort.js'), dest: libPath('topsort.js')},
+          {src: libPath('utm-converter', 'src', 'converter.js'), dest: libPath('UtmConverter.js')}
         ]
       },
       openLayersBuildConfig: {

@@ -136,6 +136,25 @@ define([
       return this._height;
     },
 
+    getHoles: function() {
+      return this._holes;
+    },
+
+    toJson: function(args) {
+      args = args || {};
+      var json = Setter.merge(this._super(), {
+        type: 'polygon',
+        height: this.getHeight()
+      });
+      var holes = args.holes || this.getHoles();
+      if (holes) {
+        json.holes = holes.map(function(vertex) {
+          return vertex.toArray();
+        });
+      }
+      return json;
+    },
+
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------

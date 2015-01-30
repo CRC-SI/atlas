@@ -42,6 +42,13 @@ define([
   Feature = GeoEntity.extend(/** @lends atlas.model.Feature# */ {
 
     /**
+     * The 3D point of this Feature.
+     * @type {atlas.model.Point}
+     * @protected
+     */
+    _point: null,
+
+    /**
      * The 2D line of this Feature.
      * @type {atlas.model.Line}
      * @protected
@@ -91,6 +98,7 @@ define([
       var propertyToDisplayMode = {
         mesh: Feature.DisplayMode.MESH,
         ellipse: Feature.DisplayMode.EXTRUSION,
+        point: Feature.DisplayMode.POINT,
         polygon: Feature.DisplayMode.EXTRUSION,
         line: Feature.DisplayMode.LINE,
         image: Feature.DisplayMode.IMAGE
@@ -120,8 +128,8 @@ define([
     _initDelegation: function() {
       var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
         'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles',
-        'getCentroid', 'getArea', 'getVertices', 'getOpenLayersGeometry', 'translate',
-        'scale', 'rotate', 'setScale', 'setRotation', 'setHeight', 'getHeight'];
+        'getCentroid', 'getArea', 'getVertices', 'getOpenLayersGeometry', 'getBoundingBox',
+        'translate', 'scale', 'rotate', 'setScale', 'setRotation', 'setHeight', 'getHeight'];
       methods.forEach(function(method) {
         this[method] = function() {
           return this._delegateToForm(method, arguments);
@@ -239,6 +247,19 @@ define([
       return this._delegateToForm('getStyle') || this._style;
     },
 
+    toJson: function() {
+      var json = this._super();
+      Object.keys(Feature.DisplayMode).forEach(function(key) {
+        var mode = Feature.DisplayMode[key];
+        var propName = mode.replace('_');
+        var form = this.getForm(mode);
+        if (form) {
+          json[propName] = form.toJson();
+        }
+      }, this);
+      return json;
+    },
+
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------
@@ -305,7 +326,15 @@ define([
      * Shows the Feature depending on its current <code>_displayMode</code>.
      */
     show: function() {
-      if (this._displayMode === Feature.DisplayMode.LINE) {
+      if (this._displayMode === Feature.DisplayMode.POINT) {
+        this._mesh && this._mesh.hide();
+        this._footprint && this._footprint.hide();
+        this._image && this._image.hide();
+        if (this._point) {
+          this._point.show();
+        }
+      } else if (this._displayMode === Feature.DisplayMode.LINE) {
+        this._point && this._point.hide();
         this._mesh && this._mesh.hide();
         this._footprint && this._footprint.hide();
         this._image && this._image.hide();
@@ -313,6 +342,7 @@ define([
           this._line.show();
         }
       } else if (this._displayMode === Feature.DisplayMode.FOOTPRINT) {
+        this._point && this._point.hide();
         this._mesh && this._mesh.hide();
         this._line && this._line.hide();
         this._image && this._image.hide();
@@ -321,6 +351,7 @@ define([
           this._footprint.show();
         }
       } else if (this._displayMode === Feature.DisplayMode.EXTRUSION) {
+        this._point && this._point.hide();
         this._mesh && this._mesh.hide();
         this._line && this._line.hide();
         this._image && this._image.hide();
@@ -329,6 +360,7 @@ define([
           this._footprint.show();
         }
       } else if (this._displayMode === Feature.DisplayMode.MESH) {
+        this._point && this._point.hide();
         this._footprint && this._footprint.hide();
         this._line && this._line.hide();
         this._image && this._image.hide();
@@ -336,6 +368,7 @@ define([
           this._mesh.show();
         }
       } else if (this._displayMode === Feature.DisplayMode.IMAGE) {
+        this._point && this._point.hide();
         this._footprint && this._footprint.hide();
         this._line && this._line.hide();
         this._image && this._image.hide();
@@ -439,6 +472,7 @@ define([
    * @static
    */
   Feature.DisplayMode = {
+    POINT: 'point',
     LINE: 'line',
     FOOTPRINT: 'footprint',
     EXTRUSION: 'extrusion',

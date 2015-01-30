@@ -35,6 +35,12 @@ define([
      */
     _nextEventListenerId: 0,
 
+    /**
+     * @type {atlas.events.EventTarget}
+     * @protected
+     */
+    _parent: null,
+
     _init: function(eventManager, parent) {
       this._eventManager = Setter.def(eventManager, null);
       this._eventHandlers = {};

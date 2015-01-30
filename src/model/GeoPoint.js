@@ -63,16 +63,36 @@ define([
     },
 
     _setFromArgs: function(longitude, latitude, elevation) {
-      this.longitude = parseFloat(longitude) || 0.0;
-      this.latitude = parseFloat(latitude) || 0.0;
-      this.elevation = parseFloat(elevation) || 0.0;
+      this.longitude = this._sanitizeValue(longitude);
+      this.latitude = this._sanitizeValue(latitude);
+      this.elevation = this._sanitizeValue(elevation);
+    },
+
+    _sanitizeValue: function(value) {
+      if (value != null) {
+        var numValue = parseFloat(value);
+        if (isNaN(numValue)) {
+          throw new Error('Could not parse value: ' + value);
+        } else {
+          value = numValue;
+        }
+      } else {
+        value = 0;
+      }
+      return value;
     },
 
     _validate: function() {
-      if (this.longitude < -180 || this.longitude > 180) {
-        throw new Error('Longitude is out of range [-180,180]: ' + this.longitude);
-      } else if (this.latitude < -90 || this.latitude > 90) {
-        throw new Error('Latitude is out of range [-90,90]: ' + this.latitude);
+      var longitude = this.longitude;
+      var latitude = this.latitude;
+      if (longitude == null) {
+        throw new Error('Longitude is required');
+      } else if (latitude == null) {
+        throw new Error('Latitude is required');
+      } else if (longitude < -180 || longitude > 180) {
+        throw new Error('Longitude is out of range [-180,180]: ' + longitude);
+      } else if (latitude < -90 || latitude > 90) {
+        throw new Error('Latitude is out of range [-90,90]: ' + latitude);
       }
     },
 
