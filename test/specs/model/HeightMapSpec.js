@@ -11,6 +11,9 @@ define([
     /* jshint unused:false */
 
     var centroid = {latitude: -37, longitude: 145};
+    // Calculated from centroid using
+    //     http://home.hiwaay.net/~taylorc/toolbox/geography/geoutm.html
+    var centroidUtm = {easting: 322037.8102203241, northing: 5903257.940913517};
 
     beforeEach(function() {
       args = {
@@ -54,11 +57,6 @@ define([
     });
 
     describe('when not offset', function() {
-
-      // Calculated from centroid using
-      //     http://home.hiwaay.net/~taylorc/toolbox/geography/geoutm.html
-      var centroidUtm = {easting: 322037.8102203241, northing: 5903257.940913517};
-
       // Centre edge points, calculated by +/- 250m or +/- 300m (args.width or args.height / 2) for
       // east/west or north/south.
       var northUtm = {easting: 322037.8102203241, northing: 5903557.940913517};
@@ -73,113 +71,158 @@ define([
       var east = {latitude: -37.000047299499236, longitude: 145.0028080312911};
       var west = {latitude: -36.99995263411956, longitude: 144.9971919752574};
 
-      var farSouthEast = {latitude: -37.00225223036756, longitude: 145.0028080312911};
+      testExtentsCalculatedCorrectly(north, south, east, west);
+
+      var farSouthEast = {latitude: south.latitude, longitude: east.longitude};
       var midSouthWest = {latitude: -37.0011, longitude: 144.9986};
 
       it('can calculate the actual centroid', function() {
         heightmap = new HeightMap(args);
-        var actual = heightmap._centroidFromGeoLocation();
+        var actual = heightmap.getGeoLocation();
         expect(actual).toBeDefined();
         expect(actual.longitude).toBeCloseTo(145, 10);
         expect(actual.latitude).toBeCloseTo(-37, 10);
       });
 
-      describe('Extent:', function() {
-        it('can calculate the extent of the terrain model when in the southern hemisphere',
-            function() {
-          heightmap = new HeightMap(args);
-
-          var rect = heightmap._calculateExtent();
-          expect(rect).toBeDefined();
-          expect(rect.north).toBeGreaterThan(rect.south, 'North south');
-          expect(rect.east).toBeGreaterThan(rect.west, 'East west');
-          expect(rect.getNorth()).toBeCloseTo(north.latitude, 10);
-          expect(rect.getSouth()).toBeCloseTo(south.latitude, 10);
-          expect(rect.getEast()).toBeCloseTo(east.longitude, 10);
-          expect(rect.getWest()).toBeCloseTo(west.longitude, 10);
-        });
-
-        it('can calculate the extent of the terrain model when in the northern hemisphere',
-            function() {
-          args.geoLocation.latitude = 37;
-          heightmap = new HeightMap(args);
-
-          var rect = heightmap._calculateExtent();
-          expect(rect).toBeDefined();
-          expect(rect.north).toBeGreaterThan(rect.south, 'North south');
-          expect(rect.east).toBeGreaterThan(rect.west, 'East west');
-        });
-
-        it('can calculate the extent of the terrain model when longitude is negative', function() {
-          args.geoLocation.longitude = -144;
-          heightmap = new HeightMap(args);
-
-          var rect = heightmap._calculateExtent();
-          expect(rect).toBeDefined();
-          expect(rect.north).toBeGreaterThan(rect.south, 'North south');
-          expect(rect.east).toBeGreaterThan(rect.west, 'East west');
-        });
-
-      });
-
-      it('should return the nearest terrain elevation when the given GeoPoint is within the' +
-          'terrain model and at the centre', function() {
-        heightmap = new HeightMap(args);
-
-        var height = heightmap.sampleTerrainAtPoint(new GeoPoint(centroid));
-        expect(height).toEqual(23);
-      });
-
-      it('should return the nearest terrain elevation when the given GeoPoint is within the' +
-          ' terrain model and not at the centre (centre far north)', function() {
-        heightmap = new HeightMap(args);
-
-        // Northern edge at the centre
-        var height = heightmap.sampleTerrainAtPoint(new GeoPoint(north));
-        expect(height).toEqual(3);
-      });
-
-      it('should return the nearest terrain elevation when the given GeoPoint is within the' +
-          ' terrain model and not at the centre (far south east)', function() {
-        heightmap = new HeightMap(args);
-
-        // South east corner
-        var height = heightmap.sampleTerrainAtPoint(new GeoPoint(farSouthEast));
-        expect(height).toEqual(45);
-      });
-
-      it('should return the nearest terrain elevation when the given GeoPoint is within the' +
-          ' terrain model and not at the centre (mid south west)', function() {
-        heightmap = new HeightMap(args);
-
-        var height = heightmap.sampleTerrainAtPoint(new GeoPoint(midSouthWest));
-        expect(height).toEqual(32);
-      });
-
-      it('should return an array of heights when given an array of GeoPoints', function() {
-        heightmap = new HeightMap(args);
-        var points = [new GeoPoint(centroid),
-                      new GeoPoint(north),
-                      new GeoPoint(farSouthEast)];
-
-        expect(heightmap.sampleTerrain(points)).toEqual([23, 3, 45]);
-      });
+      testSampleTerrainIsCorrect(centroid, north, farSouthEast, midSouthWest);
 
     });
 
     describe('when offset', function() {
+      beforeEach(function() {
+        args.x = 100;  // offsetX
+        args.z = 200;  // offsetY
+        GlobalLog.setLevel('debug');
+      });
+
+      afterEach(function() {
+        GlobalLog.setLevel('error');
+        args.x = args.y = null;
+      });
+
+      // Calculated incorporating the offset.
+      var centroid = {latitude: -37.00096709512646, longitude: 145.00390768613428};
+
+      // Want CENTRE points of each edge, but geoLocation + offset = NW corner. Therefore:
+      //   North: offsetX + width / 2, offsetY
+      //   South: offsetX + width / 2, offsetY - height
+      //   East: offsetX + width, offsetY - height / 2
+      //   West: offsetX, offsetY - height / 2
+      var northUtm = {easting: 322387.8102203264, northing: 5903457.940913513};
+      var southUtm = {easting: 322387.8102203264, northing: 5902857.940913513};
+      var eastUtm = {easting: 322637.8102203264, northing: 5903157.940913513};
+      var westUtm = {easting: 322137.8102203264, northing: 5903157.940913513};
+
+      // Calculated from above UTM coords using
+      //     http://home.hiwaay.net/~taylorc/toolbox/geography/geoutm.html
+      var north = {latitude: -36.998264411438875, longitude: 145.00397836152217};
+      var south = {latitude: -37.003669777464566, longitude: 145.00383700131877};
+      var east = {latitude: -37.00101430323305, longitude: 145.00671575968846};
+      var west = {latitude: -37.00091982063955, longitude: 145.00109961912713};
+
+      // Used to check sampleTerrain, estimated from the above.
+      var farSouthEast = {latitude: south.latitude, longitude: east.longitude};
+      var midSouthWest = {latitude: -37.0025, longitude: 145.0028};
+
+      testExtentsCalculatedCorrectly(north, south, east, west);
 
       it('can calculate the actual centroid when the geolocation is offset', function() {
-        args.x = 100;
         heightmap = new HeightMap(args);
-        var actual = heightmap._centroidFromGeoLocation();
+        var actual = heightmap.getGeoLocation();
         expect(actual).toBeDefined();
-        expect(actual.longitude).toBeCloseTo(145.0011, 4);
-        expect(actual.latitude).toBeCloseTo(-37.0, 4);
+        expect(actual.longitude).toBeCloseTo(centroid.longitude, 10);
+        expect(actual.latitude).toBeCloseTo(centroid.latitude, 4);
       });
+
+      testSampleTerrainIsCorrect(centroid, north, farSouthEast, midSouthWest);
 
     });
 
   });
+
+  function testExtentsCalculatedCorrectly(north, south, east, west) {
+    describe('Extent:', function() {
+      it('can calculate the extent of the terrain model when in the southern hemisphere',
+          function() {
+        heightmap = new HeightMap(args);
+
+        var rect = heightmap._calculateExtent();
+        expect(rect).toBeDefined();
+        expect(rect.north).toBeGreaterThan(rect.south, 'North south');
+        expect(rect.east).toBeGreaterThan(rect.west, 'East west');
+        expect(rect.getNorth()).toBeCloseTo(north.latitude, 10, 'North');
+        expect(rect.getSouth()).toBeCloseTo(south.latitude, 10, 'South');
+        expect(rect.getEast()).toBeCloseTo(east.longitude, 10, 'East');
+        expect(rect.getWest()).toBeCloseTo(west.longitude, 10, 'West');
+      });
+
+      it('can calculate the extent of the terrain model when in the northern hemisphere',
+          function() {
+        args.geoLocation.latitude = 37;
+        heightmap = new HeightMap(args);
+
+        var rect = heightmap._calculateExtent();
+        expect(rect).toBeDefined();
+        expect(rect.north).toBeGreaterThan(rect.south, 'North south');
+        expect(rect.east).toBeGreaterThan(rect.west, 'East west');
+      });
+
+      it('can calculate the extent of the terrain model when longitude is negative', function() {
+        args.geoLocation.longitude = -144;
+        heightmap = new HeightMap(args);
+
+        var rect = heightmap._calculateExtent();
+        expect(rect).toBeDefined();
+        expect(rect.north).toBeGreaterThan(rect.south, 'North south');
+        expect(rect.east).toBeGreaterThan(rect.west, 'East west');
+      });
+
+    });
+  }
+
+  function testSampleTerrainIsCorrect(centroid, north, farSouthEast, midSouthWest) {
+    it('should return the nearest terrain elevation when the given GeoPoint is within the' +
+        'terrain model and at the centre', function() {
+      heightmap = new HeightMap(args);
+
+      var height = heightmap.sampleTerrainAtPoint(new GeoPoint(centroid));
+      expect(height).toEqual(23);
+    });
+
+    it('should return the nearest terrain elevation when the given GeoPoint is within the' +
+        ' terrain model and not at the centre (centre far north)', function() {
+      heightmap = new HeightMap(args);
+
+      // Northern edge at the centre
+      var height = heightmap.sampleTerrainAtPoint(new GeoPoint(north));
+      expect(height).toEqual(3);
+    });
+
+    it('should return the nearest terrain elevation when the given GeoPoint is within the' +
+        ' terrain model and not at the centre (far south east)', function() {
+      heightmap = new HeightMap(args);
+
+      // South east corner
+      var height = heightmap.sampleTerrainAtPoint(new GeoPoint(farSouthEast));
+      expect(height).toEqual(45);
+    });
+
+    it('should return the nearest terrain elevation when the given GeoPoint is within the' +
+        ' terrain model and not at the centre (mid south west)', function() {
+      heightmap = new HeightMap(args);
+
+      var height = heightmap.sampleTerrainAtPoint(new GeoPoint(midSouthWest));
+      expect(height).toEqual(32);
+    });
+
+    it('should return an array of heights when given an array of GeoPoints', function() {
+      heightmap = new HeightMap(args);
+      var points = [new GeoPoint(centroid),
+                    new GeoPoint(north),
+                    new GeoPoint(farSouthEast)];
+
+      expect(heightmap.sampleTerrain(points)).toEqual([23, 3, 45]);
+    });
+  }
 
 });

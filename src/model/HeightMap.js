@@ -119,21 +119,13 @@ define([
     },
 
     _calculateExtent: function() {
-      var centroidUtm = this._geoLocation.toUtm();
-      var zone = centroidUtm.zone;
-      var isSouthern = centroidUtm.isSouthern;
-
-      // If the HeightMap is offset, the actual centroid is determined using the _offsetX and
-      // _offsetY, and then shifting for the height or width. Otherwise, the offset is zero.
-      var offsetX = this._offsetX ? this._offsetX + (this._width / 2) : 0;
-      var offsetY = this._offsetY ? this._offsetY + (this._height / 2) : 0;
-
-      var centroidX = centroidUtm.coord.x + offsetX;
-      var centroidY = centroidUtm.coord.y + offsetY;
+      var centroidUtm = this._centroidUtmFromGeoLocation();
+      var centroidX = centroidUtm.coord.x;
+      var centroidY = centroidUtm.coord.y;
 
       var utm = {
-        zone: zone,
-        isSouthern: isSouthern
+        zone: centroidUtm.zone,
+        isSouthern: centroidUtm.isSouthern
       };
 
       // Calculate limits of extent
@@ -188,23 +180,35 @@ define([
      * @returns {atlas.model.GeoLocation} The GeoLocation of the HeightMap.
      */
     getGeoLocation: function() {
-      return new GeoPoint(this._geoLocation);
+      if (this._offsetX || this._offsetY) {
+        return GeoPoint.fromUtm(this._centroidUtmFromGeoLocation());
+      }
+      return this._geoLocation;
     },
 
     /**
      * Converts the GeoLocation of the HeightMap into the centroid, accounting for any offset of
-     * the HeightMap.
+     * the HeightMap, in UTM format.
      *
-     * @returns {atlas.model.GeoPoint}
+     * @returns {UTM}
      * @public
      */
-    _centroidFromGeoLocation: function() {
-      var localGeoLocation = this._geoLocation.toUtm();
+    _centroidUtmFromGeoLocation: function() {
+      var geoLocationUtm = this._geoLocation.toUtm();
 
-      // TODO(bpstudds): Update this when the actual height map format changes.
-      localGeoLocation.coord.x += this._offsetX;
-      localGeoLocation.coord.y += this._offsetY;
-      return new GeoPoint.fromUtm(localGeoLocation);
+      // If the HeightMap is offset, a counter offset is calculated.
+      // => geoLocationUtm.x + this._offsetX = north west corner easting value
+      //    => north west corner easting value + (this._width / 2) = centroid easting value.
+      // => geoLocationUtm.y + this._offsetY = north west corner northing value
+      //    => north west corner northing value - (this._height / 2) = centroid northing value.
+      // N.B: Eastings are monotonic east to west, northings are monotonic south to north.
+      var offsetToCentroidX = this._offsetX ? this._offsetX + (this._width / 2) : 0;
+      var offsetToCentroidY = this._offsetY ? this._offsetY - (this._height / 2) : 0;
+
+      geoLocationUtm.coord.x += offsetToCentroidX;
+      geoLocationUtm.coord.y += offsetToCentroidY;
+
+      return geoLocationUtm;
     },
 
     /**
