@@ -217,12 +217,7 @@ define([
         return;
       }
 
-      var point;
-      if (args.sceneposition) {
-        point = this._managers.render.geoPointFromWorldCoords(args.sceneposition);
-      } else {
-        point = this._managers.render.geoPointFromScreenCoords(args.position);
-      }
+      var point = this._managers.render.geoPointFromArgs(args);
       this._doAdd(point);
       this._executeHandlers(this._handlers.update);
     },
