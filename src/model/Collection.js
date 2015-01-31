@@ -108,7 +108,7 @@ define([
 
     /**
      * Calls the given method on each {@link atlas.model.GeoEntity} in this collection, passing the
-     * given arguments.
+     * given arguments. If the method doesn't exist, it isn't called.
      * @param {String} methodName
      * @param {Array} args
      * @private
@@ -122,7 +122,8 @@ define([
 
     /**
      * Calls the given method on each {@link atlas.model.GeoEntity} in this collection. Passes the
-     * returned value to the given callback.
+     * returned value to the given callback. If the method doesn't exist, it isn't called and the
+     * callback receives an undefined value.
      * @param {String} methodName
      * @param {Array} args
      * @param {Function} callback
@@ -142,7 +143,8 @@ define([
 
     /**
      * Calls the given method on each {@link atlas.model.GeoEntity} in this collection. Passes the
-     * returned value to the given callback.
+     * returned value to the given callback. If the method doesn't exist, it isn't called and the
+     * callback receives an undefined value.
      * @param {String} methodName
      * @param {Array} args
      * @param {Function} callback
@@ -187,7 +189,7 @@ define([
 
       // Call on all entities.
       var forMethods = ['createHandles', 'addHandles', 'clearHandles', 'setStyle', 'modifyStyle',
-          'setHeight'];
+          'setHeight', 'enableExtrusion', 'disableExtrusion'];
       forMethods.forEach(function(method) {
         this[method] = function() {
           return this._forEntities(method, arguments);
