@@ -153,6 +153,13 @@ define([
     _preSelectStyle: null,
 
     /**
+     * Metadata for the GeoEntity which gives it context
+     * @type {Object}
+     * @protected
+     */
+    _metaData: null,
+
+    /**
      * Whether the GeoEntity is selected.
      * @type {Boolean}
      * @protected
@@ -213,6 +220,8 @@ define([
       this.clean();
 
       this.setStyle(args.style || GeoEntity.getDefaultStyle());
+      this.setMetaData(args.metaData || {});
+
       this._handles = new ItemStore();
       this._eventHandles = [];
       // TODO(aramk) This doesn't actually show - should call setVisibility(), but that means all
@@ -469,6 +478,29 @@ define([
      */
     getStyle: function() {
       return this._style;
+    },
+
+    /**
+     * @returns {Object}
+     */
+    getMetaData: function() {
+      return Setter.clone(this._metaData);
+    },
+
+    /**
+     * @param {Object} New set of meta data to be assigned
+     */
+    setMetaData: function(obj) {
+      // TODO(srafehi) Would type checking be needed in this case?
+      this._metaData = obj;
+    },
+
+    /**
+     * @param {String} Name of the meta data to update
+     * @param {Object} Value of the meta data property being assigned
+     */
+    setMetaDataValue: function(name, value) {
+      this._metaData[name] = value;
     },
 
     /**
