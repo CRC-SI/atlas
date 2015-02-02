@@ -116,7 +116,8 @@ module.exports = function(grunt) {
           {src: libPath('q', 'q.js'), dest: libPath('Q.js')},
           {src: libPath('Requirejs', 'require.js'), dest: libPath('require.js')},
           {src: libPath('tinycolor', 'tinycolor.js'), dest: libPath('tinycolor.js')},
-          {src: libPath('topsort', 'lib', 'topsort.js'), dest: libPath('topsort.js')}
+          {src: libPath('topsort', 'lib', 'topsort.js'), dest: libPath('topsort.js')},
+          {src: libPath('utm-converter', 'src', 'converter.js'), dest: libPath('UtmConverter.js')}
         ]
       },
       openLayersBuildConfig: {

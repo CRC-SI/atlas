@@ -15,6 +15,7 @@ var specsConfig = [
   {name: 'model/Feature', run: false},
   {name: 'model/GeoPoint', run: true},
   {name: 'model/Handle', run: false},
+  {name: 'model/HeightMap', run: true},
   {name: 'model/Line', run: false},
   {name: 'model/LineNetwork', run: false},
   {name: 'model/Mesh', run: false, fix: 'merge in feature/entity-create-event'},
@@ -81,7 +82,6 @@ requirejs.config({
         }
         GlobalLog.debug(msg + ': ', o);
       };
-      Log.setLevel('error');
       /* global window */
       window.__karma__.start();
     });

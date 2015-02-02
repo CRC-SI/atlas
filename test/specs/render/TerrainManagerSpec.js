@@ -15,9 +15,11 @@ define([
       atlas = AtlasBuilder().noLog().feature(featureId).build();
       eventManager = atlas.getManager('event');
       terrainManager = atlas.getManager('terrain');
+      terrainManager.setEnabled(false);
     });
 
     afterEach(function() {
+      atlas._managers = null;
       atlas = null;
       eventManager = null;
       terrainManager = null;
@@ -25,6 +27,7 @@ define([
 
     it('can be constructued', function() {
       expect(terrainManager).toBeDefined();
+      expect(terrainManager.isTerrainEnabled()).toBe(false);
     });
 
     it('should delegate terrain changes to subclasses', function() {
@@ -46,6 +49,7 @@ define([
     });
 
     it('should delegate entity/show events to subclasses if terrain is enabled', function() {
+      expect(terrainManager.isTerrainEnabled()).toBe(false);
       spyOn(terrainManager, '_handleEntityShowEvent').and.callThrough();
       spyOn(terrainManager, '_handleEntityShow');
 

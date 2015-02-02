@@ -98,6 +98,7 @@ define([
      * @returns {Number} The maximum number
      */
     max: function(array) {
+      if (array.length === 0) {return null;}
       return Math.max.apply(null, array);
     }
   };

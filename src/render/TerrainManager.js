@@ -32,6 +32,7 @@ define([
 
     _init: function(managers) {
       this._super(managers);
+      this._enabled = false;
     },
 
     setup: function() {
@@ -57,14 +58,14 @@ define([
      * @listens ExternalEvent#terrain/enable
      * @listens ExternalEvent#terrain/disable
      */
-    setEnabled: function(enable) {
+    setEnabled: function(enable, args) {
       if (enable === undefined) {
         throw new DeveloperError('Must specify enable value');
       }
       if (enable !== this.isTerrainEnabled()) {
         var entityShow = 'entity/show';
         this._enabled = enable;
-        this._handleEnabledChange();
+        this._handleEnabledChange(args);
 
         if (enable) {
           Log.info('Enabling terrain');

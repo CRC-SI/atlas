@@ -1,10 +1,11 @@
 define([
+  'atlas/lib/utility/Class',
   'atlas/lib/utility/Types',
   'atlas/lib/utility/Setter',
+  'atlas/lib/UtmConverter',
   'atlas/model/Vertex',
   'atlas/util/AtlasMath',
-  'atlas/lib/utility/Class'
-], function(Types, Setter, Vertex, AtlasMath, Class) {
+], function(Class, Types, Setter, UtmConverter, Vertex, AtlasMath) {
 
   /**
    * @typedef atlas.model.GeoPoint
@@ -146,7 +147,19 @@ define([
     },
 
     /**
-     * @returns {atlas.model.GeoPoint} The GeoPoint with latitude and longitude converted to Radians.
+     * @returns {Object} The GeoPoint as a UTM coord and metadata required to convert back to a
+     * GeoPoint.
+     */
+    toUtm: function() {
+      return GeoPoint._converter.toUtm({coord: {
+        lat: this.latitude,
+        lon: this.longitude
+      }});
+    },
+
+    /**
+     * @returns {atlas.model.GeoPoint} The GeoPoint with latitude and longitude
+     * converted to Radians.
      */
     toRadians: function() {
       return new GeoPoint(AtlasMath.toRadians(this.longitude), AtlasMath.toRadians(this.latitude),
@@ -162,8 +175,8 @@ define([
     },
 
     toString: function() {
-      var northSouth = this.latitude < 0 ? -1 * this.latitude + 'S' : this.latitude + 'N',
-          eastWest = this.longitude < 0 ? -1 * this.longitude + 'W' : this.longitude + 'E';
+      var northSouth = this.latitude < 0 ? -1 * this.latitude + 'S' : this.latitude + 'N';
+      var eastWest = this.longitude < 0 ? -1 * this.longitude + 'W' : this.longitude + 'E';
       return northSouth + ' ' + eastWest;
     },
 
@@ -197,13 +210,15 @@ define([
      * @see http://gis.stackexchange.com/a/8674/12464
      */
     isCloseTo: function(other, sigFigures) {
-      var sigFigures = Setter.def(sigFigures, 6);
+      sigFigures = Setter.def(sigFigures, 6);
       return this.longitude.toFixed(sigFigures) === other.longitude.toFixed(sigFigures) &&
           this.latitude.toFixed(sigFigures) === other.latitude.toFixed(sigFigures) &&
           this.elevation === other.elevation;
     }
 
   });
+
+  GeoPoint._converter = GeoPoint._converter || new UtmConverter();
 
   /**
    * Constructs a new {@link GeoPoint} from an object containing properties for latitude,
@@ -233,9 +248,26 @@ define([
   };
 
   /**
+   * Constructs a new GeoPoint from a UTM vertex and metadata.
+   * @param {Object} utm - The UTM data.
+   * @param {atlas.model.Vertex} utm.coord - The UTM vertex data.
+   * @param {Number} utm.zone - The UTM zone of the vertex.
+   * @param {Boolean} utm.isSouthern - Whether the UTM vertex is in the southern hemisphere.
+   * @returns {atlas.model.GeoPoint}
+   */
+  GeoPoint.fromUtm = function(utm) {
+    var latlon = GeoPoint._converter.toWgs(utm).coord;
+    return new GeoPoint({
+      latitude: latlon.lat,
+      longitude: latlon.lon,
+      elevation: 0
+    });
+  };
+
+  /**
    * Constructs a new GeoPoint from an object containing properties for latitude,
    * longitude, and height.
-   * @param other - The object containing the geospatial data.
+   * @param {Object} other - The object containing the geospatial data.
    * @returns {atlas.model.GeoPoint}
    * @static
    */

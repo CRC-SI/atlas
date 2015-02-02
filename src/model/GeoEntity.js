@@ -158,6 +158,13 @@ define([
     _preSelectStyle: null,
 
     /**
+     * Whether the GeoEntity can be selected.
+     * @type {Boolean}
+     * @private
+     */
+    _selectable: true,
+
+    /**
      * Whether the GeoEntity is selected.
      * @type {Boolean}
      * @protected
@@ -203,10 +210,11 @@ define([
         throw new DeveloperError('Can not create instance of GeoEntity without an ID');
       }
       this._id = id.toString();
-      this._renderManager = args.renderManager;
+      this._renderManager = Setter.def(args.renderManager);
       this._eventManager = args.eventManager;
       this._entityManager = args.entityManager;
       this._entityManager && this._entityManager.add(this);
+      this._selectable = Setter.def(args.selectable, true);
       var parentId = args.parent;
       var parent;
       if (parentId) {
@@ -502,6 +510,21 @@ define([
      */
     clean: function() {
       this._dirty = {};
+    },
+
+    /**
+     * Sets whether the GeoEntity can be selected.
+     * @param {Boolean} selectable - True iff the GeoEntity can be selected.
+     */
+    setSelectable: function(selectable) {
+      this._selectable = selectable;
+    },
+
+    /**
+     * @returns {Boolean} Whether the GeoEntity can be selected.
+     */
+    isSelectable: function() {
+      return this._selectable;
     },
 
     /**
