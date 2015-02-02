@@ -155,24 +155,6 @@ define([
       return new Rectangle(north, south, east, west);
     },
 
-    _displayExtent: function() {
-      var extent = this._modelExtent.toJson();
-
-      window.cesiumAtlas.publish('entity/create', { // jshint ignore: line
-        id: 'heightmap-extent',
-        polygon: {
-          vertices: [
-            {latitude: extent.north, longitude: extent.west}, // NW
-            {latitude: extent.north, longitude: extent.east}, // NE
-            {latitude: extent.south, longitude: extent.east}, // SE
-            {latitude: extent.south, longitude: extent.west}  // SW
-          ],
-          elevation: 0
-        },
-        show: true
-      });
-    },
-
     /**
      * @returns {atlas.model.GeoLocation} The GeoLocation of the HeightMap.
      */
