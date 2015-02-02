@@ -276,12 +276,12 @@ define([
      * @returns {Number} The index.
      */
     _lerpResolution: function(hi, lo, value) {
-      var f = value - hi;
-      var diff = lo - hi;
-      if (Math.abs(f) === Math.abs(diff)) {
+      var actualDiff = value - hi;
+      var maxDiff = lo - hi;
+      if (Math.abs(actualDiff) === Math.abs(maxDiff)) {
         return this._resolution - 1;
       }
-      var index = Math.abs(Math.floor(f / diff * this._resolution));
+      var index = Math.abs(Math.floor(actualDiff / maxDiff * this._resolution));
       return index;
     },
 
