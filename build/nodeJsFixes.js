@@ -6,7 +6,9 @@
 
   // Re-declaring variables retains existing values on client while creating new ones on the server.
   // Avoid adding/changing global definitions by using local variables in this closure.
-  var document = global.document, navigator = global.navigator, window = global.window;
+  var document = global.document;
+  var navigator = global.navigator;
+  var window = global.window;
 
   if (typeof window === 'undefined') {
     document = {
@@ -25,7 +27,11 @@
       }
     };
     navigator = {
-      userAgent: ''
+      appVersion: '',
+      language: '',
+      platform: '',
+      userAgent: '',
+      vendor: ''
     };
   }
 

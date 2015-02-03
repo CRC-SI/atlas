@@ -1,12 +1,13 @@
 define([
   'atlas/lib/utility/Setter',
+  'atlas/lib/utility/Arrays',
   'atlas/material/Color',
   'atlas/model/GeoPoint',
   'atlas/material/Style',
   'atlas/model/Vertex',
   // Base class
   'atlas/model/GeoEntity'
-], function(Setter, Color, GeoPoint, Style, Vertex, GeoEntity) {
+], function(Setter, Arrays, Color, GeoPoint, Style, Vertex, GeoEntity) {
 
   /**
    * @typedef atlas.model.Mesh
@@ -73,7 +74,7 @@ define([
      * together and describe a triangle forming the mesh. The value of the element is the index
      * of virtual positions array (the array if each element in <code>Mesh._positions</code> was
      * an (x,y,z) tuple) that corresponds to that vertex of the triangle.
-     * @type {Uint16Array}
+     * @type {Uint32Array}
      * @protected
      */
     _indices: null,
@@ -193,15 +194,15 @@ define([
       args = args || {};
       var json = Setter.merge(this._super(), {
         type: 'mesh',
-        geoLocation: this.getGeoLocation()
+        geoLocation: this.getGeoLocation().toArray()
       });
       if (this.isGltf()) {
         json.gltf = Setter.clone(this._gltf);
         json.gltfUrl = this._gltfUrl;
       } else {
-        json.positions = args.positions || Setter.clone(this._positions);
-        json.triangles = Setter.clone(this._indices);
-        json.normals = Setter.clone(this._normals);
+        json.positions = args.positions || Arrays.clone(this._positions);
+        json.triangles = Arrays.clone(this._indices);
+        json.normals = Arrays.clone(this._normals);
       }
       return json;
     }

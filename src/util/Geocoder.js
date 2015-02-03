@@ -29,6 +29,10 @@ define([
       var df = Q.defer();
       this._geocoderPromise = df.promise;
       GoogleAPI.load(function() {
+        if (typeof google === 'undefined') {
+          df.reject('Could not load Google API.');
+          return;
+        }
         google.load('maps', '3.6', {
           other_params: 'sensor=false',
           callback: function() {
@@ -81,7 +85,7 @@ define([
     getInfo: function(args) {
       var df = Q.defer();
       // To avoid an AMD cyclic dependency, we must load Camera at runtime.
-      require(['atlas/camera/Camera'], function(Camera) {
+      requirejs(['atlas/camera/Camera'], function(Camera) {
         this.geocode(args).then(function(results) {
           var result = results.results[0];
           var loc = result.geometry.location;
