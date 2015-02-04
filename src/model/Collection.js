@@ -106,6 +106,10 @@ define([
       return this._entities.clone();
     },
 
+    getChildren: function() {
+      return this._entities.asArray();
+    },
+
     /**
      * Calls the given method on each {@link atlas.model.GeoEntity} in this collection, passing the
      * given arguments. If the method doesn't exist, it isn't called.

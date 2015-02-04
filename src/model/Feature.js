@@ -210,12 +210,33 @@ define([
     },
 
     getForms: function() {
+      var formIdMap = {};
+      var formsMap = this._getFormsMap();
       var forms = [];
+      Object.keys(formsMap).map(function(prop) {
+        var form = formsMap[prop];
+        var id = form.getId();
+        if (!formIdMap[id]) {
+          formIdMap[id] = form;
+          forms.push(form);
+        }
+      });
+      return forms;
+    },
+
+    _getFormsMap: function() {
+      var forms = {};
       Feature.getDisplayModeIds().forEach(function(displayMode) {
         var form = this.getForm(displayMode);
-        form && forms.push(form);
+        if (form) {
+          forms[displayMode] = form;
+        }
       }, this);
       return forms;
+    },
+
+    getChildren: function() {
+      return this.getForms();
     },
 
     /**
@@ -294,12 +315,9 @@ define([
     toJson: function() {
       var json = this._super();
       var forms = json.forms = {};
-      Object.keys(Feature.DisplayMode).forEach(function(key) {
-        var displayMode = Feature.DisplayMode[key];
-        var form = this.getForm(displayMode);
-        if (!form) {
-          return;
-        }
+      var formsMap = this._getFormsMap();
+      Object.keys(formsMap).forEach(function(displayMode) {
+        var form = formsMap[displayMode];
         var propName = this.getJsonPropertyFromDisplayMode(displayMode);
         if (json[propName] === undefined) {
           // Avoid re-running toJson() for form classes which can span multiple display modes
