@@ -2,13 +2,19 @@ define([
   'atlas/events/Event',
   'atlas/lib/utility/Objects',
   'atlas/lib/utility/Setter',
+  'atlas/lib/utility/Strings',
+  'atlas/lib/utility/Types',
   'atlas/model/Ellipse',
+  'atlas/model/Image',
+  'atlas/model/Line',
   'atlas/model/Mesh',
+  'atlas/model/Point',
   'atlas/model/Polygon',
   'atlas/util/DeveloperError',
   // Base class.
   'atlas/model/GeoEntity'
-], function(Event, Objects, Setter, Ellipse, Mesh, Polygon, DeveloperError, GeoEntity) {
+], function(Event, Objects, Setter, Strings, Types, Ellipse, Image, Line, Mesh, Point, Polygon,
+            DeveloperError, GeoEntity) {
 
   /**
    * @typedef atlas.model.Feature
@@ -86,8 +92,20 @@ define([
      */
     _displayMode: null,
 
-    _init: function(id, args) {
-      this._super(id, args, args);
+    /**
+     * @type {Object.<String, Function>} A map of class names to constructors for the form models
+     *     constructed by this feature.
+     */
+    // TODO(bpstudds) Replace this with a factory.
+    _formConstructors: {
+      Line: Line,
+      Ellipse: Ellipse,
+      Polygon: Polygon,
+      Point: Point,
+      Mesh: Mesh,
+      // TODO(aramk) There's no constructor for GltfMesh in atlas, so we need to use Mesh.
+      GltfMesh: Mesh,
+      Image: Image
     },
 
     _setup: function(id, data, args) {
@@ -95,11 +113,12 @@ define([
       this._initDelegation();
       this._initEvents();
       this._super(id, data, args);
-      var displayMode = args.displayMode;
+      var displayMode = data.displayMode;
       Object.keys(Feature.JsonPropertyToDisplayMode).forEach(function(prop) {
         var mode = Feature.JsonPropertyToDisplayMode[prop];
-        var form = args[prop];
-        if (form) {
+        var formData = data[prop];
+        if (formData) {
+          var form = this._getOrCreateForm(id, prop, formData, args);
           this.setForm(mode, form);
           displayMode = displayMode || mode;
         }
@@ -107,6 +126,21 @@ define([
       this.setDisplayMode(displayMode);
       var height = data.height;
       if (height !== undefined) this.setHeight(height);
+    },
+
+    _getOrCreateForm: function(id, prop, data, args) {
+      if (Types.isString(data)) {
+        var form = this._entityManager.getById(data);
+        if (!form) {
+          throw new Error('Cannot find form with ID ' + data);
+        }
+        return form;
+      }
+      var Constructor = this._formConstructors[Strings.toTitleCase(prop)];
+      if (data.gltf || data.gltfUrl) {
+        Constructor = this._formConstructors.GltfMesh;
+      }
+      return new Constructor(id + prop, data, args);
     },
 
     // -------------------------------------------
@@ -122,7 +156,8 @@ define([
       var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
         'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles',
         'getCentroid', 'getArea', 'getVertices', 'getOpenLayersGeometry', 'getBoundingBox',
-        'translate', 'scale', 'rotate', 'setScale', 'setRotation', 'setHeight', 'getHeight'];
+        'translate', 'scale', 'rotate', 'setScale', 'setRotation', 'setHeight', 'getHeight',
+        'enableExtrusion', 'disableExtrusion'];
       methods.forEach(function(method) {
         this[method] = function() {
           return this._delegateToForm(method, arguments);
@@ -258,6 +293,7 @@ define([
 
     toJson: function() {
       var json = this._super();
+      var forms = json.forms = {};
       Object.keys(Feature.DisplayMode).forEach(function(key) {
         var displayMode = Feature.DisplayMode[key];
         var form = this.getForm(displayMode);
@@ -268,12 +304,12 @@ define([
         if (json[propName] === undefined) {
           // Avoid re-running toJson() for form classes which can span multiple display modes
           // (e.g. Polygon and Ellipse).
-          json[propName] = form.toJson();
+          forms[propName] = form.getId();
         }
       }, this);
       Setter.merge(json, {
         type: 'feature',
-        displayMode: this.getDisplayMode(),
+        displayMode: this.getDisplayMode()
       });
       return json;
     },

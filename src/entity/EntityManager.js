@@ -4,6 +4,7 @@ define([
   'atlas/events/Event',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
+  'atlas/lib/utility/Strings',
   'atlas/lib/topsort',
   'atlas/model/Collection',
   'atlas/model/Ellipse',
@@ -17,7 +18,7 @@ define([
   'atlas/model/GeoPoint',
   'atlas/model/Vertex',
   'atlas/util/DeveloperError'
-], function(Manager, ItemStore, Event, Log, Setter, topsort, Collection, Ellipse, Feature,
+], function(Manager, ItemStore, Event, Log, Setter, Strings, topsort, Collection, Ellipse, Feature,
             GeoEntity, Mesh, Point, Polygon, Line, Image, GeoPoint, Vertex, DeveloperError) {
 
   /**
@@ -253,36 +254,43 @@ define([
     /**
      * Creates and adds a new Feature object to atlas-cesium.
      * @param {String} id - The ID of the Feature to add.
-     * @param {Object} args - Arguments describing the Feature to add.
-     * @param {String|Array.<atlas.model.GeoPoint>} [args.line=null] - Either a WKT string or array
+     * @param {Object} data - Arguments describing the Feature to add.
+     * @param {String|Array.<atlas.model.GeoPoint>} [data.line=null] - Either a WKT string or array
      *     of vertices.
-     * @param {String|Array.<atlas.model.GeoPoint>} [args.footprint=null] - Either a WKT string or
+     * @param {String|Array.<atlas.model.GeoPoint>} [data.footprint=null] - Either a WKT string or
      *     array of vertices.
-     * @param {Object} [args.mesh=null] - A object in the C3ML format describing the Features' Mesh.
-     * @param {Number} [args.height=0] - The extruded height when displaying as a extruded polygon.
-     * @param {Number} [args.elevation=0] - The elevation (from the terrain surface) to the base of
+     * @param {Object} [data.mesh=null] - A object in the C3ML format describing the Features' Mesh.
+     * @param {Number} [data.height=0] - The extruded height when displaying as a extruded polygon.
+     * @param {Number} [data.elevation=0] - The elevation (from the terrain surface) to the base of
      *     the Mesh or Polygon.
-     * @param {Boolean} [args.show=true] - Whether the feature should be initially shown when
+     * @param {Boolean} [data.show=false] - Whether the feature should be initially shown when
      *     created.
-     * @param {String} [args.displayMode='footprint'] - Initial display mode of feature.
+     * @param {String} [data.displayMode='footprint'] - Initial display mode of feature.
      */
-    createFeature: function(id, args) {
+    createFeature: function(id, data, args) {
       if (typeof id === 'object') {
-        args = id;
-        id = args.id;
+        data = id;
+        id = data.id;
       }
-      args = Setter.merge({
+      data = Setter.merge({
         show: false
-      }, args);
+      }, data);
       if (id === undefined) {
         throw new DeveloperError('Can not create Feature without specifying ID');
       } else if (this.getById(id)) {
         throw new DeveloperError('Can not create Feature with a duplicate ID');
       } else {
-        this._bindDeps(args);
         Log.debug('Creating entity', id);
-        return new this._entityTypes.Feature(id, args);
+        args = this._bindDeps(Setter.merge({}, args));
+        return new this._entityTypes.Feature(id, data, args);
       }
+    },
+
+    createEntity: function(id, data, args) {
+      args = this._bindDeps(Setter.merge({}, args));
+      var type = data.type;
+      var Constructor = this._entityTypes[Strings.toTitleCase(type)];
+      return new Constructor(id, data, args);
     },
 
     /**
@@ -298,7 +306,7 @@ define([
     /**
      * Adds manager references to the given object as dependencies later passed to models.
      * @param {Object} args
-     * @return {Object} The object passed in.
+     * @return {Object} The object passed in with the added dependencies.
      */
     _bindDeps: function(args) {
       // TODO(aramk) Use dependency injection to ensure all entities that are created have these
@@ -309,6 +317,7 @@ define([
       args.renderManager = this._managers.render;
       // Add the EntityManager to the args for the feature.
       args.entityManager = this;
+      return args;
     },
 
     /**
@@ -325,7 +334,7 @@ define([
       // Topologically sort the c3ml based on the "children" field.
       c3mls.forEach(function(c3ml) {
         var id = c3ml.id;
-        var children = c3ml.children;
+        var children = this._getChildrenIds(c3ml);
         if (children) {
           children.forEach(function(childId) {
             edges.push([id, childId]);
@@ -336,7 +345,7 @@ define([
           throw new Error('Duplicate IDs for c3mls: ' + id);
         }
         c3mlMap[id] = c3ml;
-      });
+      }, this);
       var sortedIds = topsort(edges);
       // Reverse the list so that each entity is created before its parents to ensure they're
       // available when requested.
@@ -352,18 +361,29 @@ define([
         var c3ml = c3mlMap[id];
         // Children may be rendered in a previous draw call so we should skip those.
         if (!this.getById(id)) {
-          var c3mlData = this._parseC3ml(c3ml);
+          var data = this._parseC3ml(c3ml);
           // TODO(aramk) Disabled for now since it causes issues in MeshCollectionPrototype related
           // to translate() being called recursively for all entities.
           // if (c3mlData.type === 'collection') {
           //   this.createCollection(id, c3mlData);
           // } else {
-            this.createFeature(id, c3mlData);
+          this.createEntity(id, data);
           // }
           ids.push(id);
         }
       }, this);
       return ids;
+    },
+
+    _getChildrenIds: function(c3ml) {
+      if (c3ml.children) {
+        return c3ml.children;
+      } else if (c3ml.type === 'feature') {
+        var forms = c3ml.forms;
+        return Object.keys(forms).map(function(formType) {
+          return forms[formType];
+        });
+      }
     },
 
     _getParserForType: function(type) {
@@ -393,22 +413,23 @@ define([
         throw new Error('C3ML must have type parameter.');
       }
       var parser = this._getParserForType(type);
-      var geometry = parser && parser.call(this, c3ml);
-      return Setter.mixin(c3ml, geometry);
+      if (parser) {
+        // TODO(aramk) Eventually the C3ML/AEON format will be directly supported by all model
+        // constructors. For now, just feed in all the data we have.
+        return Setter.mixin(c3ml, parser.call(this, c3ml));
+      } else {
+        throw new Error('Could not find suitable parser for C3ml type: ' + type);
+      }
     },
 
     // TODO(aramk) For all parsers - reuse the objects passed rather than creating new ones.
     // Mix in new parameters.
 
     _parseC3mlFeature: function(c3ml) {
-      Object.keys(Feature.JsonPropertyToDisplayMode).forEach(function(type) {
-        var typeC3ml = c3ml[type];
-        if (typeC3ml) {
-          var parser = this._getParserForType(type);
-          var geometry = parser && parser.call(this, typeC3ml);
-          Setter.mixin(c3ml, geometry);
-        }
-      }, this);
+      // TODO(aramk) For now, feature still accepts the forms in the root object.
+      var forms = c3ml.forms;
+      Setter.mixin(c3ml, forms);
+      delete c3ml.forms;
       return c3ml;
     },
 
@@ -420,13 +441,11 @@ define([
      */
     _parseC3mlPoint: function(c3ml) {
       return {
-        point: {
-          position: c3ml.position,
-          latitude: c3ml.latitude,
-          longitude: c3ml.longitude,
-          elevation: c3ml.elevation,
-          color: c3ml.color,
-        }
+        position: c3ml.position,
+        latitude: c3ml.latitude,
+        longitude: c3ml.longitude,
+        elevation: c3ml.elevation,
+        color: c3ml.color,
       };
     },
 
@@ -438,10 +457,8 @@ define([
      */
     _parseC3mlImage: function(c3ml) {
       return {
-        image: {
-          vertices: c3ml.coordinates,
-          image: c3ml.image
-        }
+        vertices: c3ml.coordinates,
+        image: c3ml.image
       };
     },
 
@@ -453,12 +470,10 @@ define([
      */
     _parseC3mlLine: function(c3ml) {
       return {
-        line: {
-          vertices: c3ml.coordinates,
-          color: c3ml.color,
-          height: c3ml.height,
-          elevation: c3ml.altitude
-        }
+        vertices: c3ml.coordinates,
+        color: c3ml.color,
+        height: c3ml.height,
+        elevation: c3ml.altitude
       };
     },
 
@@ -470,15 +485,13 @@ define([
      */
     _parseC3mlPolygon: function(c3ml) {
       return {
-        polygon: {
-          // TODO(aramk) We need to standardize which one we use - were using "vertices" internally
-          // but "coordinates" in c3ml.
-          vertices: c3ml.coordinates,
-          holes: c3ml.holes,
-          color: c3ml.color,
-          height: c3ml.height,
-          elevation: c3ml.altitude
-        }
+        // TODO(aramk) We need to standardize which one we use - were using "vertices" internally
+        // but "coordinates" in c3ml.
+        vertices: c3ml.coordinates,
+        holes: c3ml.holes,
+        color: c3ml.color,
+        height: c3ml.height,
+        elevation: c3ml.altitude
       };
     },
 
@@ -490,17 +503,15 @@ define([
      */
     _parseC3mlMesh: function(c3ml) {
       return {
-        mesh: {
-          positions: c3ml.positions,
-          normals: c3ml.normals,
-          triangles: c3ml.triangles,
-          color: c3ml.color,
-          geoLocation: c3ml.geoLocation,
-          scale: c3ml.scale,
-          rotation: c3ml.rotation,
-          gltf: c3ml.gltf,
-          gltfUrl: c3ml.gltfUrl
-        }
+        positions: c3ml.positions,
+        normals: c3ml.normals,
+        triangles: c3ml.triangles,
+        color: c3ml.color,
+        geoLocation: c3ml.geoLocation,
+        scale: c3ml.scale,
+        rotation: c3ml.rotation,
+        gltf: c3ml.gltf,
+        gltfUrl: c3ml.gltfUrl
       };
     },
 

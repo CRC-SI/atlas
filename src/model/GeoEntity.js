@@ -240,7 +240,7 @@ define([
       // subclass constructors should have completely set up their properties. We would need a
       // method called setUp() which we call here and subclasses override to ensure all properties
       // (e.g. vertices) are set and _build() can safely be called from here.
-      this._visible = Setter.def(args.show, false);
+      this._visible = Setter.def(data.show, false);
       this.setDirty('entity');
 
       var style;
