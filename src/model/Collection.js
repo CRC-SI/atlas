@@ -73,6 +73,7 @@ define([
         Log.warn('Entity with ID ' + id + ' already added to collection.');
       } else {
         this._entities.add(entity);
+        entity.setParent(this);
       }
     },
 
@@ -85,6 +86,7 @@ define([
       var entity = this._entities.get(id);
       if (entity) {
         this._entities.remove(id);
+        entity.setParent(null);
       } else {
         Log.warn('Entity with ID ' + id + ' already added to collection.');
       }

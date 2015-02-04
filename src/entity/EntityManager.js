@@ -273,7 +273,7 @@ define([
         id = data.id;
       }
       data = Setter.merge({
-        show: false
+        show: true
       }, data);
       if (id === undefined) {
         throw new DeveloperError('Can not create Feature without specifying ID');
@@ -394,7 +394,8 @@ define([
         mesh: this._parseC3mlMesh,
         polygon: this._parseC3mlPolygon,
         image: this._parseC3mlImage,
-        feature: this._parseC3mlFeature
+        feature: this._parseC3mlFeature,
+        collection: this._parseC3mlCollection
       };
       return parsers[type];
     },
@@ -431,6 +432,12 @@ define([
       Setter.mixin(c3ml, forms);
       delete c3ml.forms;
       return c3ml;
+    },
+
+    _parseC3mlCollection: function(c3ml) {
+      return {
+        entities: c3ml.children
+      };
     },
 
     /**

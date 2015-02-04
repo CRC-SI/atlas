@@ -71,14 +71,10 @@ define([
         // TODO(aramk) This is inconsistent - prefer to return an array containing an array
         // containing the Vertex.
         return this.vertexFromOpenLayersPoint(geometry);
-      } else if (geometry instanceof OpenLayers.Geometry.Collection) {
-        var components = geometry.components;
-        for (var i = 0; i < components.length; i++) {
-          var component = components[i];
-          vertices.push(this.verticesFromOpenLayersGeometry(component));
-        }
+      } else {
+        // NOTE: This is flattenning the vertices into a single array.
+        return [geometry.getVertices().map(this.vertexFromOpenLayersPoint, this)];
       }
-      return vertices;
     },
 
     /**

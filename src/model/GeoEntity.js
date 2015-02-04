@@ -236,11 +236,7 @@ define([
     _setup: function(id, data, args) {
       this._handles = new ItemStore();
       this._eventHandles = [];
-      // TODO(aramk) This doesn't actually show - should call setVisibility(), but that means all
-      // subclass constructors should have completely set up their properties. We would need a
-      // method called setUp() which we call here and subclasses override to ensure all properties
-      // (e.g. vertices) are set and _build() can safely be called from here.
-      this._visible = Setter.def(data.show, false);
+      this._visible = Setter.def(data.show, true);
       this.setDirty('entity');
 
       var style;
