@@ -128,6 +128,16 @@ define([
       if (height !== undefined) this.setHeight(height);
     },
 
+    /**
+     * @param {String} id - The ID to use as the prefix for constructing the new form.
+     * @param {String} prop - The property name of this form's type in the Feature constructor. Used
+     *     to determine the form's constructor.
+     * @param {Object|String} data - Either the ID of an existing form or the data for constructing
+     *     it.
+     * @param {Object} [args] - Additional constructor arguments.
+     * @return {atlas.model.GeoEntity} Either a newly constructed form, or an existing form if data
+     *     is an ID.
+     */
     _getOrCreateForm: function(id, prop, data, args) {
       if (Types.isString(data)) {
         var form = this._entityManager.getById(data);
@@ -209,6 +219,9 @@ define([
       }
     },
 
+    /**
+     * @return {Array.<atlas.model.GeoEntity>} The GeoEntity objects for each unique form.
+     */
     getForms: function() {
       var formIdMap = {};
       var formsMap = this._getFormsMap();
@@ -224,6 +237,10 @@ define([
       return forms;
     },
 
+    /**
+     * @return {Object.<atlas.model.Feature.DisplayMode, atlas.model.GeoEntity>} A map of the
+     *     DisplayMode for each feature to its GeoEntity.
+     */
     _getFormsMap: function() {
       var forms = {};
       Feature.getDisplayModeIds().forEach(function(displayMode) {
@@ -312,6 +329,11 @@ define([
       return this._delegateToForm('getStyle') || this._style;
     },
 
+    /**
+     * @return {Object} json - A JSON representation of the Feature.
+     * @return {Object.<String, String>} json.forms - A map of the JSON properties for the forms of
+     *     this Feature to their GeoEntity IDs.
+     */
     toJson: function() {
       var json = this._super();
       var forms = json.forms = {};

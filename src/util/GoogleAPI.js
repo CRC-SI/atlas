@@ -10,7 +10,6 @@ define(function() {
      * @param {Function} callback - Once invoked, <code>google</code> will be a global variable.
      */
     load: function(callback) {
-      // throw new Error('Google API is outdated.');
       if (window.isShimmed) {
         callback();
         return;

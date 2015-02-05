@@ -88,7 +88,7 @@ define([
         this._entities.remove(id);
         entity.setParent(null);
       } else {
-        Log.warn('Entity with ID ' + id + ' already added to collection.');
+        Log.warn('Entity with ID ' + id + ' is not in collection.');
       }
     },
 

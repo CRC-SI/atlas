@@ -263,7 +263,7 @@ define([
      * @param {Number} [data.height=0] - The extruded height when displaying as a extruded polygon.
      * @param {Number} [data.elevation=0] - The elevation (from the terrain surface) to the base of
      *     the Mesh or Polygon.
-     * @param {Boolean} [data.show=false] - Whether the feature should be initially shown when
+     * @param {Boolean} [data.show=true] - Whether the feature should be initially shown when
      *     created.
      * @param {String} [data.displayMode='footprint'] - Initial display mode of feature.
      */
@@ -281,13 +281,13 @@ define([
         throw new DeveloperError('Can not create Feature with a duplicate ID');
       } else {
         Log.debug('Creating entity', id);
-        args = this._bindDeps(Setter.merge({}, args));
+        args = this._bindDeps(args);
         return new this._entityTypes.Feature(id, data, args);
       }
     },
 
     createEntity: function(id, data, args) {
-      args = this._bindDeps(Setter.merge({}, args));
+      args = this._bindDeps(args);
       var type = this._sanitizeType(data.type);
       var Constructor = this._entityTypes[Strings.toTitleCase(type)];
       return new Constructor(id, data, args);
@@ -311,13 +311,11 @@ define([
     _bindDeps: function(args) {
       // TODO(aramk) Use dependency injection to ensure all entities that are created have these
       // if they need them.
-      // Add EventManger to the args for the feature.
-      args.eventManager = this._managers.event;
-      // Add the RenderManager to the args for the feature.
-      args.renderManager = this._managers.render;
-      // Add the EntityManager to the args for the feature.
-      args.entityManager = this;
-      return args;
+      return Setter.merge(args || {}, {
+        eventManager: this._managers.event,
+        renderManager: this._managers.render,
+        entityManager: this
+      });
     },
 
     /**
@@ -369,6 +367,10 @@ define([
       return ids;
     },
 
+    /**
+     * @param {Object} c3ml
+     * @return {Array.<String>} The child IDs for the given C3ML document.
+     */
     _getChildrenIds: function(c3ml) {
       if (c3ml.children) {
         return c3ml.children;
@@ -377,6 +379,8 @@ define([
         return Object.keys(forms).map(function(formType) {
           return forms[formType];
         });
+      } else {
+        return [];
       }
     },
 
