@@ -43,7 +43,7 @@ define([
      * @ignore
      */
     _setup: function(id, data, args) {
-      var position = data.position;
+      var position = new GeoPoint(data.position);
       if (Types.isString(position)) {
         var wkt = WKT.getInstance();
         position = wkt.geoPointsFromWKT(position)[0][0];
