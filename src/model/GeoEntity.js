@@ -575,7 +575,7 @@ define([
     },
 
     /**
-     * @return {Object}
+     * @return {Object} A JSON representation of the GeoEntity.
      */
     toJson: function() {
       var json = {

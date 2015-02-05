@@ -252,7 +252,7 @@ define([
     // -------------------------------------------
 
     /**
-     * Creates and adds a new Feature object to atlas-cesium.
+     * Creates and adds a new Feature object to Atlas.
      * @param {String} id - The ID of the Feature to add.
      * @param {Object} data - Arguments describing the Feature to add.
      * @param {String|Array.<atlas.model.GeoPoint>} [data.line=null] - Either a WKT string or array
@@ -449,10 +449,6 @@ define([
      * @private
      */
     _parseC3mlPoint: function(c3ml) {
-      if (!c3ml.position && c3ml.coordinates && c3ml.coordinates.length) {
-        c3ml.position = c3ml.coordinates[0];
-      }
-
       return {
         position: c3ml.position,
         latitude: c3ml.latitude,
