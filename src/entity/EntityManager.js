@@ -445,6 +445,10 @@ define([
      * @private
      */
     _parseC3mlPoint: function(c3ml) {
+      if (!c3ml.position && c3ml.coordinates && c3ml.coordinates.length) {
+        c3ml.position = c3ml.coordinates[0];
+      }
+
       return {
         position: c3ml.position,
         latitude: c3ml.latitude,
