@@ -288,7 +288,7 @@ define([
 
     createEntity: function(id, data, args) {
       args = this._bindDeps(Setter.merge({}, args));
-      var type = data.type;
+      var type = this._sanitizeType(data.type);
       var Constructor = this._entityTypes[Strings.toTitleCase(type)];
       return new Constructor(id, data, args);
     },
@@ -362,13 +362,7 @@ define([
         // Children may be rendered in a previous draw call so we should skip those.
         if (!this.getById(id)) {
           var data = this._parseC3ml(c3ml);
-          // TODO(aramk) Disabled for now since it causes issues in MeshCollectionPrototype related
-          // to translate() being called recursively for all entities.
-          // if (c3mlData.type === 'collection') {
-          //   this.createCollection(id, c3mlData);
-          // } else {
           this.createEntity(id, data);
-          // }
           ids.push(id);
         }
       }, this);
@@ -378,7 +372,7 @@ define([
     _getChildrenIds: function(c3ml) {
       if (c3ml.children) {
         return c3ml.children;
-      } else if (c3ml.type === 'feature') {
+      } else if (this._sanitizeType(c3ml.type) === 'feature') {
         var forms = c3ml.forms;
         return Object.keys(forms).map(function(formType) {
           return forms[formType];
@@ -400,6 +394,10 @@ define([
       return parsers[type];
     },
 
+    _sanitizeType: function(type) {
+      return type.toLowerCase();
+    },
+
     /**
      * Takes an object conforming to the C3ML standard and converts it to a format expected by the
      * Feature constructor.
@@ -409,7 +407,7 @@ define([
      */
     _parseC3ml: function(c3ml) {
       // Generate the Geometry for the C3ML type if it is supported.
-      var type = c3ml.type;
+      var type = this._sanitizeType(c3ml.type);
       if (!type) {
         throw new Error('C3ML must have type parameter.');
       }

@@ -225,6 +225,7 @@ define([
       data = data || {};
       this._setup(id, data, args);
       this._isSetUp = true;
+      this.isVisible() && this.show();
     },
 
     /**
