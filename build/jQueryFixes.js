@@ -4,6 +4,8 @@
   if (typeof window !== undefined && window.isShimmed !== true) {
     // EXISTING CODE GOES HERE
   } else {
-    define('jquery',[], function() {throw new Error('jQuery cannot be used in non-browser environments.')});
+    define('jquery',[], function() {
+      console.error('jQuery cannot be used in non-browser environments.');
+    });
   }
 })(this);
