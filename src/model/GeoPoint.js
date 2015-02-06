@@ -58,7 +58,7 @@ define([
         this._setFromArgs(args.x, args.y, args.z);
       } else {
         this._setFromArgs(args.longitude || args.lng, args.latitude || args.lat,
-            args.elevation || args.height);
+            args.elevation || args.height || args.altitude || args.alt);
       }
     },
 
