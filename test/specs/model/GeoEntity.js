@@ -3,7 +3,7 @@ define([
     'dam/TestCase',
     // Code under test.
     '../GeoEntity'
-], function (doh, TestCase, GeoEntity) {
+], function(doh, TestCase, GeoEntity) {
 
   var id;
   var geoEntity;

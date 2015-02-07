@@ -21,7 +21,7 @@ define([
    * @extends atlas.render.BaseEditModule
    * @class atlas.edit.DrawModule
    */
-  DrawModule = BaseEditModule.extend({
+  DrawModule = BaseEditModule.extend(/** @lends atlas.edit.DrawModule# */ {
 
     /**
      * The handles added during the current draw process. Used to store their sequence.
@@ -131,6 +131,7 @@ define([
      * added).
      * @param {Function} [args.create] - A callback invoked when drawing is complete.
      * @param {Function} [args.cancel] - A callback invoked when drawing is cancelled.
+     * @param {Function} [args.init] - A callback invoked when drawing is started.
      * @param {atlas.model.Feature.DisplayMode} [displayMode] - The display mode to use when drawing
      * the entity. {@link atlas.model.Feature.DisplayMode.FOOTPRINT} by default.
      * @private
@@ -149,11 +150,15 @@ define([
       this._setup();
       this._managers.edit.enableModule('translation');
       this._isDrawing = true;
+      init = args.init;
+      if (init) {
+        init({feature: this._feature});
+      }
     },
 
     /**
      * Executes the given handlers with the drawn object.
-     * @param handlers
+     * @param {Array.<Function>} handlers
      * @param  {atlas.model.Feature} [feature]
      * @private
      */
@@ -161,7 +166,12 @@ define([
       feature = feature || this._feature;
       handlers.forEach(function(handler) {
         handler.call(this, {
-          feature: feature
+          feature: feature,
+          // Pass the given feature (if any) to allow returning the forms without without relying on
+          // this._feature (which might be null if these handlers are executed after drawing has
+          // stopped).
+          form: this._getForm(undefined, feature),
+          line: this._getLine(feature)
         });
       }, this);
     },
@@ -180,8 +190,8 @@ define([
       var target = handles.get(targetId);
       var now = Date.now();
       var translationModule = this._managers.edit.getModule('translation');
-      var form = this._getForm(),
-          line = this._getLine();
+      var form = this._getForm();
+      var line = this._getLine();
 
       if (this._lastClickTime) {
         var timeDiff = now - this._lastClickTime;
@@ -223,9 +233,9 @@ define([
     },
 
     _doAdd: function(point) {
-      var handles = this._managers.edit.getHandles(),
-          form = this._getForm(),
-          line = this._getLine();
+      var handles = this._managers.edit.getHandles();
+      var form = this._getForm();
+      var line = this._getLine();
       form.addVertex(point);
       if (form.getVertices().length <= 2) {
         line.addVertex(point);
@@ -280,7 +290,7 @@ define([
           return false;
         }
       }
-      // Store references to the handlers and the feature which is passed to them. We need to 
+      // Store references to the handlers and the feature which is passed to them. We need to
       // unregister before calling the handlers in case another draw session is started from within.
       var feature = this._feature;
       var handlers = this._handlers.create;
@@ -331,12 +341,13 @@ define([
       this._isDrawing = false;
     },
 
-    _getForm: function(displayMode) {
-      return this._feature.getForm(displayMode || this._displayMode);
+    _getForm: function(displayMode, feature) {
+      feature = feature || this._feature;
+      return feature.getForm(displayMode || this._displayMode, feature);
     },
 
-    _getLine: function() {
-      return this._getForm(Feature.DisplayMode.LINE);
+    _getLine: function(feature) {
+      return this._getForm(Feature.DisplayMode.LINE, feature);
     },
 
     /**

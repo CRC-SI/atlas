@@ -3,7 +3,7 @@ define([
   'dam/TestCase',
   /* Code under test */
   '../SelectionManager'
-], function (doh, TestCase, SelectionManager) {
+], function(doh, TestCase, SelectionManager) {
 
   var managers;
   var selectionManager;
@@ -46,7 +46,7 @@ define([
 
     name: 'atlas/selection/SelectionManager',
 
-    setUp: function () {
+    setUp: function() {
       // summary:
       managers = {
         dom: {},
@@ -57,7 +57,7 @@ define([
       selectionManager = new SelectionManager(managers);
     },
 
-    tearDown: function () {
+    tearDown: function() {
       managers = {
         dom: {},
         event: {},
@@ -66,18 +66,18 @@ define([
       };
     },
 
-    testCreate: function () {
+    testCreate: function() {
       doh.t(selectionManager instanceof SelectionManager, 'Did not create a SelectionManager');
       doh.is(selectionManager, managers.selection, 'Reference not stored correctly');
     },
     
-    testSelectEntity: function () {
+    testSelectEntity: function() {
       selectionManager.selectEntity(entity1._id, false);
       doh.is(entity1, selectionManager._selection[entity1._id], 'Entity1 not added to selection correctly.');
       doh.t(entity1.selected, 'Entity1 was not actually selected');
     },
     
-    testSelectEntity_KeepSelection: function () {
+    testSelectEntity_KeepSelection: function() {
       selectionManager.selectEntity(entity1._id, true);
       selectionManager.selectEntity(entity2._id, true);
       selectionManager.selectEntity(entity3._id, true);
@@ -92,7 +92,7 @@ define([
       doh.t(entity4.selected, 'Entity4 was not actually selected');
     },
     
-    testSelectEntity_ClearSelection: function () {
+    testSelectEntity_ClearSelection: function() {
       selectionManager.selectEntity(entity1._id, true);
       selectionManager.selectEntity(entity2._id, true);
       selectionManager.selectEntity(entity3._id, true);
@@ -107,12 +107,12 @@ define([
       doh.t(entity4.selected, 'Entity4 was not actually selected');
     },
     
-    testSelectEntity_WrongID: function () {
+    testSelectEntity_WrongID: function() {
       selectionManager.selectEntity(12345, false);
       doh.f(selectionManager._selection[12345], 'Non-existing entity "selected"');
     },
     
-    testSelectEntities: function () {
+    testSelectEntities: function() {
       selectionManager.selectEntities([entity1._id, entity2._id, entity3._id, entity4._id]);
       doh.is(entity1, selectionManager._selection[entity1._id], 'Entity1 not added to selection correctly.');
       doh.is(entity2, selectionManager._selection[entity2._id], 'Entity2 not added to selection correctly.');
@@ -124,7 +124,7 @@ define([
       doh.t(entity4.selected, 'Entity4 was not actually selected');
     },
     
-    testSelectEntities_KeepSelection: function () {
+    testSelectEntities_KeepSelection: function() {
       selectionManager.selectEntity(entity1._id);
       selectionManager.selectEntities([entity2._id, entity3._id, entity4._id], true);
       doh.is(entity1, selectionManager._selection[entity1._id], 'Entity1 not added to selection correctly.');
@@ -137,7 +137,7 @@ define([
       doh.t(entity4.selected, 'Entity4 was not actually selected');
     },
     
-    testSelectEntities_ClearSelection1: function () {
+    testSelectEntities_ClearSelection1: function() {
       selectionManager.selectEntity(entity1._id);
       selectionManager.selectEntities([entity2._id, entity3._id, entity4._id], false);
       doh.f(selectionManager._selection[entity1._id], 'Entity1 not deselected correctly.');
@@ -150,7 +150,7 @@ define([
       doh.t(entity4.selected, 'Entity4 was not actually selected');
     },
     
-    testSelectEntities_ClearSelection2: function () {
+    testSelectEntities_ClearSelection2: function() {
       selectionManager.selectEntity(entity1._id);
       selectionManager.selectEntities([entity2._id, entity3._id, entity4._id]);
       doh.f(selectionManager._selection[entity1._id], 'Entity1 not deselected correctly.');

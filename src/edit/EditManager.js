@@ -228,8 +228,8 @@ define([
         meta.origDisplayMode = entity.getDisplayMode();
         this._entitiesMeta[entity.getId()] = meta;
         // Show the footprint if it's available when editing.
-        args.show && entity.getForm && entity.getForm(Feature.DisplayMode.FOOTPRINT)
-          && entity.showAsFootprint();
+        args.show && entity.getForm && entity.getForm(Feature.DisplayMode.FOOTPRINT) &&
+            entity.showAsFootprint();
         if (args.addHandles) {
           // Put the Handles into the EntityManager and render them.
           var handles = entity.addHandles();
@@ -297,8 +297,8 @@ define([
     },
 
     /**
-     * @param name
-     * @returns {atlas.edit.BaseEditModule}
+     * @param {String} name - The name of the module to get.
+     * @returns {atlas.edit.BaseEditModule} The requested module.
      */
     getModule: function(name) {
       return this._modules[name];
@@ -329,8 +329,8 @@ define([
       }
 
       var bindEvent = function(event, args) {
-        var handler,
-            source = 'intern';
+        var handler;
+        var source = 'intern';
         if (Types.isFunction(args)) {
           handler = args;
         } else {

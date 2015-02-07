@@ -1,17 +1,19 @@
 *.sublime-workspace
+*.unity3d
+
 
 # Generated files #
 ###################
-coverage/*
-docs
-/lib/
-node_modules/
-bower_components/
-/lib/
+/bower_components
+/coverage/*
 /dist
-src/main.js
-.build*
-.sonar
+/docs/site
+/jsdocs
+/lib
+/node_modules
+/src/main.js
+/.build*
+/.sonar
 
 # Misc #
 ########
@@ -63,4 +65,3 @@ Thumbs.db
 #######
 .settings
 .idea
-*.unity3d

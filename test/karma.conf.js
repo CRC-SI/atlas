@@ -1,6 +1,7 @@
 // Karma configuration
 // Generated on Wed Jan 15 2014 11:11:25 GMT+1100 (EST)
 
+/* global module */
 module.exports = function(config) {
   config.set({
 
@@ -33,8 +34,8 @@ module.exports = function(config) {
     coverageReporter: {
       dir: 'atlas/coverage/',
       reporters: [
-        { type: 'html', subdir: 'report-html' },
-        { type: 'lcovonly', subdir: '.', file: 'lcov.dat' }
+        {type: 'html', subdir: 'report-html'},
+        {type: 'lcovonly', subdir: '.', file: 'lcov.dat'}
       ]
     },
 
@@ -49,7 +50,8 @@ module.exports = function(config) {
     colors: true,
 
     // level of logging
-    // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
+    // possible values: config.LOG_DISABLE, config.LOG_ERROR, config.LOG_WARN,
+    //     config.LOG_INFO, config.LOG_DEBUG
     logLevel: config.LOG_INFO,
 
     // enable / disable watching file and executing tests whenever any file changes
@@ -63,7 +65,7 @@ module.exports = function(config) {
     // - Safari (only Mac; has to be installed with `npm install karma-safari-launcher`)
     // - PhantomJS
     // - IE (only Windows; has to be installed with `npm install karma-ie-launcher`)
-    browsers: ['Firefox'],
+    // browsers: ['Firefox'],
 
     // If browser does not capture in given timeout [ms], kill it
     captureTimeout: 60000,

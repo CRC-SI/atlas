@@ -1,11 +1,11 @@
 define([
   'atlas/lib/utility/Setter',
-  'atlas/model/Colour',
-  'atlas/model/Style',
+  'atlas/material/Color',
+  'atlas/material/Style',
   'atlas/util/DeveloperError',
   // Base class
   'atlas/model/VertexedEntity'
-], function(Setter, Colour, Style, DeveloperError, VertexedEntity) {
+], function(Setter, Color, Style, DeveloperError, VertexedEntity) {
 
   /**
    * @typedef atlas.model.Polygon
@@ -17,12 +17,17 @@ define([
    * @classdesc Represents a 2D polygon.
    *
    * @param {Number} id - The ID of this Polygon.
-   * @param {Object} polygonData - Data describing the Polygon.
-   * @param {string|Array.<atlas.model.GeoPoint>} [polygonData.vertices=[]] - The vertices of the Polygon.
-   * @param {Number} [polygonData.height=0] - The extruded height of the Polygon to form a prism.
-   * @param {Number} [polygonData.elevation] - The elevation of the base of the Polygon (or prism).
-   * @param {atlas.model.Colour} [polygonData.color] - The fill colour of the Polygon (overridden/overrides Style)
-   * @param {atlas.model.Style} [polygonData.style=defaultStyle] - The Style to apply to the Polygon.
+   * @param {Object} data - Data describing the Polygon.
+   * @param {String|Array.<atlas.model.GeoPoint>} [data.vertices=[]] - Either a WKT string or
+   *     an array of vertices describing the Polygon.
+   * @param {Number} [data.height=0] - The extruded height of the Polygon to form a prism.
+   * @param {Number} [data.elevation] - The elevation of the base of the Polygon (or prism).
+   * @param {atlas.material.Color} [data.color] - The fill color of the Polygon. Overrides the
+   *     given style.
+   * @param {atlas.material.Color} [data.borderColor] - The border color of the Polygon.
+   *     Overrides the given style.
+   * @param {atlas.material.Style} [data.style=Style.getDefault()] - The Style to apply to the
+   *     Polygon.
    * @param {Object} [args] - Option arguments describing the Polygon.
    * @param {atlas.model.GeoEntity} [args.parent=null] - The parent entity of the Polygon.
    * @returns {atlas.model.Polygon}
@@ -30,7 +35,7 @@ define([
    * @class atlas.model.Polygon
    * @extends atlas.model.VertexedEntity
    */
-  Polygon = Setter.mixin(VertexedEntity.extend(/** @lends atlas.model.Polygon# */ {
+  Polygon = VertexedEntity.extend(/** @lends atlas.model.Polygon# */ {
 
     // TODO(aramk) Either put docs on params and document the getters and setters which don't have
     // obvious usage/logic.
@@ -61,36 +66,20 @@ define([
      * Constructs a new Polygon
      * @ignore
      */
-    _init: function(id, polygonData, args) {
-      polygonData = Setter.mixin({}, polygonData);
-      args = Setter.mixin({}, args);
-      this._super(id, polygonData, args);
+    _setup: function(id, data, args) {
+      this._super(id, data, args);
       // Don't have closed polygons.
       var len = this._vertices.length;
       if (this._vertices[0] === this._vertices[len - 1] && len > 1) {
         this._vertices.pop();
       }
-      if (polygonData.holes) {
-        this._holes = polygonData.holes;
+      if (data.holes) {
+        this._holes = this._getSanitizedVertices(data.holes);
       }
-      this._height = parseFloat(polygonData.height) || this._height;
-      // TODO(aramk) Abstract this into VertexedEntity.
-      this._elevation = parseFloat(polygonData.elevation) || this._elevation;
-      this._zIndex = parseFloat(polygonData.zIndex) || this._zIndex;
-      this._zIndexOffset = parseFloat(polygonData.zIndexOffset) || this._zIndexOffset;
-      var style;
-      if (polygonData.color) {
-        if (polygonData.color instanceof Colour) {
-          style = new Style({fillColour: polygonData.color});
-        } else {
-          style = new Style({fillColour: Colour.fromRGBA(polygonData.color)});
-        }
-      } else if (polygonData.style) {
-        style = polygonData.style;
-      } else {
-        style = Polygon.getDefaultStyle();
+      var height = data.height;
+      if (height) {
+        this.setHeight(height);
       }
-      this.setStyle(style);
     },
 
     // -------------------------------------------
@@ -103,7 +92,10 @@ define([
     enableExtrusion: function() {
       var oldValue = this._showAsExtrusion;
       this._showAsExtrusion = true;
-      oldValue !== true && this.setDirty('model');
+      if (oldValue !== true) {
+        this.setDirty('model');
+        this._update();
+      }
     },
 
     /**
@@ -112,7 +104,10 @@ define([
     disableExtrusion: function() {
       var oldValue = this._showAsExtrusion;
       this._showAsExtrusion = false;
-      oldValue !== false && this.setDirty('model');
+      if (oldValue !== false) {
+        this.setDirty('model');
+        this._update();
+      }
     },
 
     /**
@@ -127,10 +122,10 @@ define([
      * @param {Number} height The extruded height of the building.
      */
     setHeight: function(height) {
-      // TODO(aramk) Throw error if height is not number?
-      if (typeof height === 'number' && this._height !== height) {
+      if (this._height !== height) {
         this._height = height;
         this.setDirty('vertices');
+        this._update();
       }
     },
 
@@ -139,6 +134,25 @@ define([
      */
     getHeight: function() {
       return this._height;
+    },
+
+    getHoles: function() {
+      return this._holes;
+    },
+
+    toJson: function(args) {
+      args = args || {};
+      var json = Setter.merge(this._super(), {
+        type: 'polygon',
+        height: this.getHeight()
+      });
+      var holes = args.holes || this.getHoles();
+      if (holes) {
+        json.holes = holes.map(function(vertex) {
+          return vertex.toArray();
+        });
+      }
+      return json;
     },
 
     // -------------------------------------------
@@ -153,20 +167,7 @@ define([
       throw new DeveloperError('Can not call methods on abstract Polygon.');
     }
 
-  }), {
-
-    // -------------------------------------------
-    // STATICS
-    // -------------------------------------------
-
-    /**
-     * Defines the default style to use when rendering a polygon.
-     * @type {atlas.model.Style}
-     */
-    getDefaultStyle: function() {
-      return new Style({fillColour: Colour.GREEN});
-    }
-
   });
+
   return Polygon;
 });

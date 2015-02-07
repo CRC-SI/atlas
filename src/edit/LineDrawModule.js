@@ -5,7 +5,7 @@ define([
   'atlas/model/Feature',
   'atlas/model/GeoPoint',
   'atlas/util/DeveloperError'
-], function (BaseEditModule, Log, Setter, Feature, GeoPoint, DeveloperError) {
+], function(BaseEditModule, Log, Setter, Feature, GeoPoint, DeveloperError) {
 
   // TODO(bpstudds): This is copied almost entirely from the existing DrawModule (for polygons).
   // TODO(bpstudds): Abstract common logic in DrawModule and LineDrawModule.
@@ -24,7 +24,7 @@ define([
    */
   var LineDrawModule;
 
-  LineDrawModule = BaseEditModule.extend({
+  LineDrawModule = BaseEditModule.extend(/** @lends atlas.edit.LineDrawModule# */{
     /**
      * The handles added during the current draw process. Used to store their sequence.
      * @type {Array.<atlas.model.Handle>}

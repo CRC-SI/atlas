@@ -1,19 +1,24 @@
 define([
   'atlas/core/Manager',
   'atlas/core/ItemStore',
+  'atlas/events/Event',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
+  'atlas/lib/topsort',
+  'atlas/model/Collection',
   'atlas/model/Ellipse',
   'atlas/model/Feature',
   'atlas/model/GeoEntity',
   'atlas/model/Mesh',
+  'atlas/model/Point',
   'atlas/model/Polygon',
   'atlas/model/Line',
   'atlas/model/Image',
   'atlas/model/GeoPoint',
+  'atlas/model/Vertex',
   'atlas/util/DeveloperError'
-], function(Manager, ItemStore, Log, Setter, Ellipse, Feature, GeoEntity, Mesh, Polygon, Line,
-            Image, GeoPoint, DeveloperError) {
+], function(Manager, ItemStore, Event, Log, Setter, topsort, Collection, Ellipse, Feature,
+            GeoEntity, Mesh, Point, Polygon, Line, Image, GeoPoint, Vertex, DeveloperError) {
 
   /**
    * @typedef atlas.entity.EntityManager
@@ -22,10 +27,11 @@ define([
   var EntityManager;
 
   /**
-   * Manages {@link atlas.model.GeoEntity} objects.
+   * Maintains a collection of created {@link atlas.model.GeoEntity} objects and provides an
+   * external interface to create, update and delete them.
    * @class atlas.entity.EntityManager
    */
-  EntityManager = Manager.extend({
+  EntityManager = Manager.extend(/** @lends atlas.entity.EntityManager# */{
 
     _id: 'entity',
 
@@ -47,7 +53,9 @@ define([
       Image: Image,
       Line: Line,
       Mesh: Mesh,
-      Polygon: Polygon
+      Point: Point,
+      Polygon: Polygon,
+      Collection: Collection
     },
 
     /**
@@ -65,7 +73,7 @@ define([
 
     /**
      * Performs any manager setup that requires the presence of other managers.
-     * @param args
+     * @param {Object} args
      */
     setup: function(args) {
       var constructors = args && args.constructors;
@@ -79,27 +87,18 @@ define([
       var handlers = [
         {
           source: 'extern',
+          name: 'entity/create',
+          callback: this.createFeature.bind(this)
+        },
+        {
+          source: 'extern',
           name: 'entity/show',
-          callback: function(args) {
-            Log.time('entity/show');
-            var entity = this.getById(args.id);
-            if (!entity) {
-              entity = this.createFeature(args.id, args);
-            } else {
-              entity.show();
-            }
-            Log.timeEnd('entity/show');
-          }.bind(this)
+          callback: this.toggleEntityVisibility.bind(this, true)
         },
         {
           source: 'extern',
           name: 'entity/hide',
-          callback: function(args) {
-            Log.time('entity/hide');
-            var entity = this.getById(args.id);
-            entity.hide();
-            Log.timeEnd('entity/hide');
-          }.bind(this)
+          callback: this.toggleEntityVisibility.bind(this, false)
         },
         {
           source: 'extern',
@@ -113,9 +112,9 @@ define([
         },
         {
           source: 'extern',
-          name: 'entity/show/bulk',
+          name: 'entity/create/bulk',
           callback: function(args) {
-            Log.time('entity/show/bulk');
+            Log.time('entity/create/bulk');
             var ids;
             if (args.features) {
               ids = this.bulkCreate(args.features);
@@ -127,7 +126,7 @@ define([
             if (args.callback) {
               args.callback(ids);
             }
-            Log.timeEnd('entity/show/bulk');
+            Log.timeEnd('entity/create/bulk');
           }.bind(this)
         },
         {
@@ -179,8 +178,8 @@ define([
             Log.time('entity/display-mode/reset');
             var features = this._getFeaturesByIds(args.ids || Object.keys(this._origDisplayModes));
             features.forEach(function(feature) {
-              var id = feature.getId(),
-                  origDisplayMode = this._origDisplayModes[id];
+              var id = feature.getId();
+              var origDisplayMode = this._origDisplayModes[id];
               if (origDisplayMode) {
                 feature.setDisplayMode(origDisplayMode);
                 delete this._origDisplayModes[id];
@@ -190,19 +189,43 @@ define([
           }.bind(this)
         },
         {
+          source: 'extern',
+          name: 'entity/rotate',
+          callback: function(args) {
+            if (!args || !args.ids) { return; }
+            var features = this._getFeaturesByIds(args.ids);
+            features.forEach(function(feature) {
+              feature.rotate(args.rotate);
+            });
+          }.bind(this)
+        },
+        {
           source: 'intern',
           name: 'input/left/dblclick',
+          /**
+           * @param {InternalEvent#event:input/left/dblclick} args
+           * @listens InternalEvent#input/left/dblclick
+           * @fires InternalEvent#entity/dblclick
+           * @ignore
+           */
           callback: function(args) {
             var entities = this.getAt(args.position);
             if (entities.length > 0) {
               // Only capture the double click on the first entity.
               var entity = entities[0];
-              this._managers.event.dispatchEvent(new Event(entity,
-                  'entity/dblclick', {
-                    id: entity.getId()
-                  }));
+
+              /**
+               * The {@link atlas.model.GeoEntity} was double-clicked.
+               *
+               * @event InternalEvent#entity/dblclick
+               * @type {atlas.events.Event}
+               * @property {String} args.id - The ID of the double-clicked entity.
+               */
+              this._managers.event.dispatchEvent(new Event(entity, 'entity/dblclick', {
+                id: entity.getId()
+              }));
             }
-          }
+          }.bind(this)
         }
       ];
       this._managers.event.addEventHandlers(handlers);
@@ -211,7 +234,8 @@ define([
     /**
      * Allows overriding of the default Atlas GeoEntity types with implementation specific
      * GeoEntity types.
-     * @param {Object.<String, Function>} constructors - A map of entity type names to entity constructors.
+     * @param {Object.<String, Function>} constructors - A map of entity type names to entity
+     *     constructors.
      */
     setGeoEntityTypes: function(constructors) {
       for (var key in constructors) {
@@ -231,15 +255,15 @@ define([
      * @param {String} id - The ID of the Feature to add.
      * @param {Object} args - Arguments describing the Feature to add.
      * @param {String|Array.<atlas.model.GeoPoint>} [args.line=null] - Either a WKT string or array
-     * of vertices.
-     * @param {String|Array.<atlas.model.GeoPoint>} [args.footprint=null] - Either a WKT string or array
-     * of vertices.
+     *     of vertices.
+     * @param {String|Array.<atlas.model.GeoPoint>} [args.footprint=null] - Either a WKT string or
+     *     array of vertices.
      * @param {Object} [args.mesh=null] - A object in the C3ML format describing the Features' Mesh.
      * @param {Number} [args.height=0] - The extruded height when displaying as a extruded polygon.
      * @param {Number} [args.elevation=0] - The elevation (from the terrain surface) to the base of
-     * the Mesh or Polygon.
+     *     the Mesh or Polygon.
      * @param {Boolean} [args.show=true] - Whether the feature should be initially shown when
-     * created.
+     *     created.
      * @param {String} [args.displayMode='footprint'] - Initial display mode of feature.
      */
     createFeature: function(id, args) {
@@ -248,26 +272,43 @@ define([
         id = args.id;
       }
       args = Setter.merge({
-        show: true
+        show: false
       }, args);
       if (id === undefined) {
         throw new DeveloperError('Can not create Feature without specifying ID');
-      } else if (this._entities.get(id)) {
+      } else if (this.getById(id)) {
         throw new DeveloperError('Can not create Feature with a duplicate ID');
       } else {
-        // TODO(aramk) Use dependency injection to ensure all entities that are created have these
-        // if they need them.
-        // Add EventManger to the args for the feature.
-        args.eventManager = this._managers.event;
-        // Add the RenderManager to the args for the feature.
-        args.renderManager = this._managers.render;
-        // Add the EntityManager to the args for the feature.
-        args.entityManager = this;
+        this._bindDeps(args);
         Log.debug('Creating entity', id);
-        var feature = new this._entityTypes.Feature(id, args);
-        feature.setVisibility(args.show);
-        return feature;
+        return new this._entityTypes.Feature(id, args);
       }
+    },
+
+    /**
+     * @param {String} id
+     * @param {Object} args
+     * @return {atlas.model.Collection}
+     */
+    createCollection: function(id, args) {
+      this._bindDeps(args);
+      return new this._entityTypes.Collection(id, {entities: args.children}, args);
+    },
+
+    /**
+     * Adds manager references to the given object as dependencies later passed to models.
+     * @param {Object} args
+     * @return {Object} The object passed in.
+     */
+    _bindDeps: function(args) {
+      // TODO(aramk) Use dependency injection to ensure all entities that are created have these
+      // if they need them.
+      // Add EventManger to the args for the feature.
+      args.eventManager = this._managers.event;
+      // Add the RenderManager to the args for the feature.
+      args.renderManager = this._managers.render;
+      // Add the EntityManager to the args for the feature.
+      args.entityManager = this;
     },
 
     /**
@@ -278,43 +319,116 @@ define([
      */
     bulkCreate: function(c3mls) {
       var ids = [];
+      var edges = [];
+      var sortMap = {};
+      var c3mlMap = {};
+      // Topologically sort the c3ml based on the "children" field.
       c3mls.forEach(function(c3ml) {
         var id = c3ml.id;
-        var entity = this.getById(id);
-        if (!entity) {
-          // TODO(aramk) This is only performed for bulk requests and is inconsistent - clean up
-          // the API for consistency.
-          var args = this._parseC3ML(c3ml);
-          var feature = this.createFeature(id, args);
+        var children = c3ml.children;
+        if (children) {
+          children.forEach(function(childId) {
+            edges.push([id, childId]);
+            sortMap[id] = sortMap[childId] = true;
+          });
+        }
+        if (c3mlMap[id]) {
+          throw new Error('Duplicate IDs for c3mls: ' + id);
+        }
+        c3mlMap[id] = c3ml;
+      });
+      var sortedIds = topsort(edges);
+      // Reverse the list so that each entity is created before its parents to ensure they're
+      // available when requested.
+      sortedIds.reverse();
+      // Add any entities which are not part of a hierarchy and weren't in the topological sort.
+      c3mls.forEach(function(c3ml) {
+        var id = c3ml.id;
+        if (!sortMap[id]) {
+          sortedIds.push(id);
+        }
+      });
+      sortedIds.forEach(function(id) {
+        var c3ml = c3mlMap[id];
+        // Children may be rendered in a previous draw call so we should skip those.
+        if (!this.getById(id)) {
+          var c3mlData = this._parseC3ml(c3ml);
+          // TODO(aramk) Disabled for now since it causes issues in MeshCollectionPrototype related
+          // to translate() being called recursively for all entities.
+          // if (c3mlData.type === 'collection') {
+          //   this.createCollection(id, c3mlData);
+          // } else {
+            this.createFeature(id, c3mlData);
+          // }
           ids.push(id);
         }
       }, this);
       return ids;
     },
 
+    _getParserForType: function(type) {
+      // Map of C3ML type to parse of that type.
+      var parsers = {
+        point: this._parseC3mlPoint,
+        line: this._parseC3mlLine,
+        mesh: this._parseC3mlMesh,
+        polygon: this._parseC3mlPolygon,
+        image: this._parseC3mlImage,
+        feature: this._parseC3mlFeature
+      };
+      return parsers[type];
+    },
+
     /**
-     * Takes a object conforming to C3ML and converts it to a format expected by
-     * Atlas.
+     * Takes an object conforming to the C3ML standard and converts it to a format expected by the
+     * Feature constructor.
      * @param {Object} c3ml - The C3ML object.
      * @returns {Object} An Atlas readable object representing the C3ML object.
      * @protected
      */
-    _parseC3ML: function(c3ml) {
-      var geometry,
-      // Map of C3ML type to parse of that type.
-          parsers = {
-            line: this._parseC3MLline,
-            mesh: this._parseC3MLmesh,
-            polygon: this._parseC3MLpolygon,
-            image: this._parseC3MLimage
-          };
+    _parseC3ml: function(c3ml) {
       // Generate the Geometry for the C3ML type if it is supported.
-      parsers[c3ml.type] && (geometry = parsers[c3ml.type].call(this, c3ml));
+      var type = c3ml.type;
+      if (!type) {
+        throw new Error('C3ML must have type parameter.');
+      }
+      var parser = this._getParserForType(type);
+      var geometry = parser && parser.call(this, c3ml);
       return Setter.mixin(c3ml, geometry);
     },
 
     // TODO(aramk) For all parsers - reuse the objects passed rather than creating new ones.
     // Mix in new parameters.
+
+    _parseC3mlFeature: function(c3ml) {
+      Object.keys(Feature.JsonPropertyToDisplayMode).forEach(function(type) {
+        var typeC3ml = c3ml[type];
+        if (typeC3ml) {
+          var parser = this._getParserForType(type);
+          var geometry = parser && parser.call(this, typeC3ml);
+          Setter.mixin(c3ml, geometry);
+        }
+      }, this);
+      return c3ml;
+    },
+
+    /**
+     * Parses a C3ML point object to an format supported by Atlas.
+     * @param {Object} c3ml - The C3ML object to be parsed
+     * @returns {Object} The parsed C3ML.
+     * @private
+     */
+    _parseC3mlPoint: function(c3ml) {
+      return {
+        point: {
+          position: c3ml.position,
+          latitude: c3ml.latitude,
+          longitude: c3ml.longitude,
+          elevation: c3ml.elevation,
+          color: c3ml.color,
+        }
+      };
+    },
 
     /**
      * Parses a C3ML image object to an format supported by Atlas.
@@ -322,10 +436,10 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLimage: function(c3ml) {
+    _parseC3mlImage: function(c3ml) {
       return {
         image: {
-          vertices: this._parseCoordinates(c3ml.coordinates),
+          vertices: c3ml.coordinates,
           image: c3ml.image
         }
       };
@@ -337,10 +451,10 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLline: function(c3ml) {
+    _parseC3mlLine: function(c3ml) {
       return {
         line: {
-          vertices: this._parseCoordinates(c3ml.coordinates),
+          vertices: c3ml.coordinates,
           color: c3ml.color,
           height: c3ml.height,
           elevation: c3ml.altitude
@@ -354,13 +468,13 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLpolygon: function(c3ml) {
+    _parseC3mlPolygon: function(c3ml) {
       return {
         polygon: {
           // TODO(aramk) We need to standardize which one we use - were using "vertices" internally
           // but "coordinates" in c3ml.
-          vertices: this._parseCoordinates(c3ml.coordinates),
-          holes: this._parseHoles(c3ml.holes),
+          vertices: c3ml.coordinates,
+          holes: c3ml.holes,
           color: c3ml.color,
           height: c3ml.height,
           elevation: c3ml.altitude
@@ -374,7 +488,7 @@ define([
      * @returns {Object} The parsed C3ML.
      * @private
      */
-    _parseC3MLmesh: function(c3ml) {
+    _parseC3mlMesh: function(c3ml) {
       return {
         mesh: {
           positions: c3ml.positions,
@@ -383,64 +497,28 @@ define([
           color: c3ml.color,
           geoLocation: c3ml.geoLocation,
           scale: c3ml.scale,
-          rotation: c3ml.rotation
+          rotation: c3ml.rotation,
+          gltf: c3ml.gltf,
+          gltfUrl: c3ml.gltfUrl
         }
       };
     },
 
     /**
-     * @param {Array.<Array|Object>} coordinates
-     * @returns {Array.<atlas.model.GeoPoint>} The convert coordinates.
-     * @protected
-     */
-    _parseCoordinates: function(coordinates) {
-      var vertices = [];
-      for (var i = 0; i < coordinates.length; i++) {
-        vertices.push(this._parseCoordinate(coordinates[i]));
-      }
-      return vertices;
-    },
-
-    /**
-     * Converts a coordinate object to a {@link atlas.model.GeoPoint}.
-     * @param {Array|Object} coordinate - The coordinate to be converted. Can be anything
-     * supported by {@link atlas.model.GeoPoint}.
-     * @returns {atlas.model.GeoPoint}
-     * @protected
-     */
-    _parseCoordinate: function(coordinate) {
-      return new GeoPoint(coordinate);
-    },
-
-    /**
-     * @param {Array.<Array.<Array|Object>>} holes
-     * @returns {Array.<Array.<atlas.model.GeoPoint>>}
-     * @private
-     */
-    _parseHoles: function(holes) {
-      holes = holes || [];
-      return holes.map(function(holesArray) {
-        return this._parseCoordinates(holesArray);
-      }.bind(this));
-    },
-
-    /**
      * Adds a new GeoEntity into the EntityManager.
-     * @param {String} id - The ID of the new GeoEntity.
      * @param {atlas.model.GeoEntity} entity - The new GeoEntity;
-     * @returns {Boolean} True if the GeoEntity was added, false otherwise.
      */
-    add: function(id, entity) {
+    add: function(entity) {
+      var id = entity.getId();
       if (this._entities.get(id)) {
-        Log.warn('tried to add entity', id, 'which already exists.');
-        return false;
+        throw new Error('Tried to add entity ' + id + ' which already exists.');
       }
       if (!(entity instanceof GeoEntity)) {
-        throw new DeveloperError('Can not add entity which is not a subclass of atlas/model/GeoEntity.');
+        throw new DeveloperError('Can not add entity which is not a subclass of ' +
+            'atlas/model/GeoEntity.');
       }
       Log.debug('entityManager: added entity', id);
       this._entities.add(entity);
-      return true;
     },
 
     /**
@@ -469,9 +547,9 @@ define([
       if (!args.ids) {
         args.ids = this._entities.getIds();
       }
-      var visible = {},
-          ids = args.ids,
-          filter = args.filter;
+      var visible = {};
+      var ids = args.ids;
+      var filter = args.filter;
       ids.forEach(function(id) {
         var entity = this.getById(id);
         if (filter && !filter(entity)) {
@@ -500,7 +578,7 @@ define([
      * Returns the GeoEntity instance corresponding to the given ID.
      * @param {String} id - The ID of the GeoEntity to return.
      * @returns {atlas.model.GeoEntity|undefined} The corresponding GeoEntity or
-     * <code>undefined</code> if there is no such GeoEntity.
+     *     <code>undefined</code> if there is no such GeoEntity.
      */
     getById: function(id) {
       // TODO(bpstudds): Accept either a single id or an array of IDs and return an either a
@@ -510,8 +588,8 @@ define([
 
     /**
      * @param {Array.<String>} ids - The ID of the GeoEntity to return.
-     * @returns {Array.<atlas.model.GeoEntity>} The corresponding GeoEntity instances mapped by their
-     * IDs.
+     * @returns {Array.<atlas.model.GeoEntity>} The corresponding GeoEntity instances mapped by
+     *     their IDs.
      */
     getByIds: function(ids) {
       var entities = [];
@@ -606,6 +684,32 @@ define([
      */
     getInRect: function(point1, point2) {
       throw new DeveloperError('EntityManager.getInRect not yet implemented.');
+    },
+
+    // -------------------------------------------
+    // ENTITY MODIFICATION
+    // -------------------------------------------
+
+    /**
+     * Sets the Visibility on a group of entities.
+     * @param {Boolean} visible - Whether the entities should be visible.
+     * @param {Object} args - Specifies the IDs of the GeoEntities to change.
+     * @param {String} [args.id] - The ID of a single GeoEntity to change.
+     * @param {Array.<String>} [args.ids] - An array of GeoEntity IDs to change. This overrides
+     *     <code>args.id</code> if it is given.
+     */
+    toggleEntityVisibility: function(visible, args) {
+      var ids = args.ids || [args.id];
+      var action = visible ? 'show' : 'hide';
+
+      Log.time('entity/' + action);
+      ids.forEach(function(id) {
+        var entity = this.getById(id);
+        if (!entity) throw new Error('Tried to ' + action + ' non-existent entity ' + id);
+
+        visible ? entity.show() : entity.hide();
+      }, this);
+      Log.timeEnd('entity/' + action);
     }
 
   });

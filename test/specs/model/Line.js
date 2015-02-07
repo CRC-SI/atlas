@@ -4,7 +4,7 @@ define([
     '../Vertex',
     // Code under test.
     '../Line'
-], function (doh, TestCase, Vertex, Line) {
+], function(doh, TestCase, Vertex, Line) {
   var line;
 
   new TestCase({

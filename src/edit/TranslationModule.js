@@ -33,7 +33,6 @@ define([
      * @param {Object} managers - A map of Atlas manager types to the manager instance.
      * @param {Object} [args] - Arguments to creating the TranslationModule.
      * @param {Number} [args.moveSensitivity] - Minimum number of screen pixels to move so a drag is recognised.
-     * @constructor
      * @private
      */
     _init: function(managers, args) {
@@ -43,17 +42,17 @@ define([
       this._managers = managers;
       this._reset();
       // TODO(aramk) Abstract this into a method in BaseEditModule.
-      var provideTarget = function (callback) {
-        return function () {
+      var provideTarget = function(callback) {
+        return function() {
           return callback.call(this, this._provideTarget.apply(this, arguments));
         }.bind(this)
       }.bind(this);
       this.bindEvents({
         'input/leftdown': provideTarget(this._start),
-        'input/mousemove': function (args) {
+        'input/mousemove': function(args) {
           this._target && this._update(args);
         }.bind(this),
-        'input/leftup': function (args) {
+        'input/leftup': function(args) {
           this._target && this._stop(args);
         }.bind(this)
       });
@@ -61,12 +60,12 @@ define([
 
     // TODO(aramk) Currently, Event object is only used internally and EventManager is passing
     // it's name and arguments only.
-    // _provideTarget: function (event) {
+    // _provideTarget: function(event) {
     //   event.setTarget(this._managers.entity.getAt(event.position)[0]);
     //   return event;
     // },
 
-    _provideTarget: function (args) {
+    _provideTarget: function(args) {
       args.target = this._managers.entity.getEntitiesFromArgs(args)[0];
       return args;
     },
@@ -117,7 +116,7 @@ define([
       this._managers.camera.unlockCamera();
     },
 
-    _translateFromEventArgs: function (args) {
+    _translateFromEventArgs: function(args) {
       this._lastScreenCoords = {x: args.position.x, y: args.position.y};
       var cartLocation = this._cartographicLocation(args);
       this._translate(this._lastLocation, cartLocation);

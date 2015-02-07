@@ -7,14 +7,14 @@ define([
 
     var lat, lng, elev, geoPoint;
 
-    beforeEach(function () {
+    beforeEach(function() {
       lat = -37.79859924316406;
       lng = 144.96112060546875;
       elev = 2000;
       geoPoint = new GeoPoint({latitude: lat, longitude: lng, elevation: elev});
     });
 
-    afterEach(function () {
+    afterEach(function() {
       geoPoint = null;
     });
 
@@ -36,6 +36,20 @@ define([
         expect(other).toEqual(geoPoint);
         expect(other).not.toBe(geoPoint);
       });
+
+      it('from defaults', function() {
+        var other = new GeoPoint();
+        expect(other.latitude).toEqual(0);
+        expect(other.longitude).toEqual(0);
+        expect(other.elevation).toEqual(0);
+      });
+    });
+
+    it('cannot be constructed with invalid values', function() {
+      var foo = function() {
+        var other = new GeoPoint(10000, 20000);
+      }
+      expect(foo).toThrow();
     });
 
     it('can be subtracted', function() {

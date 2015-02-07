@@ -2,7 +2,7 @@
  * A utility class for adding and removing classes to DOM HTMLElements.
  */
 define([
-], function () {
+], function() {
 
   /**
    * A utility class containing static functions for managing a DOM

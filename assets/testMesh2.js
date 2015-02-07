@@ -1,11 +1,11 @@
 define([
 
-], function () {
+], function() {
   return {
     /* not really required */
     'id': 'ID4',
 
-    /* Specifies uniform colour of Mesh in r, g, b, a channels, always in range [0,255]? */
+    /* Specifies uniform color of Mesh in r, g, b, a channels, always in range [0,255]? */
     'color': [240, 240, 240, 255],
 
     /* Specifies the location of the Mesh in lng, lat, elevation */

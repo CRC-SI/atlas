@@ -38,7 +38,7 @@ define([
     _entities: null,
 
     /**
-     * @param id
+     * @param {String} id
      * @param {Object} data
      * @param {Array.<String>} data.entities - A set of {@link GeoEntity} IDs.
      * @param {Object} args
@@ -46,12 +46,13 @@ define([
      * collection.
      * @private
      */
-    _init: function(id, data, args) {
-      this._super(id, args);
+    _setup: function(id, data, args) {
+      // Necessary for calling setElevation().
       this._entities = new ItemStore();
+      this._initDelegation();
+      this._super(id, data, args);
       var entityIds = data.entities || [];
       entityIds.forEach(this.addEntity, this);
-      this._initDelegation();
       args = Setter.mixin({groupSelect: true}, args);
       args.groupSelect && this._initSelection();
     },
@@ -107,61 +108,96 @@ define([
 
     /**
      * Calls the given method on each {@link atlas.model.GeoEntity} in this collection, passing the
-     * given arguments.
-     * @param {String} method
+     * given arguments. If the method doesn't exist, it isn't called.
+     * @param {String} methodName
      * @param {Array} args
      * @private
      */
-    _forEntities: function(method, args) {
+    _forEntities: function(methodName, args) {
       return this._entities.forEach(function(item) {
-        item[method].apply(item, args);
+        var method = item[methodName];
+        method && method.apply(item, args);
       });
     },
 
     /**
      * Calls the given method on each {@link atlas.model.GeoEntity} in this collection. Passes the
-     * returned value to the given callback.
-     * @param {String} method
+     * returned value to the given callback. If the method doesn't exist, it isn't called and the
+     * callback receives an undefined value.
+     * @param {String} methodName
      * @param {Array} args
      * @param {Function} callback
      * @returns {Boolean} Whether the given callback succeeds for all entities.
      * @private
      */
-    _everyEntity: function(method, args, callback) {
+    _everyEntity: function(methodName, args, callback) {
       return this._entities.every(function(item) {
-        var value = item[method].apply(item, args);
+        var value;
+        var method = item[methodName];
+        if (method) {
+          value = method.apply(item, args);
+        }
         return callback(value);
       });
     },
 
     /**
      * Calls the given method on each {@link atlas.model.GeoEntity} in this collection. Passes the
-     * returned value to the given callback.
-     * @param {String} method
+     * returned value to the given callback. If the method doesn't exist, it isn't called and the
+     * callback receives an undefined value.
+     * @param {String} methodName
      * @param {Array} args
      * @param {Function} callback
      * @returns {Boolean} Whether the given callback succeeds for some entities.
      * @private
      */
-    _someEntity: function(method, args, callback) {
+    _someEntity: function(methodName, args, callback) {
       return this._entities.some(function(item) {
-        var value = item[method].apply(item, args);
+        var value;
+        var method = item[methodName];
+        if (method) {
+          value = method.apply(item, args);
+        }
         return callback(value);
       });
+    },
+
+    /**
+     * Calls the given method on each {@link atlas.model.GeoEntity} in this collection, passing the
+     * given arguments.
+     * @param {String} methodName
+     * @param {Array} args
+     * @private
+     */
+    _getEntityValues: function(methodName, args) {
+      var values = [];
+      this._entities.forEach(function(item) {
+        var value;
+        var method = item[methodName];
+        if (method) {
+          value = method.apply(item, args);
+          if (value !== undefined) {
+            values.push(value);
+          }
+        }
+      });
+      return values;
     },
 
     _initDelegation: function() {
       // TODO(aramk) getHandles should create a new ItemStore and add all.
 
       // Call on all entities.
-      var forMethods = ['createHandles', 'addHandles', 'clearHandles', 'setStyle', 'modifyStyle'];
+      var forMethods = ['createHandles', 'addHandles', 'clearHandles', 'setStyle', 'modifyStyle',
+          'setHeight', 'enableExtrusion', 'disableExtrusion'];
       forMethods.forEach(function(method) {
         this[method] = function() {
           return this._forEntities(method, arguments);
         };
       }, this);
       // Call on all entities and the collection.
-      var forSelfMethods = ['remove', 'show', 'hide', 'translate', 'scale', 'setSelected'];
+      var forSelfMethods = ['remove', 'show', 'hide', 'translate', 'scale', 'setSelected',
+          'setElevation'];
       forSelfMethods.forEach(function(method) {
         var selfMethod = this[method];
         this[method] = function() {
@@ -243,25 +279,47 @@ define([
     },
 
     getAppearance: function() {
-      throw new DeveloperError('Collection does not have an appearance - request from each entity.');
+      throw new DeveloperError('Collection does not have an appearance - request from each ' +
+          'entity.');
     },
 
-    setElevation: function(elevation) {
-      // Translate children by the change in elevation.
-      var oldElevation = this.getElevation();
-      this._super(elevation);
-      var diff = elevation - oldElevation;
-      this.translate(new GeoPoint(0, 0, diff));
+    getElevation: function() {
+      // Take the minimum elevation for all entities.
+      var values = this._getEntityValues('getElevation');
+      if (values.length === 0) {
+        return null;
+      } else {
+        return Math.min.apply(null, values);
+      }
+    },
+
+    getHeight: function() {
+      // Take the maximum height for all entities.
+      var values = this._getEntityValues('getHeight');
+      if (values.length === 0) {
+        return null;
+      } else {
+        return Math.max.apply(null, values);
+      }
+    },
+
+    toJson: function() {
+      return Setter.merge(this._super(), {
+        type: 'collection',
+        children: this._entities.map(function(entity) {
+          return entity.getId();
+        })
+      });
     },
 
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------
 
-    rotate: function (rotation, centroid) {
+    rotate: function(rotation, centroid) {
       // Rotation should be applied on each child entity around the same centroid - by default that
       // of the collection.
-      var centroid = centroid || this.getCentroid();
+      centroid = centroid || this.getCentroid();
       this._super(rotation, centroid);
       this._entities.forEach(function(entity) {
         entity.rotate(rotation, centroid);

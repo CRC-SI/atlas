@@ -1,12 +1,12 @@
 define([
   'atlas/lib/utility/Setter',
-  'atlas/model/Colour',
+  'atlas/material/Color',
   'atlas/model/GeoPoint',
-  'atlas/model/Style',
+  'atlas/material/Style',
   'atlas/model/Vertex',
   // Base class
   'atlas/model/GeoEntity'
-], function(Setter, Colour, GeoPoint, Style, Vertex, GeoEntity) {
+], function(Setter, Color, GeoPoint, Style, Vertex, GeoEntity) {
 
   /**
    * @typedef atlas.model.Mesh
@@ -15,20 +15,50 @@ define([
   var Mesh;
 
   /**
-   * @classdesc A Mesh represents a 3D renderable object in Atlas.
+   * @classdesc A Mesh represents a 3D renderable object in Atlas. The Mesh data can be defined
+   * using C3ML, the JSON of a glTF resource, or a URL to a glTF resource.
+   *
+   * Note: The use of C3ML of deprecated. If both C3ML and glTF are provided, the glTF resources
+   *       will be used.
    *
    * @param {String} id - The ID of the Mesh object.
-   * @param {Object} meshData - The data required to define what is actually rendered (Implementation defined).
+   * @param {Object} data - The data required to define what is actually rendered.
+   * @param {GeoPoint} [data.geoLocation] - The geographic location the Mesh should be
+   *     rendered at.
+   * @param {Number} [data.uniformScale] - A uniform scale applied to the Mesh.
+   * @param {String} [data.gltfUrl] - URL of glTF data to construct the Mesh.
+   * @param {Object} [data.gltf] - JSON glTF object to construct the Mesh.
+   * @param {Array.<Number>} [data.positions] - [C3ML] The array of vertex positions for the
+   *     Mesh. This should be a 1D array where every three elements describe a new vertex.
+   *     Not used if either <code>gltf</code> or <code>gltfUrl</code> are provided.
+   * @param {Array.<Number>} [data.indices] - [C3ML] The array of triangle indices for the Mesh.
+   *     This should be a 1D array where every three elements are groubed together and describe a
+   *     triangle forming the mesh. The value of each element is the index of a vertex in the
+   *     positions array.
+   *     Not used if either <code>gltf</code> or <code>gltfUrl</code> are provided.
+   * @param {Array.<Number>} [data.normals] - [C3ML] An array of normal vectors for each vertex
+   *     defined in <code>data.positions</code>.
+   *     Not used if either <code>gltf</code> or <code>gltfUrl</code> are provided.
+   * @param {atlas.material.Color} [data.color] - [C3ML] A uniform color to apply to the Mesh.
+   *     Not used if either <code>gltf</code> or <code>gltfUrl</code> are provided.
+   * @param {Vertex} [data.scale] - [C3ML] A non-uniform scale applied to the Mesh.
+   *     Not used if either <code>gltf</code> or <code>gltfUrl</code> are provided.
+   * @param {Vertex} [data.rotation] - [C3ML] A rotation applied to the Mesh.
+   *     Not used if either <code>gltf</code> or <code>gltfUrl</code> are provided.
    * @param {Object} args - Both optional and required construction parameters.
-   * @param {String} args.id - The ID of the GeoEntity. (Optional if both <code>id</code> and <code>args</code> are provided as arguments)
-   * @param {atlas.render.RenderManager} args.renderManager - The RenderManager object responsible for the GeoEntity.
-   * @param {atlas.events.EventManager} args.eventManager - The EventManager object responsible for the Event system.
-   * @param {atlas.events.EventTarget} [args.parent] - The parent EventTarget object of the GeoEntity.
+   * @param {String} args.id - The ID of the GeoEntity. (Optional if both <code>id</code> and
+   *     <code>args</code> are provided as arguments)
+   * @param {atlas.render.RenderManager} args.renderManager - The RenderManager object responsible
+   *     for the GeoEntity.
+   * @param {atlas.events.EventManager} args.eventManager - The EventManager object responsible for
+   *     the Event system.
+   * @param {atlas.events.EventTarget} [args.parent] - The parent EventTarget object of the
+   *     GeoEntity.
    *
    * @class atlas.model.Mesh
    * @extends atlas.model.GeoEntity
    */
-  Mesh = Setter.mixin(GeoEntity.extend(/** @lends atlas.model.Mesh# */ {
+  Mesh = GeoEntity.extend(/** @lends atlas.model.Mesh# */ {
     /**
      * The array of vertex positions for this Mesh, in model space coordinates.
      * This is a 1D array to conform with Cesium requirements. Every three elements of this
@@ -56,14 +86,22 @@ define([
     _normals: null,
 
     /**
-     * The location of the mesh object, specified by longitude, latitude, and elevation.
+     * The location of the mesh object.
      * @type {atlas.model.GeoPoint}
      * @protected
      */
     _geoLocation: null,
 
     /**
-     * Defines a transformation from model space to world space. This is derived from <code>Mesh._geoLocation</code>,
+     * A uniform scale to apply to the Mesh. Explicitly for Meshes defined by glTF.
+     * @type {Number}
+     * @protected
+     */
+    _uniformScale: null,
+
+    /**
+     * Defines a transformation from model space to world space. This is derived from
+     *     <code>Mesh._geoLocation</code>,
      * <code>Mesh._scale</code>, and <code>Mesh._rotation</code>.
      * @type {Object}
      * @protected
@@ -71,55 +109,57 @@ define([
     _modelMatrix: null,
 
     /**
-     * The uniform colour to apply to the Mesh if a texture is not defined.
+     * The uniform color to apply to the Mesh if a texture is not defined.
      * TODO(bpstudds): Work out the textures.
-     * @type {atlas.model.Colour}
+     * @type {atlas.material.Color}
      * @protected
      * @deprecated
      */
-    _uniformColour: null,
+    _uniformColor: null,
 
-    _init: function(id, meshData, args) {
-      this._super(id, args);
+    /**
+     * True iff the Mesh is defined using glTF input.
+     * @type {Boolean}
+     * @protected
+     */
+    _isGltf: false,
 
-      // Parse all the things!
-      if (meshData.positions && meshData.positions.length) {
-        this._positions = new Float64Array(meshData.positions.length);
-        meshData.positions.forEach(function(position, i) {
-          this._positions[i] = position;
-        }, this);
+    _setup: function(id, data, args) {
+      // Setting elevation in GeoEntity needs geoLocation.
+      var geoLocation = data.geoLocation;
+      if (!geoLocation) {
+        throw new Error('No geolocation provided for Mesh.');
+      }
+      this._geoLocation = new GeoPoint(geoLocation);
+      this._super(id, data, args);
+
+      // Set generic properties .
+      this._uniformScale = Setter.def(data.uniformScale, 1);
+
+      // Set glTF properties
+      if (data.gltf) {
+        this._gltf = data.gltf;
       }
 
-      if (meshData.triangles && meshData.triangles.length) {
-        this._indices = new Uint16Array(meshData.triangles.length);
-        meshData.triangles.forEach(function(triangle, i) {
-          this._indices[i] = triangle;
-        }, this);
+      if (data.gltfUrl) {
+        this._gltfUrl = data.gltfUrl;
       }
+      this._isGltf = !!(this._gltf || this._gltfUrl);
 
-      // TODO(aramk) Normals not currently used.
-      if (meshData.normals && meshData.normals.length) {
-        this._normals = new Float64Array(meshData.normals.length);
-        meshData.normals.forEach(function(normal, i) {
-          this._normals[i] = normal;
-        }, this);
-      }
+      // Set C3ML properties only if glTF is not defined.
+      if (!this.isGltf()) {
+        if (data.positions && data.positions.length) {
+          this._positions = new Float64Array(data.positions);
+        }
 
-      if (meshData.rotation) {
-        this._rotation = new Vertex(meshData.rotation);
-      }
-      if (meshData.scale) {
-        this._scale = new Vertex(meshData.scale);
-      }
-      this._geoLocation = new GeoPoint(meshData.geoLocation) || new GeoPoint(0, 0, 0);
+        if (data.triangles && data.triangles.length) {
+          this._indices = new Uint32Array(data.triangles);
+        }
 
-      // Set the Mesh's style based on the hierarchy: a Mesh specific style,
-      // inherit the parent Feature's style, or use the Mesh default style.
-      if (meshData.color) {
-        // TODO(bpstudds): Work out the textures.
-        this.setStyle(new Style({fillColour: Colour.fromRGBA(meshData.color)}));
-      } else {
-        this.setStyle(args.style || Mesh.getDefaultStyle());
+        // TODO(aramk) Normals not currently used.
+        if (data.normals && data.normals.length) {
+          this._normals = new Float64Array(data.normals);
+        }
       }
     },
 
@@ -130,35 +170,43 @@ define([
     /**
      * @returns {atlas.model.Vertex}
      */
-    getGeoLocation: function () {
+    getGeoLocation: function() {
       return this._geoLocation;
     },
 
-    getOpenLayersGeometry: function () {
+    getOpenLayersGeometry: function() {
       // TODO(aramk) Currently only supported in Atlas-Cesium.
       throw new Error('Incomplete method');
     },
 
     // TODO(aramk) Re-render mesh when changing height.
-    setElevation: function (elevation) {
+    setElevation: function(elevation) {
       this._super(elevation);
       this._geoLocation.elevation = elevation;
-    }
+    },
 
-  }), {
+    isGltf: function() {
+      return this._isGltf;
+    },
 
-    // -------------------------------------------
-    // STATICS
-    // -------------------------------------------
-
-    /**
-     * The default style of a Mesh.
-     * @type {atlas.model.Style}
-     */
-    getDefaultStyle: function() {
-      return new Style({fillColour: Colour.GREY});
+    toJson: function(args) {
+      args = args || {};
+      var json = Setter.merge(this._super(), {
+        type: 'mesh',
+        geoLocation: this.getGeoLocation()
+      });
+      if (this.isGltf()) {
+        json.gltf = Setter.clone(this._gltf);
+        json.gltfUrl = this._gltfUrl;
+      } else {
+        json.positions = args.positions || Setter.clone(this._positions);
+        json.triangles = Setter.clone(this._indices);
+        json.normals = Setter.clone(this._normals);
+      }
+      return json;
     }
 
   });
+
   return Mesh;
 });

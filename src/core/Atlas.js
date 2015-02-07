@@ -9,14 +9,14 @@ define([
   'atlas/events/EventManager',
   'atlas/input/InputManager',
   'atlas/render/RenderManager',
+  'atlas/render/TerrainManager',
   'atlas/selection/SelectionManager',
   'atlas/visualisation/VisualisationManager',
   'atlas/util/DeveloperError',
-  'atlas/lib/utility/Class',
-  'atlas/lib/utility/Setter'
-], function(CameraManager, DomManager, PopupFaculty, PopupManager, OverlayManager, EditManager, EntityManager,
-  EventManager, InputManager, RenderManager, SelectionManager, VisualisationManager, DeveloperError,
-  Class, Setter) {
+  'atlas/lib/utility/Class'
+], function(CameraManager, DomManager, PopupFaculty, PopupManager, OverlayManager, EditManager,
+  EntityManager, EventManager, InputManager, RenderManager, TerrainManager, SelectionManager,
+  VisualisationManager, DeveloperError, Class) {
 
   /**
    * @typedef atlas.core.Atlas
@@ -27,7 +27,8 @@ define([
   /**
    * The type of execution environment. The build tool will set this to
    * {@link Environment.PRODUCTION}.
-   * @typedef {Object} atlas.core.Environment
+   *
+   * @typedef {Object} atlas.core.Atlas.Environment
    */
   var Environment = {
     DEVELOPMENT: 'development',
@@ -42,14 +43,26 @@ define([
    * @abstract
    * @class atlas.core.Atlas
    */
-  Atlas = Setter.mixin(Class.extend( /** @lends atlas.core.Atlas# */ {
+  Atlas = Class.extend(/** @lends atlas.core.Atlas# */ {
 
     /**
      * A mapping of every manager type in Atlas to the manager instance. This object is created on
      * Atlas, but the manager instances are set by each manager upon creation.
-     * @type {Object}
+     *
+     * @type {Object.<String, atlas.core.Manager>}
+     *
+     * @private
      */
     _managers: {},
+
+    /**
+     * An array on manager IDs which will be setup after all other managers have been setup.
+     *
+     * @type {Array.<String>}
+     *
+     * @private
+     */
+    _delayedSetupManagers: ['input', 'terrain'],
 
     _managerClasses: {},
 
@@ -72,7 +85,8 @@ define([
      */
     _initManagers: function() {
       [CameraManager, DomManager, EditManager, EntityManager, EventManager, InputManager,
-        PopupManager, OverlayManager, RenderManager, SelectionManager, VisualisationManager
+        PopupManager, OverlayManager, TerrainManager, RenderManager, SelectionManager,
+        VisualisationManager
       ].forEach(this.setManagerClass, this);
     },
 
@@ -89,7 +103,7 @@ define([
      */
     _setup: function() {
       // These managers are set up later.
-      var delayedSetupManagers = ['input'];
+      var delayedSetupManagers = ['input', 'terrain'];
       // var ignoredManagersMap = {};
       for (var id in this._managers) {
         if (delayedSetupManagers.indexOf(id) === -1) {
@@ -125,22 +139,24 @@ define([
       }
     },
 
+    /**
+     * @param {String} id - The ID of the Manager to retrieve.
+     * @returns {atlas.core.Manager} The Manager object.
+     */
+    getManager: function(id) {
+      return this._managers[id];
+    },
+
     // -------------------------------------------
     // API
     // -------------------------------------------
 
     attachTo: function(elem) {
-      var dom = typeof elem === 'string' ? document.getElementById(elem) : elem;
-      this._managers.dom.setDom(dom, true);
-      // Hook up the InputManager to the selected DOM element.
-      this._managers.input.setup(dom);
-      // TODO(bpstudds): Work out all this dependency injection stuff.
-      // this._faculties = {};
-      // this._faculties.popup = new PopupFaculty();
-      // this._faculties.popup.setup({
-      //   parentDomNode: elem,
-      //   eventManager: this._managers.event
-      // })
+      this._managers.dom.setDom(elem, true);
+      // Setup delayed managers.
+      this._delayedSetupManagers.forEach(function(id) {
+        this._managers[id].setup();
+      }, this);
     },
 
     getCameraMetrics: function() {
@@ -198,27 +214,31 @@ define([
       this._managers.render.hide(id);
     }
 
-  }), {
-
-    // -------------------------------------------
-    // STATICS
-    // -------------------------------------------
-
-    /**
-     * @type {atlas.core.Environment}
-     */
-    _environment: Environment.DEVELOPMENT,
-
-    Environment: Environment,
-
-    /**
-     * @type {atlas.core.Environment}
-     */
-    getEnvironment: function() {
-      return this._environment;
-    }
-
   });
+
+  /**
+   * The class used to represent the Atlas environment value.
+   * @type {atlas.core.Atlas.Environment}
+   * @memberOf atlas.core.Atlas
+   */
+  Atlas.Environment = Environment;
+
+  /**
+   * The current Atlas environment.
+   * @type {atlas.core.Atlas.Environment}
+   * @memberOf atlas.core.Atlas
+   * @private
+   */
+  Atlas._environment = Environment.DEVELOPMENT;
+
+  /**
+   * Returns the current Atlas environment.
+   * @returns {atlas.core.Atlas.Environment}
+   * @memberOf atlas.core.Atlas
+   */
+  Atlas.getEnvironment = function() {
+    return Atlas._environment;
+  };
 
   return Atlas;
 });

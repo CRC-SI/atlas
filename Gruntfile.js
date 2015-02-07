@@ -1,7 +1,8 @@
+/* global module,require,console */
 module.exports = function(grunt) {
-  var path = require('path'),
-      glob = require('glob'),
-      fs = require('fs');
+  var path = require('path');
+  var glob = require('glob');
+  var fs = require('fs');
   // Load grunt tasks automatically
   require('load-grunt-tasks')(grunt);
   // Time how long tasks take. Can help when optimizing build times
@@ -11,8 +12,9 @@ module.exports = function(grunt) {
   var SRC_DIR = 'src';
   var LIB_DIR = 'lib';
   var DIST_DIR = 'dist';
-  var DOCS_DIR = 'docs';
+  var JSDOCS_DIR = 'jsdocs';
   var BUILD_DIR = 'build';
+  var README_FILE = 'README.md';
   var RESOURCES_DIR = 'resources';
   var RESOURCES_BUILD_PATH = distPath(RESOURCES_DIR);
   var RE_AMD_MODULE = /\b(?:define|require)\s*\(/;
@@ -72,7 +74,8 @@ module.exports = function(grunt) {
         options: {
           stdout: true
         },
-        command: path.join('node_modules', '.bin', 'jsdoc') + ' -c jsdoc.conf.json -l'
+        command: path.join('node_modules', '.bin', 'jsdoc') + ' -c jsdoc.conf.json -l ' +
+            README_FILE
       },
 
       // Compile JS source files.
@@ -105,14 +108,16 @@ module.exports = function(grunt) {
     copy: {
       bowerDep: {
         files: [
-          {src: libPath('Requirejs', 'require.js'), dest: libPath('require.js')},
-          {src: libPath('tinycolor', 'tinycolor.js'), dest: libPath('tinycolor.js')},
+          {src: libPath('graham_scan', 'src',
+              'graham_scan.js'), dest: libPath('ConvexHullGrahamScan.js')},
+          {src: libPath('jquery', 'dist', 'jquery.min.js'), dest: JQUERY_LIB_PATH},
           {src: libPath('Keycode', 'keycode.js'), dest: libPath('keycode.js')},
           {src: libPath('numeraljs', 'min', 'numeral.min.js'), dest: libPath('numeral.js')},
           {src: libPath('q', 'q.js'), dest: libPath('Q.js')},
-          {src: libPath('graham_scan', 'src',
-              'graham_scan.js'), dest: libPath('ConvexHullGrahamScan.js')},
-          {src: libPath('jquery', 'dist', 'jquery.min.js'), dest: JQUERY_LIB_PATH}
+          {src: libPath('Requirejs', 'require.js'), dest: libPath('require.js')},
+          {src: libPath('tinycolor', 'tinycolor.js'), dest: libPath('tinycolor.js')},
+          {src: libPath('topsort', 'lib', 'topsort.js'), dest: libPath('topsort.js')},
+          {src: libPath('utm-converter', 'src', 'converter.js'), dest: libPath('UtmConverter.js')}
         ]
       },
       openLayersBuildConfig: {
@@ -158,7 +163,7 @@ module.exports = function(grunt) {
         files: [
           {
             expand: true,
-            cwd: DOCS_DIR,
+            cwd: JSDOCS_DIR,
             src: [
               path.join('**', '*')
             ]
@@ -191,14 +196,25 @@ module.exports = function(grunt) {
     karma: {
       options: {
         configFile: 'test/karma.conf.js',
-        runnerPort: 9876,
+        runnerPort: 9876
       },
       unit: {
-        browsers: ['Chrome', 'Firefox']
+        browsers: ['Firefox', 'Chrome']
+      },
+      local: {
+        browsers: ['Firefox'],
+        preprocessors: []
       },
       continuous: {
         singleRun: true,
         browsers: ['PhantomJS']
+      },
+      debug: {
+        // Click DEBUG on Karma page and open Dev Tools. Refresh to re-run.
+        browsers: [],
+        singleRun: false,
+        // Ensures source files are readable.
+        preprocessors: []
       }
     },
 
@@ -213,12 +229,12 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('compile-imports', 'Builds a RequireJS script to import all source files '
-      + 'which are AMD modules.', function() {
+  grunt.registerTask('compile-imports', 'Builds a RequireJS script to import all source files ' +
+      'which are AMD modules.', function() {
     console.log('Compiling modules for importing...');
-    var findResults = findAmdModules(SRC_DIR),
-        modules = findResults.modules,
-        notModules = findResults.notModules;
+    var findResults = findAmdModules(SRC_DIR);
+    var modules = findResults.modules;
+    var notModules = findResults.notModules;
 
     modules = modules.filter(function(file) {
       return srcPath(file) !== MAIN_FILE;
@@ -266,8 +282,8 @@ module.exports = function(grunt) {
     });
   });
 
-  grunt.registerTask('fix-jquery', 'Fixes jQuery to prevent issues with running in non-brower \
-    environments.', function() {
+  grunt.registerTask('fix-jquery', 'Fixes jQuery to prevent issues with running in non-brower' +
+      'environments.', function() {
     var fixes = readFile(path.join(BUILD_DIR, 'jQueryFixes.js'));
     writeFile(JQUERY_LIB_PATH, function(data) {
       return fixes.replace('// EXISTING CODE GOES HERE', data);
@@ -288,19 +304,19 @@ module.exports = function(grunt) {
   grunt.registerTask('update', 'Updates dependencies.',
       ['shell:updateNpmDep', 'shell:updateBowerDep']);
   grunt.registerTask('build', 'Builds the app into a distributable package.', function() {
-    var args = arguments,
-        tasks = [],
-        addTasks = function() {
-          Array.prototype.slice.apply(arguments).forEach(function(task) {
-            tasks.push(task);
-          });
-        },
-        hasArgs = function(arg) {
-          return Object.keys(args).some(function(argIndex) {
-            var value = args[argIndex];
-            return value === arg;
-          });
-        };
+    var args = arguments;
+    var tasks = [];
+    var addTasks = function() {
+      Array.prototype.slice.apply(arguments).forEach(function(task) {
+        tasks.push(task);
+      });
+    };
+    var hasArgs = function(arg) {
+      return Object.keys(args).some(function(argIndex) {
+        var value = args[argIndex];
+        return value === arg;
+      });
+    };
     addTasks('compile-imports', 'clean:dist');
     hasArgs('no-minify') ? addTasks('shell:build') : addTasks('shell:buildMinify');
     addTasks('set-build-env', 'less', 'copy:resources', 'clean:resourcesLess');
@@ -308,7 +324,7 @@ module.exports = function(grunt) {
     console.log('Running tasks', tasks);
     tasks.forEach(function(task) {
       grunt.task.run(task);
-    })
+    });
   });
 
   grunt.registerTask('doc', 'Generates documentation.', ['clean:doc', 'shell:jsDoc']);
@@ -322,8 +338,6 @@ module.exports = function(grunt) {
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // AUXILIARY
   //////////////////////////////////////////////////////////////////////////////////////////////////
-
-  // AMD MODULES
 
   function findAmdModules(dir) {
     var files = glob.sync('**/*.js', {cwd: dir});

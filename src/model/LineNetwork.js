@@ -5,7 +5,7 @@ define([
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/util/DeveloperError'
-], function (ItemStore, GeoEntity, Line, Log, Setter, DeveloperError) {
+], function(ItemStore, GeoEntity, Line, Log, Setter, DeveloperError) {
   /**
    * @typedef atlas.model.LineNetwork
    * @ignore
@@ -14,10 +14,10 @@ define([
 
   /**
    * @classdesc A LineNetwork represents a 2D network of lines. The network is described using a
-   * set of nodes and line data. The nodes are a set of {@link atlas.model.GeoPoint geographic points}.
-   * The line data describes an individual line in the network. It consists of an array of node
-   * indices which describe the geographic shape, and parameters which affect how the line is
-   * rendered (colour, texture, width, ...).
+   * set of nodes and line data. The nodes are a set of {@link atlas.model.GeoPoint geographic
+   * points}. The line data describes an individual line in the network. It consists of an array of
+   * node indices which describe the geographic shape, and parameters which affect how the line is
+   * rendered (color, texture, width, ...).
    * @class atlas.model.LineNetwork
    * @extends atlas.model.GeoEntity
    */
@@ -37,7 +37,7 @@ define([
      */
 
     /**
-     * An ItemStore of the @{link atlas.model.Line|Lines} constructing the LineNetwork.
+     * An ItemStore of the {@link atlas.model.Line|Lines} constructing the LineNetwork.
      * @type {atlas.core.ItemStore}
      * @private
      */
@@ -64,7 +64,7 @@ define([
      */
     _nextLineId: 100000,
 
-    _init: function (id, networkData, args) {
+    _setup: function(id, networkData, args) {
       this._super(id, args);
       this._lineData = new ItemStore();
       this._lines = new ItemStore();
@@ -83,11 +83,11 @@ define([
         return Setter.clone(data);
       });
       // Construct an ItemStore from the lineData.
-      networkData.lineData.forEach(function (data) {
+      networkData.lineData.forEach(function(data) {
         var clonedData = Setter.cloneDeep(data);
         // Assign an ID for the line if one was not supplied.
         clonedData.id = Setter.def(data.id, this._getNextLineId()).toString();
-        clonedData.getId = function () { return this.id; };
+        clonedData.getId = function() { return this.id; };
         this._lineData.add(clonedData);
       }, this);
       this._lineDefaultWidth = networkData.lineWidth || this._lineDefaultWidth;
@@ -100,7 +100,7 @@ define([
      * Constructs all of the lines making up the LineNetwork. This should only be called once after
      * initialisation. Otherwise, all lines are constructed on the fly as required.
      */
-    _build: function () {
+    _build: function() {
       if (this.isConstructed()) {
         // Die if the network is already constructed.
         return;
@@ -131,9 +131,9 @@ define([
      * @param lineData - The line data containing the line definition.
      * @protected
      */
-    _getLineGeoPoints: function (lineData) {
+    _getLineGeoPoints: function(lineData) {
       var nodes = this.getNodeData();
-      return lineData.nodeIds.map(function (id) {
+      return lineData.nodeIds.map(function(id) {
         return nodes[id];
       });
     },
@@ -142,11 +142,11 @@ define([
     // Getters and Setters
     // -------------------------------------------
 
-    getDefaultLineWidth: function () {
+    getDefaultLineWidth: function() {
       return this._lineDefaultWidth;
     },
 
-    getLineData: function (lineId) {
+    getLineData: function(lineId) {
       if (lineId !== undefined) {
         return this._lineData.get(lineId);
       } else {
@@ -154,7 +154,7 @@ define([
       }
     },
 
-    getNodeData: function () {
+    getNodeData: function() {
       return this._nodeData;
     },
 
@@ -163,14 +163,14 @@ define([
      *     Line exists.
      * @param {string} id - The ID of the Line.
      */
-    getLine: function (id) {
+    getLine: function(id) {
       return this._lines.get(id);
     },
 
     /**
      * @returns {Array.<atlas.model.Line>} All of the lines in the LineNetwork as an array.
      */
-    getLines: function () {
+    getLines: function() {
       return this._lines.asArray();
     },
 
@@ -179,7 +179,7 @@ define([
      * @returns {string}
      * @private
      */
-    _getNextLineId: function () {
+    _getNextLineId: function() {
       return 'network_line_' + this._nextLineId++;
     },
 
@@ -188,7 +188,7 @@ define([
      * is constructed if for all defined <code>lineData</code> there is a corresponding
      * <code>Line</code> object, with no Line objects existing without a LineData object.
      */
-    isConstructed: function () {
+    isConstructed: function() {
       return this._lines.getCount() == this._lineData.getCount();
     },
 
@@ -196,7 +196,7 @@ define([
      * @returns {boolean} Whether the <code>LineNetwork</code> is ready to be rendered, ie. all
      * component lines have be re-constructed and updated as necessary.
      */
-    isRenderable: function () {
+    isRenderable: function() {
       return !this.isDirty() && this.isConstructed();
     },
 
@@ -209,7 +209,7 @@ define([
      * @param {atlas.model.GeoPoint} node - The GeoPoint to add a node at.
      * @returns {number} The ID of the new node.
      */
-    addNode: function (node) {
+    addNode: function(node) {
       this._nodeData.push(Setter.clone(node));
       return this._nodeData.length - 1;
     },
@@ -222,7 +222,7 @@ define([
      *     line. If <code>position</code> is negative, it is inserted relative to the end of the
      *     line, with -1 being the last index, -2 being the second last etc.
      */
-    insertNodeIntoLine: function (lineId, nodeId, position) {
+    insertNodeIntoLine: function(lineId, nodeId, position) {
       position = Setter.def(position, 0);
       var lineData = this._lineData.get(lineId),
           nodeIds = lineData.nodeIds,
@@ -245,7 +245,7 @@ define([
       this._rebuildLine(lineId, 'vertices');
     },
 
-    removeNodeFromLine: function (lineId, position) {
+    removeNodeFromLine: function(lineId, position) {
       var lineData = this._lineData.get(lineId);
       if (lineData) {
         lineData.nodeIds.splice(position, 1);
@@ -259,7 +259,7 @@ define([
      * @param args Parameters as per @link{atlas.model.Line}
      * @private
      */
-    _createLineObj: function (id, lineData, args) {
+    _createLineObj: function(id, lineData, args) {
       return new Line(id, lineData, args);
     },
 
@@ -271,15 +271,16 @@ define([
      *     vertices of line have changed), "style" (appearance of line changed).
      * @private
      */
-    _rebuildLine: function (lineId, modified) {
-      // TODO(bpstudds): Support changing colour, width, etc.
+    _rebuildLine: function(lineId, modified) {
+      // TODO(bpstudds): Support changing color, width, etc.
       var lineObj = this._lines.get(lineId),
           lineData = this._lineData.get(lineId);
       if (modified === 'vertices' || modified === 'entity') {
         lineObj.setVertices(this._getLineGeoPoints(lineData));
       }
       this.setDirty(lineId);
-      lineObj.isVisible() && lineObj.show() && this.setClean(lineId);
+      this._update();
+      this.setClean(lineId);
     },
 
     // -------------------------------------------
@@ -288,7 +289,7 @@ define([
     /**
      * Shows the line network.
      */
-    show: function () {
+    show: function() {
       // Re-build the LineNetwork if it can't be rendered immediately.
       if (!this.isConstructed()) {
         throw new Error('LineNetwork ' + this.getId() + ' not properly constructed before show() called.'
@@ -298,7 +299,7 @@ define([
 
       // If a line is not shown, show it. Else if it is dirty, show it which will cause the
       // LineObj to update itself as necessary.
-      this._lines.forEach(function (line) {
+      this._lines.forEach(function(line) {
         if (!line.isVisible()) {
           line.show();
         } else if (this.isDirty(line.getId())) {
@@ -309,8 +310,8 @@ define([
       this._super();
     },
 
-    hide: function () {
-      this._lines.forEach(function (line) {
+    hide: function() {
+      this._lines.forEach(function(line) {
         line.hide();
       });
       this._super();

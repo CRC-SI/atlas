@@ -5,8 +5,8 @@
       "path": ".",
       "folder_exclude_patterns": [
         "coverage",
-        "docs",
-        "lib",
+        "jsdocs",
+        "atlas/lib",
         "dist",
         ".idea",
         ".sonar",

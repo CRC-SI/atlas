@@ -1,8 +1,21 @@
 define([
   'atlas/core/Manager',
+  'atlas/lib/utility/Log',
   'atlas/lib/utility/Types',
   'atlas/util/DeveloperError'
-], function(Manager, Types, DeveloperError) {
+], function(Manager, Log, Types, DeveloperError) {
+
+  /**
+   * An object that declares a callback function listening for a particular event.
+   * @typedef {Object} atlas.events.EventManager.EventHandle
+   *
+   * @property {Number} id - The ID of the event handler.
+   * @property {String} name - The name of the event being handled.
+   * @property {Function} callback - Function to handle the event when it is published.
+   * @property {Function} cancel - Function to cancel the event.
+   * @property {Function} isCancelled - Function that returns a Boolean of whether the event has
+   *     been cancelled with the <code>cancel</code> function.
+   */
 
   /**
    * @typedef atlas.events.EventManager
@@ -14,10 +27,6 @@ define([
    * @classdesc EventManager is responsible for bubbling internal events up through the
    * internal event hierarchy, as well as out to the host application.
    *
-   * @param {Object} managers - A map of manager types to actual manager objects.
-   *       The map is maintained on the main Atlas facade object, but the instances
-   *       are created by each manager object upon creation.
-   *
    * @class atlas.events.EventManager
    */
   EventManager = Manager.extend(/** @lends atlas.events.EventManager# */ {
@@ -27,26 +36,30 @@ define([
     /**
      * Mapping of listener object IDs to the host application callback. Hosts
      * registered in this map receive every event that occurs (that is not cancelled).
+     *
      * @type {Object}
      */
     _hosts: null,
 
     /**
-     * Mapping of extern event names to a list of callback functions handling
-     * the extern event.
-     * @type {Object}
+     * Mapping of external event names to an array of callback functions registered to the
+     * corresponding event.
+     *
+     * @type {Object.<String, Array.<Function>>}
      */
     _externalEventHandlers: null,
 
     /**
-     * Mapping of internal event names to a list of callback functions handling
-     * that event type. These callbacks may be internal or external to Atlas.
-     * @type {Object}
+     * Mapping of internal event names to an array of callback functions registered to the
+     * corresponding event.
+     *
+     * @type {Object.<String, Array.<Function>>}
      */
     _internalEventHandlers: null,
 
     /**
      * Counter to determine the ID of the next handler that is registered.
+     *
      * @type {Number}
      */
     _nextHandlerId: null,
@@ -59,13 +72,20 @@ define([
 
     /**
      * Bubbles the given Event through its <code>target</code> Entity hierarchy.
+     *
      * @param {atlas.events.Event} event - The Event to be propagated.
      */
     dispatchEvent: function(event) {
+      // If debug logging is enabled, log all dispatched events except mousemove.
+      if (event.getType() !== 'input/mousemove') {
+        Log.debug('Dispatching event: ',
+            event.getType(), event.getArgs(), event.getTarget(), event.getCurrentTarget());
+      }
+
       // Propagate the event up the target hierarchy.
       while (event.getCurrentTarget()) {
-        var nextEvent,
-            parent;
+        var nextEvent;
+        var parent;
         if (event.isCancelled()) {
           break;
         }
@@ -97,8 +117,10 @@ define([
 
     /**
      * Registers a Host application with the EventManager.
+     *
      * @param {Function} callback - The event handler function in the registering Host application.
-     * @returns {Object} An EventListener object which can be used to deregister the Host from the event system.
+     * @returns {atlas.events.EventManager.EventHandle} An EventHandle which can be used
+     *     to deregister the Host from the event system.
      */
     registerHost: function(callback) {
       // Create the EventListener object.
@@ -121,6 +143,7 @@ define([
     /**
      * Used to deregister a Host application from the Event system. Called by
      * the EventListener object returned when registering a Host.
+     *
      * @param  {Number} id - The ID of the Host application to remove.
      */
     _deregisterHost: function(id) {
@@ -129,10 +152,13 @@ define([
 
     /**
      * Allows for adding an array of event handlers.
+     *
      * @param {Object} handlers - An array of Objects describing the handlers to be added.
-     *       The objects should have properties 'source', 'name', and 'callback' as per
-     *       {@link atlas.events.EventManager#addEventHandler}.
-     * @returns {Object.<String, Object>} The map of event name to EventHandler object.
+     *     The objects should have properties 'source', 'name', and 'callback' as per
+     *     {@link atlas.events.EventManager#addEventHandler}.
+     *
+     * @returns {Object.<String, atlas.events.EventManager.EventHandle>} A map of Event names to
+     *     the corresponding EventHandle.
      */
     addEventHandlers: function(handlers) {
       var eventHandlers = {};
@@ -144,19 +170,49 @@ define([
     },
 
     /**
+     * Allows for adding an array of event handler mappings.
+     *
+     * Note: This method is for the "new" event handler declaration format. It is intended to
+     * replace the old <code>addEventHandlers</code> method, and should adopt its name once the old
+     * method is phased out.
+     *
+     * @param {Object} handlers - A map with intern and extern event handler mappings.
+     * @param {Object.<String, atlas.events.EventManager.EventHandler>} handlers.intern - A mapping
+     *     of internal event names to callbacks.
+     * @param {Object.<String, atlas.events.EventManager.EventHandler>} handlers.extern - A mapping
+     *     of external event names to callbacks.
+     *
+     * @returns {Object.<String, atlas.events.EventManager.EventHandle>} A map of event names to
+     *     the corresponding EventHandles.
+     */
+    addNewEventHandlers: function(handlers) {
+      var eventHandlers = {};
+      Object.keys(handlers).forEach(function(source) {
+        Object.keys(handlers[source]).forEach(function(name) {
+          var callback = handlers[source][name];
+          eventHandlers[name] = this.addEventHandler(source, name, callback);
+        }, this);
+      }, this);
+      return eventHandlers;
+    },
+
+    /**
      * Allows for event handlers to be added for an Event. Events can be external
      * (Host) or internal (Atlas) events.
      *
      * @param {String} source - The source of the event, either 'extern' or 'intern'.
      * @param {String} name - The name of the event.
      * @param {Function} callback - Callback function to handle the event.
+     *
      * @example
      * <code>
      * constructRenderManager(theEventManager) {
-     *    theEventManager.addEventHandler('extern', 'entity/show', show.bind(this));
+     *     theEventManager.addEventHandler('extern', 'entity/show', show.bind(this));
      * };
      * </code>
-     * @returns {Object} An EventListener object that can be used to cancel the EventHandler.
+     *
+     * @returns {atlas.events.EventManager.EventHandle} An EventHandle for the event
+     *     that can be used to cancel the callback subscription.
      */
     addEventHandler: function(source, name, callback) {
       // Select the map of event handlers to add to.
@@ -166,7 +222,8 @@ define([
       } else if (source === 'intern') {
         allHandlers = this._internalEventHandlers;
       } else {
-        throw new DeveloperError('Must specify whether event handler is for "intern" or "extern" events.');
+        throw new DeveloperError('Must specify whether event handler is for "intern" or' +
+            '"extern" events.');
       }
       // Create new handler object
       var id = this._nextHandlerId++;
@@ -198,6 +255,7 @@ define([
      * Removes the given event handler from the event system. Called by the
      *       EventListener object returned by
      *       {@link atlas.events.EventManager#addEventListener|addEventListener}.
+     *
      * @param {String} source - The source of the Event for the EventHandler being removed.
      * @param {String} name - The name of the event used to register the handler.
      * @param {String} id - The ID of the EventHandler being removed.
@@ -210,7 +268,8 @@ define([
       } else if (source === 'intern') {
         allHandlers = this._internalEventHandlers;
       } else {
-        throw new DeveloperError('Can not remove event without specifying "extern" or "intern" event');
+        throw new DeveloperError('Can not remove event without specifying "extern" ' +
+            'or "intern" event');
       }
       var handlers = allHandlers[name];
       if (handlers[id] === undefined) {
@@ -222,9 +281,11 @@ define([
 
     /**
      * Calls the registered event handlers for the given event.
+     *
      * @param {String} source - The source of the event, either 'extern' or 'intern'.
      * @param {String} name - The name of the event to handle.
-     * @param {Object} [args] - Optional event arguments that are passed to the event handler callback.
+     * @param {Object} [args] - Optional event arguments that are passed to the event
+     *     handler callback.
      */
     _handleEvent: function(source, name, args) {
       // Retrieve either intern or extern event handlers.
@@ -234,7 +295,8 @@ define([
       } else if (source === 'intern') {
         allHandlers = this._internalEventHandlers;
       } else {
-        throw new DeveloperError('Can not handle event without specifying "extern" or "intern" event');
+        throw new DeveloperError('Can not handle event without specifying "extern" or ' +
+            '"intern" event');
       }
       // Retrieve the list of event handlers for the given event type.
       var handlers = allHandlers[name];
@@ -247,8 +309,10 @@ define([
 
     /**
      * Convenience function to handle an internal event.
+     *
      * @param {String} name - The name of the event.
-     * @param {Object} args - Optional event arguments that are passed to the event handler callback.
+     * @param {Object} args - Optional event arguments that are passed to the event
+     *     handler callback.
      */
     handleInternalEvent: function(name, args) {
       this._handleEvent('intern', name, args);
@@ -256,8 +320,10 @@ define([
 
     /**
      * Convenience function to handle an external event.
+     *
      * @param {String} name - The name of the event.
-     * @param {Object} args - Optional event arguments that are passed to the event handler callback.
+     * @param {Object} args - Optional event arguments that are passed to the event handler
+     *     callback.
      */
     handleExternalEvent: function(name, args) {
       this._handleEvent('extern', name, args);
@@ -266,4 +332,3 @@ define([
 
   return EventManager;
 });
-

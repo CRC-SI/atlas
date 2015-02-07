@@ -1,14 +1,14 @@
 define([
   'atlas/model/GeoPoint',
-  'atlas/model/Style',
-  'atlas/model/Colour',
+  'atlas/material/Style',
+  'atlas/material/Color',
   'atlas/model/VertexedEntity',
   'atlas/lib/OpenLayers',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Types',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(GeoPoint, Style, Colour, VertexedEntity, OpenLayers, Setter, Types, DeveloperError,
+], function(GeoPoint, Style, Color, VertexedEntity, OpenLayers, Setter, Types, DeveloperError,
   WKT) {
 
   /**
@@ -21,17 +21,21 @@ define([
    * @classdesc Represents a 2D line segment.
    *
    * @param {string} id - The ID of the Line object
-   * @param {object} lineData - Properties of the Line
+   * @param {object} data - Properties of the Line
    * @param {Array.<atlas.model.GeoPoint>|string} vertices - Either a WKT string or array of
    *     GeoPoints describing the geometry of the Line.
-   * @param {number|string} [lineData.width=10] - The width of the line. Assumed to be meters if a
+   * @param {number|string} [data.width=10] - The width of the line. Assumed to be meters if a
    *     argument type is number, or pixels if the argument is a string with the format "[0-9]+px".
-   * @param {atlas.model.Colour} [lineData.color] - The color of the Line.
-   * @param {atlas.model.Style} [lineData.style] - The style of the Line.
+   * @param {atlas.material.Color} [data.color] - The fill color of the Polygon. Overrides the
+   *     given style.
+   * @param {atlas.material.Color} [data.borderColor] - The border color of the Polygon.
+   *     Overrides the given style.
+   * @param {atlas.material.Style} [data.style=Style.getDefault()] - The Style to apply to the
+   *     Polygon.
    * @class atlas.model.Line
    * @extends atlas.model.VertexedEntity
    */
-  Line = Setter.mixin(VertexedEntity.extend(/** @lends atlas.model.Line# */{
+  Line = VertexedEntity.extend(/** @lends atlas.model.Line# */{
 
     /**
      * The width of the line segment in metres (e.g. 10) or pixels (eg. '10px'). If in pixels, the
@@ -45,22 +49,9 @@ define([
      * Constructs a new {@link Line}.
      * @ignore
      */
-    _init: function(id, lineData, args) {
-      this._super(id, lineData, args);
-      this._width = lineData.width || this._width;
-      var style;
-      if (lineData.color) {
-        if (lineData.color instanceof Colour) {
-          style = new Style({fillColour: lineData.color});
-        } else {
-          style = new Style({fillColour: Colour.fromRGBA(lineData.color)});
-        }
-      } else if (lineData.style) {
-        style = lineData.style;
-      } else {
-        style = Line.getDefaultStyle();
-      }
-      this.setStyle(style);
+    _setup: function(id, data, args) {
+      this._super(id, data, args);
+      this._width = data.width || this._width;
     },
 
     setWidth: function(width) {
@@ -97,20 +88,13 @@ define([
      */
     edit: function() {
       throw new DeveloperError('Can not call methods on abstract Line.');
-    }
+    },
 
-  }), {
-
-    // -------------------------------------------
-    // STATICS
-    // -------------------------------------------
-
-    /**
-     * Defines the default style to use when rendering a polygon.
-     * @type {atlas.model.Style}
-     */
-    getDefaultStyle: function() {
-      return new Style({fillColour: Colour.GREEN});
+    toJson: function() {
+      return Setter.merge(this._super(), {
+        type: 'line',
+        width: this.getWidth()
+      });
     }
 
   });
