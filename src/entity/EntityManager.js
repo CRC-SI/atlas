@@ -154,6 +154,15 @@ define([
         },
         {
           source: 'extern',
+          name: 'entity/remove/all',
+          callback: function(args) {
+            Log.time('entity/remove/all');
+            this.getEntities().forEach(function(entity) {entity.remove();});
+            Log.timeEnd('entity/remove/all');
+          }.bind(this)
+        },
+        {
+          source: 'extern',
           name: 'entity/display-mode',
           callback: function(args) {
             // Set all features to 'footprint' display mode.
