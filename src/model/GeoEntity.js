@@ -350,7 +350,7 @@ define([
       var vertices = this.getOpenLayersGeometry().getVertices().map(function(vertex) {
         return {x: vertex.y, y: vertex.x};
       });
-      var polygon = new SubdivPolygon(vertices[0]);
+      var polygon = new SubdivPolygon(vertices);
       GeographicUtil.localizePointGeometry(polygon);
       return polygon.getArea();
     },
