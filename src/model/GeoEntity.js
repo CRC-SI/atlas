@@ -3,6 +3,8 @@ define([
   'atlas/events/Event',
   // Base class
   'atlas/events/EventTarget',
+  'atlas/lib/subdiv/Polygon',
+  'atlas/lib/subdiv/util/GeographicUtil',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Strings',
   'atlas/lib/utility/Types',
@@ -14,8 +16,8 @@ define([
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(ItemStore, Event, EventTarget, Setter, Strings, Types, Rectangle, Color, CheckPattern,
-            Material, Style, Vertex, DeveloperError, WKT) {
+], function(ItemStore, Event, EventTarget, SubdivPolygon, GeographicUtil, Setter, Strings, Types,
+            Rectangle, Color, CheckPattern, Material, Style, Vertex, DeveloperError, WKT) {
   /**
    * @typedef atlas.model.GeoEntity
    * @ignore
@@ -343,7 +345,14 @@ define([
     },
 
     _calcArea: function() {
-      return this.getOpenLayersGeometry().getGeodesicArea();
+      // Convert to UTM and calculate the area accurately. OpenLayers will approximate the area,
+      // which can be significantly different (e.g. x2 smaller).
+      var vertices = this.getOpenLayersGeometry().getVertices().map(function(vertex) {
+        return {x: vertex.y, y: vertex.x};
+      });
+      var polygon = new SubdivPolygon(vertices[0]);
+      GeographicUtil.localizePointGeometry(polygon);
+      return polygon.getArea();
     },
 
     /**

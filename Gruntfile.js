@@ -278,7 +278,7 @@ module.exports = function(grunt) {
     // Creates a closure around the build and shim client-side variables.
     var fixes = readFile(path.join(BUILD_DIR, 'nodeJsFixes.js'));
     writeFile(BUILD_OUTPUT_PATH, function(data) {
-      return fixes.replace('// EXISTING CODE GOES HERE', data);
+      return fixes.replace('// EXISTING CODE GOES HERE', escapeRegexReplacement(data));
     });
   });
 
@@ -286,7 +286,7 @@ module.exports = function(grunt) {
       'environments.', function() {
     var fixes = readFile(path.join(BUILD_DIR, 'jQueryFixes.js'));
     writeFile(JQUERY_LIB_PATH, function(data) {
-      return fixes.replace('// EXISTING CODE GOES HERE', data);
+      return fixes.replace('// EXISTING CODE GOES HERE', escapeRegexReplacement(data));
     });
   });
 
@@ -368,6 +368,11 @@ module.exports = function(grunt) {
   function wrapAmdDefine(script, returnStr) {
     returnStr = returnStr ? ';return ' + returnStr + ';' : '';
     return 'define([],function(){' + script + returnStr + '});';
+  }
+
+  function escapeRegexReplacement(str) {
+    // Escapes any special regex notation like $$, $`, $', $1 in the replacement string.
+    return str.replace(/\$/g, '$$$');
   }
 
   // FILES
