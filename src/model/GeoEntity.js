@@ -3,8 +3,6 @@ define([
   'atlas/events/Event',
   // Base class
   'atlas/events/EventTarget',
-  'atlas/lib/subdiv/Polygon',
-  'atlas/lib/subdiv/util/GeographicUtil',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Strings',
   'atlas/lib/utility/Types',
@@ -15,9 +13,11 @@ define([
   'atlas/material/Style',
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
-  'atlas/util/WKT'
-], function(ItemStore, Event, EventTarget, SubdivPolygon, GeographicUtil, Setter, Strings, Types,
-            Rectangle, Color, CheckPattern, Material, Style, Vertex, DeveloperError, WKT) {
+  'atlas/util/WKT',
+  'subdiv/Polygon',
+  'subdiv/util/GeographicUtil'
+], function(ItemStore, Event, EventTarget, Setter, Strings, Types, Rectangle, Color, CheckPattern,
+            Material, Style, Vertex, DeveloperError, WKT, SubdivPolygon, GeographicUtil) {
   /**
    * @typedef atlas.model.GeoEntity
    * @ignore

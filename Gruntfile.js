@@ -117,7 +117,7 @@ module.exports = function(grunt) {
           {src: libPath('Requirejs', 'require.js'), dest: libPath('require.js')},
           {src: libPath('tinycolor', 'tinycolor.js'), dest: libPath('tinycolor.js')},
           {src: libPath('topsort', 'lib', 'topsort.js'), dest: libPath('topsort.js')},
-          {src: libPath('utm-converter', 'src', 'converter.js'), dest: libPath('UtmConverter.js')}
+          {src: libPath('utm-converter', 'src', 'converter.js'), dest: libPath('UtmConverter')}
         ]
       },
       openLayersBuildConfig: {
@@ -370,8 +370,14 @@ module.exports = function(grunt) {
     return 'define([],function(){' + script + returnStr + '});';
   }
 
+  /**
+   * Escapes any special regex notation like $$, $`, $', $1 in the replacement string.
+   * @param {String} str - A string which should be used in the replacement argument of
+   *     <code>String#replace(src, repl)</code>
+   * @return {String} The given replacement string with any any special regex notation escaped.
+   *     E.g. $$, $`, $', $1
+   */
   function escapeRegexReplacement(str) {
-    // Escapes any special regex notation like $$, $`, $', $1 in the replacement string.
     return str.replace(/\$/g, '$$$');
   }
 
