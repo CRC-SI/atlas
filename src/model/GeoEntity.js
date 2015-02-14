@@ -345,8 +345,8 @@ define([
     },
 
     _calcArea: function() {
-      // Convert to UTM and calculate the area accurately. OpenLayers will approximate the area,
-      // which can be significantly different (e.g. x2 smaller).
+      // Converts to UTM and calculates the area accurately. OpenLayers will approximate the area,
+      // which can be significantly different (e.g. 2 times smaller).
       var vertices = this.getOpenLayersGeometry().getVertices().map(function(vertex) {
         return {x: vertex.y, y: vertex.x};
       });

@@ -371,11 +371,10 @@ module.exports = function(grunt) {
   }
 
   /**
-   * Escapes any special regex notation like $$, $`, $', $1 in the replacement string.
+   * Escapes regex notation starting with a dollar sign ($$, $`, $', $1).
    * @param {String} str - A string which should be used in the replacement argument of
    *     <code>String#replace(src, repl)</code>
-   * @return {String} The given replacement string with any any special regex notation escaped.
-   *     E.g. $$, $`, $', $1
+   * @return {String} The given replacement string with any of the notation escaped.
    */
   function escapeRegexReplacement(str) {
     return str.replace(/\$/g, '$$$');
