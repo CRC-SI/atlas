@@ -117,7 +117,7 @@ module.exports = function(grunt) {
           {src: libPath('Requirejs', 'require.js'), dest: libPath('require.js')},
           {src: libPath('tinycolor', 'tinycolor.js'), dest: libPath('tinycolor.js')},
           {src: libPath('topsort', 'lib', 'topsort.js'), dest: libPath('topsort.js')},
-          {src: libPath('utm-converter', 'src', 'converter.js'), dest: libPath('UtmConverter.js')}
+          {src: libPath('utm-converter', 'src', 'converter.js'), dest: libPath('UtmConverter')}
         ]
       },
       openLayersBuildConfig: {
@@ -278,7 +278,7 @@ module.exports = function(grunt) {
     // Creates a closure around the build and shim client-side variables.
     var fixes = readFile(path.join(BUILD_DIR, 'nodeJsFixes.js'));
     writeFile(BUILD_OUTPUT_PATH, function(data) {
-      return fixes.replace('// EXISTING CODE GOES HERE', data);
+      return fixes.replace('// EXISTING CODE GOES HERE', escapeRegexReplacement(data));
     });
   });
 
@@ -286,7 +286,7 @@ module.exports = function(grunt) {
       'environments.', function() {
     var fixes = readFile(path.join(BUILD_DIR, 'jQueryFixes.js'));
     writeFile(JQUERY_LIB_PATH, function(data) {
-      return fixes.replace('// EXISTING CODE GOES HERE', data);
+      return fixes.replace('// EXISTING CODE GOES HERE', escapeRegexReplacement(data));
     });
   });
 
@@ -368,6 +368,16 @@ module.exports = function(grunt) {
   function wrapAmdDefine(script, returnStr) {
     returnStr = returnStr ? ';return ' + returnStr + ';' : '';
     return 'define([],function(){' + script + returnStr + '});';
+  }
+
+  /**
+   * Escapes regex notation starting with a dollar sign ($$, $`, $', $1).
+   * @param {String} str - A string which should be used in the replacement argument of
+   *     <code>String#replace(src, repl)</code>
+   * @return {String} The given replacement string with any of the notation escaped.
+   */
+  function escapeRegexReplacement(str) {
+    return str.replace(/\$/g, '$$$');
   }
 
   // FILES

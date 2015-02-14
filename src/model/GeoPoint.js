@@ -2,10 +2,10 @@ define([
   'atlas/lib/utility/Class',
   'atlas/lib/utility/Types',
   'atlas/lib/utility/Setter',
-  'atlas/lib/UtmConverter',
   'atlas/model/Vertex',
   'atlas/util/AtlasMath',
-], function(Class, Types, Setter, UtmConverter, Vertex, AtlasMath) {
+  'utm-converter'
+], function(Class, Types, Setter, Vertex, AtlasMath, UtmConverter) {
 
   /**
    * @typedef atlas.model.GeoPoint

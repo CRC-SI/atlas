@@ -213,15 +213,6 @@ define([
       return this._vertices;
     },
 
-    getArea: function() {
-      if (this._area) {
-        return this._area;
-      }
-      var geometry = this.getOpenLayersGeometry();
-      this._area = geometry.getGeodesicArea();
-      return this._area;
-    },
-
     getOpenLayersGeometry: function() {
       var wkt = WKT.getInstance();
       return wkt.openLayersPolygonFromGeoPoints(this._vertices);

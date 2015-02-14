@@ -366,8 +366,12 @@ define([
       });
       sortedIds.forEach(function(id) {
         var c3ml = c3mlMap[id];
-        // Children may be rendered in a previous draw call so we should skip those.
+        // Entities referenced by ID may be rendered in a previous draw call and already exist so
+        // we don't need to create them.
         if (!this.getById(id)) {
+          if (!c3ml) {
+            throw new Error('No C3ML entity found for ID ' + id);
+          }
           var data = this._parseC3ml(c3ml);
           this.createEntity(id, data);
           ids.push(id);
