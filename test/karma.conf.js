@@ -24,8 +24,7 @@ module.exports = function(config) {
     // list of files to exclude
     exclude: [
       'atlas/lib/**/node_modules/**/*',
-      'atlas/lib/subdiv/bower_components/**/*',
-      'atlas/lib/subdiv/node_modules/**/*',
+      'atlas/lib/**/bower_components/**/*',
       '**/docs/**/*',
       '**/dist/**/*'
     ],
