@@ -50,6 +50,7 @@ define([
       // Necessary for calling setElevation().
       this._entities = new ItemStore();
       this._initDelegation();
+      this._initEvents();
       this._super(id, data, args);
       var entityIds = data.entities || [];
       entityIds.forEach(this.addEntity, this);
@@ -229,6 +230,33 @@ define([
           });
         };
       }, this);
+    },
+
+    // -------------------------------------------
+    // EVENTS
+    // -------------------------------------------
+
+    /**
+     * Listen for events on the entities and removes them from this collection if they are removed.
+     * @private
+     *
+     * @listens InternalEvent#entity/remove
+     */
+    _initEvents: function() {
+      // If the original target is this feature, don't dispatch the event since it would be a
+      // duplicate.
+      var isOwnEvent = function(event) {
+        return event.getTarget() === this;
+      }.bind(this);
+      // This responds to events in the entities which bubble up.
+      this.addEventListener('entity/remove', function(event) {
+        if (isOwnEvent(event)) return;
+        var id = event.getTarget().getId();
+        // Avoid trying to remove indirect descendents.
+        if (this.getEntity(id)) {
+          this.removeEntity(id);
+        }
+      }.bind(this));
     },
 
     // -------------------------------------------
