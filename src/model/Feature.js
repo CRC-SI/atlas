@@ -223,7 +223,6 @@ define([
       var form = this.getForm(displayMode);
       if (!form) return;
       var property = this._getFormPropertyName(displayMode);
-      if (!property) throw new Error('Invalid display mode: ' + displayMode);
       delete this[property];
       form.remove();
     },
@@ -561,13 +560,16 @@ define([
       this.addEventListener('entity/remove', function(event) {
         if (isOwnEvent(event)) return;
         var forms = this._getFormsMap();
-        Object.keys(forms).some(function(displayMode) {
+        Object.keys(forms).forEach(function(displayMode) {
           var form = forms[displayMode];
           if (form === event.getTarget()) {
             this.removeForm(displayMode);
             return false;
           }
         }, this);
+        // Prevent this event from bubbling up further since the ancestors of this entity shouldn't
+        // need to worry about its children.
+        event.cancel();
       }.bind(this));
     },
 

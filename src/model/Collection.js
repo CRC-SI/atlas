@@ -248,14 +248,16 @@ define([
       var isOwnEvent = function(event) {
         return event.getTarget() === this;
       }.bind(this);
-      // This responds to events in the entities which bubble up.
+      // This responds to events which bubble up from children entities.
       this.addEventListener('entity/remove', function(event) {
         if (isOwnEvent(event)) return;
         var id = event.getTarget().getId();
-        // Avoid trying to remove indirect descendents.
         if (this.getEntity(id)) {
           this.removeEntity(id);
         }
+        // Prevent this event from bubbling up further since the ancestors of this entity shouldn't
+        // need to worry about its children.
+        event.cancel();
       }.bind(this));
     },
 
