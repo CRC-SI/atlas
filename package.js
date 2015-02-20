@@ -1,7 +1,7 @@
 // Meteor package definition.
 Package.describe({
   name: 'urbanetic:atlas',
-  version: '0.7.0_5',
+  version: '0.7.0_6',
   summary: 'An API for a 3D Volumetric rendering library.',
   git: 'https://bitbucket.org/mutopia/atlas.git'
 });
