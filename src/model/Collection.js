@@ -3,6 +3,8 @@ define([
   'atlas/lib/OpenLayers',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
+  'atlas/lib/subdiv/Collection',
+  'atlas/lib/subdiv/util/GeographicUtil',
   // Base class
   'atlas/model/GeoEntity',
   'atlas/model/GeoPoint',
@@ -10,8 +12,8 @@ define([
   'atlas/util/ConvexHullFactory',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(ItemStore, OpenLayers, Log, Setter, GeoEntity, GeoPoint, Handle, ConvexHullFactory,
-            DeveloperError, WKT) {
+], function(ItemStore, OpenLayers, Log, Setter, CollectionPolygon, GeographicUtil, GeoEntity,
+            GeoPoint, Handle, ConvexHullFactory, DeveloperError, WKT) {
 
   /**
    * @typedef atlas.model.Collection
@@ -52,6 +54,7 @@ define([
       this._initDelegation();
       this._initEvents();
       this._super(id, data, args);
+      this._visible = false;
       var entityIds = data.entities || [];
       entityIds.forEach(this.addEntity, this);
       args = Setter.mixin({groupSelect: true}, args);
@@ -297,10 +300,10 @@ define([
       return wkt.openLayersPolygonFromGeoPoints(hullVertices);
     },
 
-    getOpenLayersGeometry: function() {
+    getOpenLayersGeometry: function(args) {
       var components = [];
       this._entities.forEach(function(entity) {
-        components.push(entity.getOpenLayersGeometry());
+        components.push(entity.getOpenLayersGeometry(args));
       });
       return new OpenLayers.Geometry.Collection(components);
     },
