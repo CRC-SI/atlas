@@ -1,7 +1,8 @@
 define([
   'atlas/lib/utility/Class',
-  'atlas/lib/utility/Setter'
-], function(Class, Setter) {
+  'atlas/lib/utility/Setter',
+  'atlas/lib/utility/Types'
+], function(Class, Setter, Types) {
 
   /**
    * @type {atlas.utility.Factory}
@@ -242,7 +243,7 @@ define([
       Object.keys(propertyToDependency).forEach(function(propertyName) {
         var dependencyName = propertyToDependency[propertyName];
 
-        if (typeof dependencyName !== 'string') {
+        if (!Types.isString(dependencyName)) {
           // dependencyName is an object containing nested dependencies.
           container[propertyName] = {};
           rInject(dependencyName, container[propertyName]);
