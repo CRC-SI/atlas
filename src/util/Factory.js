@@ -1,13 +1,7 @@
 define([
   'atlas/lib/utility/Class',
-], function(Class) {
-
-  function def(val, defaultOption) {
-    if (val === undefined) {
-      return defaultOption;
-    }
-    return val;
-  }
+  'atlas/lib/utility/Setter'
+], function(Class, Setter) {
 
   var Factory;
 
@@ -29,8 +23,24 @@ define([
      */
     _instances: null,
 
+    /**
+     * Options configuring the behaviour of the Factory.
+     *
+     * @type {Object.<String, Boolean>}
+     * @private
+     */
+    _options: null,
+
     _init: function(moduleDefinition, options) {
-      options = options || {};
+      this._options = Setter.merge({
+        privateInstances: true,
+        privateMethods: false,
+        bindDependencies: true,
+        bindFactory: true,
+        bindCreate: false,
+        bindGetConstructor: false,
+        bindGetInstance: false
+      }, options);
 
       this._constructors = {};
       this._instances = {};
@@ -38,14 +48,6 @@ define([
       if (moduleDefinition) {
         this.setFromModule(moduleDefinition);
       }
-
-      this._privateInstances = def(options.privateInstances, true);
-      this._privateMethod = def(options.privateMethod, false);
-      this._bindDependencies = def(options.bindDependencies, true);
-      this._bindFactory = def(options.bindFactory, true);
-      this._bindCreate = def(options.bindCreate, false);
-      this._bindGetConstructor = def(options.bindGetConstructor, false);
-      this._bindGetInstance = def(options.bindGetInstance, false);
     },
 
     /**
@@ -158,20 +160,20 @@ define([
     injectDependencies: function(obj, Class) {
       var factory = this;
       // Prefix if bound instances are private.
-      var pi = this._privateInstances ? '_' : '';
+      var pi = this._options.privateInstances ? '_' : '';
       // Prefix if bound factory methods are private.
-      var pm = this._privateMethods ? '_' : '';
+      var pm = this._options.privateMethods ? '_' : '';
 
       // Bind factory and factory methods.
-      this._bindFactory && (obj[pi + 'factory'] = this);
-      this._bindCreate && (obj[pm + 'create'] = factory.create);
-      this._bindGetConstructor && (obj[pm + 'getConstructor'] = factory.getConstructor);
-      this._bindGetInstance && (obj[pm + 'getInstance'] = factory.getInstance);
+      this._options.bindFactory && (obj[pi + 'factory'] = this);
+      this._options.bindCreate && (obj[pm + 'create'] = factory.create);
+      this._options.bindGetConstructor && (obj[pm + 'getConstructor'] = factory.getConstructor);
+      this._options.bindGetInstance && (obj[pm + 'getInstance'] = factory.getInstance);
 
-      // Bind declared dependency
-      var dependencies = obj[pi + 'dependencies'] || (Class && Class[pi + 'dependencies']);
-      if (this._bindDependencies && dependencies) {
-        this._inject(dependencies, obj);
+      // Bind declared dependencies.
+      if (this._options.bindDependencies) {
+        var dependencies = obj[pi + 'dependencies'] || (Class && Class[pi + 'dependencies']);
+        dependencies && this._inject(dependencies, obj);
       }
     },
 
