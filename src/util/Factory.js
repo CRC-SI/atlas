@@ -3,8 +3,51 @@ define([
   'atlas/lib/utility/Setter'
 ], function(Class, Setter) {
 
+  /**
+   * @type {atlas.utility.Factory}
+   * @ignore
+   */
   var Factory;
 
+  /**
+   * @classdesc The Factory simplifies creating Atlas classes and their provided subclasses by
+   * maintaining a map of class name to the appropriate class constructor, as well as instances of
+   * "global" class instances that may be depended on by other classes.
+   *
+   * Class instances and constructors can be bound to the Factory. A module definition can also be
+   * used to define a large number of class constructors that should be bound.
+   *
+   * The Factory can be used to request class instances or constructors (when their ID is known),
+   * without having to know or care whether it is an Atlas class or provider subclass. Additionally,
+   * the Factory can be used to create registered class via their ID, alleviating the need for the
+   * constructing class to know about the concrete constructed class.
+   *
+   * @param {Object.<String, Constructor>} moduleDefinition - A map of constructor ID to constructor
+   *     object that should be bound to the Factory. These can be overridden via
+   *     <code>bindConstructor</code> or <code>setFromModule</code>.
+   * @param {Object} [options] - Options that govern the Factory's behaviour.
+   * @param {Boolean} [options.privateInstances=true] - If true, injected instances property names
+   *     should be prefixed with an underscore.
+   * @param {Boolean} [options.privateMethods=false] - If true, injected method property names
+   *     should be prefixed with an underscore.
+   * @param {Boolean} [options.bindDependencies=true] - If true, declared Constructor dependencies
+   *     will be bound to constructed instances with property names.
+   * @param {Boolean} [options.bindFactory=true] - If true, the current Factory instance will be
+   *     bound onto created instances as <code>factory</code> prefixed as per
+   *     <code>privateInstances</code>.
+   * @param {Boolean} [options.bindCreate=false] - If true, Factory.create will be bound onto
+   *     created instances as <code>create</code> prefixed as per <code>privateMethods</code>.
+   * @param {Boolean} [options.bindCreate=false] - If true, Factory.create will be bound onto
+   *     created instances as <code>create</code> prefixed as per <code>privateMethods</code>.
+   * @param {Boolean} [options.bindGetConstructor=false] - If true, the Factory.getConstructor will
+   *     be bound onto created instances as <code>getConstructor</code> prefixed as per
+   *     <code>privateMethods</code>.
+   * @param {Boolean} [options.bindGetInstance=false] - If true, Factory.getInstance will
+   *     be bound onto created instances as <code>getInstance</code> prefixed as per
+   *     <code>privateMethods</code>.
+   *
+   * @class atlas.utility.Factory
+   */
   Factory = Class.extend(/** @lends atlas.core.AtlasFactor# */ {
 
     /**
