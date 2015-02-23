@@ -31,7 +31,10 @@ define([
       factory = new Factory();
       factory.bindConstructor('foo', Foo);
 
-      expect(factory.getConstructor('foo')).toBe(Foo);
+      var actualFoo = factory.getConstructor('foo');
+      expect(actualFoo).toBeDefined();
+
+      expect(actualFoo.prototype).toBe(Foo.prototype);
     });
 
     it('can create instances of bound classes', function() {

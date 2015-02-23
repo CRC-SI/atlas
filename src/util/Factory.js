@@ -137,8 +137,12 @@ define([
     },
 
     /**
-     * Binds the given constructor to the given ID. If the ID is already bound to a constructor,
-     * that constructor is silently overridden with the given constructor.
+     * Binds the given constructor to the given ID. The constructor is wrapped so that dependencies
+     * are automatically injected via <code>Factory.injectDependencies</code> when using
+     * <code>Factory.create</code> or the constructor returned by
+     * <code>Factory.getConstructor</code> to create a new instance.
+     * If the ID is already bound to a constructor, that constructor is silently overridden with the
+     * given constructor.
      *
      * @param {String} id - The ID to bind the constructor to.
      * @param {Constructor} Constructor - The constructor of a class to bind to the given ID.
@@ -150,7 +154,17 @@ define([
       if (!Constructor) {
         throw new Error('Must provide Constructor to bind');
       }
-      this._constructors[id] = Constructor;
+
+      // Wrap the constructor dependencies can be bound to new objects.
+      var factory = this;
+      var WrappedConstructor = function() {
+        Constructor.apply(this, arguments);
+        factory.injectDependencies(this, Constructor);
+      };
+      WrappedConstructor.prototype = Constructor.prototype;
+      WrappedConstructor.prototype.constructor = WrappedConstructor;
+
+      this._constructors[id] = WrappedConstructor;
     },
 
     /**
@@ -169,14 +183,16 @@ define([
 
     /**
      * Creates a new object using the specified Constructor. Dependencies are injected into the
-     * new object as specified by the Factory's options, and the Constructors
-     * <code>_dependencies</code> property.
+     * new object as specified the Constructors <code>_dependencies</code> property, and the
+     * Factory's options.
      *
      * @param {String} id - The ID of the bound constructor to constructor.
-     * @param {vargs...} constructorArgs - Arbitrary amount of arguments to pass to the constructor.
+     * @param {vargs...} constructorArgs - Arbitrary arguments to be passed to the constructor.
      * @returns {Object} The constructed object.
      */
     create: function(id, constructorArgs) {
+      // An arbitrary number of arguments can be provided; convert them to an array the id argument
+      // can be extracted and the remaining passed to the constructor.
       var args = Array.prototype.slice.call(arguments);
       id = args.shift();
       var Constructor;
@@ -189,12 +205,11 @@ define([
       // https://stackoverflow.com/questions/1606797/use-of-apply-with-new-operator-is-this-possible
       args.unshift(null);
       var obj = new (Function.prototype.bind.apply(Constructor, args))();
-      this.injectDependencies(obj, Constructor);
       return obj;
     },
 
     /**
-     * Injects the factory and any declared dependencies.
+     * Injects the factory and any declared dependencies to the given object.
      *
      * @param {Object} obj - The object to inject the dependencies to.
      * @param {Constructor} Class - The constructor of the object, used to determine the
@@ -215,6 +230,7 @@ define([
 
       // Bind declared dependencies.
       if (this._options.bindDependencies) {
+        // Check either the object and the Class, if provided, for dependencies.
         var dependencies = obj[pi + 'dependencies'] || (Class && Class[pi + 'dependencies']);
         dependencies && this._inject(dependencies, obj);
       }
