@@ -345,6 +345,8 @@ define([
       return this._area;
     },
 
+    // Converts to UTM and calculates the area accurately. OpenLayers will approximate the area,
+    // which can be significantly different (e.g. 2 times smaller).
     _calcArea: function() {
       return this.getOpenLayersGeometry({utm: true}).getArea();
     },
