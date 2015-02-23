@@ -98,10 +98,10 @@ define([
      */
     // TODO(bpstudds) Replace this with a factory.
     _formConstructors: {
-      Line: Line,
-      Ellipse: Ellipse,
-      Polygon: Polygon,
       Point: Point,
+      Line: Line,
+      Polygon: Polygon,
+      Ellipse: Ellipse,
       Mesh: Mesh,
       // TODO(aramk) There's no constructor for GltfMesh in atlas, so we need to use Mesh.
       GltfMesh: Mesh,
@@ -217,6 +217,14 @@ define([
       } else {
         return null;
       }
+    },
+
+    removeForm: function(displayMode) {
+      var form = this.getForm(displayMode);
+      if (!form) return;
+      var property = this._getFormPropertyName(displayMode);
+      delete this[property];
+      form.remove();
     },
 
     /**
@@ -512,6 +520,10 @@ define([
       // Rendering is delegated to the form.
     },
 
+    // -------------------------------------------
+    // EVENTS
+    // -------------------------------------------
+
     /**
      * Listen for events on the forms and apply it to this feature.
      * @private
@@ -519,6 +531,7 @@ define([
      * @listens InternalEvent#entity/select
      * @listens InternalEvent#entity/deselect
      * @listens InternalEvent#entity/dblclick
+     * @listens InternalEvent#entity/remove
      * @fires InternalEvent#entity/dblclick
      */
     _initEvents: function() {
@@ -544,11 +557,21 @@ define([
         newEvent.setArgs(args);
         this.dispatchEvent(newEvent);
       }.bind(this));
+      this.addEventListener('entity/remove', function(event) {
+        if (isOwnEvent(event)) return;
+        var forms = this._getFormsMap();
+        Object.keys(forms).forEach(function(displayMode) {
+          var form = forms[displayMode];
+          if (form === event.getTarget()) {
+            this.removeForm(displayMode);
+            return false;
+          }
+        }, this);
+        // Prevent this event from bubbling up further since the ancestors of this entity shouldn't
+        // need to worry about its children.
+        event.cancel();
+      }.bind(this));
     },
-
-    // -------------------------------------------
-    // EVENTS
-    // -------------------------------------------
 
     // Ignore all style since it's handled by the forms. Otherwise, setting the style for this
     // feature applies it to the form and this changes it from the pre-select style.
