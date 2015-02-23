@@ -9,9 +9,9 @@ define([
     return val;
   }
 
-  var AtlasFactory;
+  var Factory;
 
-  AtlasFactory = Class.extend(/** @lends atlas.core.AtlasFactor# */ {
+  Factory = Class.extend(/** @lends atlas.core.AtlasFactor# */ {
 
     /**
      * A map of class ID to class constructors.
@@ -186,6 +186,6 @@ define([
 
   });
 
-  return AtlasFactory;
+  return Factory;
 
 });

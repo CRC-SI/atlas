@@ -2,7 +2,6 @@ var tests = [];
 var specsConfig = [
   {name: 'camera/Camera', run: true},
   {name: 'core/Api', run: false},
-  {name: 'core/AtlasFactory', run: true},
   {name: 'core/ItemStore', run: true},
   {name: 'dom/DomManager', run: true},
   {name: 'dom/PopupFaculty', run: false, fix: 'Requires Overlay to be fixed'},
@@ -25,8 +24,9 @@ var specsConfig = [
   {name: 'render/RenderManager', run: true},
   {name: 'render/TerrainManager', run: true},
   {name: 'test/lib/AtlasBuilder', run: false, fix: 'cannot construct ellipse without centre'},
-  {name: 'util/WKT', run: false, fix: 'geometry to geopoint or vertices has incorrect output'},
   {name: 'util/AtlasMath', run: true},
+  {name: 'util/Factory', run: true},
+  {name: 'util/WKT', run: false, fix: 'geometry to geopoint or vertices has incorrect output'},
   {name: 'visualisation/AbstractProjection', run: false},
   {name: 'visualisation/HeightProjection', run: false},
   {name: 'visualisation/ColorProjection', run: false},

@@ -1,10 +1,10 @@
 define([
-  'atlas/core/AtlasFactory',
+  'atlas/util/Factory',
   '../../lib/factory/ModuleWithConstructors.js',
   '../../lib/factory/factoryClasses/Foo.js',
   '../../lib/factory/factoryClasses/Bar.js',
   '../../lib/factory/factoryClasses/BazNeedsAFoo.js'
-], function(AtlasFactory, moduleWithConstructors, Foo, Bar, BazNeedsAFoo) {
+], function(Factory, moduleWithConstructors, Foo, Bar, BazNeedsAFoo) {
 
   var factory;
 
@@ -15,7 +15,7 @@ define([
     });
 
     it('accepts module definitions that define constructors to bind on construction', function() {
-      factory = new AtlasFactory(moduleWithConstructors);
+      factory = new Factory(moduleWithConstructors);
 
       var foo = factory.getConstructor('factoryClasses/Foo');
       var bar = factory.getConstructor('factoryClasses/Bar');
@@ -28,14 +28,14 @@ define([
     });
 
     it('can bind and retrieve constructors when requested', function() {
-      factory = new AtlasFactory();
+      factory = new Factory();
       factory.bindConstructor('foo', Foo);
 
       expect(factory.getConstructor('foo')).toBe(Foo);
     });
 
     it('can create instances of bound classes', function() {
-      factory = new AtlasFactory(moduleWithConstructors);
+      factory = new Factory(moduleWithConstructors);
       var foo = factory.create('factoryClasses/Foo', 12);
 
       expect(foo).toBeDefined();
@@ -44,7 +44,7 @@ define([
     });
 
     it('can bind instances to a name', function() {
-      factory = new AtlasFactory(moduleWithConstructors);
+      factory = new Factory(moduleWithConstructors);
       var foo = factory.create('factoryClasses/Foo', 12);
 
       factory.bindInstance('theFoo', foo);
@@ -53,7 +53,7 @@ define([
 
     it('can populated declared dependencies with a specified name when creating classes, if the ' +
         'given instance has been registered', function() {
-      factory = new AtlasFactory(moduleWithConstructors);
+      factory = new Factory(moduleWithConstructors);
       var foo = factory.create('factoryClasses/Foo', 12);
       factory.bindInstance('theFoo', foo);
 
@@ -67,7 +67,7 @@ define([
     });
 
     it('can populate declared nested dependencies if they exist', function() {
-      factory = new AtlasFactory(moduleWithConstructors);
+      factory = new Factory(moduleWithConstructors);
       var foo = factory.create('factoryClasses/Foo', 12);
       factory.bindInstance('theFoo', foo);
       var bar = factory.create('factoryClasses/Bar', 24);
@@ -81,7 +81,7 @@ define([
 
     describe('Error checking', function() {
       it('should fail creating if a dependency is missing', function() {
-        factory = new AtlasFactory(moduleWithConstructors);
+        factory = new Factory(moduleWithConstructors);
         var exception = '';
         try {
           factory.create('factoryClasses/BazNeedsAFoo', 4);
@@ -92,7 +92,7 @@ define([
       });
 
       it('should fail retrieving an instance if it is not registered', function() {
-        factory = new AtlasFactory(moduleWithConstructors);
+        factory = new Factory(moduleWithConstructors);
         var exception = '';
         try {
           factory.getInstance('noSuchThing');
@@ -103,7 +103,7 @@ define([
       });
 
       it('should fail retrieving a constructor if it is not registered', function() {
-        factory = new AtlasFactory(moduleWithConstructors);
+        factory = new Factory(moduleWithConstructors);
         var exception = '';
         try {
           factory.getConstructor('noSuchThing');
