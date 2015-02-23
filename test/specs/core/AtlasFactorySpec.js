@@ -14,7 +14,7 @@ define([
       factory = null;
     });
 
-    xit('accepts module definitions that define constructors to bind on construction', function() {
+    it('accepts module definitions that define constructors to bind on construction', function() {
       factory = new AtlasFactory(moduleWithConstructors);
 
       var foo = factory.getConstructor('factoryClasses/Foo');
@@ -27,14 +27,14 @@ define([
       expect(foo !== bar !== baz).toBe(true);
     });
 
-    xit('can bind and retrieve constructors when requested', function() {
+    it('can bind and retrieve constructors when requested', function() {
       factory = new AtlasFactory();
       factory.bindConstructor('foo', Foo);
 
       expect(factory.getConstructor('foo')).toBe(Foo);
     });
 
-    xit('can create instances of bound classes', function() {
+    it('can create instances of bound classes', function() {
       factory = new AtlasFactory(moduleWithConstructors);
       var foo = factory.create('factoryClasses/Foo', 12);
 
@@ -43,7 +43,7 @@ define([
       expect(foo.getFoo()).toBe(12);
     });
 
-    xit('can bind instances to a name', function() {
+    it('can bind instances to a name', function() {
       factory = new AtlasFactory(moduleWithConstructors);
       var foo = factory.create('factoryClasses/Foo', 12);
 
@@ -51,7 +51,7 @@ define([
       expect(factory.getInstance('theFoo')).toBe(foo);
     });
 
-    xit('can populated declared dependencies with a specified name when creating classes, if the ' +
+    it('can populated declared dependencies with a specified name when creating classes, if the ' +
         'given instance has been registered', function() {
       factory = new AtlasFactory(moduleWithConstructors);
       var foo = factory.create('factoryClasses/Foo', 12);
@@ -79,7 +79,7 @@ define([
       expect(bork.borkaMorka()).toEqual(1 + 12 + 24);
     });
 
-    xdescribe('Error checking', function() {
+    describe('Error checking', function() {
       it('should fail creating if a dependency is missing', function() {
         factory = new AtlasFactory(moduleWithConstructors);
         var exception = '';

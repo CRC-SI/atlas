@@ -54,10 +54,26 @@ define([
       }, this);
     },
 
+    /**
+     * Binds the the given Intance to the given ID.
+     * @param {String} id - The ID to bind the instance to.
+     * @param {Object} instance - The object to bind.
+     */
     bindInstance: function(id, instance) {
+      if (!id) {
+        throw new Error('Must specify ID of instance');
+      }
+      if (!instance) {
+        throw new Error('Must provide instance to bind');
+      }
       this._instances[id] = instance;
     },
 
+    /**
+     * Retrieves the instance bound to the given ID.
+     * @param {String} id - ID of the bound instance to retrieve.
+     * @returns {Object} The requested instance.
+     */
     getInstance: function(id) {
       var instance = this._instances[id];
       if (!instance) {
@@ -66,10 +82,26 @@ define([
       return instance;
     },
 
+    /**
+     * Binds the given constructor to the given ID.
+     * @param {String} id - The ID to bind the constructor to.
+     * @param {Constructor} Constructor - The constructor of a class to bind to the given ID.
+     */
     bindConstructor: function(id, Constructor) {
+      if (!id) {
+        throw new Error('Must specify ID of Constructor');
+      }
+      if (!Constructor) {
+        throw new Error('Must provide Constructor to bind');
+      }
       this._constructors[id] = Constructor;
     },
 
+    /**
+     * Retrieves the Constructor bound to the given ID.
+     * @param {Strign} id - ID of the constructor to return.
+     * @returns {Constructor} The requested Constructor.
+     */
     getConstructor: function(id) {
       var Constructor = this._constructors[id];
       if (!Constructor) {
@@ -79,26 +111,40 @@ define([
       return Constructor;
     },
 
-    create: function(className, constructorArgs) {
+    /**
+     * Creates a new object using the specified Constructor. Dependencies are injected into the
+     * new object as specified by the Factory's options, and the Constructors
+     * <code>_dependencies</code> property.
+     * @param {String} id - The ID of the bound constructor to constructor.
+     * @param {vargs...} constructorArgs - Arbitrary amount of arguments to pass to the constructor.
+     * @returns {Object} The constructed object.
+     */
+    create: function(id, constructorArgs) {
       var args = Array.prototype.slice.call(arguments);
-      className = args.shift();
-      var Class;
+      id = args.shift();
+      var Constructor;
       try {
-        Class = this.getConstructor(className);
+        Constructor = this.getConstructor(id);
       } catch (e) {
-        throw new Error('Tried to create un-registered class ' + className);
+        throw new Error('Tried to create un-registered class ' + id);
       }
-      // Null required in arguments so constructor is applied correctly.
+      // Null required as first argument so constructor is applied correctly.
       // https://stackoverflow.com/questions/1606797/use-of-apply-with-new-operator-is-this-possible
       args.unshift(null);
-      var obj = new (Function.prototype.bind.apply(Class, args))();
+      var obj = new (Function.prototype.bind.apply(Constructor, args))();
 
-      this.injectDependencies(Class, obj);
+      this.injectDependencies(obj, Constructor);
 
       return obj;
     },
 
-    injectDependencies: function(Class, obj) {
+    /**
+     * Injects the factory and any declared dependencies.
+     * @param {Object} obj - The object to inject the dependncies to.
+     * @param {Constructor} Class - The constructor of the object, used to determine the
+     *     dependencies.
+     */
+    injectDependencies: function(obj, Class) {
       var factory = this;
       // Prefix if bound instances are private.
       var pi = this._privateInstances ? '_' : '';
@@ -112,7 +158,7 @@ define([
       this._bindGetInstance && (obj[pm + 'getInstance'] = factory.getInstance);
 
       // Bind declared dependency
-      var dependencies = Class[pi + 'dependencies'];
+      var dependencies = obj[pi + 'dependencies'] || (Class && Class[pi + 'dependencies']);
       if (this._bindDependencies && dependencies) {
         this.inject(dependencies, obj);
       }
@@ -137,14 +183,6 @@ define([
         }
       });
     }
-
-    //   for propertyName in deps:
-    //     if deps[propertyName] is object
-    //       container[propertyName] = {};
-    //       inject(deps[propertyName], container[propertyName])
-    //     else
-    //       container[propertyName] = getInstance[propertyName]
-    // }
 
   });
 
