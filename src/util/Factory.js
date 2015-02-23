@@ -3,7 +3,7 @@ define([
 ], function(Class) {
 
   function def(val, defaultOption) {
-    if (val === undefined || val === null) {
+    if (val === undefined) {
       return defaultOption;
     }
     return val;
@@ -48,6 +48,12 @@ define([
       this._bindGetInstance = def(options.bindGetInstance, false);
     },
 
+    /**
+     * Initialises the Factory with the given constructors. The constructors
+     *
+     * @param {Object.<String, Constructor>} moduleDef - A map of constructor ID to the Constructor
+     *     to be bound in the Factory.
+     */
     setFromModule: function(moduleDef) {
       Object.keys(moduleDef).forEach(function(name) {
         this.bindConstructor(name, moduleDef[name]);
@@ -55,7 +61,9 @@ define([
     },
 
     /**
-     * Binds the the given Intance to the given ID.
+     * Binds the the given Instance to the given ID. If the ID is already bound with an instance,
+     * it is silently overridden with the given instance.
+     *
      * @param {String} id - The ID to bind the instance to.
      * @param {Object} instance - The object to bind.
      */
@@ -71,6 +79,7 @@ define([
 
     /**
      * Retrieves the instance bound to the given ID.
+     *
      * @param {String} id - ID of the bound instance to retrieve.
      * @returns {Object} The requested instance.
      */
@@ -83,7 +92,9 @@ define([
     },
 
     /**
-     * Binds the given constructor to the given ID.
+     * Binds the given constructor to the given ID. If the ID is already bound to a constructor,
+     * that constructor is silently overridden with the given constructor.
+     *
      * @param {String} id - The ID to bind the constructor to.
      * @param {Constructor} Constructor - The constructor of a class to bind to the given ID.
      */
@@ -99,6 +110,7 @@ define([
 
     /**
      * Retrieves the Constructor bound to the given ID.
+     *
      * @param {Strign} id - ID of the constructor to return.
      * @returns {Constructor} The requested Constructor.
      */
@@ -107,7 +119,6 @@ define([
       if (!Constructor) {
         throw new Error('Tried to get non-existent constructor with ID ' + id);
       }
-      // TODO(bpstudds): Wrap constructor with injectDependencies.
       return Constructor;
     },
 
@@ -115,6 +126,7 @@ define([
      * Creates a new object using the specified Constructor. Dependencies are injected into the
      * new object as specified by the Factory's options, and the Constructors
      * <code>_dependencies</code> property.
+     *
      * @param {String} id - The ID of the bound constructor to constructor.
      * @param {vargs...} constructorArgs - Arbitrary amount of arguments to pass to the constructor.
      * @returns {Object} The constructed object.
@@ -126,21 +138,20 @@ define([
       try {
         Constructor = this.getConstructor(id);
       } catch (e) {
-        throw new Error('Tried to create un-registered class ' + id);
+        throw new Error('Tried to create unregistered class ' + id);
       }
       // Null required as first argument so constructor is applied correctly.
       // https://stackoverflow.com/questions/1606797/use-of-apply-with-new-operator-is-this-possible
       args.unshift(null);
       var obj = new (Function.prototype.bind.apply(Constructor, args))();
-
       this.injectDependencies(obj, Constructor);
-
       return obj;
     },
 
     /**
      * Injects the factory and any declared dependencies.
-     * @param {Object} obj - The object to inject the dependncies to.
+     *
+     * @param {Object} obj - The object to inject the dependencies to.
      * @param {Constructor} Class - The constructor of the object, used to determine the
      *     dependencies.
      */
@@ -160,12 +171,12 @@ define([
       // Bind declared dependency
       var dependencies = obj[pi + 'dependencies'] || (Class && Class[pi + 'dependencies']);
       if (this._bindDependencies && dependencies) {
-        this.inject(dependencies, obj);
+        this._inject(dependencies, obj);
       }
     },
 
-    inject: function(propertyToDependency, container, iter) {
-      var rInject = this.inject.bind(this);
+    _inject: function(propertyToDependency, container, iter) {
+      var rInject = this._inject.bind(this);
       var factory = this;
       Object.keys(propertyToDependency).forEach(function(propertyName) {
         var dependencyName = propertyToDependency[propertyName];
