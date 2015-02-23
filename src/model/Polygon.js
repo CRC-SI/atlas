@@ -146,7 +146,7 @@ define([
 
     toJson: function(args) {
       args = args || {};
-      var json = Setter.merge(this._super(), {
+      var json = Setter.merge(this._super(args), {
         type: 'polygon',
         height: this.getHeight()
       });

@@ -257,7 +257,7 @@ define([
 
     toJson: function(args) {
       args = args || {};
-      return Setter.merge(this._super(), {
+      return Setter.merge(this._super(args), {
         coordinates: args.coordinates || this.getVertices().map(function(vertex) {
           return vertex.toArray();
         })
