@@ -600,7 +600,7 @@ define([
         // json.style = style.toJson();
         var fillMaterial = style.getFillMaterial();
         if (fillMaterial instanceof Color) {
-          json.color = fillMaterial.toArray(false);
+          json.color = fillMaterial.toArray();
         }
       }
       var parent = this.getParent();

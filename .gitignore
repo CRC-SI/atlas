@@ -1,6 +1,6 @@
 *.sublime-workspace
 *.unity3d
-
+assets/*
 
 # Generated files #
 ###################
