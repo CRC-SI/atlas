@@ -3,7 +3,7 @@
   baseUrl: '../src',
   packages: [
     {name: 'jquery', location: '../lib', main: 'jquery'},
-    
+
     // These all belong to subdiv.
     {name: 'atlas/lib/subdiv', location: '../lib/subdiv/src'},
     {name: 'ConvexHullGrahamScan', location: '../lib/subdiv/lib', main: 'ConvexHullGrahamScan'},
@@ -14,7 +14,7 @@
     {name: 'utility', location: '../lib/subdiv/lib/utility'},
 
     // This is the expected name of utm-converter in subdiv.
-    {name: 'utm-converter', location: '../lib', main: 'UtmConverter.js'}
+    {name: 'utm-converter', location: '../lib', main: 'UtmConverter'}
   ],
   paths: {
     'atlas': '',
