@@ -112,7 +112,7 @@ define([
      * @type {Boolean}
      * @protected
      */
-    _visible: false,
+    _visible: true,
 
     /**
      * Whether the GeoEntity can be rendered.
@@ -231,6 +231,7 @@ define([
       data = data || {};
       this._setup(id, data, args);
       this._isSetUp = true;
+      this.isVisible() && this.show();
     },
 
     /**
@@ -242,11 +243,7 @@ define([
     _setup: function(id, data, args) {
       this._handles = new ItemStore();
       this._eventHandles = [];
-      // TODO(aramk) This doesn't actually show - should call setVisibility(), but that means all
-      // subclass constructors should have completely set up their properties. We would need a
-      // method called setUp() which we call here and subclasses override to ensure all properties
-      // (e.g. vertices) are set and _build() can safely be called from here.
-      this._visible = Setter.def(args.show, false);
+      this._visible = Setter.def(data.show, true);
       this.setDirty('entity');
 
       var style;
@@ -332,6 +329,9 @@ define([
      */
     setCentroid: function(centroid) {
       var oldCentroid = this.getCentroid();
+      if (!oldCentroid) {
+        throw new Error('Cannot set centroid - no existing centroid.');
+      }
       var diff = centroid.subtract(oldCentroid);
       this.translate(diff);
     },
@@ -352,15 +352,19 @@ define([
       return this._area;
     },
 
+    // Converts to UTM and calculates the area accurately. OpenLayers will approximate the area,
+    // which can be significantly different (e.g. 2 times smaller).
     _calcArea: function() {
-      return this.getOpenLayersGeometry().getGeodesicArea();
+      return this.getOpenLayersGeometry({utm: true}).getArea();
     },
 
     /**
+     * @params {Object} [args]
+     * @params {Boolean} [args.utm=false] - Whether to use UTM coordinates for the vertices.
      * @returns {OpenLayers.Geometry}
      * @abstract
      */
-    getOpenLayersGeometry: function() {
+    getOpenLayersGeometry: function(args) {
       throw new DeveloperError('Can not call abstract method "getOpenLayersGeometry" of GeoEntity');
     },
 
@@ -608,7 +612,7 @@ define([
     },
 
     /**
-     * @return {Object}
+     * @return {Object} A JSON representation of the GeoEntity.
      */
     toJson: function() {
       var json = {
@@ -624,7 +628,7 @@ define([
         // json.style = style.toJson();
         var fillMaterial = style.getFillMaterial();
         if (fillMaterial instanceof Color) {
-          json.color = fillMaterial.toArray(false);
+          json.color = fillMaterial.toArray();
         }
       }
       var parent = this.getParent();

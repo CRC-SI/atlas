@@ -2,10 +2,11 @@ define([
   'atlas/camera/Camera',
   'atlas/core/Manager',
   'atlas/model/GeoPoint',
+  'atlas/model/Rectangle',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/util/DeveloperError'
-], function(Camera, Manager, GeoPoint, Log, Setter, DeveloperError) {
+], function(Camera, Manager, GeoPoint, Rectangle, Log, Setter, DeveloperError) {
 
   /**
    * @typedef atlas.camera.CameraManager
@@ -70,6 +71,9 @@ define([
               this._current.zoomTo(args);
             } else if (args.address) {
               this._current.zoomToAddress(args.address);
+            } else if (args.rectangle) {
+              args.rectangle = new Rectangle(args.rectangle);
+              this._current.zoomTo(args);
             } else {
               return new Error('Invalid arguments for event "camera/zoomTo"');
             }

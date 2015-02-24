@@ -15,7 +15,7 @@ define([
           'POLYGON ((-37.826731495464358 145.237709744708383,-37.82679037235421 145.237705952915746,-37.826788424406047 145.237562742764595,-37.826747996976231 145.237473553563689,-37.826702438444919 145.237482137149016,-37.82670417818575 145.237710588552915,-37.826731495464358 145.237709744708383))';
       centroid =
           new GeoPoint({longitude: 145.2376011191871, latitude: -37.82674343831081, elevation: 0});
-      area = 184.8778;
+      area = 177.41975635976996;
       var id = 12345;
       var data = {
         vertices: footprint
@@ -37,8 +37,8 @@ define([
       it('with defaults', function() {
         expect(polygon.getHeight()).toEqual(0);
         expect(polygon.getElevation()).toEqual(0);
-        expect(polygon.isVisible()).toEqual(false);
-        expect(polygon.isRenderable()).toEqual(false);
+        expect(polygon.isVisible()).toEqual(true);
+        expect(polygon.isRenderable()).toEqual(true);
         expect(polygon.getStyle()).toEqual(Style.getDefault());
       });
     });

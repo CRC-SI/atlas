@@ -15,15 +15,18 @@ module.exports = function(config) {
     files: [
       'atlas/test/test-main.js',
       {pattern: 'atlas/assets/**/*', included: false},
-      {pattern: 'atlas/src/**/*.js', included: false},
-      {pattern: 'atlas/lib/**/*.js', included: false},
+      {pattern: 'atlas/src/**/*', included: false},
+      {pattern: 'atlas/lib/**/*', included: false},
       {pattern: 'atlas/test/lib/**/*.js', included: false},
       {pattern: 'atlas/test/specs/**/*Spec.js', included: false}
     ],
 
     // list of files to exclude
     exclude: [
-      '../docs/**/*'
+      'atlas/lib/**/node_modules/**/*',
+      'atlas/lib/**/bower_components/**/*',
+      '**/docs/**/*',
+      '**/dist/**/*'
     ],
 
     // Pre-process for code coverage

@@ -164,7 +164,31 @@ define([
     },
 
     /**
-     * Removes this {@link atlas.events.EventTarget} and any registered event handlers.
+     * @return {Array.<atlas.model.GeoEntity>}
+     */
+    getChildren: function() {
+      // TODO(aramk) At the moment, only a Collection has children. This method is here for future
+      // use if we decide all models can have children.
+      return [];
+    },
+
+    getRecursiveChildren: function() {
+      var children = [];
+      var stack = this.getChildren();
+      var child;
+      while (stack.length > 0) {
+        child = stack.pop();
+        children.push(child);
+        child.getRecursiveChildren().forEach(function(recursiveChild) {
+          stack.push(recursiveChild);
+        });
+      }
+      return children;
+    },
+
+    /**
+     * Removes this {@link atlas.events.EventTarget}, any registered event handlers, and from its
+     * parent (if any).
      */
     remove: function() {
       for (var id in this._eventHandlers) {

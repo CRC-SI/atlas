@@ -1,16 +1,16 @@
 var tests = [];
 var specsConfig = [
   {name: 'camera/Camera', run: true},
-  {name: 'core/Api', run: false, fix: 'merge in feature/entity-create-event'},
+  {name: 'core/Api', run: false},
   {name: 'core/ItemStore', run: true},
   {name: 'dom/DomManager', run: true},
   {name: 'dom/PopupFaculty', run: false, fix: 'Requires Overlay to be fixed'},
   {name: 'dom/Overlay', run: false, fix: 'problems with jquery'},
   {name: 'edit/EditManager', run: false, fix: 'tests totally out of date'},
-  {name: 'entity/EntityManager', run: true},
+  {name: 'entity/EntityManager', run: false, fix: 'abstract GeoEntity functions being called'},
   {name: 'material/Color', run: true},
   {name: 'material/Style', run: true},
-  {name: 'model/Collection', run: false, fix: 'setCentroid fails when collection is empty'},
+  {name: 'model/Collection', run: true},
   {name: 'model/Ellipse', run: false},
   {name: 'model/Feature', run: false},
   {name: 'model/GeoPoint', run: true},
@@ -23,9 +23,10 @@ var specsConfig = [
   {name: 'model/Rectangle', run: true},
   {name: 'render/RenderManager', run: true},
   {name: 'render/TerrainManager', run: true},
-  {name: 'test/lib/AtlasBuilder', run: true},
-  {name: 'util/WKT', run: true},
+  {name: 'test/lib/AtlasBuilder', run: false, fix: 'cannot construct ellipse without centre'},
   {name: 'util/AtlasMath', run: true},
+  {name: 'util/Factory', run: true},
+  {name: 'util/WKT', run: false, fix: 'geometry to geopoint or vertices has incorrect output'},
   {name: 'visualisation/AbstractProjection', run: false},
   {name: 'visualisation/HeightProjection', run: false},
   {name: 'visualisation/ColorProjection', run: false},
@@ -51,11 +52,23 @@ requirejs.config({
   baseUrl: '/base',
 
   packages: [
-    {name: 'jquery', location: 'atlas/lib', main: 'jquery.js'},
+    {name: 'atlas', location: 'atlas/src'},
     {name: 'atlas/lib', location: 'atlas/lib'},
     {name: 'atlas/lib/utility', location: 'atlas/lib/utility/src'},
     {name: 'atlas/assets', location: 'atlas/assets'}, // Only need this for testing
-    {name: 'atlas', location: 'atlas/src'}
+    {name: 'jquery', location: 'atlas/lib', main: 'jquery.js'},
+
+    // These all belong to subdiv.
+    {name: 'atlas/lib/subdiv', location: 'atlas/lib/subdiv/src'},
+    {name: 'ConvexHullGrahamScan', location: 'atlas/lib/subdiv/lib', main: 'ConvexHullGrahamScan'},
+    {name: 'hull', location: 'atlas/lib/subdiv/lib', main: 'hull'},
+    {name: 'jsts', location: 'atlas/lib/subdiv/lib/jsts'},
+    {name: 'tinycolor', location: 'atlas/lib/subdiv/lib', main: 'tinycolor'},
+    {name: 'underscore', location: 'atlas/lib/subdiv/lib', main: 'underscore'},
+    {name: 'utility', location: 'atlas/lib/subdiv/lib/utility'},
+
+    // This is the expected name of utm-converter in subdiv.
+    {name: 'utm-converter', location: 'atlas/lib', main: 'UtmConverter.js'}
   ],
 
   // Ask requirejs to load these files.

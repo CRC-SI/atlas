@@ -10,7 +10,11 @@ define(function() {
      * @param {Function} callback - Once invoked, <code>google</code> will be a global variable.
      */
     load: function(callback) {
-      require(['https://www.google.com/jsapi'], function() {
+      if (window.isShimmed) {
+        callback();
+        return;
+      }
+      requirejs(['https://www.google.com/jsapi'], function() {
         callback();
       });
     }

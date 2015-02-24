@@ -2,13 +2,19 @@ define([
   'atlas/events/Event',
   'atlas/lib/utility/Objects',
   'atlas/lib/utility/Setter',
+  'atlas/lib/utility/Strings',
+  'atlas/lib/utility/Types',
   'atlas/model/Ellipse',
+  'atlas/model/Image',
+  'atlas/model/Line',
   'atlas/model/Mesh',
+  'atlas/model/Point',
   'atlas/model/Polygon',
   'atlas/util/DeveloperError',
   // Base class.
   'atlas/model/GeoEntity'
-], function(Event, Objects, Setter, Ellipse, Mesh, Polygon, DeveloperError, GeoEntity) {
+], function(Event, Objects, Setter, Strings, Types, Ellipse, Image, Line, Mesh, Point, Polygon,
+            DeveloperError, GeoEntity) {
 
   /**
    * @typedef atlas.model.Feature
@@ -86,8 +92,20 @@ define([
      */
     _displayMode: null,
 
-    _init: function(id, args) {
-      this._super(id, args, args);
+    /**
+     * @type {Object.<String, Function>} A map of class names to constructors for the form models
+     *     constructed by this feature.
+     */
+    // TODO(bpstudds) Replace this with a factory.
+    _formConstructors: {
+      Point: Point,
+      Line: Line,
+      Polygon: Polygon,
+      Ellipse: Ellipse,
+      Mesh: Mesh,
+      // TODO(aramk) There's no constructor for GltfMesh in atlas, so we need to use Mesh.
+      GltfMesh: Mesh,
+      Image: Image
     },
 
     _setup: function(id, data, args) {
@@ -95,11 +113,12 @@ define([
       this._initDelegation();
       this._initEvents();
       this._super(id, data, args);
-      var displayMode = args.displayMode;
+      var displayMode = data.displayMode;
       Object.keys(Feature.JsonPropertyToDisplayMode).forEach(function(prop) {
         var mode = Feature.JsonPropertyToDisplayMode[prop];
-        var form = args[prop];
-        if (form) {
+        var formData = data[prop];
+        if (formData) {
+          var form = this._getOrCreateForm(id, prop, formData, args);
           this.setForm(mode, form);
           displayMode = displayMode || mode;
         }
@@ -107,6 +126,31 @@ define([
       this.setDisplayMode(displayMode);
       var height = data.height;
       if (height !== undefined) this.setHeight(height);
+    },
+
+    /**
+     * @param {String} id - The ID to use as the prefix for constructing the new form.
+     * @param {String} prop - The property name of this form's type in the Feature constructor. Used
+     *     to determine the form's constructor.
+     * @param {Object|String} data - Either the ID of an existing form or the data for constructing
+     *     it.
+     * @param {Object} [args] - Additional constructor arguments.
+     * @return {atlas.model.GeoEntity} Either a newly constructed form, or an existing form if data
+     *     is an ID.
+     */
+    _getOrCreateForm: function(id, prop, data, args) {
+      if (Types.isString(data)) {
+        var form = this._entityManager.getById(data);
+        if (!form) {
+          throw new Error('Cannot find form with ID ' + data);
+        }
+        return form;
+      }
+      var Constructor = this._formConstructors[Strings.toTitleCase(prop)];
+      if (data.gltf || data.gltfUrl) {
+        Constructor = this._formConstructors.GltfMesh;
+      }
+      return new Constructor(id + prop, data, args);
     },
 
     // -------------------------------------------
@@ -122,7 +166,8 @@ define([
       var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
         'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles',
         'getCentroid', 'getArea', 'getVertices', 'getOpenLayersGeometry', 'getBoundingBox',
-        'translate', 'scale', 'rotate', 'setScale', 'setRotation', 'setHeight', 'getHeight'];
+        'translate', 'scale', 'rotate', 'setScale', 'setRotation', 'setHeight', 'getHeight',
+        'enableExtrusion', 'disableExtrusion'];
       methods.forEach(function(method) {
         this[method] = function() {
           return this._delegateToForm(method, arguments);
@@ -174,13 +219,49 @@ define([
       }
     },
 
+    removeForm: function(displayMode) {
+      var form = this.getForm(displayMode);
+      if (!form) return;
+      var property = this._getFormPropertyName(displayMode);
+      delete this[property];
+      form.remove();
+    },
+
+    /**
+     * @return {Array.<atlas.model.GeoEntity>} The GeoEntity objects for each unique form.
+     */
     getForms: function() {
+      var formIdMap = {};
+      var formsMap = this._getFormsMap();
       var forms = [];
+      Object.keys(formsMap).map(function(prop) {
+        var form = formsMap[prop];
+        var id = form.getId();
+        if (!formIdMap[id]) {
+          formIdMap[id] = form;
+          forms.push(form);
+        }
+      });
+      return forms;
+    },
+
+    /**
+     * @return {Object.<atlas.model.Feature.DisplayMode, atlas.model.GeoEntity>} A map of the
+     *     DisplayMode for each feature to its GeoEntity.
+     */
+    _getFormsMap: function() {
+      var forms = {};
       Feature.getDisplayModeIds().forEach(function(displayMode) {
         var form = this.getForm(displayMode);
-        form && forms.push(form);
+        if (form) {
+          forms[displayMode] = form;
+        }
       }, this);
       return forms;
+    },
+
+    getChildren: function() {
+      return this.getForms();
     },
 
     /**
@@ -256,24 +337,27 @@ define([
       return this._delegateToForm('getStyle') || this._style;
     },
 
+    /**
+     * @return {Object} json - A JSON representation of the Feature.
+     * @return {Object.<String, String>} json.forms - A map of the JSON properties for the forms of
+     *     this Feature to their GeoEntity IDs.
+     */
     toJson: function() {
       var json = this._super();
-      Object.keys(Feature.DisplayMode).forEach(function(key) {
-        var displayMode = Feature.DisplayMode[key];
-        var form = this.getForm(displayMode);
-        if (!form) {
-          return;
-        }
+      var forms = json.forms = {};
+      var formsMap = this._getFormsMap();
+      Object.keys(formsMap).forEach(function(displayMode) {
+        var form = formsMap[displayMode];
         var propName = this.getJsonPropertyFromDisplayMode(displayMode);
         if (json[propName] === undefined) {
           // Avoid re-running toJson() for form classes which can span multiple display modes
           // (e.g. Polygon and Ellipse).
-          json[propName] = form.toJson();
+          forms[propName] = form.getId();
         }
       }, this);
       Setter.merge(json, {
         type: 'feature',
-        displayMode: this.getDisplayMode(),
+        displayMode: this.getDisplayMode()
       });
       return json;
     },
@@ -436,6 +520,10 @@ define([
       // Rendering is delegated to the form.
     },
 
+    // -------------------------------------------
+    // EVENTS
+    // -------------------------------------------
+
     /**
      * Listen for events on the forms and apply it to this feature.
      * @private
@@ -443,6 +531,7 @@ define([
      * @listens InternalEvent#entity/select
      * @listens InternalEvent#entity/deselect
      * @listens InternalEvent#entity/dblclick
+     * @listens InternalEvent#entity/remove
      * @fires InternalEvent#entity/dblclick
      */
     _initEvents: function() {
@@ -468,11 +557,21 @@ define([
         newEvent.setArgs(args);
         this.dispatchEvent(newEvent);
       }.bind(this));
+      this.addEventListener('entity/remove', function(event) {
+        if (isOwnEvent(event)) return;
+        var forms = this._getFormsMap();
+        Object.keys(forms).forEach(function(displayMode) {
+          var form = forms[displayMode];
+          if (form === event.getTarget()) {
+            this.removeForm(displayMode);
+            return false;
+          }
+        }, this);
+        // Prevent this event from bubbling up further since the ancestors of this entity shouldn't
+        // need to worry about its children.
+        event.cancel();
+      }.bind(this));
     },
-
-    // -------------------------------------------
-    // EVENTS
-    // -------------------------------------------
 
     // Ignore all style since it's handled by the forms. Otherwise, setting the style for this
     // feature applies it to the form and this changes it from the pre-select style.

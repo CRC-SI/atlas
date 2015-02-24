@@ -43,7 +43,7 @@ define([
      * @ignore
      */
     _setup: function(id, data, args) {
-      var position = data.position;
+      var position = new GeoPoint(data.position);
       if (Types.isString(position)) {
         var wkt = WKT.getInstance();
         position = wkt.geoPointsFromWKT(position)[0][0];
@@ -76,6 +76,15 @@ define([
         elevation: point.elevation
       });
       return json;
+    },
+
+    getOpenLayersGeometry: function(args) {
+      var wkt = WKT.getInstance();
+      if (args && args.utm) {
+        return wkt.openLayersPointsFromVertices([this._position.toUtm().coord])[0];
+      } else {
+        return wkt.openLayersPointsFromGeoPoints([this._position])[0];
+      }
     }
 
   });

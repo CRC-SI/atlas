@@ -3,6 +3,8 @@ define([
   'atlas/lib/OpenLayers',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
+  'atlas/lib/subdiv/Collection',
+  'atlas/lib/subdiv/util/GeographicUtil',
   // Base class
   'atlas/model/GeoEntity',
   'atlas/model/GeoPoint',
@@ -10,8 +12,8 @@ define([
   'atlas/util/ConvexHullFactory',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(ItemStore, OpenLayers, Log, Setter, GeoEntity, GeoPoint, Handle, ConvexHullFactory,
-            DeveloperError, WKT) {
+], function(ItemStore, OpenLayers, Log, Setter, CollectionPolygon, GeographicUtil, GeoEntity,
+            GeoPoint, Handle, ConvexHullFactory, DeveloperError, WKT) {
 
   /**
    * @typedef atlas.model.Collection
@@ -50,7 +52,9 @@ define([
       // Necessary for calling setElevation().
       this._entities = new ItemStore();
       this._initDelegation();
+      this._initEvents();
       this._super(id, data, args);
+      this._visible = false;
       var entityIds = data.entities || [];
       entityIds.forEach(this.addEntity, this);
       args = Setter.mixin({groupSelect: true}, args);
@@ -73,6 +77,7 @@ define([
         Log.warn('Entity with ID ' + id + ' already added to collection.');
       } else {
         this._entities.add(entity);
+        entity.setParent(this);
       }
     },
 
@@ -85,8 +90,9 @@ define([
       var entity = this._entities.get(id);
       if (entity) {
         this._entities.remove(id);
+        entity.setParent(null);
       } else {
-        Log.warn('Entity with ID ' + id + ' already added to collection.');
+        Log.warn('Entity with ID ' + id + ' is not in collection.');
       }
     },
 
@@ -104,6 +110,10 @@ define([
      */
     getEntities: function() {
       return this._entities.clone();
+    },
+
+    getChildren: function() {
+      return this._entities.asArray();
     },
 
     /**
@@ -226,6 +236,35 @@ define([
     },
 
     // -------------------------------------------
+    // EVENTS
+    // -------------------------------------------
+
+    /**
+     * Listen for events on the entities and removes them from this collection if they are removed.
+     * @private
+     *
+     * @listens InternalEvent#entity/remove
+     */
+    _initEvents: function() {
+      // If the original target is this feature, don't dispatch the event since it would be a
+      // duplicate.
+      var isOwnEvent = function(event) {
+        return event.getTarget() === this;
+      }.bind(this);
+      // This responds to events which bubble up from children entities.
+      this.addEventListener('entity/remove', function(event) {
+        if (isOwnEvent(event)) return;
+        var id = event.getTarget().getId();
+        if (this.getEntity(id)) {
+          this.removeEntity(id);
+        }
+        // Prevent this event from bubbling up further since the ancestors of this entity shouldn't
+        // need to worry about its children.
+        event.cancel();
+      }.bind(this));
+    },
+
+    // -------------------------------------------
     // GETTERS AND SETTERS
     // -------------------------------------------
 
@@ -261,10 +300,9 @@ define([
       return wkt.openLayersPolygonFromGeoPoints(hullVertices);
     },
 
-    getOpenLayersGeometry: function() {
-      var components = [];
-      this._entities.forEach(function(entity) {
-        components.push(entity.getOpenLayersGeometry());
+    getOpenLayersGeometry: function(args) {
+      var components = this._entities.forEach(function(entity) {
+        return entity.getOpenLayersGeometry(args);
       });
       return new OpenLayers.Geometry.Collection(components);
     },

@@ -1,11 +1,15 @@
 define([
   'atlas/lib/utility/Setter',
+  'atlas/lib/subdiv/Polygon',
+  'atlas/lib/subdiv/util/GeographicUtil',
   'atlas/material/Color',
   'atlas/material/Style',
-  'atlas/util/DeveloperError',
   // Base class
-  'atlas/model/VertexedEntity'
-], function(Setter, Color, Style, DeveloperError, VertexedEntity) {
+  'atlas/model/VertexedEntity',
+  'atlas/util/DeveloperError',
+  'atlas/util/WKT'
+], function(Setter, SubdivPolygon, GeographicUtil, Color, Style, VertexedEntity, DeveloperError,
+            WKT) {
 
   /**
    * @typedef atlas.model.Polygon
@@ -142,7 +146,7 @@ define([
 
     toJson: function(args) {
       args = args || {};
-      var json = Setter.merge(this._super(), {
+      var json = Setter.merge(this._super(args), {
         type: 'polygon',
         height: this.getHeight()
       });

@@ -213,18 +213,17 @@ define([
       return this._vertices;
     },
 
-    getArea: function() {
-      if (this._area) {
-        return this._area;
-      }
-      var geometry = this.getOpenLayersGeometry();
-      this._area = geometry.getGeodesicArea();
-      return this._area;
-    },
-
-    getOpenLayersGeometry: function() {
+    getOpenLayersGeometry: function(args) {
       var wkt = WKT.getInstance();
-      return wkt.openLayersPolygonFromGeoPoints(this._vertices);
+      var vertices = this.getVertices();
+      if (args && args.utm) {
+        vertices = vertices.map(function(point) {
+          return point.toUtm().coord;
+        });
+        return wkt.openLayersPolygonFromVertices(vertices);
+      } else {
+        return wkt.openLayersPolygonFromGeoPoints(vertices);
+      }
     },
 
     /**
@@ -258,7 +257,7 @@ define([
 
     toJson: function(args) {
       args = args || {};
-      return Setter.merge(this._super(), {
+      return Setter.merge(this._super(args), {
         coordinates: args.coordinates || this.getVertices().map(function(vertex) {
           return vertex.toArray();
         })
