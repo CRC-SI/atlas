@@ -187,7 +187,8 @@ define([
     },
 
     /**
-     * Removes this {@link atlas.events.EventTarget} and any registered event handlers.
+     * Removes this {@link atlas.events.EventTarget}, any registered event handlers, and from its
+     * parent (if any).
      */
     remove: function() {
       for (var id in this._eventHandlers) {

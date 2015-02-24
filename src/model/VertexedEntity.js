@@ -213,9 +213,17 @@ define([
       return this._vertices;
     },
 
-    getOpenLayersGeometry: function() {
+    getOpenLayersGeometry: function(args) {
       var wkt = WKT.getInstance();
-      return wkt.openLayersPolygonFromGeoPoints(this._vertices);
+      var vertices = this.getVertices();
+      if (args && args.utm) {
+        vertices = vertices.map(function(point) {
+          return point.toUtm().coord;
+        });
+        return wkt.openLayersPolygonFromVertices(vertices);
+      } else {
+        return wkt.openLayersPolygonFromGeoPoints(vertices);
+      }
     },
 
     /**

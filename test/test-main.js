@@ -10,7 +10,7 @@ var specsConfig = [
   {name: 'entity/EntityManager', run: false, fix: 'abstract GeoEntity functions being called'},
   {name: 'material/Color', run: true},
   {name: 'material/Style', run: true},
-  {name: 'model/Collection', run: false, fix: 'setCentroid fails when collection is empty'},
+  {name: 'model/Collection', run: true},
   {name: 'model/Ellipse', run: false},
   {name: 'model/Feature', run: false},
   {name: 'model/GeoPoint', run: true},

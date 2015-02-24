@@ -76,6 +76,15 @@ define([
         elevation: point.elevation
       });
       return json;
+    },
+
+    getOpenLayersGeometry: function(args) {
+      var wkt = WKT.getInstance();
+      if (args && args.utm) {
+        return wkt.openLayersPointsFromVertices([this._position.toUtm().coord])[0];
+      } else {
+        return wkt.openLayersPointsFromGeoPoints([this._position])[0];
+      }
     }
 
   });

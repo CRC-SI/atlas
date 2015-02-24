@@ -6,8 +6,6 @@ define([
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Strings',
   'atlas/lib/utility/Types',
-  'atlas/lib/subdiv/Polygon',
-  'atlas/lib/subdiv/util/GeographicUtil',
   'atlas/model/Rectangle',
   'atlas/material/Color',
   'atlas/material/CheckPattern',
@@ -16,8 +14,8 @@ define([
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(ItemStore, Event, EventTarget, Setter, Strings, Types, SubdivPolygon, GeographicUtil,
-            Rectangle, Color, CheckPattern, Material, Style, Vertex, DeveloperError, WKT) {
+], function(ItemStore, Event, EventTarget, Setter, Strings, Types, Rectangle, Color, CheckPattern,
+            Material, Style, Vertex, DeveloperError, WKT) {
   /**
    * @typedef atlas.model.GeoEntity
    * @ignore
@@ -114,7 +112,7 @@ define([
      * @type {Boolean}
      * @protected
      */
-    _visible: false,
+    _visible: true,
 
     /**
      * Whether the GeoEntity can be rendered.
@@ -324,6 +322,9 @@ define([
      */
     setCentroid: function(centroid) {
       var oldCentroid = this.getCentroid();
+      if (!oldCentroid) {
+        throw new Error('Cannot set centroid - no existing centroid.');
+      }
       var diff = centroid.subtract(oldCentroid);
       this.translate(diff);
     },
@@ -344,22 +345,19 @@ define([
       return this._area;
     },
 
+    // Converts to UTM and calculates the area accurately. OpenLayers will approximate the area,
+    // which can be significantly different (e.g. 2 times smaller).
     _calcArea: function() {
-      // Converts to UTM and calculates the area accurately. OpenLayers will approximate the area,
-      // which can be significantly different (e.g. 2 times smaller).
-      var vertices = this.getOpenLayersGeometry().getVertices().map(function(vertex) {
-        return {x: vertex.y, y: vertex.x};
-      });
-      var polygon = new SubdivPolygon(vertices);
-      GeographicUtil.localizePointGeometry(polygon);
-      return polygon.getArea();
+      return this.getOpenLayersGeometry({utm: true}).getArea();
     },
 
     /**
+     * @params {Object} [args]
+     * @params {Boolean} [args.utm=false] - Whether to use UTM coordinates for the vertices.
      * @returns {OpenLayers.Geometry}
      * @abstract
      */
-    getOpenLayersGeometry: function() {
+    getOpenLayersGeometry: function(args) {
       throw new DeveloperError('Can not call abstract method "getOpenLayersGeometry" of GeoEntity');
     },
 
