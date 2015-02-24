@@ -540,6 +540,17 @@ define([
       var isOwnEvent = function(event) {
         return event.getTarget() === this;
       }.bind(this);
+      // Dispatches a clone of the given event for this feature. Used to re-trigger an event from
+      // the form on the feature.
+      var dispatchClone = function(event) {
+        if (isOwnEvent(event)) return;
+        var newEvent = event.clone();
+        var args = Setter.cloneDeep(newEvent.getArgs());
+        args.id = this.getId();
+        newEvent.setArgs(args);
+        this.dispatchEvent(newEvent);
+      }.bind(this);
+
       // This responds to events in the forms which bubble up.
       this.addEventListener('entity/select', function(event) {
         if (isOwnEvent(event)) return;
@@ -549,14 +560,8 @@ define([
         if (isOwnEvent(event)) return;
         this.setSelected(false);
       }.bind(this));
-      this.addEventListener('entity/dblclick', function(event) {
-        if (isOwnEvent(event)) return;
-        var newEvent = event.clone();
-        var args = Setter.cloneDeep(newEvent.getArgs());
-        args.id = this.getId();
-        newEvent.setArgs(args);
-        this.dispatchEvent(newEvent);
-      }.bind(this));
+      this.addEventListener('entity/dblclick', dispatchClone);
+      this.addEventListener('entity/mousemove', dispatchClone);
       this.addEventListener('entity/remove', function(event) {
         if (isOwnEvent(event)) return;
         var forms = this._getFormsMap();

@@ -17,9 +17,10 @@ define([
   'atlas/model/Image',
   'atlas/model/GeoPoint',
   'atlas/model/Vertex',
-  'atlas/util/DeveloperError'
+  'atlas/util/DeveloperError',
+  'underscore'
 ], function(Manager, ItemStore, Event, Log, Setter, Strings, topsort, Collection, Ellipse, Feature,
-            GeoEntity, Mesh, Point, Polygon, Line, Image, GeoPoint, Vertex, DeveloperError) {
+            GeoEntity, Mesh, Point, Polygon, Line, Image, GeoPoint, Vertex, DeveloperError, _) {
 
   /**
    * @typedef atlas.entity.EntityManager
@@ -236,6 +237,33 @@ define([
               }));
             }
           }.bind(this)
+        },
+        {
+          source: 'intern',
+          name: 'input/mousemove',
+          /**
+           * @param {InternalEvent#event:input/mousemove} args
+           * @listens InternalEvent#input/mousemove
+           * @fires InternalEvent#entity/mousemove
+           * @ignore
+           */
+          callback: _.debounce(function(args) {
+            // Debounce to prevent excessive calls to getAt().
+            var position = args.position;
+            var entities = this.getAt(position);
+            entities.forEach(function(entity) {
+              /**
+               * The mouse was moved over the {@link atlas.model.GeoEntity}.
+               *
+               * @event InternalEvent#entity/mousemove
+               * @type {atlas.events.Event}
+               * @property {String} args.id - The ID of the double-clicked entity.
+               */
+              this._managers.event.dispatchEvent(new Event(entity, 'entity/mousemove', {
+                id: entity.getId()
+              }));
+            }, this);
+          }.bind(this), 100)
         }
       ];
       this._managers.event.addEventHandlers(handlers);
