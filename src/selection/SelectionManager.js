@@ -309,7 +309,7 @@ define([
     _onLeftClick: function(event) {
       if (!this.isEnabled()) return;
       if (!event.modifiers) event.modifiers = {};
-      var selectedEntities = this._managers.entity.getEntitiesFromArgs(args);
+      var selectedEntities = this._managers.entity.getEntitiesFromArgs(event);
       var keepSelection = 'shift' in event.modifiers && event.modifiers['shift'];
       if (selectedEntities.length > 0) {
         this.selectEntity(selectedEntities[0].getId(), keepSelection, event.position);
