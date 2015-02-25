@@ -98,9 +98,9 @@ define([
     },
 
     _createPopup: function(args) {
-      var entity = args.entity,
-        content = args.content,
-        title = args.title;
+      var entity = args.entity;
+      var content = args.content;
+      var title = args.title;
       args.renderManager = this._managers.render;
       args.eventManager = this._managers.event;
       if (Types.isString(entity)) {
@@ -123,8 +123,10 @@ define([
 
     _removePopup: function(id) {
       var popup = this._popups.get(id);
-      popup.remove();
-      this._popups.remove(id);
+      if (popup) {
+        popup.remove();
+        this._popups.remove(id);
+      }
     },
 
     _bindPopupEvents: function(popup) {
@@ -142,10 +144,10 @@ define([
     },
 
     createOnSelection: function(args) {
-      var entity = args.entity,
-        entityPopup,
-        onCreate = args.onCreate
-        handles = [];
+      var entity = args.entity;
+      var entityPopup;
+      var onCreate = args.onCreate;
+      var handles = [];
       delete args.onCreate;
       var popupId = Popup.ID_PREFIX + entity.getId();
       if (this._popups.get(popupId)) {
