@@ -113,7 +113,7 @@ define([
       args = Setter.mixin({floatValues: true}, args);
       return ['red', 'green', 'blue', 'alpha'].map(function(colorName) {
         var value = this[colorName];
-        return args.floatValues ? value * 255 : value;
+        return args.floatValues ? value : value * 255;
       }, this);
     },
 
