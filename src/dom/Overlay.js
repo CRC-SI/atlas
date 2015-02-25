@@ -164,7 +164,8 @@ define([
         hasRemoveBtn: false,
         hasChangeCheckbox: false
       }, args);
-      this._super(args.eventManager);
+      var eventManager = args.eventManager;
+      this._super(eventManager);
       if (typeof args.parent === 'string') {
         args.parent = document.getElementById(args.parent);
       }
@@ -201,8 +202,8 @@ define([
       // Construct element and append it to the parent.
       this._render();
 
-      // Notify any listeners that an overlay has been created
-      args.eventManager.handleInternalEvent("overlay/created", {overlay: this});
+      // Notify any listeners that an overlay has been created.
+      eventManager && eventManager.handleInternalEvent('overlay/created', {overlay: this});
     },
 
     // -------------------------------------------

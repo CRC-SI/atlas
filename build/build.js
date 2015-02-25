@@ -11,7 +11,7 @@
     {name: 'jsts', location: '../lib/subdiv/lib/jsts'},
     {name: 'tinycolor', location: '../lib/subdiv/lib', main: 'tinycolor'},
     {name: 'underscore', location: '../lib/subdiv/lib', main: 'underscore'},
-    {name: 'utility', location: '../lib/subdiv/lib/utility'},
+    {name: 'utility', location: '../lib/subdiv/lib/utility/src'},
 
     // This is the expected name of utm-converter in subdiv.
     {name: 'utm-converter', location: '../lib', main: 'UtmConverter'}
