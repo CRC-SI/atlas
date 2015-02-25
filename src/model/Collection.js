@@ -301,7 +301,7 @@ define([
     },
 
     getOpenLayersGeometry: function(args) {
-      var components = this._entities.forEach(function(entity) {
+      var components = this._entities.map(function(entity) {
         return entity.getOpenLayersGeometry(args);
       });
       return new OpenLayers.Geometry.Collection(components);
