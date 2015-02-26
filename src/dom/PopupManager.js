@@ -131,10 +131,12 @@ define([
       popup.addEventListener('overlay/show', function() {
         if (!this._isExclusive) return;
         // Hide other popups when one becomes visible.
-        this._popups.forEach(function(otherPopup) {
-          if (popup === otherPopup) return;
-          otherPopup.hide();
-        });
+        // TODO(Shady) This prevents OverlayManager from displaying multiple overlays, disabled
+        // temporarily for demo purposes.
+        //this._popups.forEach(function(otherPopup) {
+        //  if (popup === otherPopup) return;
+        //  otherPopup.hide();
+        //});
       }.bind(this));
       popup.addEventListener('overlay/remove', function() {
         this._removePopup(popup.getId());

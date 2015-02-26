@@ -39,11 +39,10 @@ define([
             var overlay = args.overlay;
             var scenePosition = overlay.getScenePosition();
             if (scenePosition) {
-              var id = this._counter + "-overlay";
-              this._overlays[id] = overlay;
-              this._counter++;
+              this._overlays[overlay.getId()] = overlay;
+              overlay.getDom().id = overlay.getId();
               var trackArgs = {
-                id: id,
+                id: overlay.getId(),
                 position: scenePosition
               };
               this._managers.event.handleExternalEvent('overlay/track', trackArgs);
@@ -58,8 +57,13 @@ define([
             if (selectedEntities.length == 0) {
               return;
             }
+
+            var id = this._counter + "-overlay";
+            this._counter++;
+
             var popupArgs = {
               entity: selectedEntities[0],
+              id: id,
               position: args.position,
               scenePosition: args.sceneposition,
               title: ' ',
