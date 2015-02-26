@@ -628,7 +628,7 @@ define([
         // json.style = style.toJson();
         var fillMaterial = style.getFillMaterial();
         if (fillMaterial instanceof Color) {
-          json.color = fillMaterial.toArray();
+          json.color = fillMaterial.toArray({floatValues: false});
         }
       }
       var parent = this.getParent();
