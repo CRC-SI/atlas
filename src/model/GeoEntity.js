@@ -280,7 +280,7 @@ define([
         style = Style.getDefault();
       }
       this.setStyle(style);
-      this.setMetaData(args.metaData || {});
+      this.setMetaData(data.metaData || {});
 
       this.setElevation(data.elevation || 0);
       this._scale = new Vertex(data.scale || {x: 1, y: 1, z: 1});
@@ -620,7 +620,8 @@ define([
         scale: this.getScale().toArray(),
         rotation: this.getRotation().toArray(),
         altitude: this.getElevation(),
-        show: this.isVisible()
+        show: this.isVisible(),
+        metaData: this.getMetaData()
       };
       var style = this.getStyle();
       if (style) {
