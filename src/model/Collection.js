@@ -292,7 +292,7 @@ define([
           return;
         }
         // If this is a multipolygon, only use the outer ring.
-        geometryVertices[0].forEach(function(vertex) {
+        geometryVertices.forEach(function(vertex) {
           vertices.push(vertex);
         });
       });
