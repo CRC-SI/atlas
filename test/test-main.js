@@ -26,7 +26,7 @@ var specsConfig = [
   {name: 'test/lib/AtlasBuilder', run: false, fix: 'cannot construct ellipse without centre'},
   {name: 'util/AtlasMath', run: true},
   {name: 'util/Factory', run: true},
-  {name: 'util/WKT', run: false, fix: 'geometry to geopoint or vertices has incorrect output'},
+  {name: 'util/WKT', run: true},
   {name: 'visualisation/AbstractProjection', run: false},
   {name: 'visualisation/HeightProjection', run: false},
   {name: 'visualisation/ColorProjection', run: false},
