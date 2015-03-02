@@ -230,7 +230,7 @@ define([
                *
                * @event InternalEvent#entity/dblclick
                * @type {atlas.events.Event}
-               * @property {String} args.id - The ID of the double-clicked entity.
+               * @property {String} args.id - ID of entity under the mouse.
                */
               this._managers.event.dispatchEvent(new Event(entity, 'entity/dblclick', {
                 id: entity.getId()

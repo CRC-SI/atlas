@@ -303,7 +303,7 @@ define([
    * @property {Number} [tilt=-90] - The tilt (or pitch) about the Camera's
    * transverse axis (across the latitude) in decimal degrees in the range [-90, 90].
    * At -90 degrees the Camera is facing the earth, at 90 degrees it is facing the opposite way
-   * and at 0 degrees it is either facing north or south.
+   * and at 0 degrees it is facing the horizon.
    * @property {Number} [bearing=0] - The bearing (or yaw) about the normal axis (across the
    * longitude) from the surface to the camera in decimal degrees in the range [-180, 180].
    * At 0 degrees the Camera is facing the earth, at -90 degrees it is facing west, at 90
