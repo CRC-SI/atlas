@@ -69,6 +69,7 @@ define([
       if (geometry instanceof OpenLayers.Geometry.Point) {
         return [this.vertexFromOpenLayersPoint(geometry)];
       } else {
+        // Ensure vertices for polygons are closed, as expected in WKT.
         var vertices = geometry.getVertices().map(this.vertexFromOpenLayersPoint, this);
         if (geometry instanceof OpenLayers.Geometry.Polygon && vertices.length > 1) {
           vertices.push(vertices[0]);
