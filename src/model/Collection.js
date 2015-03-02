@@ -291,7 +291,6 @@ define([
         if (geometryVertices.length === 0) {
           return;
         }
-        // If this is a multipolygon, only use the outer ring.
         geometryVertices.forEach(function(vertex) {
           vertices.push(vertex);
         });
