@@ -53,12 +53,18 @@ define([
       this._entities = new ItemStore();
       this._initDelegation();
       this._initEvents();
-      this._super(id, data, args);
-      this._visible = false;
+      // Add entities before setup to ensure style is recursively set on entities.
       var entityIds = data.entities || [];
       entityIds.forEach(this.addEntity, this);
+      this._super(id, data, args);
+      this._visible = false;
       args = Setter.mixin({groupSelect: true}, args);
       args.groupSelect && this._initSelection();
+    },
+
+    _setupStyle: function(data, args) {
+      var style = this._parseStyle(data, args);
+      style && this.setStyle(style);
     },
 
     // -------------------------------------------
@@ -198,8 +204,8 @@ define([
       // TODO(aramk) getHandles should create a new ItemStore and add all.
 
       // Call on all entities.
-      var forMethods = ['createHandles', 'addHandles', 'clearHandles', 'setStyle', 'modifyStyle',
-          'setHeight', 'enableExtrusion', 'disableExtrusion'];
+      var forMethods = ['createHandles', 'addHandles', 'clearHandles', 'setHeight',
+          'enableExtrusion', 'disableExtrusion'];
       forMethods.forEach(function(method) {
         this[method] = function() {
           return this._forEntities(method, arguments);
@@ -207,7 +213,7 @@ define([
       }, this);
       // Call on all entities and the collection.
       var forSelfMethods = ['remove', 'show', 'hide', 'translate', 'scale', 'setSelected',
-          'setElevation'];
+          'setElevation', 'setStyle', 'modifyStyle'];
       forSelfMethods.forEach(function(method) {
         var selfMethod = this[method];
         this[method] = function() {

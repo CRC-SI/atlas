@@ -64,7 +64,7 @@ define([
      * @type {Boolean}
      * @protected
      */
-    _showAsExtrusion: false,
+    _showAsExtrusion: true,
 
     /**
      * Constructs a new Polygon
@@ -81,9 +81,11 @@ define([
         this._holes = this._getSanitizedVertices(data.holes);
       }
       var height = data.height;
-      if (height) {
+      if (height !== undefined) {
         this.setHeight(height);
       }
+      var showAsExtrusion = Setter.def(data.showAsExtrusion, true);
+      showAsExtrusion ? this.enableExtrusion() : this.disableExtrusion();
     },
 
     // -------------------------------------------
@@ -156,6 +158,7 @@ define([
           return vertex.toArray();
         });
       }
+      json.showAsExtrusion = this._showAsExtrusion;
       return json;
     },
 
