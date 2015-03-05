@@ -295,8 +295,8 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('install', 'Installs dependencies.',
-      ['shell:installNpmDep', 'shell:installBowerDep', 'install-subdiv', 'install-openlayers', 'copy:bowerDep',
-      'fix-jquery']);
+      ['shell:installNpmDep', 'shell:installBowerDep', /*'install-subdiv',*/ 'install-openlayers',
+      'copy:bowerDep', 'fix-jquery']);
   grunt.registerTask('update', 'Updates dependencies.',
       ['shell:updateNpmDep', 'shell:updateBowerDep']);
   grunt.registerTask('build', 'Builds the app into a distributable package.', function() {
