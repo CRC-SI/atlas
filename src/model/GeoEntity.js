@@ -245,11 +245,26 @@ define([
       this._eventHandles = [];
       this._visible = Setter.def(data.show, true);
       this.setDirty('entity');
+      this._setupStyle(data, args);
+      this.setMetaData(data.metaData || {});
+      this.setElevation(data.elevation || 0);
+      this._scale = new Vertex(data.scale || {x: 1, y: 1, z: 1});
+      this._rotation = new Vertex(data.rotation || {x: 0, y: 0, z: 0});
+    },
 
+    _setupStyle: function(data, args) {
+      var style = this._parseStyle(data, args);
+      if (!style) {
+        style = Style.getDefault();
+      }
+      this.setStyle(style);
+    },
+
+    _parseStyle: function(data, args) {
       var style;
       var styleArgs = data.style;
       if (styleArgs instanceof Style) {
-        style = styleArgs;
+        return styleArgs;
       } else {
         // Map of valid argument property names to internal Style property names.
         var styleMap = {
@@ -270,21 +285,16 @@ define([
             finalStyleArgs[styleProp] = value;
           }
         }, this);
+        if (Object.keys(finalStyleArgs).length === 0) {
+          return null;
+        }
         style = new Style(finalStyleArgs);
         var borderWidth = styleArgs.borderWidth;
         if (borderWidth !== undefined) {
           style.setBorderWidth(borderWidth);
         }
+        return style;
       }
-      if (!style) {
-        style = Style.getDefault();
-      }
-      this.setStyle(style);
-      this.setMetaData(data.metaData || {});
-
-      this.setElevation(data.elevation || 0);
-      this._scale = new Vertex(data.scale || {x: 1, y: 1, z: 1});
-      this._rotation = new Vertex(data.rotation || {x: 0, y: 0, z: 0});
     },
 
     // TODO(aramk) Use better dependency injection.

@@ -46,7 +46,7 @@ define([
       var position = new GeoPoint(data.position);
       if (Types.isString(position)) {
         var wkt = WKT.getInstance();
-        position = wkt.geoPointsFromWKT(position)[0][0];
+        position = wkt.geoPointsFromWKT(position)[0];
       } else if (!position) {
         position = new GeoPoint({longitude: data.longitude, latitude: data.latitude,
             elevation: data.elevation});

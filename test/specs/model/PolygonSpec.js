@@ -55,6 +55,7 @@ define([
       var value = 50;
       polygon.setHeight(value);
       expect(polygon.getHeight()).toEqual(value);
+      expect(polygon.isExtrusion()).toEqual(true);
     });
 
     it('can set elevation', function() {
