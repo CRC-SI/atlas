@@ -38,43 +38,33 @@ module.exports = function(grunt) {
   grunt.initConfig({
 
     shell: {
+      options: {
+        stdout: true,
+        stderr: true,
+        failOnError: true
+      },
       // Installs all NodeJS dependencies.
       installNpmDep: {
-        options: {
-          stdout: true
-        },
         command: 'npm install --cache-min 999999999'
       },
 
       // Installs all Bower dependencies.
       installBowerDep: {
-        options: {
-          stdout: true
-        },
-        command: 'bower install'
+        command: 'bower install --allow-root'
       },
 
       // Updates all NodeJS dependencies.
       updateNpmDep: {
-        options: {
-          stdout: true
-        },
         command: 'npm update'
       },
 
       // Updates all Bower dependencies.
       updateBowerDep: {
-        options: {
-          stdout: true
-        },
-        command: 'bower update'
+        command: 'bower update --allow-root'
       },
 
       // Compiles JSDoc from JS source files.
       jsDoc: {
-        options: {
-          stdout: true
-        },
         command: path.join('node_modules', '.bin', 'jsdoc') + ' -c jsdoc.conf.json -l ' +
             README_FILE
       },
@@ -82,22 +72,19 @@ module.exports = function(grunt) {
       // Compile JS source files.
       build: {
         options: {
-          stdout: false, stderr: true, failOnError: true
+          stdout: false
         },
         command: 'node node_modules/requirejs/bin/r.js -o ' + BUILD_FILE + ' optimize=none'
       },
 
       buildMinify: {
         options: {
-          stdout: false, stderr: true, failOnError: true
+          stdout: false
         },
         command: 'node node_modules/requirejs/bin/r.js -o ' + BUILD_FILE
       },
 
       buildOpenLayers: {
-        options: {
-          stdout: true, stderr: true, failOnError: true
-        },
         command: [
               'cd ' + OPEN_LAYERS_BUILD_PATH,
               'python ./build.py -c none ' + OPEN_LAYERS_CONFIG_FILE.replace(/\.cfg$/, '') + ' ' +
@@ -106,9 +93,6 @@ module.exports = function(grunt) {
       },
 
       buildSubdiv: {
-        options: {
-          stdout: true, stderr: true, failOnError: true
-        },
         command: [
           'cd ' + SUBDIV_BUILD_PATH,
           'npm install',
