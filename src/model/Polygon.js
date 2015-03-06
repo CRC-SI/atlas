@@ -1,15 +1,12 @@
 define([
   'atlas/lib/utility/Setter',
-  'atlas/lib/subdiv/Polygon',
-  'atlas/lib/subdiv/util/GeographicUtil',
   'atlas/material/Color',
   'atlas/material/Style',
   // Base class
   'atlas/model/VertexedEntity',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(Setter, SubdivPolygon, GeographicUtil, Color, Style, VertexedEntity, DeveloperError,
-            WKT) {
+], function(Setter, Color, Style, VertexedEntity, DeveloperError, WKT) {
 
   /**
    * @typedef atlas.model.Polygon
