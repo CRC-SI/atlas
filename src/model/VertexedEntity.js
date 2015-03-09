@@ -60,16 +60,7 @@ define([
     _getSanitizedVertices: function(vertices) {
       if (Types.isString(vertices)) {
         var wkt = WKT.getInstance();
-        var vertexArray = wkt.geoPointsFromWKT(vertices);
-        if (vertexArray[0] instanceof Array) {
-          // Polygon
-          return vertexArray[0];
-        } else if (vertexArray[0] instanceof GeoPoint) {
-          // Line
-          return vertexArray;
-        } else {
-          throw new Error('Invalid vertices for entity ' + this.getId());
-        }
+        return wkt.geoPointsFromWKT(vertices);
       } else if (Types.isArrayLiteral(vertices)) {
         return vertices.map(function(vertex) {
           return new GeoPoint(vertex);

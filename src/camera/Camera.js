@@ -208,7 +208,8 @@ define([
      * @param {Object} args
      * @param {atlas.model.GeoPoint} [args.position] - The new position of the Camera.
      * @param {atlas.model.Rectangle} [args.rectangle] - The bounding box of the Camera.
-     * @param {atlas.camera.Camera.Orientation} [args.orientation] - The new orientation of the Camera.
+     * @param {atlas.camera.Camera.Orientation} [args.orientation] - The new orientation of the
+     *     Camera.
      * @param {Number} [args.duration=0] - The duration of the zoom animation in milliseconds.
      */
     zoomTo: function(args) {
@@ -220,7 +221,8 @@ define([
       this._setPosition(args.position);
       this._setOrientation(args.orientation || this._orientation);
       // Use the target position and orientation rather than the public methods which return the
-      // actual current positions.
+      // actual current positions. Only provide them if they were already present in the args so
+      // we don't use them unnecessarily.
       if (args.orientation) {
         args.orientation = this._orientation;
       }
@@ -282,7 +284,7 @@ define([
     },
 
     getDefaultOrientation: function() {
-      return {tilt: 90, bearing: 0, rotation: 0};
+      return {tilt: -90, bearing: 0, rotation: 0};
     },
 
     /**
@@ -298,10 +300,10 @@ define([
 
   /**
    * @typedef {Object} atlas.camera.Camera.Orientation
-   * @property {Number} [tilt=90] - The tilt (or pitch) about the Camera's
+   * @property {Number} [tilt=-90] - The tilt (or pitch) about the Camera's
    * transverse axis (across the latitude) in decimal degrees in the range [-90, 90].
-   * At 90 degrees the Camera is facing the earth, at -90 degrees it is facing the opposite way
-   * and at 0 degrees it is either facing north or south.
+   * At -90 degrees the Camera is facing the earth, at 90 degrees it is facing the opposite way
+   * and at 0 degrees it is facing the horizon.
    * @property {Number} [bearing=0] - The bearing (or yaw) about the normal axis (across the
    * longitude) from the surface to the camera in decimal degrees in the range [-180, 180].
    * At 0 degrees the Camera is facing the earth, at -90 degrees it is facing west, at 90

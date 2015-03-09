@@ -8,7 +8,7 @@ define([
   describe('WKT Utility', function() {
 
     var wkt, wktPolygonStr, wktPointStr, wktLineStr, polyGeoPoints, polyVertices, lineGeoPoints,
-      lineVertices, openLayersPolygon, singleGeoPoint;
+      lineVertices, openLayersPolygon, openLayersPoint, singleGeoPoint;
 
     beforeEach(function() {
       wkt = WKT.getInstance();
@@ -36,6 +36,7 @@ define([
         return new Vertex(point.longitude, point.latitude);
       });
       openLayersPolygon = wkt.openLayersPolygonFromVertices(polyVertices);
+      openLayersPoint = wkt.openLayersPointsFromGeoPoints([singleGeoPoint])[0];
     });
 
     afterEach(function() {
@@ -48,18 +49,18 @@ define([
     });
 
     it('can convert a WKT polygon to vertices', function() {
-      expect(wkt.verticesFromWKT(wktPolygonStr)).toEqual([polyVertices]);
-      expect(wkt.geoPointsFromWKT(wktPolygonStr)).toEqual([polyGeoPoints]);
+      expect(wkt.verticesFromWKT(wktPolygonStr)).toEqual(polyVertices);
+      expect(wkt.geoPointsFromWKT(wktPolygonStr)).toEqual(polyGeoPoints);
     });
 
     it('can convert a WKT line to vertices', function() {
-      expect(wkt.verticesFromWKT(wktLineStr)).toEqual([lineVertices]);
-      expect(wkt.geoPointsFromWKT(wktLineStr)).toEqual([lineGeoPoints]);
+      expect(wkt.verticesFromWKT(wktLineStr)).toEqual(lineVertices);
+      expect(wkt.geoPointsFromWKT(wktLineStr)).toEqual(lineGeoPoints);
     });
 
     it('can convert a WKT point to a vertex', function() {
-      expect(wkt.verticesFromWKT(wktPointStr)).toEqual([[singleGeoPoint.toVertex()]]);
-      expect(wkt.geoPointsFromWKT(wktPointStr)).toEqual([[singleGeoPoint]]);
+      expect(wkt.verticesFromWKT(wktPointStr)).toEqual([singleGeoPoint.toVertex()]);
+      expect(wkt.geoPointsFromWKT(wktPointStr)).toEqual([singleGeoPoint]);
     });
 
     it('can convert a geopoint to a WKT point', function() {
@@ -67,11 +68,20 @@ define([
     });
 
     it('can convert open layers geometry to vertices', function() {
-      expect(wkt.verticesFromOpenLayersGeometry(openLayersPolygon)).toEqual([polyVertices]);
+      expect(wkt.verticesFromOpenLayersGeometry(openLayersPolygon)).toEqual(polyVertices);
     });
 
     it('can convert open layers geometry to geopoints', function() {
-      expect(wkt.geoPointsFromOpenLayersGeometry(openLayersPolygon)).toEqual([polyGeoPoints]);
+      expect(wkt.geoPointsFromOpenLayersGeometry(openLayersPolygon)).toEqual(polyGeoPoints);
+    });
+
+    it('can convert open layers point to vertex', function() {
+      expect(wkt.verticesFromOpenLayersGeometry(openLayersPoint))
+          .toEqual([singleGeoPoint.toVertex()]);
+    });
+
+    it('can convert open layers point to geopoint', function() {
+      expect(wkt.geoPointsFromOpenLayersGeometry(openLayersPoint)).toEqual([singleGeoPoint]);
     });
 
     it('can convert an open layers point to a vertex', function() {

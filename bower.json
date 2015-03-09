@@ -29,6 +29,7 @@
     "q": "~1.0.0",
     "Requirejs": "requirejs#2.1.x",
     "tinycolor": "~1.0.0",
+    "underscore": "~1.7.0",
     "utility": "https://bitbucket.org/mutopia/utility.git#master",
     "subdiv": "https://github.com/Urbanetic/subdiv.git#develop",
     "topsort": "https://github.com/aramk/topsort.git#bower",
