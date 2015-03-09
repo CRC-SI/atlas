@@ -246,6 +246,7 @@ define([
       this._visible = Setter.def(data.show, true);
       this.setDirty('entity');
       this._setupStyle(data, args);
+      this.setMetaData(data.metaData || {});
       this.setElevation(data.elevation || 0);
       this._scale = new Vertex(data.scale || {x: 1, y: 1, z: 1});
       this._rotation = new Vertex(data.rotation || {x: 0, y: 0, z: 0});

@@ -3,8 +3,6 @@ define([
   'atlas/lib/OpenLayers',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
-  'atlas/lib/subdiv/Collection',
-  'atlas/lib/subdiv/util/GeographicUtil',
   // Base class
   'atlas/model/GeoEntity',
   'atlas/model/GeoPoint',
@@ -12,8 +10,8 @@ define([
   'atlas/util/ConvexHullFactory',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(ItemStore, OpenLayers, Log, Setter, CollectionPolygon, GeographicUtil, GeoEntity,
-            GeoPoint, Handle, ConvexHullFactory, DeveloperError, WKT) {
+], function(ItemStore, OpenLayers, Log, Setter, GeoEntity, GeoPoint, Handle, ConvexHullFactory,
+            DeveloperError, WKT) {
 
   /**
    * @typedef atlas.model.Collection
