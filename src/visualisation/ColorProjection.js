@@ -152,7 +152,7 @@ define([
     _render: function(entity, attributes) {
       // TODO(bpstudds): Do something fancy with _configuration to allow configuration.
       var newColor = this._regressProjectionValueFromCodomain(attributes,
-              this._configuration.codomain);
+          this._configuration.codomain);
       var oldColor = entity.modifyStyle(newColor);
       entity.isVisible() && entity.show();
       this._setEffects(entity.getId(), {oldValue: oldColor, newValue: newColor});

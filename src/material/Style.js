@@ -146,9 +146,23 @@ define([
       var json = {};
       var fillMaterial = this.getFillMaterial();
       var borderMaterial = this.getBorderMaterial();
+      var borderWidth = this.getBorderWidth();
       if (fillMaterial) { json.fillMaterial = fillMaterial.toJson(); }
       if (borderMaterial) { json.borderMaterial = borderMaterial.toJson(); }
+      if (borderWidth != null) { json.borderWidth = borderWidth; }
       return json;
+    },
+
+    /**
+     * @return {Object} Simliar to {@link #toJson()}, but keeps the properties as object references
+     * rather than JSON objects.
+     */
+    toObject: function() {
+      return {
+        fillMaterial: this.getFillMaterial(),
+        borderMaterial: this.getBorderMaterial(),
+        borderWidth: this.getBorderWidth()
+      };
     }
 
   });
