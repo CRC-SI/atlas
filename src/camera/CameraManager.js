@@ -66,8 +66,13 @@ define([
           source: 'extern',
           name: 'camera/zoomTo',
           callback: function(args) {
-            if (args.position) {
-              args.position = new GeoPoint(args.position);
+            var position = args.position;
+            if (position) {
+              // Use the default elevation if only latitude and longitude are provided.
+              if (position.elevation === undefined) {
+                position.elevation = Camera.getDefaultPosition().elevation;
+              }
+              args.position = new GeoPoint(position);
               this._current.zoomTo(args);
             } else if (args.address) {
               this._current.zoomToAddress(args.address);
