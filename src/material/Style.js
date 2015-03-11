@@ -202,7 +202,7 @@ define([
    * @returns {Style}
    */
   Style.getDefaultSelected = function() {
-    return new Style({fillMaterial: Color.RED, borderMaterial: Color.BLACK});
+    return new Style({fillMaterial: new Color('#87ECFE'), borderMaterial: new Color('#24A2FE')});
   };
 
   Style.DEFAULT_BORDER_WIDTH = 1;
