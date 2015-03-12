@@ -624,30 +624,23 @@ define([
 
     /**
      * Modifies specific components of the GeoEntity's style.
-     * @param {Object} newStyle - The new values for the Style components.
-     * @param {atlas.material.Color} [newStyle.fillMaterial] - The new fill material.
-     * @param {atlas.material.Color} [newStyle.borderMaterial] - The new border material.
-     * @param {Number} [newStyle.borderWidth] - The new border width material.
-     * @returns {Object} A mapping of parameters that have been changed to their old value.
+     * @param {atlas.model.Style|Object} updateStyle - The new values for the Style components.
+     *     This should be consistent with the return of {@link atlas.material.Style#toObject()} if
+     *     passed as an object. If passed as a Style, this method is called.
+     * @returns {atlas.material.Style} The old style, or null if it was not changed.
      */
-    // TODO(aramk) This is quite complicated - perhaps rely only on setStyle.
-    modifyStyle: function(newStyle) {
-      if (Object.keys(newStyle).length <= 0) {
-        return {};
-      }
-
+    modifyStyle: function(updateStyle) {
       this.setDirty('style');
-      var oldStyle = {};
-      // Work out what's changing
-      newStyle.fillMaterial && (oldStyle.fillMaterial = this._style.getFillMaterial());
-      newStyle.borderMaterial && (oldStyle.borderMaterial = this._style.getBorderMaterial());
-      newStyle.borderWidth && (oldStyle.borderWidth = this._style.getBorderWidth());
-      // Generate new style based on what's changed.
-      newStyle = new Style(Setter.mixin({
-        fillMaterial: this._style.getFillMaterial(),
-        borderMaterial: this._style.getBorderMaterial(),
-        borderWidth: this._style.getBorderWidth()
-      }, newStyle));
+      var oldStyle = this.getStyle();
+      var oldStyleJson = {};
+      if (oldStyle) {
+        // TODO(aramk): Use toObject() for now since toJson() cannot be parsed by Style constructor,
+        // since it contains material subclasses details.
+        oldStyleJson = oldStyle.toObject();
+      }
+      var updateStyleJson = updateStyle instanceof Style ? updateStyle.toObject() : updateStyle;
+      var newStyleJson = Setter.mixin(oldStyleJson, updateStyleJson);
+      var newStyle = new Style(newStyleJson);
       return this.setStyle(newStyle);
     },
 
