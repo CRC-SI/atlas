@@ -1,9 +1,11 @@
 define([
   'atlas/lib/numeral',
+  'atlas/lib/utility/Class',
+  'atlas/lib/utility/Numbers',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Strings',
-  'atlas/lib/utility/Class'
-], function(numeral, Setter, Strings, Class) {
+  'atlas/lib/utility/Types'
+], function(numeral, Class, Numbers, Setter, Strings, Types) {
   /**
    * Formats values for presentation.
    * @class atlas.util.Formatter
@@ -15,9 +17,18 @@ define([
      * @param {Object} args
      * @param {Number} [args.minSigFigs = 1] - The minimum number of significant figures after the period.
      * @param {Number} [args.maxSigFigs = 3] - The maximum number of significant figures after the period.
+     * @param {Boolean} [args.commas=true] - Whether to use commas.
      * @returns {String} A rounded string of the given number.
      */
     round: function(x, args) {
+      if (x === Infinity || x === -Infinity) {
+        return x;
+      }
+      if (!Types.isNumber(x)) {
+        throw new Error('Value must be number');
+      } else if (!Numbers.isDefined(x)) {
+        throw new Error('Undefined value cannot be rounded: ' + x);
+      }
       args = Setter.mixin({
         minSigFigs: 1,
         maxSigFigs: 3
@@ -36,7 +47,7 @@ define([
         decimalFormat = '.' + Strings.repeat('0', args.minSigFigs) + '[' +
           Strings.repeat('0', diffSigFigs)
       }
-      return numeral(x).format('0,0' + decimalFormat);
+      return numeral(x).format('0' + (args.commas ? ',' : '') + '0' + decimalFormat);
     },
 
     /**
