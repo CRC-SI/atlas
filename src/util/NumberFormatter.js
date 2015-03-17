@@ -17,6 +17,7 @@ define([
      * @param {Object} args
      * @param {Number} [args.minSigFigs = 1] - The minimum number of significant figures after the period.
      * @param {Number} [args.maxSigFigs = 3] - The maximum number of significant figures after the period.
+     * @param {Boolean} [args.commas=true] - Whether to use commas.
      * @returns {String} A rounded string of the given number.
      */
     round: function(x, args) {
@@ -46,7 +47,7 @@ define([
         decimalFormat = '.' + Strings.repeat('0', args.minSigFigs) + '[' +
           Strings.repeat('0', diffSigFigs)
       }
-      return numeral(x).format('0,0' + decimalFormat);
+      return numeral(x).format('0' + (args.commas ? ',' : '') + '0' + decimalFormat);
     },
 
     /**
