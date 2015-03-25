@@ -31,7 +31,8 @@ define([
       }
       args = Setter.mixin({
         minSigFigs: 1,
-        maxSigFigs: 3
+        maxSigFigs: 3,
+        commas: true
       }, args);
       if (x.toString().indexOf('e') !== -1) {
         // Number has exponential, so use a precision with 3 significant figures after the
