@@ -174,11 +174,15 @@ define([
 
     getRecursiveChildren: function() {
       var children = [];
+      var childrenMap = {};
       var stack = this.getChildren();
       var child;
       while (stack.length > 0) {
         child = stack.pop();
+        if (childrenMap[child.getId()]) break;
+        
         children.push(child);
+        childrenMap[child.getId()] = true;
         child.getRecursiveChildren().forEach(function(recursiveChild) {
           stack.push(recursiveChild);
         });
