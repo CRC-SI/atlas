@@ -10,9 +10,10 @@ define([
   'atlas/model/Handle',
   'atlas/util/ConvexHullFactory',
   'atlas/util/DeveloperError',
-  'atlas/util/WKT'
+  'atlas/util/WKT',
+  'underscore'
 ], function(ItemStore, OpenLayers, Q, Log, Setter, GeoEntity, GeoPoint, Handle, ConvexHullFactory,
-            DeveloperError, WKT) {
+            DeveloperError, WKT, _) {
 
   /**
    * @typedef atlas.model.Collection
@@ -273,21 +274,41 @@ define([
     // GETTERS AND SETTERS
     // -------------------------------------------
 
+    getCentroid: function() {
+      // Prevent caching the centroid since we do not determine when children will change yet.
+      return this._calcCentroid();
+    },
+
     _calcCentroid: function() {
       var wkt = WKT.getInstance();
-      // Use the footprint, since the centroid of the OpenLayers.Geometry.Collection does not
-      // produce a valid estimate.
       if (this._entities.isEmpty()) {
         return null;
       } else {
-        return wkt.geoPointFromOpenLayersPoint(this.getOpenLayersFootprintGeometry().getCentroid());
+        // If the collection only contains a single child, use centroid of that child which is more
+        // accurate.
+        var singleChild = this._getSingleChild();
+        if (singleChild) {
+          return singleChild.getCentroid();
+        }
+        // We use the footprint since the centroid of the OpenLayers.Geometry.Collection does not
+        // produce a valid estimate.
+        var footprint = this.getOpenLayersFootprintGeometry();
+        return footprint ? wkt.geoPointFromOpenLayersPoint(footprint.getCentroid()) : null;
       }
     },
 
     getOpenLayersFootprintGeometry: function() {
       var wkt = WKT.getInstance();
       var vertices = [];
-      this._entities.forEach(function(entity) {
+      var children = this.getRecursiveChildren();
+      if (children.length == 0) {
+        return null;
+      }
+      children.forEach(function(entity) {
+        // Don't attempt to generate 
+        if (entity instanceof Collection) {
+          return;
+        }
         var geometry = entity.getOpenLayersGeometry();
         if (!geometry) {
           return;
@@ -302,6 +323,26 @@ define([
       });
       var hullVertices = ConvexHullFactory.getInstance().fromVertices(vertices);
       return wkt.openLayersPolygonFromGeoPoints(hullVertices);
+    },
+
+    /**
+     * @return {GeoEntity|null} The only child in the collection, or null if more than one child
+     *     exists. Excludes children which are themselves collections.
+     */
+    _getSingleChild: function() {
+      var children = this.getRecursiveChildren();
+      var singleChild = null;
+      _.some(children, function(child) {
+        if (!(child instanceof Collection)) {
+          if (singleChild) {
+            singleChild = false;
+            return true;
+          } else {
+            singleChild = child;
+          }
+        }
+      });
+      return singleChild;
     },
 
     getOpenLayersGeometry: function(args) {

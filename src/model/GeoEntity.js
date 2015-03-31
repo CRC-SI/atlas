@@ -707,7 +707,7 @@ define([
      * @param {Number} rotation.z - The rotation about the <code>z</code> axis in degrees, negative
      *      rotates counterclockwise, positive rotates clockwise.
      * @param {GeoPoint} [centroid] - The centroid to use for rotating. By default this is the
-     * centroid of the GeoEntity obtained from {@link #getCentroid}.
+     *      centroid of the GeoEntity obtained from {@link #getCentroid}.
      */
     rotate: function(rotation, centroid) {
       this._rotation = this.getRotation().translate(rotation);
@@ -716,10 +716,12 @@ define([
 
     /**
      * @param {atlas.model.Vertex} rotation
+     * @param {GeoPoint} [centroid] - The centroid to use for rotating. By default this is the
+     *      centroid of the GeoEntity obtained from {@link #getCentroid}.
      */
-    setRotation: function(rotation) {
+    setRotation: function(rotation, centroid) {
       var diff = rotation.subtract(this.getRotation());
-      this.rotate(diff);
+      this.rotate(diff, centroid);
     },
 
     /**
