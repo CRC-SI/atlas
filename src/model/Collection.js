@@ -1,6 +1,7 @@
 define([
   'atlas/core/ItemStore',
   'atlas/lib/OpenLayers',
+  'atlas/lib/Q',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   // Base class
@@ -10,7 +11,7 @@ define([
   'atlas/util/ConvexHullFactory',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(ItemStore, OpenLayers, Log, Setter, GeoEntity, GeoPoint, Handle, ConvexHullFactory,
+], function(ItemStore, OpenLayers, Q, Log, Setter, GeoEntity, GeoPoint, Handle, ConvexHullFactory,
             DeveloperError, WKT) {
 
   /**
@@ -351,6 +352,12 @@ define([
           return entity.getId();
         })
       });
+    },
+
+    ready: function() {
+      return Q.all(this._entities.map(function(entity) {
+        return entity.ready();
+      }));
     },
 
     // -------------------------------------------

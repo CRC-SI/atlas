@@ -3,6 +3,7 @@ define([
   'atlas/events/Event',
   // Base class
   'atlas/events/EventTarget',
+  'atlas/lib/Q',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Strings',
   'atlas/lib/utility/Types',
@@ -14,8 +15,8 @@ define([
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(ItemStore, Event, EventTarget, Setter, Strings, Types, Rectangle, Color, CheckPattern,
-            Material, Style, Vertex, DeveloperError, WKT) {
+], function(ItemStore, Event, EventTarget, Q, Setter, Strings, Types, Rectangle, Color,
+            CheckPattern, Material, Style, Vertex, DeveloperError, WKT) {
   /**
    * @typedef atlas.model.GeoEntity
    * @ignore
@@ -569,6 +570,18 @@ define([
      */
     isRenderable: function() {
       return Object.keys(this._dirty).length === 0;
+    },
+
+    /**
+     * @return {Promise} A promise which is resolved once the model has been loaded and is ready to
+     *     be interacted with. This is a compromise to prevent the need to use promises across the
+     *     entire geometry, which would be unecessary once all geometries are loaded and result in a
+     *     performance overhead for all models. Rather, this places the burden of ensuring models
+     *     are ready on the calling code when necessary.
+     */
+    ready: function() {
+      // Override and implement a custom deferred process as necessary.
+      return Q.when();
     },
 
     /**
