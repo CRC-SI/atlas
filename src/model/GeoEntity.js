@@ -575,7 +575,7 @@ define([
     /**
      * @return {Promise} A promise which is resolved once the model has been loaded and is ready to
      *     be interacted with. This is a compromise to prevent the need to use promises across the
-     *     entire geometry, which would be unecessary once all geometries are loaded and result in a
+     *     entire class, which would be unnecessary once all geometries are loaded and result in a
      *     performance overhead for all models. Rather, this places the burden of ensuring models
      *     are ready on the calling code when necessary.
      */

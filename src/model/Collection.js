@@ -275,7 +275,7 @@ define([
     // -------------------------------------------
 
     getCentroid: function() {
-      // Prevent caching the centroid since we do not determine when children will change yet.
+      // Centroid is not cached as we are unable to determine when children have changed.
       return this._calcCentroid();
     },
 
@@ -305,7 +305,7 @@ define([
         return null;
       }
       children.forEach(function(entity) {
-        // Don't attempt to generate 
+        // Don't attempt to generate footprints for collections.
         if (entity instanceof Collection) {
           return;
         }
