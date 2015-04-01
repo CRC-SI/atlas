@@ -152,8 +152,8 @@ define([
      */
     toUtm: function() {
       return GeoPoint._converter.toUtm({coord: {
-        lat: this.latitude,
-        lon: this.longitude
+        latitude: this.latitude,
+        longitude: this.longitude
       }});
     },
 
