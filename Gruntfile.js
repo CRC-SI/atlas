@@ -30,7 +30,6 @@ module.exports = function(grunt) {
   var OPEN_LAYERS_BUILD_OUTPUT_FILE = 'OpenLayers.js';
   var OPEN_LAYERS_BUILD_OUTPUT_PATH = path.join(OPEN_LAYERS_BUILD_PATH,
       OPEN_LAYERS_BUILD_OUTPUT_FILE);
-  var SUBDIV_BUILD_PATH = libPath('subdiv');
   var LCOV_REPORT_PATH = 'coverage/lcov.dat';
 
   require('logfile-grunt')(grunt, {filePath: buildPath('grunt.log'), clearLogFile: true});
@@ -89,14 +88,6 @@ module.exports = function(grunt) {
               'cd ' + OPEN_LAYERS_BUILD_PATH,
               'python ./build.py -c none ' + OPEN_LAYERS_CONFIG_FILE.replace(/\.cfg$/, '') + ' ' +
               OPEN_LAYERS_BUILD_OUTPUT_FILE
-        ].join('&&')
-      },
-
-      buildSubdiv: {
-        command: [
-          'cd ' + SUBDIV_BUILD_PATH,
-          'npm install',
-          'grunt install'
         ].join('&&')
       }
     },
@@ -295,7 +286,7 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('install', 'Installs dependencies.',
-      ['shell:installNpmDep', 'shell:installBowerDep', /*'install-subdiv',*/ 'install-openlayers',
+      ['shell:installNpmDep', 'shell:installBowerDep', 'install-openlayers',
       'copy:bowerDep', 'fix-jquery']);
   grunt.registerTask('update', 'Updates dependencies.',
       ['shell:updateNpmDep', 'shell:updateBowerDep']);
@@ -328,8 +319,6 @@ module.exports = function(grunt) {
   grunt.registerTask('install-openlayers', 'Installs OpenLayers with a custom build.',
       ['copy:openLayersBuildConfig', 'shell:buildOpenLayers', 'fix-openlayers-build',
         'copy:openLayersBuildOutput']);
-
-  grunt.registerTask('install-subdiv', 'Installs the subdiv package.', ['shell:buildSubdiv']);
 
   grunt.registerTask('test', 'Runs defined tests', ['force:karma:unit', 'sed:fixCoverageOutput']);
 

@@ -70,28 +70,32 @@ define([
     },
 
     /**
-     * Translates a world coordinate point into a geopoint
-     * @param {Object} [worldCoords] The world coordinates
+     * @param {atlas.model.GeoPoint} A point in geographic coordinates (Longitude, Latitude).
+     * @return {atlas.model.Vertex} The local cartesian in Unity point mapped to the given point.
      */
-    geoPointFromWorldCoords: function(worldCoords) {
+    worldCoordFromGeoPoint: function(geoPoint) {
+      throw new DeveloperError("Can not call functions on abstract RenderManager");
+    },
+
+    /**
+     * @param {Vertex} worldCoord - The local world coordinates used in the Atlas provider.
+     * @returns {atlas.model.GeoPoint}
+     */
+    geoPointFromWorldCoord: function(worldCoord) {
       throw new DeveloperError("Can not call functions on abstract RenderManager");
     },
 
     /**
      * Translates a screen coordinate point into a geopoint
-     * * @param {Object} [screenCoords] The screen coordinates in pixels
+     * @param {Vertex} screenCoords - The screen coordinates in pixels.
      * @abstract
      */
-    geoPointFromScreenCoords: function(screenCoords) {
+    geoPointFromScreenCoord: function(screenCoord) {
       throw new DeveloperError("Can not call functions on abstract RenderManager");
     },
 
     geoPointFromArgs: function(args) {
-      if (args.sceneposition) {
-        return this.geoPointFromWorldCoords(args.sceneposition);
-      } else {
-        return this.geoPointFromScreenCoords(args.position);
-      }
+      return this.geoPointFromScreenCoord(args.position);
     },
 
     /**
