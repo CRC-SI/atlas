@@ -58,8 +58,6 @@ requirejs.config({
     {name: 'atlas/assets', location: 'atlas/assets'}, // Only need this for testing
     {name: 'jquery', location: 'atlas/lib', main: 'jquery.js'},
     {name: 'underscore', location: 'atlas/lib/underscore', main: 'underscore'},
-
-    // This is the expected name of utm-converter in subdiv.
     {name: 'utm-converter', location: 'atlas/lib', main: 'UtmConverter.js'}
   ],
 
