@@ -200,6 +200,16 @@ define([
       return null;
     },
 
+    /**
+     * Set the vertices of the GeoEntity
+     * @param {<GeoPoint|Array>} vertices
+     */
+    setVertices: function(vertices) {
+      this._vertices = this._getSanitizedVertices(vertices);
+      this.setDirty('vertices');
+      this._update();
+    },
+
     getVertices: function() {
       return this._vertices;
     },
