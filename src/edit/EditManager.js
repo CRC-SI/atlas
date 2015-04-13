@@ -198,16 +198,18 @@ define([
      * modified).
      * @param {Function} [args.complete] - A callback invoked when editing is complete.
      * @param {Function} [args.cancel] - A callback invoked when editing is cancelled.
+     * @returns {Array.<String>} The IDs of the entities for which editing was enabled.
      */
     enable: function(args) {
       args = Setter.mixin({
         show: true,
         addHandles: true
       }, args);
+      var ids = args.ids;
       this._sessions.push(args);
       if (!args.entities) {
         if (args.ids) {
-          args.entities = this._managers.entity.getByIds(args.ids);
+          args.entities = this._managers.entity.getByIds(ids);
         } else {
           args.entities = this._managers.selection.getSelection();
         }
@@ -221,7 +223,49 @@ define([
 
       // Disable selection
       this._managers.event.handleExternalEvent('selection/disable');
+      this._addEditingHandles(addedEntities);
+      return ids;
+    },
 
+    /**
+     * Ends an editing session.
+     * NOTE: This does not do anything regarding specifically 'canceling' or 'saving'
+     * any changes made, but the final state when ending is maintained.
+     * @param {Object} [args]
+     * @param {Array.<String>} [args.ids] A set of entity IDs to disable editing for. By default,
+     *     all entities being edited are disabled.
+     * @returns {Array.<String>} The IDs of the entities for which editing was disabled.
+     */
+    disable: function(args) {
+      args = Setter.merge({
+        ids: this._entities.getIds()
+      }, args);
+      var ids = args.ids;
+      Log.debug('EditManager disabled');
+      this._editing = false;
+      this._removeEditingHandles(ids);
+      this._entities.purge();
+      this._entitiesMeta = {};
+      this.setIsModuleEnabled('translation', this._wasTranslationModuleEnabled);
+      this._managers.event.handleExternalEvent('selection/enable');
+      this._endSessions(ids);
+      return ids;
+    },
+
+    _removeEditingHandles: function(ids) {
+      this._handles.map('remove');
+      this._handles.purge();
+      // Remove handles from entities before showing as extrusion to prevent re-build showing the
+      // handles again. Restore the original display mode.
+      ids.forEach(function(id) {
+        var entity = this._entities.get(id);
+        entity.clearHandles();
+        var meta = this._entitiesMeta[entity.getId()];
+        entity.setDisplayMode(meta.origDisplayMode);
+      }, this);
+    },
+
+    _addEditingHandles: function(addedEntities) {
       // Render the editing handles for those entities which were not editing to begin with.
       addedEntities.forEach(function(entity) {
         var meta = {};
@@ -242,26 +286,11 @@ define([
     },
 
     /**
-     * Ends an editing session.
-     * NOTE: This does not do anything regarding specifically 'canceling' or 'saving'
-     * any changes made, but the final state when ending is maintained.
+     * Ends the open editing sessions of the given entities.
+     * @param {Array.<String>} ids - The IDs of the entities.
      */
-    disable: function() {
-      Log.debug('EditManager disabled');
-      this._editing = false;
-      this._handles.map('remove');
-      // Remove handles from entities before showing as extrusion to prevent re-build showing the
-      // handles again. Restore the original display mode.
-      this._entities.forEach(function(entity) {
-        entity.clearHandles();
-        var meta = this._entitiesMeta[entity.getId()];
-        entity.setDisplayMode(meta.origDisplayMode);
-      }, this);
-      this._handles.purge();
-      this._entities.purge();
-      this._entitiesMeta = {};
-      this.setIsModuleEnabled('translation', this._wasTranslationModuleEnabled);
-      this._managers.event.handleExternalEvent('selection/enable');
+    _endSessions: function(ids) {
+      // TODO(aramk) For now all editing sessions will be removed.
       this._sessions.forEach(function(session) {
         // TODO(aramk) Add support for other kinds of callbacks.
         var complete = session.complete;

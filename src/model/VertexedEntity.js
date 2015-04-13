@@ -201,8 +201,7 @@ define([
     },
 
     /**
-     * Set the vertices of the GeoEntity
-     * @param {<GeoPoint|Array>} vertices
+     * @param {Array.<atlas.model.GeoPoint>} vertices
      */
     setVertices: function(vertices) {
       this._vertices = this._getSanitizedVertices(vertices);
@@ -210,6 +209,9 @@ define([
       this._update();
     },
 
+    /**
+     * @return {Array.<atlas.model.GeoPoint>}
+     */
     getVertices: function() {
       return this._vertices;
     },
