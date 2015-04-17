@@ -1,12 +1,12 @@
-// Camera.js
 define([
   'atlas/model/GeoPoint',
+  'atlas/lib/Q',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Class',
   'atlas/util/DeveloperError',
   'atlas/util/Geocoder'
-], function(GeoPoint, Log, Setter, Class, DeveloperError, Geocoder) {
+], function(GeoPoint, Q, Log, Setter, Class, DeveloperError, Geocoder) {
 
   /**
    * @typedef atlas.camera.Camera
@@ -173,18 +173,40 @@ define([
       this._animate(newCamera);
     },
 
-    zoom: function(input) {
-      throw new DeveloperError('Camera.zoom not yet implemented.');
-      var zoom = {x: 1, y: 1};
-      var moveY = input.movement.cY;
-      moveY /= 300;
-      zoom.z = 1 - moveY;
-      var newCamera = {
-        position: this._position.componentWiseMultiply(zoom),
-        orientation: this._orientation,
-        duration: 0
-      };
-      this._animate(newCamera);
+    /**
+     * @param {Object} args
+     * @param {Object} [args.direction=1] - The direction of the zoom. Any negative value for
+     *      will zoom in and any other value will zoom out.
+     * @param {Object} [args.distance] - The distance to travel during zooming. If unspecified, an
+     *      appropriate amount is used based on the camera position.
+     * @param {Object} [args.duration=500] - The time taken for zooming in milliseconds.
+     */
+    zoom: function(args) {
+      args = Setter.merge({
+        direction: -1,
+        duration: 500
+      }, args);
+      var direction = args.direction < 0 ? -1 : 1;
+      Q.when(this.getStats()).then(function(stats) {
+        var distance = this._getZoomDistance(stats.position);
+        var newPosition = this._position.translate(new GeoPoint(0, 0, direction * distance));
+        var newCamera = {
+          position: newPosition,
+          orientation: stats.orientation,
+          duration: args.duration
+        };
+        this.zoomTo(newCamera);
+      }.bind(this)).done();
+    },
+
+    /**
+     * @param {atlas.model.GeoPoint} position
+     * @return {Number} An appropriate zoom distance in metres to apply to the given position for
+     *     zooming in and out based on the elevation.
+     */
+    _getZoomDistance: function(position) {
+      // TODO(aramk) Implement.
+      return 1000;
     },
 
     roll: function(angle) {

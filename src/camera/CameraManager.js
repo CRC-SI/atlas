@@ -3,10 +3,11 @@ define([
   'atlas/core/Manager',
   'atlas/model/GeoPoint',
   'atlas/model/Rectangle',
+  'atlas/lib/Q',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/util/DeveloperError'
-], function(Camera, Manager, GeoPoint, Rectangle, Log, Setter, DeveloperError) {
+], function(Camera, Manager, GeoPoint, Rectangle, Q, Log, Setter, DeveloperError) {
 
   /**
    * @typedef atlas.camera.CameraManager
@@ -55,8 +56,6 @@ define([
     setup: function() {
       this._current = new Camera({renderManager: this._managers.render});
       this._bindEvents();
-      // TODO(bpstudds): Properly override (Cesium) camera controls.
-      //this._options.forceCustomControl && this._bindControlEvents();
     },
 
     // Binds event handlers with the Event Manager
@@ -89,6 +88,20 @@ define([
           name: 'camera/current',
           callback: function(args) {
             args.callback(this._current);
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'camera/zoomIn',
+          callback: function(args) {
+            this._current.zoom(Setter.merge({direction: -1}, args));
+          }.bind(this)
+        },
+        {
+          source: 'extern',
+          name: 'camera/zoomOut',
+          callback: function(args) {
+            this._current.zoom(Setter.merge({direction: 1}, args));
           }.bind(this)
         }
       ];
@@ -138,12 +151,8 @@ define([
       return this._current;
     },
 
-    // TODO(aramk) This might be superseded by getStats() on Camera.
     getCameraMetrics: function() {
-      return {
-        position: this._current._position,
-        orientation: this._current._orientation
-      };
+      return this._current.getStats();
     },
 
     _updateControl: function(event) {
@@ -197,6 +206,7 @@ define([
 
     unlockCamera: function() {
     }
+
   });
 
   return CameraManager;
