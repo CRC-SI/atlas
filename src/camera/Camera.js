@@ -205,8 +205,7 @@ define([
      *     zooming in and out based on the elevation.
      */
     _getZoomDistance: function(position) {
-      // TODO(aramk) Implement.
-      return 1000;
+      return position.elevation / 3;
     },
 
     roll: function(angle) {
@@ -218,7 +217,7 @@ define([
     },
 
     track: function(movement) {
-
+      throw new DeveloperError('Camera.track not yet implemented.');
     },
 
     // -------------------------------------------
