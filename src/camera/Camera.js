@@ -192,7 +192,8 @@ define([
         var newPosition = this._position.translate(new GeoPoint(0, 0, direction * distance));
         var newCamera = {
           position: newPosition,
-          orientation: stats.orientation,
+          // Align the camera to the ground.
+          orientation: {tilt: -90, bearing: 0, rotation: 0},
           duration: args.duration
         };
         this.zoomTo(newCamera);
