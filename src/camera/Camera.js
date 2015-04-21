@@ -188,8 +188,12 @@ define([
       }, args);
       var direction = args.direction < 0 ? -1 : 1;
       Q.when(this.getStats()).then(function(stats) {
-        var distance = this._getZoomDistance(stats.position);
-        var newPosition = this._position.translate(new GeoPoint(0, 0, direction * distance));
+        var position = new GeoPoint(stats.position);
+        var distance = this._getZoomDistance(position);
+        var newPosition = position.translate(new GeoPoint(0, 0, direction * distance));
+        if (newPosition.elevation <= 5) {
+          newPosition.elevation = 5;
+        }
         var newCamera = {
           position: newPosition,
           // Align the camera to the ground.
@@ -206,7 +210,8 @@ define([
      *     zooming in and out based on the elevation.
      */
     _getZoomDistance: function(position) {
-      return position.elevation / 3;
+      // Zoom at least 50m.
+      return Math.max(position.elevation / 2, 50);
     },
 
     roll: function(angle) {
