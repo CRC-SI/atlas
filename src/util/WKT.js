@@ -31,7 +31,7 @@ define([
      * @returns {<Array.<atlas.model.Vertex>} The converted vertices.
      */
     verticesFromWKT: function(wktStr) {
-      var points = wktStr.match(/([+-]?[\d\.]+\s*)+/g).map(function(match){
+      var points = wktStr.match(/([+-]?\d+(?:\.\d+)?\s*)+/g).map(function(match){
         return match.split(/\s+/).map(function(component){
           return parseFloat(component);
         });
@@ -40,6 +40,26 @@ define([
         return new Vertex(point[1], point[0], point[2]);
       });
       return vertices;
+    },
+
+    /**
+     * @param {String} wktStr - The WKT string to convert
+     * @returns {Object} An object with "vertices" and "holes" containing arrays of points for the
+     *     main polygon and each of the interior holes.
+     */
+    verticesAndHolesFromWKT: function(wktStr) {
+      var result = {
+        vertices: [],
+        holes: []
+      };
+      var polygons = wktStr.match(/(\([^)]+\))/g);
+      if (polygons.length) {
+        result.vertices = this.verticesFromWKT(polygons.shift())
+      }
+      result.holes = polygons.map(function(poly) {
+        return this.verticesFromWKT(poly);
+      }.bind(this));
+      return result;
     },
 
     /**

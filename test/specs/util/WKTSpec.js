@@ -15,6 +15,8 @@ define([
       wktPointStr = 'POINT(-37.82673149546436 145.23770974470838)';
       wktPolygonStr =
           'POLYGON((-37.82673149546436 145.23770974470838,-37.82679037235421 145.23770595291575,-37.82673149546436 145.23770974470838))';
+      wktHoleyPolygonStr =
+          'POLYGON((35 10, 45 45, 15 40, 10 20, 35 10),(20 30, 35 35, 30 20, 20 30))';
       wktLineStr =
           'LINESTRING(-37.82673149546436 145.23770974470838,-37.82679037235421 145.23770595291575,-37.82673149546436 145.23770974470838)';
       polyGeoPoints = [
@@ -23,6 +25,25 @@ define([
         new GeoPoint({latitude: -37.82673149546436, longitude: 145.23770974470838})
       ];
       polyVertices = polyGeoPoints.map(function(point) {
+        return new Vertex(point.longitude, point.latitude);
+      });
+      holeyPolyGeoPoints = [
+        new GeoPoint({latitude: 35, longitude: 10}),
+        new GeoPoint({latitude: 45, longitude: 45}),
+        new GeoPoint({latitude: 15, longitude: 40}),
+        new GeoPoint({latitude: 10, longitude: 20}),
+        new GeoPoint({latitude: 35, longitude: 10})
+      ];
+      holeyPolyHoleGeoPoints = [
+        new GeoPoint({latitude: 20, longitude: 30}),
+        new GeoPoint({latitude: 35, longitude: 35}),
+        new GeoPoint({latitude: 30, longitude: 20}),
+        new GeoPoint({latitude: 20, longitude: 30})
+      ];
+      holeyPolyVertices = holeyPolyGeoPoints.map(function(point) {
+        return new Vertex(point.longitude, point.latitude);
+      });
+      holeyPolyHoleVertices = holeyPolyHoleGeoPoints.map(function(point) {
         return new Vertex(point.longitude, point.latitude);
       });
       lineGeoPoints = [
@@ -50,6 +71,16 @@ define([
 
     it('can convert a WKT polygon to vertices', function() {
       expect(wkt.verticesFromWKT(wktPolygonStr)).toEqual(polyVertices);
+      expect(wkt.geoPointsFromWKT(wktPolygonStr)).toEqual(polyGeoPoints);
+    });
+
+    it('can convert a WKT polygon to vertices and holes', function() {
+      result = wkt.verticesAndHolesFromWKT(wktHoleyPolygonStr);
+
+      expect(result.vertices).toEqual(holeyPolyVertices);
+      expect(result.holes.length).toEqual(1);
+      expect(result.holes[0]).toEqual(holeyPolyHoleVertices);
+
       expect(wkt.geoPointsFromWKT(wktPolygonStr)).toEqual(polyGeoPoints);
     });
 
