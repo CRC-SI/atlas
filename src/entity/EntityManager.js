@@ -120,9 +120,9 @@ define([
             Log.time('entity/create/bulk');
             var promise = null;
             if (args.features) {
-              promise = Q.when(this.bulkCreate(args.features));
+              promise = Q(this.bulkCreate(args.features));
             } else if (args.ids) {
-              promise = Q.when(args.ids);
+              promise = Q(args.ids);
             } else {
               promise = Q.reject('Either features or ids must be provided for bulk show.');
             }
