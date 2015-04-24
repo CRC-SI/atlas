@@ -43,13 +43,6 @@ define([
     // TODO(aramk) Units for height etc. are open to interpretation - define them as metres in docs.
 
     /**
-     * List of counter-clockwise ordered array of vertices constructing holes of this polygon.
-     * @type {Array.<Array.<atlas.model.GeoPoint>>}
-     * @private
-     */
-    _holes: null,
-
-    /**
      * The extruded height of the polygon in metres (if rendered as extruded polygon).
      * @type {Number}
      * @private
@@ -73,9 +66,6 @@ define([
       var len = this._vertices.length;
       if (this._vertices[0] === this._vertices[len - 1] && len > 1) {
         this._vertices.pop();
-      }
-      if (data.holes) {
-        this._holes = this._getSanitizedVertices(data.holes);
       }
       var height = data.height;
       if (height !== undefined) {
@@ -139,22 +129,12 @@ define([
       return this._height;
     },
 
-    getHoles: function() {
-      return this._holes;
-    },
-
     toJson: function(args) {
       args = args || {};
       var json = Setter.merge(this._super(args), {
         type: 'polygon',
         height: this.getHeight()
       });
-      var holes = args.holes || this.getHoles();
-      if (holes) {
-        json.holes = holes.map(function(vertex) {
-          return vertex.toArray();
-        });
-      }
       json.showAsExtrusion = this._showAsExtrusion;
       return json;
     },

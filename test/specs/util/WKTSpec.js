@@ -75,13 +75,16 @@ define([
     });
 
     it('can convert a WKT polygon to vertices and holes', function() {
-      result = wkt.verticesAndHolesFromWKT(wktHoleyPolygonStr);
-
+      var result = wkt.verticesAndHolesFromWKT(wktHoleyPolygonStr);
       expect(result.vertices).toEqual(holeyPolyVertices);
       expect(result.holes.length).toEqual(1);
       expect(result.holes[0]).toEqual(holeyPolyHoleVertices);
+    });
 
-      expect(wkt.geoPointsFromWKT(wktPolygonStr)).toEqual(polyGeoPoints);
+    it('can convert a WKT polygon to vertices and no holes', function() {
+      var result = wkt.verticesAndHolesFromWKT(wktPolygonStr);
+      expect(result.vertices).toEqual(polyVertices);
+      expect(result.holes.length).toEqual(0);
     });
 
     it('can convert a WKT line to vertices', function() {

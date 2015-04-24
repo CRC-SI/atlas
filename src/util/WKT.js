@@ -44,8 +44,11 @@ define([
 
     /**
      * @param {String} wktStr - The WKT string to convert
-     * @returns {Object} An object with "vertices" and "holes" containing arrays of points for the
-     *     main polygon and each of the interior holes.
+     * @returns {Object} result
+     * @returns {Array.<atlas.model.Vertex>} result.vertices - Vertices for the outer ring
+     *      (the main polygon).
+     * @returns {Array.<atlas.model.Vertex>} result.holes - Vertices for the inner rings of the
+     *      polygon.
      */
     verticesAndHolesFromWKT: function(wktStr) {
       var result = {
