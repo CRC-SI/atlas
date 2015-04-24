@@ -2,6 +2,7 @@ define([
   'atlas/core/Manager',
   'atlas/core/ItemStore',
   'atlas/events/Event',
+  'atlas/lib/Q',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Strings',
@@ -19,7 +20,7 @@ define([
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'underscore'
-], function(Manager, ItemStore, Event, Log, Setter, Strings, topsort, Collection, Ellipse, Feature,
+], function(Manager, ItemStore, Event, Q, Log, Setter, Strings, topsort, Collection, Ellipse, Feature,
             GeoEntity, Mesh, Point, Polygon, Line, Image, GeoPoint, Vertex, DeveloperError, _) {
 
   /**
@@ -117,18 +118,19 @@ define([
           name: 'entity/create/bulk',
           callback: function(args) {
             Log.time('entity/create/bulk');
-            var ids;
+            var promise = null;
             if (args.features) {
-              ids = this.bulkCreate(args.features);
+              promise = Q.when(this.bulkCreate(args.features));
             } else if (args.ids) {
-              ids = args.ids;
+              promise = Q.when(args.ids);
             } else {
-              throw new Error('Either features or ids must be provided for bulk show.');
+              promise = Q.reject('Either features or ids must be provided for bulk show.');
             }
-            if (args.callback) {
-              args.callback(ids);
-            }
-            Log.timeEnd('entity/create/bulk');
+            args.callback && args.callback(promise);
+            promise.fin(function(ids) {
+              Log.timeEnd('entity/create/bulk');
+            });
+            !args.callback && promise.done();
           }.bind(this)
         },
         {
