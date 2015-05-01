@@ -13,10 +13,11 @@ define([
   'atlas/selection/SelectionManager',
   'atlas/visualisation/VisualisationManager',
   'atlas/util/DeveloperError',
+  'atlas/lib/Q',
   'atlas/lib/utility/Class'
 ], function(CameraManager, DomManager, PopupFaculty, PopupManager, OverlayManager, EditManager,
   EntityManager, EventManager, InputManager, RenderManager, TerrainManager, SelectionManager,
-  VisualisationManager, DeveloperError, Class) {
+  VisualisationManager, DeveloperError, Q, Class) {
 
   /**
    * @typedef atlas.core.Atlas
@@ -135,6 +136,7 @@ define([
       } else {
         var oldManager = this._managers[id];
         this._managers[id] = manager;
+        manager._atlas = this;
         return oldManager;
       }
     },
@@ -212,6 +214,14 @@ define([
      */
     hideEntity: function(id) {
       this._managers.render.hide(id);
+    },
+
+    /**
+     * @return {Promise.<atlas.core.Atlas>} A promise which is resolved once Atlas has initialized
+     *     and is ready to receive instructions.
+     */
+    ready: function() {
+      return Q.when(this);
     }
 
   });
