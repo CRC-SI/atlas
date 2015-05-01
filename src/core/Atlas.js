@@ -66,11 +66,11 @@ define([
 
     _managerClasses: {},
 
-    _init: function() {
+    _init: function(args) {
       this._managers = {};
-      this._initManagers();
-      this._createManagers();
-      this._setup();
+      this._initManagers(args);
+      this._createManagers(args);
+      this._setup(args);
     },
 
     // -------------------------------------------
