@@ -339,7 +339,7 @@ define([
      */
     createCollection: function(id, args) {
       this._bindDeps(args);
-      return new this._entityTypes.Collection(id, {entities: args.children}, args);
+      return new this._entityTypes.Collection(id, {entities: args.children || args.entities}, args);
     },
 
     /**
