@@ -298,6 +298,8 @@ define([
     },
 
     setSelected: function(selected) {
+      if (!this.isSelectable()) return;
+
       // Ensure a selection event is fired for the feature as well. Since setSelected alters the
       // style and it will replace the style of the entity before it is considered selected, and
       // setting the style of the feature will set the style on the entity a second time. When

@@ -334,12 +334,13 @@ define([
 
     /**
      * @param {String} id
-     * @param {Object} args
+     * @param {Object} data
      * @return {atlas.model.Collection}
      */
-    createCollection: function(id, args) {
-      this._bindDeps(args);
-      return new this._entityTypes.Collection(id, {entities: args.children || args.entities}, args);
+    createCollection: function(id, data) {
+      var args = this._bindDeps();
+      data.entities = data.children || data.entities;
+      return new this._entityTypes.Collection(id, data, args);
     },
 
     /**

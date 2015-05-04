@@ -221,7 +221,6 @@ define([
       this._eventManager = args.eventManager;
       this._entityManager = args.entityManager;
       this._entityManager && this._entityManager.add(this);
-      this._selectable = Setter.def(args.selectable, true);
       var parentId = args.parent;
       var parent;
       if (parentId) {
@@ -251,6 +250,7 @@ define([
       this.setElevation(data.elevation || 0);
       this._scale = new Vertex(data.scale || {x: 1, y: 1, z: 1});
       this._rotation = new Vertex(data.rotation || {x: 0, y: 0, z: 0});
+      this._selectable = Setter.def(data.selectable, true);
       this.setMetaData(data.metaData || {});
     },
 
@@ -888,7 +888,7 @@ define([
      * is unchanged.
      */
     setSelected: function(selected) {
-      if (this._selected === selected) {
+      if (this._selected === selected || !this.isSelectable()) {
         return null;
       }
       this._selected = selected;

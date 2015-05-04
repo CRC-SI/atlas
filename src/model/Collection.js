@@ -428,7 +428,7 @@ define([
           var match = args.ids.some(function(id) {
             return collection.getEntity(id);
           });
-          if (match) {
+          if (match && collection.isSelectable()) {
             collection.setSelected(state);
           }
         });
