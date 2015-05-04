@@ -249,7 +249,7 @@ define([
            * @fires InternalEvent#entity/mousemove
            * @ignore
            */
-          callback: _.debounce(function(args) {
+          callback: _.debounce(function() {
             // Debounce to prevent excessive calls to getAt().
             var position = args.position;
             var entities = this.getAt(position);
@@ -259,7 +259,7 @@ define([
                *
                * @event InternalEvent#entity/mousemove
                * @type {atlas.events.Event}
-               * @property {String} args.id - The ID of the double-clicked entity.
+               * @property {String} args.id - The ID of the entity.
                */
               this._managers.event.dispatchEvent(new Event(entity, 'entity/mousemove', {
                 id: entity.getId()
@@ -268,7 +268,7 @@ define([
           }.bind(this), 100)
         }
       ];
-      this._managers.event.addEventHandlers(handlers);
+      this._eventHandlers = this._managers.event.addEventHandlers(handlers);
     },
 
     /**
