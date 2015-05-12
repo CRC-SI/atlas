@@ -205,6 +205,12 @@ define([
      */
     _isSetUp: false,
 
+    /**
+     * Whether updating the geoemtry is permitted.
+     * @type {Boolean}
+     */
+    _isUpdatable: true,
+
     _init: function(id, data, args) {
       if (typeof id === 'object') {
         args = id;
@@ -232,6 +238,8 @@ define([
       data = data || {};
       this._setup(id, data, args);
       this._isSetUp = true;
+      var updatable = data.updatable;
+      updatable !== undefined && this.setUpdatable(updatable);
       this.isVisible() && this.show();
     },
 
@@ -825,7 +833,7 @@ define([
      * @private
      */
     _update: function() {
-      if (!this._isSetUp) return;
+      if (!this._isSetUp || !this._isUpdatable) return;
       var isVisible = this.isVisible();
       if (isVisible && !this.isRenderable()) {
         this._build();
@@ -893,6 +901,16 @@ define([
       }
       this._selected = selected;
       selected ? this._onSelect() : this._onDeselect();
+    },
+
+    /**
+     * @param {Boolean} Whether the entity is updatable.
+     */
+    setUpdatable: function(updatable) {
+      this._isUpdatable = updatable;
+      this.getChildren().forEach(function(child) {
+        child.setUpdatable(updatable);
+      });
     },
 
     // -------------------------------------------

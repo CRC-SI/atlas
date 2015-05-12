@@ -68,7 +68,7 @@ define([
           'entity/deselect': this._handleSelection.bind(this, 'deselect')
         }
       };
-      this._managers.event.addNewEventHandlers(handlers);
+      this.eventHandlers = this._managers.event.addNewEventHandlers(handlers);
     },
 
     // -------------------------------------------
