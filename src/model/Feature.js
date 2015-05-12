@@ -118,9 +118,12 @@ define([
         var mode = Feature.JsonPropertyToDisplayMode[prop];
         var formData = data[prop];
         if (formData) {
-          // Hide the form initially if the feature is hidden.
-          formData.show = Setter.def(data.show, formData.show);
+          // Don't render the form until the feature is rendered.
+          formData.show = false;//Setter.def(data.show, formData.show);
           formData.updatable = Setter.def(data.updatable, formData.updatable);
+          if (this.isSelected()) {
+            formData.selected = true;
+          }
           var form = this._getOrCreateForm(id, prop, formData, args);
           this.setForm(mode, form);
           displayMode = displayMode || mode;

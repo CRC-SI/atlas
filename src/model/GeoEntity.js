@@ -260,6 +260,8 @@ define([
       this._scale = new Vertex(data.scale || {x: 1, y: 1, z: 1});
       this._rotation = new Vertex(data.rotation || {x: 0, y: 0, z: 0});
       this.setMetaData(data.metaData || {});
+      var selected = data.selected;
+      selected !== undefined && this.setSelected(selected);
     },
 
     _setupStyle: function(data, args) {
