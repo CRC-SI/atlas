@@ -28,6 +28,13 @@ define([
     _vertices: null,
 
     /**
+     * List of counter-clockwise ordered array of vertices constructing holes of this polygon.
+     * @type {Array.<Array.<atlas.model.GeoPoint>>}
+     * @private
+     */
+    _holes: null,
+
+    /**
      * The z-axis order as an integer in the range [0, Infinity]. Entities with higher zIndex will
      * appear on top.
      * @type {Number}
@@ -44,7 +51,16 @@ define([
 
     _setup: function(id, data, args) {
       this._super(id, data, args);
-      this._vertices = this._getSanitizedVertices(data.vertices);
+      if (Types.isString(data.vertices)) {
+        var wkt = WKT.getInstance();
+        var verticesWithHoles = wkt.verticesAndHolesFromWKT(data.vertices);
+        data.vertices = verticesWithHoles.vertices;
+        if (verticesWithHoles.holes.length > 0 && !data.holes) {
+          data.holes = verticesWithHoles.holes;
+        }
+      }
+      this.setVertices(this._getSanitizedVertices(data.vertices));
+      data.holes && this.setHoles(data.holes);
       this._zIndex = parseFloat(data.zIndex) || this._zIndex;
       this._zIndexOffset = parseFloat(data.zIndexOffset) || this._zIndexOffset;
     },
@@ -230,6 +246,24 @@ define([
     },
 
     /**
+     * @returns {Array.<atlas.model.GeoPoint>}
+     */
+    getHoles: function() {
+      return this._holes;
+    },
+
+    /**
+     * @param {Array.<Array.<atlas.model.GeoPoint>>} holes
+     */
+    setHoles: function(holes) {
+      this._holes = holes.map(function(vertices) {
+        return this._getSanitizedVertices(vertices);
+      }, this);
+      this.setDirty('vertices');
+      this._update();
+    },
+
+    /**
      * Set the elevation of the base of the GeoEntity.
      * @param {Number} elevation - The elevation of the base of the GeoEntity.
      */
@@ -260,11 +294,26 @@ define([
 
     toJson: function(args) {
       args = args || {};
-      return Setter.merge(this._super(args), {
+      var json = Setter.merge(this._super(args), {
         coordinates: args.coordinates || this.getVertices().map(function(vertex) {
           return vertex.toArray();
         })
       });
+      var holes = args.holes;
+      if (!holes) {
+        holes = this.getHoles();
+        if (holes) {
+          holes = holes.map(function(vertices) {
+            return vertices.map(function(vertex) {
+              return vertex.toArray();
+            });
+          });
+        }
+      }
+      if (holes) {
+        json.holes = holes;
+      }
+      return json;
     }
 
   });
