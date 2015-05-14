@@ -423,13 +423,13 @@ define([
       var collection = this;
       var actions = {'select': true, 'deselect': false};
       Object.keys(actions).forEach(function(name) {
-        var state = actions[name];
+        var action = actions[name];
         var handle = this._eventManager.addEventHandler('intern', 'entity/' + name, function(args) {
           var match = args.ids.some(function(id) {
             return collection.getEntity(id);
           });
-          if (match) {
-            collection.setSelected(state);
+          if (match && collection.isSelectable()) {
+            collection.setSelected(action);
           }
         });
         this._bindEventHandle(handle);

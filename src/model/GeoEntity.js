@@ -206,10 +206,11 @@ define([
     _isSetUp: false,
 
     /**
-     * Whether updating the geoemtry is permitted.
+     * Whether updating the GeoEntity will cause it to build its geometry. This is also applicable
+     * on the initial build.
      * @type {Boolean}
      */
-    _isUpdatable: true,
+    _buildOnChanges: true,
 
     _init: function(id, data, args) {
       if (typeof id === 'object') {
@@ -227,7 +228,6 @@ define([
       this._eventManager = args.eventManager;
       this._entityManager = args.entityManager;
       this._entityManager && this._entityManager.add(this);
-      this._selectable = Setter.def(args.selectable, true);
       var parentId = args.parent;
       var parent;
       if (parentId) {
@@ -238,8 +238,8 @@ define([
       data = data || {};
       this._setup(id, data, args);
       this._isSetUp = true;
-      var updatable = data.updatable;
-      updatable !== undefined && this.setUpdatable(updatable);
+      var buildOnChanges = data.buildOnChanges;
+      buildOnChanges !== undefined && this.setBuildOnChanges(buildOnChanges);
       this.isVisible() && this.show();
     },
 
@@ -259,6 +259,7 @@ define([
       this.setElevation(data.elevation || 0);
       this._scale = new Vertex(data.scale || {x: 1, y: 1, z: 1});
       this._rotation = new Vertex(data.rotation || {x: 0, y: 0, z: 0});
+      this._selectable = Setter.def(data.selectable, true);
       this.setMetaData(data.metaData || {});
       var selected = data.selected;
       selected !== undefined && this.setSelected(selected);
@@ -835,7 +836,7 @@ define([
      * @private
      */
     _update: function() {
-      if (!this._isSetUp || !this._isUpdatable) return;
+      if (!this._isSetUp || !this._buildOnChanges) return;
       var isVisible = this.isVisible();
       if (isVisible && !this.isRenderable()) {
         this._build();
@@ -898,7 +899,7 @@ define([
      * is unchanged.
      */
     setSelected: function(selected) {
-      if (this._selected === selected) {
+      if (this._selected === selected || !this.isSelectable()) {
         return null;
       }
       this._selected = selected;
@@ -906,12 +907,12 @@ define([
     },
 
     /**
-     * @param {Boolean} Whether the entity is updatable.
+     * @param {Boolean} Whether updating the GeoEntity will cause it to rebuild its geometry.
      */
-    setUpdatable: function(updatable) {
-      this._isUpdatable = updatable;
+    setBuildOnChanges: function(buildOnChanges) {
+      this._buildOnChanges = buildOnChanges;
       this.getChildren().forEach(function(child) {
-        child.setUpdatable(updatable);
+        child.setBuildOnChanges(buildOnChanges);
       });
     },
 

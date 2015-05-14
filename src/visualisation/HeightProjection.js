@@ -26,6 +26,21 @@ define([
      */
     _modifiedElevations: null,
 
+    /**
+     * Whether to maintain stacked entities vertically by modifying their elevation as their heights
+     * change.
+     * @type {Boolean}
+     */
+    _stack: true,
+
+    _init: function(args) {
+      this._super(args);
+      args = Setter.mixin({
+        stack: true
+      }, args)
+      this._stack = args.stack;
+    },
+
     getCurrentState: function() {
       // Otherwise return the current state of the actual render.
       var state = {};
@@ -56,7 +71,7 @@ define([
       // TODO(bpstudds): Handle the case where there's a hierarchy of 'parents'
       var newElevation;
       var parent = entity.getParent();
-      if (!parent && oldHeight === 0 && oldElevation === 0) {
+      if (this._stack === false || !parent && oldHeight === 0 && oldElevation === 0) {
         // If the entity had a height of 0 and no parent, the old top elevation of 0 will be
         // incorrectly mapped to a new non-zero top elevation, causing other similar entities to
         // stack. Avoid this by setting the new elevation to the old one.

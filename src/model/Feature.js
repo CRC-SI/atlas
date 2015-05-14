@@ -119,8 +119,8 @@ define([
         var formData = data[prop];
         if (formData) {
           // Don't render the form until the feature is rendered.
-          formData.show = false;//Setter.def(data.show, formData.show);
-          formData.updatable = Setter.def(data.updatable, formData.updatable);
+          formData.show = false;
+          formData.buildOnChanges = Setter.def(data.buildOnChanges, formData.buildOnChanges);
           if (this.isSelected()) {
             formData.selected = true;
           }
@@ -304,6 +304,8 @@ define([
     },
 
     setSelected: function(selected) {
+      if (!this.isSelectable()) return;
+
       // Ensure a selection event is fired for the feature as well. Since setSelected alters the
       // style and it will replace the style of the entity before it is considered selected, and
       // setting the style of the feature will set the style on the entity a second time. When
