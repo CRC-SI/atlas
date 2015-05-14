@@ -335,6 +335,9 @@ define([
     /**
      * @param {String} id
      * @param {Object} data
+     * @param {Array.<String>} data.entities - A series of entity IDs to add as children in the
+     *     collection.
+     * @param {Array.<String>} [data.children] - An alias property for "entities".
      * @return {atlas.model.Collection}
      */
     createCollection: function(id, data) {
