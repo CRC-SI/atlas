@@ -120,7 +120,7 @@ define([
         if (formData) {
           // Hide the form initially if the feature is hidden.
           formData.show = Setter.def(data.show, formData.show);
-          formData.updatable = Setter.def(data.updatable, formData.updatable);
+          formData.buildOnChanges = Setter.def(data.buildOnChanges, formData.buildOnChanges);
           var form = this._getOrCreateForm(id, prop, formData, args);
           this.setForm(mode, form);
           displayMode = displayMode || mode;

@@ -238,8 +238,8 @@ define([
       data = data || {};
       this._setup(id, data, args);
       this._isSetUp = true;
-      var updatable = data.updatable;
-      updatable !== undefined && this.setBuildOnChanges(updatable);
+      var buildOnChanges = data.buildOnChanges;
+      buildOnChanges !== undefined && this.setBuildOnChanges(buildOnChanges);
       this.isVisible() && this.show();
     },
 
@@ -907,10 +907,10 @@ define([
     /**
      * @param {Boolean} Whether updating the GeoEntity will cause it to rebuild its geometry.
      */
-    setBuildOnChanges: function(updatable) {
-      this._buildOnChanges = updatable;
+    setBuildOnChanges: function(buildOnChanges) {
+      this._buildOnChanges = buildOnChanges;
       this.getChildren().forEach(function(child) {
-        child.setBuildOnChanges(updatable);
+        child.setBuildOnChanges(buildOnChanges);
       });
     },
 
