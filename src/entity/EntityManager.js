@@ -497,7 +497,7 @@ define([
      */
     _parseC3mlPoint: function(c3ml) {
       return {
-        position: c3ml.position,
+        position: c3ml.position || c3ml.coordinates[0],
         latitude: c3ml.latitude,
         longitude: c3ml.longitude,
         elevation: c3ml.elevation,
