@@ -206,10 +206,11 @@ define([
     _isSetUp: false,
 
     /**
-     * Whether updating the geoemtry is permitted.
+     * Whether updating the GeoEntity will cause it to build its geometry. This is also applicable
+     * on the initial build.
      * @type {Boolean}
      */
-    _isUpdatable: true,
+    _buildOnChanges: true,
 
     _init: function(id, data, args) {
       if (typeof id === 'object') {
@@ -239,7 +240,7 @@ define([
       this._setup(id, data, args);
       this._isSetUp = true;
       var updatable = data.updatable;
-      updatable !== undefined && this.setUpdatable(updatable);
+      updatable !== undefined && this.setBuildOnChanges(updatable);
       this.isVisible() && this.show();
     },
 
@@ -833,7 +834,7 @@ define([
      * @private
      */
     _update: function() {
-      if (!this._isSetUp || !this._isUpdatable) return;
+      if (!this._isSetUp || !this._buildOnChanges) return;
       var isVisible = this.isVisible();
       if (isVisible && !this.isRenderable()) {
         this._build();
@@ -904,12 +905,12 @@ define([
     },
 
     /**
-     * @param {Boolean} Whether the entity is updatable.
+     * @param {Boolean} Whether updating the GeoEntity will cause it to rebuild its geometry.
      */
-    setUpdatable: function(updatable) {
-      this._isUpdatable = updatable;
+    setBuildOnChanges: function(updatable) {
+      this._buildOnChanges = updatable;
       this.getChildren().forEach(function(child) {
-        child.setUpdatable(updatable);
+        child.setBuildOnChanges(updatable);
       });
     },
 
