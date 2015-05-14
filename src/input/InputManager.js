@@ -142,6 +142,11 @@ define([
        * @type {InternalEvent#InputEvent}
        */
       /**
+       * The mouse wheel was moved.
+       * @event InternalEvent#input/wheel
+       * @type {InternalEvent#InputEvent}
+       */
+      /**
        * The left mouse button was double-clicked.
        * @event InternalEvent#input/left/dblclick
        * @type {InternalEvent#InputEvent}
@@ -181,7 +186,10 @@ define([
        */
       var makeMouseEvent = function(name, e) {
         var args = makeMouseEventArgs(name, e);
-        return new Event(null, args.name, args);
+        var event = new Event(null, args.name, args);
+        // Store a reference to the original event for specific information (e.g. wheel).
+        event.getArgs().domEvent = e;
+        return event;
       };
 
       // -------------------------------------------
@@ -220,6 +228,14 @@ define([
         name: 'mousemove',
         cback: function(e) {
           eventManager.dispatchEvent(makeMouseEvent('mousemove', e));
+        }
+      });
+
+      // Mouse wheel handler
+      this._mouseHandlers.push({
+        name: 'wheel',
+        cback: function(e) {
+          eventManager.dispatchEvent(makeMouseEvent('wheel', e));
         }
       });
 
