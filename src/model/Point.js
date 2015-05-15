@@ -43,17 +43,20 @@ define([
      * @ignore
      */
     _setup: function(id, data, args) {
-      var position = new GeoPoint(data.position);
-      if (Types.isString(position)) {
-        var wkt = WKT.getInstance();
-        position = wkt.geoPointsFromWKT(position)[0];
-      } else if (!position) {
+      var position = data.position;
+      var vertices = data.vertices;
+      if (!position && !vertices) {
         position = new GeoPoint({longitude: data.longitude, latitude: data.latitude,
             elevation: data.elevation});
+      } else if (position && !vertices && Types.isString(position)) {
+        vertices = position;
       }
-      this._position = position;
-      data.vertices = [position];
+      data.vertices = vertices = vertices || [position];
       this._super(id, data, args);
+      this._position = this.getVertices()[0];
+      if (!this._position) {
+        throw new Error('No position provided');
+      }
     },
 
     // -------------------------------------------

@@ -6,6 +6,7 @@ define([
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Strings',
+  'atlas/lib/utility/Types',
   'atlas/lib/topsort',
   'atlas/model/Collection',
   'atlas/model/Ellipse',
@@ -20,8 +21,9 @@ define([
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'underscore'
-], function(Manager, ItemStore, Event, Q, Log, Setter, Strings, topsort, Collection, Ellipse, Feature,
-            GeoEntity, Mesh, Point, Polygon, Line, Image, GeoPoint, Vertex, DeveloperError, _) {
+], function(Manager, ItemStore, Event, Q, Log, Setter, Strings, Types, topsort, Collection, Ellipse,
+            Feature, GeoEntity, Mesh, Point, Polygon, Line, Image, GeoPoint, Vertex, DeveloperError,
+            _) {
 
   /**
    * @typedef atlas.entity.EntityManager
@@ -249,7 +251,7 @@ define([
            * @fires InternalEvent#entity/mousemove
            * @ignore
            */
-          callback: _.debounce(function() {
+          callback: _.debounce(function(args) {
             // Debounce to prevent excessive calls to getAt().
             var position = args.position;
             var entities = this.getAt(position);
@@ -496,8 +498,14 @@ define([
      * @private
      */
     _parseC3mlPoint: function(c3ml) {
+      // Position is either a string or an array containing a single coordinate.
+      // var position = c3ml.position || c3ml.coordinates;
+      // if (Types.isArrayLiteral(position) && position.length === 1) {
+      //   position = position[0];
+      // }
       return {
-        position: c3ml.position || c3ml.coordinates[0],
+        position: c3ml.position,
+        vertices: c3ml.coordinates,
         latitude: c3ml.latitude,
         longitude: c3ml.longitude,
         elevation: c3ml.elevation,
