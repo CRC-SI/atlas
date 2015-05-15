@@ -128,11 +128,19 @@ define([
             } else {
               promise = Q.reject('Either features or ids must be provided for bulk show.');
             }
-            args.callback && args.callback(promise);
             promise.fin(function(ids) {
               Log.timeEnd('entity/create/bulk');
             });
-            !args.callback && promise.done();
+            if (args.callback) {
+              if (args.callbackPromise) {
+                args.callback(promise);
+              } else {
+                promise.then(args.callback);
+              }
+            } else {
+              // Catch and report errors.
+              promise.done();
+            }
           }.bind(this)
         },
         {

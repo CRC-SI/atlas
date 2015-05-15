@@ -64,6 +64,13 @@
  */
 
 /**
+ * A command to create new Features.
+ *
+ * @event ExternalEvent#entity/create/bulk
+ * @type {atlas.events.Event}
+ */
+
+/**
  * A command to show an existing Feature.
  *
  * @event ExternalEvent#entity/show
