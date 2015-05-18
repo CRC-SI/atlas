@@ -389,14 +389,14 @@ define([
 
     /**
      * @param {Object} [args]
-     * @param {Object} [args.useCentroid=true] - Whether to use centroid instead of the entire
+     * @param {Object} [args.useCentroid=false] - Whether to use centroid instead of the entire
      *     geometry to calculate the bounding box, which can be very expensive for large numbers of
      *     entities.
      * @returns {atlas.model.Rectangle}
      */
     getBoundingBox: function(args) {
       args = Setter.merge({
-        useCentroid: true
+        useCentroid: false
       }, args);
       if (args.useCentroid) {
         var stats = {};
