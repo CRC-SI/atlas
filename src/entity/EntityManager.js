@@ -429,10 +429,11 @@ define([
      * @return {Array.<String>} The child IDs for the given C3ML document.
      */
     _getChildrenIds: function(c3ml) {
-      if (c3ml.children) {
+      var type = this._sanitizeType(c3ml.type);
+      var forms = c3ml.forms;
+      if (type === 'collection' && c3ml.children) {
         return c3ml.children;
-      } else if (this._sanitizeType(c3ml.type) === 'feature') {
-        var forms = c3ml.forms;
+      } else if (type === 'feature' && forms) {
         return Object.keys(forms).map(function(formType) {
           return forms[formType];
         });
