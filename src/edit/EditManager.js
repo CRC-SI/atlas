@@ -223,7 +223,7 @@ define([
 
       // Disable selection
       this._managers.event.handleExternalEvent('selection/disable');
-      this._addEditingHandles(addedEntities);
+      this._addEditingHandles(addedEntities, args);
       return ids;
     },
 
@@ -265,7 +265,7 @@ define([
       }, this);
     },
 
-    _addEditingHandles: function(addedEntities) {
+    _addEditingHandles: function(addedEntities, args) {
       // Render the editing handles for those entities which were not editing to begin with.
       addedEntities.forEach(function(entity) {
         var meta = {};
