@@ -389,10 +389,12 @@ define([
 
     /**
      * @param {Object} [args]
-     * @param {Object} [args.useCentroid=false] - Whether to use centroid instead of the entire
-     *     geometry to calculate the bounding box, which can be very expensive for large numbers of
-     *     entities.
-     * @returns {atlas.model.Rectangle}
+     * @param {Object} [args.useCentroid=false] - Whether to use centroids instead of the entire
+     *     geometry to calculate the bounding box of children. The latter can be very expensive for
+     *     large numbers of entities.
+     * @returns {atlas.model.Rectangle} The bounding box surrounding all entities of this
+     *     collection. NOTE: This may not be correct around boundaries where latitude/longitude
+     *     change signs.
      */
     getBoundingBox: function(args) {
       args = Setter.merge({
@@ -409,7 +411,6 @@ define([
             latitudes.push(centroid.latitude);
           }
         });
-        // NOTE: This may not work around boundaries.
         return new Rectangle(_.max(latitudes), _.min(latitudes), _.max(longitudes),
             _.min(longitudes));
       } else {
