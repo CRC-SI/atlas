@@ -8,12 +8,13 @@ define([
   'atlas/model/GeoEntity',
   'atlas/model/GeoPoint',
   'atlas/model/Handle',
+  'atlas/model/Rectangle',
   'atlas/util/ConvexHullFactory',
   'atlas/util/DeveloperError',
   'atlas/util/WKT',
   'underscore'
-], function(ItemStore, OpenLayers, Q, Log, Setter, GeoEntity, GeoPoint, Handle, ConvexHullFactory,
-            DeveloperError, WKT, _) {
+], function(ItemStore, OpenLayers, Q, Log, Setter, GeoEntity, GeoPoint, Handle, Rectangle,
+            ConvexHullFactory, DeveloperError, WKT, _) {
 
   /**
    * @typedef atlas.model.Collection
@@ -383,6 +384,37 @@ define([
         return null;
       } else {
         return Math.max.apply(null, values);
+      }
+    },
+
+    /**
+     * @param {Object} [args]
+     * @param {Object} [args.useCentroid=false] - Whether to use centroids instead of the entire
+     *     geometry to calculate the bounding box of children. The latter can be very expensive for
+     *     large numbers of entities.
+     * @returns {atlas.model.Rectangle} The bounding box surrounding all entities of this
+     *     collection. NOTE: This may not be correct around boundaries where latitude/longitude
+     *     change signs.
+     */
+    getBoundingBox: function(args) {
+      args = Setter.merge({
+        useCentroid: false
+      }, args);
+      if (args.useCentroid) {
+        var stats = {};
+        var longitudes = [];
+        var latitudes = [];
+        _.each(this.getRecursiveChildren(), function(entity) {
+          var centroid = entity.getCentroid();
+          if (centroid) {
+            longitudes.push(centroid.longitude);
+            latitudes.push(centroid.latitude);
+          }
+        });
+        return new Rectangle(_.max(latitudes), _.min(latitudes), _.max(longitudes),
+            _.min(longitudes));
+      } else {
+        return this._super();
       }
     },
 

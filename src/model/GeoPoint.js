@@ -256,23 +256,12 @@ define([
    * @returns {atlas.model.GeoPoint}
    */
   GeoPoint.fromUtm = function(utm) {
-    var latlon = GeoPoint._converter.toWgs(utm).coord;
+    var coord = GeoPoint._converter.toWgs(utm).coord;
     return new GeoPoint({
-      latitude: latlon.lat,
-      longitude: latlon.lon,
+      latitude: coord.latitude,
+      longitude: coord.longitude,
       elevation: 0
     });
-  };
-
-  /**
-   * Constructs a new GeoPoint from an object containing properties for latitude,
-   * longitude, and height.
-   * @param {Object} other - The object containing the geospatial data.
-   * @returns {atlas.model.GeoPoint}
-   * @static
-   */
-  GeoPoint.fromLatLngHeight = function(other) {
-    return new GeoPoint(other.lng, other.lat, other.height);
   };
 
   /**

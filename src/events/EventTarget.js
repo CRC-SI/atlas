@@ -179,7 +179,7 @@ define([
       var child;
       while (stack.length > 0) {
         child = stack.pop();
-        if (childrenMap[child.getId()]) break;
+        if (childrenMap[child.getId()]) continue;
         
         children.push(child);
         childrenMap[child.getId()] = true;

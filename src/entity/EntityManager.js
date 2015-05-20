@@ -6,6 +6,7 @@ define([
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Strings',
+  'atlas/lib/utility/Types',
   'atlas/lib/topsort',
   'atlas/model/Collection',
   'atlas/model/Ellipse',
@@ -20,8 +21,9 @@ define([
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'underscore'
-], function(Manager, ItemStore, Event, Q, Log, Setter, Strings, topsort, Collection, Ellipse, Feature,
-            GeoEntity, Mesh, Point, Polygon, Line, Image, GeoPoint, Vertex, DeveloperError, _) {
+], function(Manager, ItemStore, Event, Q, Log, Setter, Strings, Types, topsort, Collection, Ellipse,
+            Feature, GeoEntity, Mesh, Point, Polygon, Line, Image, GeoPoint, Vertex, DeveloperError,
+            _) {
 
   /**
    * @typedef atlas.entity.EntityManager
@@ -126,11 +128,19 @@ define([
             } else {
               promise = Q.reject('Either features or ids must be provided for bulk show.');
             }
-            args.callback && args.callback(promise);
             promise.fin(function(ids) {
               Log.timeEnd('entity/create/bulk');
             });
-            !args.callback && promise.done();
+            if (args.callback) {
+              if (args.callbackPromise) {
+                args.callback(promise);
+              } else {
+                promise.then(args.callback);
+              }
+            } else {
+              // Catch and report errors.
+              promise.done();
+            }
           }.bind(this)
         },
         {
@@ -249,7 +259,7 @@ define([
            * @fires InternalEvent#entity/mousemove
            * @ignore
            */
-          callback: _.debounce(function() {
+          callback: _.debounce(function(args) {
             // Debounce to prevent excessive calls to getAt().
             var position = args.position;
             var entities = this.getAt(position);
@@ -419,10 +429,11 @@ define([
      * @return {Array.<String>} The child IDs for the given C3ML document.
      */
     _getChildrenIds: function(c3ml) {
-      if (c3ml.children) {
+      var type = this._sanitizeType(c3ml.type);
+      var forms = c3ml.forms;
+      if (type === 'collection' && c3ml.children) {
         return c3ml.children;
-      } else if (this._sanitizeType(c3ml.type) === 'feature') {
-        var forms = c3ml.forms;
+      } else if (type === 'feature' && forms) {
         return Object.keys(forms).map(function(formType) {
           return forms[formType];
         });
@@ -496,8 +507,14 @@ define([
      * @private
      */
     _parseC3mlPoint: function(c3ml) {
+      // Position is either a string or an array containing a single coordinate.
+      // var position = c3ml.position || c3ml.coordinates;
+      // if (Types.isArrayLiteral(position) && position.length === 1) {
+      //   position = position[0];
+      // }
       return {
-        position: c3ml.position || c3ml.coordinates[0],
+        position: c3ml.position,
+        vertices: c3ml.coordinates,
         latitude: c3ml.latitude,
         longitude: c3ml.longitude,
         elevation: c3ml.elevation,

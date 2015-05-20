@@ -32,6 +32,6 @@
     "underscore": "~1.7.0",
     "utility": "https://bitbucket.org/mutopia/utility.git#master",
     "topsort": "https://github.com/aramk/topsort.git#bower",
-    "utm-converter": "https://github.com/urbanetic/utm-converter.git#master"
+    "utm-converter": "https://github.com/urbanetic/utm-converter.git#v0.1.1"
   }
 }
