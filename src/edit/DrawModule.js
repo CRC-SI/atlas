@@ -227,12 +227,16 @@ define([
         return;
       }
 
+      // Allows the handle to be constructed with a different coordinate if necessary depending
+      // on the provider.
       var point = this._managers.render.geoPointFromArgs(args);
-      this._doAdd(point);
+      var handlePoint = this._managers.render.geoPointFromArgs(args, {useWorldCoords: true});
+      this._doAdd(point, handlePoint);
       this._executeHandlers(this._handlers.update);
     },
 
-    _doAdd: function(point) {
+    _doAdd: function(point, handlePoint) {
+      handlePoint = handlePoint || point;
       var handles = this._managers.edit.getHandles();
       var form = this._getForm();
       var line = this._getLine();
@@ -241,7 +245,7 @@ define([
         line.addVertex(point);
       }
       // Use the form's handle constructor for consistency.
-      var handle = form.addHandle(form.createHandle(point, form.getVertices().length - 1));
+      var handle = form.addHandle(form.createHandle(handlePoint, form.getVertices().length - 1));
       handle.show();
       this._handles.push(handle);
       handles.add(handle);

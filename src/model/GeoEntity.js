@@ -261,6 +261,8 @@ define([
       this._rotation = new Vertex(data.rotation || {x: 0, y: 0, z: 0});
       this._selectable = Setter.def(data.selectable, true);
       this.setMetaData(data.metaData || {});
+      var selected = data.selected;
+      selected !== undefined && this.setSelected(selected);
     },
 
     _setupStyle: function(data, args) {
