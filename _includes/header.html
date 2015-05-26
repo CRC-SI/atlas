@@ -15,7 +15,7 @@
 
       <div class="trigger">
         {% for page in site.menu %}
-        <a class="page-link" href="/{{ page | slugify | prepend: site.baseurl }}">{{ page }}</a>
+        <a class="page-link" href="{{ site.baseurl }}/{{ page | slugify }}">{{ page }}</a>
         {% endfor %}
       </div>
     </nav>
