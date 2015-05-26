@@ -6,6 +6,8 @@ Atlas is a JavaScript library that provides a high-level API for 3D geospatial r
 API makes it easy to incorporate modern rendering technologies in Web applications, supporting the
 next generation of GIS tools.
 
+[Documentation][docs] and [JSDocs][jsdocs]
+
 ## Getting Started
 
 The default implementation of Atlas, [Atlas-Cesium][atlas-cesium], uses the HTML5 Cesium rendering
@@ -34,6 +36,7 @@ Infrastructure Network][aurin] (AURIN). If you're interested in using Atlas in y
 us know at [hello@urbanetic.net](mailto:hello@urbanetic.net).
 
 [docs]: https://urbanetic.github.io/atlas/
+[jsdocs]: http://jsdocs.atlas.urbanetic.net/
 [atlas-cesium]: https://github.com/urbanetic/atlas-cesium
 [aurin]: http://aurin.org.au/
 [urbanetic]: http://www.urbanetic.net/
