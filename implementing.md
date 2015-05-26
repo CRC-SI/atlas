@@ -1,4 +1,8 @@
-# Implementing Atlas
+---
+layout: page
+title: Implementing Atlas
+permalink: /implementing/
+---
 
 This is a guide to implementing the Atlas API with a new renderer. This is for you if you're
 interested in using the Atlas API, but would like to use a rendering library other than Cesium.

@@ -1,4 +1,8 @@
-# Atlas Design
+---
+layout: page
+title: Atlas Design
+permalink: /design/
+---
 
 When integrated within a "host" application, Atlas behaves like a component: it is completely
 self-sufficient and will run by itself once started. The host application communicates with Atlas in

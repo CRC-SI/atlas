@@ -1,0 +1,24 @@
+# Site settings
+title: Atlas Documentation
+email: hello@urbanetic.net
+description: An abstract API for interactive 3D geospatial rendering on the Web.
+
+baseurl: ""
+url: "http://atlas.github.io"
+github_username:  urbanetic
+
+site_description: Documentation for the Atlas 3D geospatial rendering library.
+site_author: Oliver Lade
+site_favicon: img/favicon.png
+
+license: license
+
+menu:
+- Getting Started
+- Features
+- Design
+- Developers
+- Implementing
+
+# Build settings
+markdown: kramdown

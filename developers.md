@@ -1,4 +1,8 @@
-# Atlas Developer Guide
+---
+layout: page
+title: Developer Guide
+permalink: /developers/
+---
 
 ## Overview
 

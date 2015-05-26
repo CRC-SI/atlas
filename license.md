@@ -1,4 +1,8 @@
-# Atlas License
+---
+layout: page
+title: License
+permalink: /license/
+---
 
 Atlas will soon be available under the Apache 2 license. However, until the lawyers are finished
 negotiating, any use of Atlas requires the explicit permission of the development team. For more

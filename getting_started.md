@@ -1,4 +1,8 @@
-# Getting Started with Atlas
+---
+layout: page
+title: Getting Started
+permalink: /getting-started/
+---
 
 Atlas is a component that is designed to be included within a "host" Web application. The
 integration process is not yet as simple as it could be, but this will be improved in the future.

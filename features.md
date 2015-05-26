@@ -1,4 +1,8 @@
-# Atlas Features
+---
+layout: page
+title: Atlas Features
+permalink: /features/
+---
 
 Atlas has a variety of features to make geospatial rendering easy. This section provides a brief
 description of each of them. For more information about the implementation details, refer to
