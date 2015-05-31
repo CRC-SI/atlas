@@ -3,8 +3,8 @@ title: Atlas Documentation
 email: hello@urbanetic.net
 description: An abstract API for interactive 3D geospatial rendering on the Web.
 
-baseurl: "/atlas"
-url: "http://atlas.github.io"
+baseurl: ""
+url: "http://www.atlasjs.org"
 github_username:  urbanetic
 
 site_description: Documentation for the Atlas 3D geospatial rendering library.
