@@ -416,9 +416,15 @@ define([
           if (!c3ml) {
             throw new Error('No C3ML entity found for ID ' + id);
           }
-          var data = this._parseC3ml(c3ml);
-          this.createEntity(id, data);
-          ids.push(id);
+          // Catch errors when rendering to avoid a single entity causing a failure for the entire
+          // set.
+          try {
+            var data = this._parseC3ml(c3ml);
+            this.createEntity(id, data);
+            ids.push(id);
+          } catch (e) {
+            Log.error('Failed to render entity during bulk render', e);
+          }
         }
       }, this);
       return ids;

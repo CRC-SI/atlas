@@ -44,8 +44,8 @@ define([
      * @param {String} id
      * @param {Object} data
      * @param {Array.<String>} data.entities - A set of {@link GeoEntity} IDs.
+     * @param {Boolean} [data.groupSelect=false] - Whether selecting an entity selects the entire
      * @param {Object} args
-     * @param {Boolean} [args.groupSelect=true] - Whether selecting an entity selects the entire
      * collection.
      * @private
      */
@@ -54,13 +54,13 @@ define([
       this._entities = new ItemStore();
       this._initDelegation();
       this._initEvents();
+      data = Setter.mixin({groupSelect: false}, data);
       // Add entities before setup to ensure style is recursively set on entities.
       var entityIds = data.entities || [];
       entityIds.forEach(this.addEntity, this);
       this._super(id, data, args);
       this._visible = false;
-      args = Setter.mixin({groupSelect: true}, args);
-      args.groupSelect && this._initSelection();
+      data.groupSelect && this._initSelection();
     },
 
     _setupStyle: function(data, args) {
