@@ -16,7 +16,7 @@ define([
       wktPolygonStr =
           'POLYGON((-37.82673149546436 145.23770974470838,-37.82679037235421 145.23770595291575,-37.82673149546436 145.23770974470838))';
       wktHoleyPolygonStr =
-          'POLYGON((35 10, 45 45, 15 40, 10 20, 35 10),(20 30, 35 35, 30 20, 20 30))';
+          'POLYGON((35 10,45 45,15 40,10 20,35 10),(20 30,35 35,30 20,20 30))';
       wktLineStr =
           'LINESTRING(-37.82673149546436 145.23770974470838,-37.82679037235421 145.23770595291575,-37.82673149546436 145.23770974470838)';
       polyGeoPoints = [
@@ -85,6 +85,12 @@ define([
       var result = wkt.verticesAndHolesFromWKT(wktPolygonStr);
       expect(result.vertices).toEqual(polyVertices);
       expect(result.holes.length).toEqual(0);
+    });
+
+    it('can convert vertices and holes to a WKT polygon', function() {
+      var rings = [holeyPolyVertices, holeyPolyHoleVertices];
+      var result = wkt.wktFromVerticesAndHoles(rings);
+      expect(result).toEqual(wktHoleyPolygonStr);
     });
 
     it('can convert a WKT line to vertices', function() {
