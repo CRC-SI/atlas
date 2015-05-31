@@ -374,11 +374,10 @@ define([
     /**
      * Allows for creation of multiple Features. Skips features which already exist.
      * @param {Array} c3mls - An array of objects, with each object containing
-     *    an entity description conforming to the C3ML standard.
+     *     an entity description conforming to the C3ML standard.
      * @returns {Array} The IDs of the created entities.
      */
     bulkCreate: function(c3mls) {
-      var ids = [];
       var edges = [];
       var sortMap = {};
       var c3mlMap = {};
@@ -408,23 +407,36 @@ define([
           sortedIds.push(id);
         }
       });
-      sortedIds.forEach(function(id) {
+      var sortedC3mls = [];
+      _.each(sortedIds, function(id) {
         var c3ml = c3mlMap[id];
         // Entities referenced by ID may be rendered in a previous draw call and already exist so
         // we don't need to create them.
-        if (!this.getById(id)) {
-          if (!c3ml) {
-            throw new Error('No C3ML entity found for ID ' + id);
-          }
-          // Catch errors when rendering to avoid a single entity causing a failure for the entire
-          // set.
-          try {
-            var data = this._parseC3ml(c3ml);
-            this.createEntity(id, data);
-            ids.push(id);
-          } catch (e) {
-            Log.error('Failed to render entity during bulk render', e);
-          }
+        if (!this.getById(id) && !c3ml) {
+          throw new Error('No C3ML entity found for ID ' + id);
+        } else {
+          sortedC3mls.push(c3ml);
+        }
+      }, this);
+      this._bulkCreate(sortedC3mls);
+    },
+
+    /**
+     * @param {Array} c3mls - A topologically sorted (in descending order so children appear first)
+     *     array of C3ML objects.
+     * @returns {Array} The IDs of the created entities.
+     */
+    _bulkCreate: function(c3mls) {
+      var ids = [];
+      _.each(c3mls, function(c3ml) {
+        // Catch errors when rendering to avoid a single entity causing a failure for the entire
+        // set.
+        try {
+          var data = this._parseC3ml(c3ml);
+          this.createEntity(id, data);
+          ids.push(id);
+        } catch (e) {
+          Log.error('Failed to render entity during bulk render', e);
         }
       }, this);
       return ids;
