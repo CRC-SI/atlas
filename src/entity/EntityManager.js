@@ -418,7 +418,7 @@ define([
           sortedC3mls.push(c3ml);
         }
       }, this);
-      this._bulkCreate(sortedC3mls);
+      return this._bulkCreate(sortedC3mls);
     },
 
     /**
