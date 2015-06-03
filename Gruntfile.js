@@ -42,10 +42,6 @@ module.exports = function(grunt) {
         stderr: true,
         failOnError: true
       },
-      // Installs all NodeJS dependencies.
-      installNpmDep: {
-        command: 'npm install --cache-min 999999999'
-      },
 
       // Installs all Bower dependencies.
       installBowerDep: {
@@ -286,7 +282,7 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('install', 'Installs dependencies.',
-      ['shell:installNpmDep', 'shell:installBowerDep', 'install-openlayers',
+      ['shell:installBowerDep', 'install-openlayers',
       'copy:bowerDep', 'fix-jquery']);
   grunt.registerTask('update', 'Updates dependencies.',
       ['shell:updateNpmDep', 'shell:updateBowerDep']);

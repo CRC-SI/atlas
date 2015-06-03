@@ -51,6 +51,7 @@
     "requirejs": "~2.1.11"
   },
   "scripts": {
+    "install": "grunt install && grunt build:no-minify",
     "test": "grunt test"
   }
 }
