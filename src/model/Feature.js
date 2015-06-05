@@ -296,7 +296,10 @@ define([
         } else if (form instanceof Ellipse) {
           return 'ellipse';
         } else {
-          throw new Error('Unrecognized form for display mode: ' + displayMode);
+          console.log("form cannot be mapped to json property", displayMode, form.toJson())
+          // TODO(aramk) We need to refactor this so display modes and forms are the same concept.
+          Logger.warn('Unrecognized form for display mode: ' + displayMode);
+          return null;
         }
       } else {
         return displayMode;
