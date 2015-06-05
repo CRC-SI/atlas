@@ -418,7 +418,7 @@ define([
           sortedC3mls.push(c3ml);
         }
       }, this);
-      this._bulkCreate(sortedC3mls);
+      return this._bulkCreate(sortedC3mls);
     },
 
     /**
@@ -429,6 +429,7 @@ define([
     _bulkCreate: function(c3mls) {
       var ids = [];
       _.each(c3mls, function(c3ml) {
+        var id = c3ml.id;
         // Catch errors when rendering to avoid a single entity causing a failure for the entire
         // set.
         try {

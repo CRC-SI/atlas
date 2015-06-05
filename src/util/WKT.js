@@ -5,8 +5,9 @@ define([
   'atlas/lib/utility/error/DevError',
   'atlas/lib/utility/Class',
   'atlas/lib/utility/Types',
-  'atlas/util/Instances'
-], function(Vertex, GeoPoint, OpenLayers, DevError, Class, Types, Instances) {
+  'atlas/util/Instances',
+  'underscore'
+], function(Vertex, GeoPoint, OpenLayers, DevError, Class, Types, Instances, _) {
 
   /**
    * @typedef atlas.util.WKT
@@ -156,17 +157,28 @@ define([
      * @returns {OpenLayers.Geometry.Polygon}
      */
     openLayersPolygonFromVertices: function(vertices) {
-      var points = this.openLayersPointsFromVertices(vertices);
-      var ring = new OpenLayers.Geometry.LinearRing(points);
-      var components = ring.components;
-      if (components.length > 1) {
-        components.pop();
-      }
-      // Ensure the ring is closed.
-      if (components.length > 0 && components[0] !== components.slice(-1)) {
-        components.push(components[0]);
-      }
-      return new OpenLayers.Geometry.Polygon([ring]);
+      var rings = this.openLayersRingsFromVertices([vertices]);
+      return new OpenLayers.Geometry.Polygon(rings);
+    },
+
+    /**
+     * @param {Array.<Array.<atlas.model.Vertex>>} rings
+     * @returns {Array.<OpenLayers.Geometry.LinearRing>}
+     */
+    openLayersRingsFromVertices: function(rings) {
+      return _.map(rings, function(vertices) {
+        var points = this.openLayersPointsFromVertices(vertices);
+        var ring = new OpenLayers.Geometry.LinearRing(points);
+        var components = ring.components;
+        if (components.length > 1) {
+          components.pop();
+        }
+        // Ensure the ring is closed.
+        if (components.length > 0 && components[0] !== components.slice(-1)) {
+          components.push(components[0]);
+        }
+        return ring;
+      }, this);
     },
 
     /**
@@ -202,6 +214,17 @@ define([
     // TODO(aramk) Also support LINESTRING and POINT.
     wktFromVertices: function(vertices) {
       var polygon = this.openLayersPolygonFromVertices(vertices);
+      return this.parser.extractGeometry(polygon);
+    },
+
+    /**
+     * @param {Array.<Array.<atlas.model.Vertex>>} rings - An array of rings where the first is the
+     *     outer ring and the remaining are inner rings (holes).
+     * @return {String}
+     */
+    wktFromVerticesAndHoles: function(rings) {
+      var openLayersRings = this.openLayersRingsFromVertices(rings);
+      var polygon = new OpenLayers.Geometry.Polygon(openLayersRings);
       return this.parser.extractGeometry(polygon);
     },
 
