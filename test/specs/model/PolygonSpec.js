@@ -47,6 +47,11 @@ define([
 
     it('has a centroid', function() {
       expect(polygon.getCentroid()).toEqual(centroid);
+      expect(polygon.toJson().centroid).toEqual(centroid.toArray());
+      var translation = new GeoPoint({latitude: 0.001, longitude: 0.001});
+      polygon.translate(translation);
+      // Ensure the centroid in the JSON doesn't change due to transformations.
+      expect(polygon.toJson().centroid).toEqual(centroid.toArray());
     });
 
     it('has an area', function() {

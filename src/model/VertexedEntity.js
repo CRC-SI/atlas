@@ -281,9 +281,25 @@ define([
       return isRef;
     },
 
+    /**
+     * @return {atlas.model.GeoPoint} The centroid of the original vertices.
+     */
+    getInitialCentroid: function() {
+      return this._calcCentroid({
+        vertices: this.getInitialVertices()
+      });
+    },
+
+    /**
+     * @params {Object} [args]
+     * @params {Boolean} [args.utm=false] - Whether to use UTM coordinates for the vertices.
+     * @params {Array.<atlas.model.GeoPoint>} [args.vertices] - The vertices to use for calculating
+     *     the centroid. By default, the current vertices (including transformations) are used.
+     * @returns {OpenLayers.Geometry}
+     */
     getOpenLayersGeometry: function(args) {
+      var vertices = (args && args.vertices) || this.getVertices();
       var wkt = WKT.getInstance();
-      var vertices = this.getVertices();
       if (args && args.utm) {
         vertices = vertices.map(function(point) {
           return point.toUtm().coord;
@@ -362,6 +378,7 @@ define([
       if (holes) {
         json.holes = holes;
       }
+      json.centroid = this.getInitialCentroid().toArray();
       return json;
     }
 

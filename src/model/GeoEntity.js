@@ -377,9 +377,10 @@ define([
       this.translate(diff);
     },
 
-    _calcCentroid: function() {
+    
+    _calcCentroid: function(args) {
       var wkt = WKT.getInstance();
-      var centroid = this.getOpenLayersGeometry().getCentroid();
+      var centroid = this.getOpenLayersGeometry(args).getCentroid();
       return centroid ? wkt.geoPointFromOpenLayersPoint(centroid) : null;
     },
 
