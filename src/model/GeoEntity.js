@@ -116,6 +116,12 @@ define([
     _rotation: null,
 
     /**
+     * Whether any transformations have taken place.
+     * @type {Boolean}
+     */
+    _isTransformed: false,
+
+    /**
      * Whether the GeoEntity is visible.
      * @type {Boolean}
      * @protected
@@ -270,6 +276,7 @@ define([
           new GeoPoint(data.translation || {latitude: 0, longitude: 0, elevation: 0});
       this._scale = this._scale || new Vertex(data.scale || {x: 1, y: 1, z: 1});
       this._rotation = this._rotation || new Vertex(data.rotation || {x: 0, y: 0, z: 0});
+      this._isTransformed = data.translation || data.scale || data.rotation;
       this._selectable = Setter.def(data.selectable, true);
       this.setMetaData(data.metaData || {});
       var selected = data.selected;
@@ -719,6 +726,7 @@ define([
      */
     translate: function(translation) {
       this._translation = this._translation.translate(translation);
+      this._isTransformed = true;
       // NOTE: Translation is handled by the subclasses, since not all models have vertices.
       this._postTransform();
     },
@@ -750,6 +758,7 @@ define([
      */
     scale: function(scale) {
       this._scale = this.getScale().componentwiseMultiply(scale);
+      this._isTransformed = true;
       this._postTransform();
     },
 
@@ -781,6 +790,7 @@ define([
      */
     rotate: function(rotation, centroid) {
       this._rotation = this.getRotation().translate(rotation);
+      this._isTransformed = true;
       this._postTransform();
     },
 
@@ -815,6 +825,7 @@ define([
      * Resets the transformations to their defaults.
      */
     resetTransformations: function() {
+      if (!this._isTransformed) { return }
       var defaults = {
         translation: new GeoPoint(0, 0, 0),
         scale: new Vertex(1, 1, 1),
@@ -830,6 +841,7 @@ define([
         this._scale = defaults.scale;
         this._rotation = defaults.rotation;
       }
+      this._isTransformed = false;
     },
 
     /**

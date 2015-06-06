@@ -75,7 +75,7 @@ define([
       // transformed.
       data.translation && this.setTranslation(data.translation);
       data.scale && this.setScale(data.scale);
-      data.rotation && this.setScale(data.rotation);
+      data.rotation && this.setRotation(data.rotation);
 
       this._zIndex = parseFloat(data.zIndex) || this._zIndex;
       this._zIndexOffset = parseFloat(data.zIndexOffset) || this._zIndexOffset;
