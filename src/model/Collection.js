@@ -419,12 +419,19 @@ define([
     },
 
     toJson: function() {
-      return Setter.merge(this._super(), {
+      var json = Setter.merge(this._super(), {
         type: 'collection',
         children: this._entities.map(function(entity) {
           return entity.getId();
         })
       });
+      // To prevent applying transformations twice on children, remove those on the collection.
+      // Children have absolute transformations (not relative to the collection). The
+      // transformations on the collection are for reference at runtime only.
+      delete json.translation;
+      delete json.scale;
+      delete json.rotation;
+      return json;
     },
 
     ready: function() {
@@ -438,7 +445,7 @@ define([
     // -------------------------------------------
 
     rotate: function(rotation, centroid) {
-      // Rotation should be applied on each child entity around the same centroid - by default that
+      // Rotation should be applied on each child entity around the same centroid - by default, that
       // of the collection.
       centroid = centroid || this.getCentroid();
       this._super(rotation, centroid);
