@@ -262,21 +262,23 @@ define([
      * @return {Array.<atlas.model.GeoPoint>} A shallow copy of the initial vertices.
      */
     getInitialVertices: function() {
-      return this._copyInitialVertices();
+      this._copyInitialVertices();
+      return this._initialVertices;
     },
 
     /**
      * Performs a copy-on-write of the current vertices to create the initial vertices if they
      * are shared references.
-     * @return {Array.<atlas.model.GeoPoint>}
+     * @return {Boolean} Whether the initial vertices were created.
      */
     _copyInitialVertices: function() {
-      if (this._initialVertices === this._vertices) {
+      var isRef = this._initialVertices === this._vertices;
+      if (isRef) {
         this._initialVertices = _.map(this._vertices, function(vertex) {
           return vertex.clone();
         });
       }
-      return this._initialVertices;
+      return isRef;
     },
 
     getOpenLayersGeometry: function(args) {
