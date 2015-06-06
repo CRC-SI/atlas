@@ -230,7 +230,7 @@ define([
       if (!form) return;
       var property = this._getFormPropertyName(displayMode);
       delete this[property];
-      form.remove();
+      form.setParent(null);
     },
 
     /**
@@ -296,7 +296,9 @@ define([
         } else if (form instanceof Ellipse) {
           return 'ellipse';
         } else {
-          throw new Error('Unrecognized form for display mode: ' + displayMode);
+          // TODO(aramk) We need to refactor this so display modes and forms are the same concept.
+          Logger.warn('Unrecognized form for display mode: ' + displayMode);
+          return null;
         }
       } else {
         return displayMode;
@@ -357,7 +359,7 @@ define([
       Object.keys(formsMap).forEach(function(displayMode) {
         var form = formsMap[displayMode];
         var propName = this.getJsonPropertyFromDisplayMode(displayMode);
-        if (json[propName] === undefined) {
+        if (propName && json[propName] === undefined) {
           // Avoid re-running toJson() for form classes which can span multiple display modes
           // (e.g. Polygon and Ellipse).
           forms[propName] = form.getId();
