@@ -414,7 +414,7 @@ define([
         // we don't need to create them.
         if (!this.getById(id) && !c3ml) {
           throw new Error('No C3ML entity found for ID ' + id);
-        } else {
+        } else if (c3ml) {
           sortedC3mls.push(c3ml);
         }
       }, this);
