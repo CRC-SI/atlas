@@ -4,8 +4,9 @@ define([
   'atlas/model/GeoEntity',
   'atlas/model/GeoPoint',
   'atlas/model/Handle',
-  'atlas/util/WKT'
-], function(Types, Setter, GeoEntity, GeoPoint, Handle, WKT) {
+  'atlas/util/WKT',
+  'underscore'
+], function(Types, Setter, GeoEntity, GeoPoint, Handle, WKT, _) {
   /**
    * @typedef atlas.model.VertexedEntity
    * @ignore
@@ -22,10 +23,16 @@ define([
   VertexedEntity = GeoEntity.extend(/** @lends atlas.model.VertexedEntity# */ {
 
     /**
-     * An array of vertices in counter-clockwise order.
+     * An array of vertices in counter-clockwise order. Transformations modify these values.
      * @type {Array.<atlas.model.GeoPoint>}
      */
     _vertices: null,
+
+    /**
+     * An array of vertices in counter-clockwise order without transformations.
+     * @type {Array.<atlas.model.GeoPoint>}
+     */
+    _initialVertices: null,
 
     /**
      * List of counter-clockwise ordered array of vertices constructing holes of this polygon.
@@ -50,7 +57,6 @@ define([
     _zIndexOffset: 0.1,
 
     _setup: function(id, data, args) {
-      this._super(id, data, args);
       if (Types.isString(data.vertices)) {
         var wkt = WKT.getInstance();
         var verticesWithHoles = wkt.verticesAndHolesFromWKT(data.vertices);
@@ -59,8 +65,19 @@ define([
           data.holes = verticesWithHoles.holes;
         }
       }
-      this.setVertices(this._getSanitizedVertices(data.vertices));
+
+      // Prevent resetting transformations for the initial vertices.
+      this.setVertices(this._getSanitizedVertices(data.vertices), {
+        resetTransformations: false
+      });
       data.holes && this.setHoles(data.holes);
+      // Call super constructor after vertices are set.
+      this._super(id, data, args);
+      // Apply transformations if they are provided.
+      data.translation && this.setTranslation(data.translation);
+      data.scale && this.setScale(data.scale);
+      data.rotation && this.setScale(data.rotation);
+
       this._zIndex = parseFloat(data.zIndex) || this._zIndex;
       this._zIndexOffset = parseFloat(data.zIndexOffset) || this._zIndexOffset;
     },
@@ -128,6 +145,7 @@ define([
     // -------------------------------------------
 
     translate: function(translation) {
+      this._copyInitialVertices();
       this._vertices.forEach(function(vertex) {
         vertex.set(vertex.translate(translation));
       });
@@ -138,6 +156,7 @@ define([
     },
 
     scale: function(scale) {
+      this._copyInitialVertices();
       var centroid = this.getCentroid();
       this._vertices.forEach(function(vertex, i) {
         var diff = vertex.subtract(centroid).toVertex();
@@ -151,13 +170,15 @@ define([
     },
 
     // TODO(aramk) Rotation of vertices needs matrix math functions in Atlas.
-    // TODO(aramk) Perhaps a better strategy than transforming the original vertices would
+    // TODO(aramk) Perhaps a better strategy than transforming the initial vertices would
     // be to keep the transformation entirely separate and apply it conditionally after building
     // the primitive. At the moment, we're relying on reproducing the transformation to vertices
     // that affect the primitives in atlas-cesium. At the same time, atlas should perform all the
     // calculations the provider (atlas-cesium) should only be visualising, so we likely need
     // matrix transformations in Atlas, which is more work for now.
-    // rotate: function(rotation)
+
+    // rotate: function(rotation) {
+    //   this._copyInitialVertices();
     //   this._super(rotation);
     // },
 
@@ -217,19 +238,46 @@ define([
     },
 
     /**
+     * Sets the given vertices.
      * @param {Array.<atlas.model.GeoPoint>} vertices
+     * @param {Object} [options]
+     * @param {Object} [options.resetTransformations=true] Whether to reset transformations.
      */
-    setVertices: function(vertices) {
-      this._vertices = this._getSanitizedVertices(vertices);
+    setVertices: function(vertices, options) {
+      options = Setter.merge({resetTransformations: true}, options);
+      // Initially, vertex references are shared to save memory.
+      this._vertices = this._initialVertices = this._getSanitizedVertices(vertices);
+      options.resetTransformations && this.resetTransformations();
       this.setDirty('vertices');
       this._update();
     },
 
     /**
-     * @return {Array.<atlas.model.GeoPoint>}
+     * @return {Array.<atlas.model.GeoPoint>} A shallow copy of the vertices.
      */
     getVertices: function() {
       return this._vertices;
+    },
+
+    /**
+     * @return {Array.<atlas.model.GeoPoint>} A shallow copy of the initial vertices.
+     */
+    getInitialVertices: function() {
+      return this._copyInitialVertices();
+    },
+
+    /**
+     * Performs a copy-on-write of the current vertices to create the initial vertices if they
+     * are shared references.
+     * @return {Array.<atlas.model.GeoPoint>}
+     */
+    _copyInitialVertices: function() {
+      if (this._initialVertices === this._vertices) {
+        this._initialVertices = _.map(this._vertices, function(vertex) {
+          return vertex.clone();
+        });
+      }
+      return this._initialVertices;
     },
 
     getOpenLayersGeometry: function(args) {
@@ -295,7 +343,7 @@ define([
     toJson: function(args) {
       args = args || {};
       var json = Setter.merge(this._super(args), {
-        coordinates: args.coordinates || this.getVertices().map(function(vertex) {
+        coordinates: args.coordinates || this.getInitialVertices().map(function(vertex) {
           return vertex.toArray();
         })
       });

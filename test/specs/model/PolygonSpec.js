@@ -3,9 +3,11 @@ define([
   // Code under test
   'atlas/model/Polygon',
   'atlas/model/GeoPoint',
+  'atlas/model/Vertex',
   'atlas/material/Style',
-  'atlas/util/WKT'
-], function(EventManager, Polygon, GeoPoint, Style, WKT) {
+  'atlas/util/WKT',
+  'underscore'
+], function(EventManager, Polygon, GeoPoint, Vertex, Style, WKT, _) {
   describe('A Polygon', function() {
 
     var polygon, footprint, centroid, area, constructArgs, vertices, eventManager;
@@ -64,13 +66,6 @@ define([
       expect(polygon.getElevation()).toEqual(value);
     });
 
-    it('can be translated', function() {
-      var oldCentroid = polygon.getCentroid();
-      var value = new GeoPoint({latitude: 0.001, longitude: 0.001});
-      polygon.translate(value);
-      expect(polygon.getCentroid().isCloseTo(oldCentroid.translate(value))).toBe(true);
-    });
-
     it('can be selected and deselected', function() {
       var oldStyle = polygon.getStyle();
       polygon.setSelected(true);
@@ -95,6 +90,69 @@ define([
       var polygon2 = new Polygon('foo', {vertices: []}, constructArgs);
       expect(polygon2.getCentroid()).toEqual(null);
     });
+
+    it('can be translated', function() {
+      testTransformations(function() {
+        var oldCentroid = polygon.getCentroid();
+        var translation = new GeoPoint({latitude: 0.001, longitude: 0.001});
+        polygon.translate(translation);
+        expect(polygon.getCentroid().isCloseTo(oldCentroid.translate(translation))).toBe(true);
+        var json = polygon.toJson();
+        expect(json.translation).toDeepEqual(translation.toArray());
+      });
+    });
+
+    it('can be scaled', function() {
+      testTransformations(function() {
+        var oldArea = polygon.getArea();
+        var scale = new Vertex(2, 2, 2);
+        polygon.scale(scale);
+        var json = polygon.toJson();
+        expect(oldArea).not.toEqual(polygon.getArea());
+        expect(json.scale).toDeepEqual(scale.toArray());
+      });
+    });
+
+    it('can be rotated', function() {
+      var rotation = new Vertex(0, 0, 90);
+      polygon.rotate(rotation);
+      var json = polygon.toJson();
+      expect(json.rotation).toDeepEqual(rotation.toArray());
+
+      // TODO(aramk) Atlas currently doesn't support rotation transformations affecting the vertices
+      // of a polygon.s
+      // testTransformations(function() {
+      //   var rotation = new Vertex(0, 0, 90);
+      //   polygon.rotate(rotation);
+      // });
+    });
+
+    // AUXILIARY
+
+    // getVertices() returns a shallow copy, so we need to clone them to make comparisons after
+    // transformations.
+    function getVerticesArray(vertices) {
+      return _.map(vertices, function(vertex) {
+        return vertex.toArray();
+      });
+    }
+
+    function testTransformations(callback) {
+      var oldVertices = getVerticesArray(polygon.getVertices());
+      var initialVerticesBefore = getVerticesArray(polygon.getInitialVertices());
+      expect(initialVerticesBefore).toDeepEqual(oldVertices);
+      // Apply transformations.
+      callback();
+      var newVertices = getVerticesArray(polygon.getVertices());
+      expect(newVertices).not.toDeepEqual(oldVertices);
+      // Ensure initial vertices are not affected by transformations.
+      var initialVerticesAfter = getVerticesArray(polygon.getInitialVertices());
+      expect(initialVerticesAfter).toDeepEqual(oldVertices);
+      expect(initialVerticesAfter).toDeepEqual(initialVerticesBefore);
+      // The JSON should use the original coordinates.
+      var json = polygon.toJson();
+      expect(json.coordinates).toDeepEqual(initialVerticesAfter);
+    }
 
   });
 });

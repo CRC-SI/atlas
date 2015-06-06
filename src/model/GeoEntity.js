@@ -12,11 +12,12 @@ define([
   'atlas/material/CheckPattern',
   'atlas/material/Material',
   'atlas/material/Style',
+  'atlas/model/GeoPoint',
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
 ], function(ItemStore, Event, EventTarget, Q, Setter, Strings, Types, Rectangle, Color,
-            CheckPattern, Material, Style, Vertex, DeveloperError, WKT) {
+            CheckPattern, Material, Style, GeoPoint, Vertex, DeveloperError, WKT) {
   /**
    * @typedef atlas.model.GeoEntity
    * @ignore
@@ -92,6 +93,12 @@ define([
      * @protected
      */
     _elevation: 0,
+
+    /**
+     * The translation of the GeoEntity.
+     * @type {atlas.model.GeoPoint}
+     */
+    _translation: null,
 
     /**
      * The scale of the GeoEntity in each axis direction. 1 by default for all axes.
@@ -257,8 +264,12 @@ define([
       this._setupStyle(data, args);
       this.setMetaData(data.metaData || {});
       this.setElevation(data.elevation || 0);
-      this._scale = new Vertex(data.scale || {x: 1, y: 1, z: 1});
-      this._rotation = new Vertex(data.rotation || {x: 0, y: 0, z: 0});
+      // Use existing values for transformations to allow subclasses to override the default setup
+      // behaviour.
+      this._translation = this._translation ||
+          new GeoPoint(data.translation || {latitude: 0, longitude: 0, elevation: 0});
+      this._scale = this._scale || new Vertex(data.scale || {x: 1, y: 1, z: 1});
+      this._rotation = this._rotation || new Vertex(data.rotation || {x: 0, y: 0, z: 0});
       this._selectable = Setter.def(data.selectable, true);
       this.setMetaData(data.metaData || {});
       var selected = data.selected;
@@ -652,6 +663,7 @@ define([
     toJson: function() {
       var json = {
         id: this.getId(),
+        translation: this.getTranslation().toArray(),
         scale: this.getScale().toArray(),
         rotation: this.getRotation().toArray(),
         altitude: this.getElevation(),
@@ -706,8 +718,23 @@ define([
      * longitude and elevation.
      */
     translate: function(translation) {
+      this._translation = this._translation.translate(translation);
       // NOTE: Translation is handled by the subclasses, since not all models have vertices.
-      this._onTransform();
+      this._postTransform();
+    },
+
+    /**
+     * @param {atlas.model.GeoPoint} translation
+     */
+    setTranslation: function(translation) {
+      this.translate(new GeoPoint(translation).subtract(this._translation));
+    },
+
+    /**
+     * @return {atlas.mode.GeoPoint}
+     */
+    getTranslation: function() {
+      return this._translation.clone();
     },
 
     /**
@@ -723,7 +750,7 @@ define([
      */
     scale: function(scale) {
       this._scale = this.getScale().componentwiseMultiply(scale);
-      this._onTransform();
+      this._postTransform();
     },
 
     /**
@@ -737,7 +764,7 @@ define([
      * @returns {atlas.model.Vertex}
      */
     getScale: function() {
-      return this._scale;
+      return this._scale.clone();
     },
 
     /**
@@ -754,7 +781,7 @@ define([
      */
     rotate: function(rotation, centroid) {
       this._rotation = this.getRotation().translate(rotation);
-      this._onTransform();
+      this._postTransform();
     },
 
     /**
@@ -771,16 +798,38 @@ define([
      * @returns {atlas.model.Vertex}
      */
     getRotation: function() {
-      return this._rotation;
+      return this._rotation.clone();
     },
 
     /**
-     * Called by transform methods. Override to prevent default behaviour of rebuilding the model.
+     * Called by transform methods after the transformation has completed. Override to prevent
+     * default behaviour of rebuilding the model.
      * @protected
      */
-    _onTransform: function() {
+    _postTransform: function() {
       this.setDirty('model');
       this._update();
+    },
+
+    /**
+     * Resets the transformations to their defaults.
+     */
+    resetTransformations: function() {
+      var defaults = {
+        translation: new GeoPoint(0, 0, 0),
+        scale: new Vertex(1, 1, 1),
+        rotation: new Vertex(0, 0, 0)
+      };
+      if (this._isSetUp) {
+        this.setTranslation(defaults.translation);
+        this.setScale(defaults.scale);
+        this.setRotation(defaults.rotation);
+      } else {
+        // Avoid calling setter methods during setup to prevent side-effects.
+        this._translation = defaults.translation;
+        this._scale = defaults.scale;
+        this._rotation = defaults.rotation;
+      }
     },
 
     /**
