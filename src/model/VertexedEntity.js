@@ -66,14 +66,13 @@ define([
         }
       }
 
-      // Prevent resetting transformations for the initial vertices.
-      this.setVertices(this._getSanitizedVertices(data.vertices), {
-        resetTransformations: false
-      });
-      data.holes && this.setHoles(data.holes);
       // Call super constructor after vertices are set.
       this._super(id, data, args);
-      // Apply transformations if they are provided.
+      // This will also reset the transformations applied in the super constructor.
+      this.setVertices(this._getSanitizedVertices(data.vertices));
+      data.holes && this.setHoles(data.holes);
+      // Apply transformations if they are provided, which will cause the vertices to be
+      // transformed.
       data.translation && this.setTranslation(data.translation);
       data.scale && this.setScale(data.scale);
       data.rotation && this.setScale(data.rotation);

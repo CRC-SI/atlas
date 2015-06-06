@@ -757,7 +757,7 @@ define([
      * @param {atlas.model.Vertex} scale
      */
     setScale: function(scale) {
-      this.scale(scale.componentwiseDivide(this.getScale()));
+      this.scale(new Vertex(scale).componentwiseDivide(this.getScale()));
     },
 
     /**
@@ -790,7 +790,7 @@ define([
      *      centroid of the GeoEntity obtained from {@link #getCentroid}.
      */
     setRotation: function(rotation, centroid) {
-      var diff = rotation.subtract(this.getRotation());
+      var diff = new Vertex(rotation).subtract(this.getRotation());
       this.rotate(diff, centroid);
     },
 
