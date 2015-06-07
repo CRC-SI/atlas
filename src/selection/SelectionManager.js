@@ -4,8 +4,9 @@ define([
   'atlas/events/Event',
   'atlas/events/EventTarget',
   'atlas/lib/utility/Arrays',
-  'atlas/lib/utility/Log'
-], function(Manager, DeveloperError, Event, EventTarget, Arrays, Log) {
+  'atlas/lib/utility/Log',
+  'underscore'
+], function(Manager, DeveloperError, Event, EventTarget, Arrays, Log, _) {
 
   /**
    * @typedef atlas.selection.SelectionManager
@@ -125,11 +126,9 @@ define([
      * @param {Boolean} [keepSelection=false] - If true, the GeoEntity will be added to the current
      *      selection. If false, the current selection will be cleared before
      *      the GeoEntity is selected.
-     * @param {atlas.model.Vertex} mousePosition - The position of the mouse when GeoEntities are
-     *      selected. Null if a mouse action did not result in the selection.
      */
-    selectEntity: function(id, keepSelection, mousePosition) {
-      this.selectEntities([id], keepSelection, mousePosition);
+    selectEntity: function(id, keepSelection) {
+      this.selectEntities([id], keepSelection);
     },
 
     /**
@@ -146,10 +145,8 @@ define([
      * @param {Boolean} [keepSelection=false] - If true, the GeoEntities will be added to current
      *      selection. If false, the current selection will be cleared before
      *      the GeoEntities are selected.
-     * @param {atlas.model.Vertex} mousePosition - The position of the mouse when GeoEntities are
-     *      selected. Null if a mouse action did not result in the selection.
      */
-    selectEntities: function(ids, keepSelection, mousePosition) {
+    selectEntities: function(ids, keepSelection) {
       var entities = this._managers.entity.getByIds(ids);
       var toSelectIds = [];
       var toSelectEntities = {};
@@ -170,7 +167,7 @@ define([
         // If nothing was actually selected in addition to what was already selected, don't clear
         // the current selection.
         if (toSelectIds.length > 0) {
-          Log.debug('selecting entities', toSelectIds);
+          Log.debug('Selecting entities', toSelectIds);
           if (!keepSelection) {
             this.clearSelection();
           }
@@ -179,7 +176,7 @@ define([
             this._selection[id] = entity;
             entity.setSelected(true);
           }.bind(this));
-          Log.debug('selected entities', toSelectIds);
+          Log.debug('Selected entities', toSelectIds);
         }
       }
       this._handleSelectionChange(existingSelection);
@@ -203,10 +200,22 @@ define([
           }
         }.bind(this));
         if (deselectedIds.length > 0) {
-          Log.debug('deselected entities', deselectedIds);
+          Log.debug('Deselected entities', deselectedIds);
         }
       }
       this._handleSelectionChange(existingSelection);
+    },
+
+    /**
+     * Toggles selection for the given entities.
+     * @param {Array.<String>} ids - The IDs of the entities to toggle.
+     */
+    toggleEntities: function(ids) {
+      var existingSelection = this.getSelectionIds();
+      var toSelectIds = _.difference(ids, existingSelection);
+      var toDeselectIds = _.intersection(ids, existingSelection);
+      this.selectEntities(toSelectIds, true);
+      this.deselectEntities(toDeselectIds, true);
     },
 
     _handleSelectionChange: function(existingSelection) {
@@ -309,10 +318,15 @@ define([
     _onLeftClick: function(event) {
       if (!this.isEnabled()) return;
       if (!event.modifiers) event.modifiers = {};
-      var selectedEntities = this._managers.entity.getEntitiesFromArgs(event);
+      var targetEntities = this._managers.entity.getEntitiesFromArgs(event);
+      var ids = _.map(targetEntities, function(entity) { return entity.getId() });
       var keepSelection = 'shift' in event.modifiers && event.modifiers['shift'];
-      if (selectedEntities.length > 0) {
-        this.selectEntity(selectedEntities[0].getId(), keepSelection, event.position);
+      if (targetEntities.length > 0) {
+        if (keepSelection) {
+          this.toggleEntities(ids);
+        } else {
+          this.selectEntity(ids[0], keepSelection, event.position);
+        }
       } else if (!keepSelection) {
         this.clearSelection();
       }
