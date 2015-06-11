@@ -753,14 +753,22 @@ define([
     },
 
     /**
-     * Returns the GeoEntity that intersects the given point or undefined if there is no such
-     * entity.
-     * @param {atlas.model.GeoPoint} point - The point of interest.
+     * @param {atlas.model.Vertex} point - The screen coordinates.
      * @returns {Array.<atlas.model.GeoEntity>} The GeoEntities located at the given screen
      * coordinates.
      */
     getAt: function(point) {
-      throw new DeveloperError('EntityManager.getAt not yet implemented.');
+      // Get the Entities at the given screen coordinates.
+      var ids = this._managers.render.getAt(point);
+      // Translate entity IDs to entity objects.
+      var entities = [];
+      ids.forEach(function(id) {
+        var entity = this.getById(id);
+        if (entity instanceof GeoEntity) {
+          entities.push(entity);
+        }
+      }, this);
+      return entities;
     },
 
     /**
