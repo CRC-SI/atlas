@@ -142,28 +142,8 @@ module.exports = function(grunt) {
     },
 
     clean: {
-      doc: {
-        files: [
-          {
-            expand: true,
-            cwd: JSDOCS_DIR,
-            src: [
-              path.join('**', '*')
-            ]
-          }
-        ]
-      },
-      dist: {
-        files: [
-          {
-            dot: true,
-            cwd: DIST_DIR,
-            src: [
-              distPath('**', '*')
-            ]
-          }
-        ]
-      },
+      doc: JSDOCS_DIR,
+      dist: DIST_DIR,
       resourcesLess: {
         // Remove the .less source file from the copied resources, leaving everything else.
         files: [
