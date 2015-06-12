@@ -1,4 +1,7 @@
-define(function() {
+define([
+  'atlas/lib/utility/Log',
+  'atlas/lib/utility/Window'
+], function(Log, Window) {
 
   /**
    * Wrapper for the Google JS API.
@@ -12,6 +15,10 @@ define(function() {
     load: function(callback) {
       if (window.isShimmed) {
         callback();
+        return;
+      }
+      if (Window.isPhantomJs()) {
+        Log.warn('Cannot load Google API in PhantomJS.');
         return;
       }
       requirejs(['https://www.google.com/jsapi'], function() {
