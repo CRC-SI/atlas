@@ -289,6 +289,8 @@ module.exports = function(grunt) {
     });
   });
 
+  grunt.registerTask('build-dev', 'Builds the app into a development package', ['build:no-minify']);
+
   grunt.registerTask('doc', 'Generates documentation.', ['clean:doc', 'shell:jsDoc']);
 
   grunt.registerTask('install-openlayers', 'Installs OpenLayers with a custom build.',
