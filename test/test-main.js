@@ -85,6 +85,22 @@ requirejs.config({
         }
         GlobalLog.debug(msg + ': ', o);
       };
+
+      // Add custom Jasmine matchers.
+      beforeEach(function() {
+        jasmine.addMatchers({
+          toDeepEqual: function(util, customEqualityTesters) {
+            return {
+              compare: function(actual, expected) {
+                var result = {};
+                result.pass = _.isEqual(actual, expected);
+                return result;
+              }
+            }
+          }
+        });
+      });
+
       /* global window */
       window.__karma__.start();
     });
