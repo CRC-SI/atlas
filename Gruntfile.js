@@ -299,6 +299,9 @@ module.exports = function(grunt) {
 
   grunt.registerTask('test', 'Runs defined tests', ['force:karma:unit', 'sed:fixCoverageOutput']);
 
+  grunt.registerTask('test-ci', 'Runs tests in continuous integration mode',
+      ['karma:continuous', 'sed:fixCoverageOutput']);
+
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // AUXILIARY
   //////////////////////////////////////////////////////////////////////////////////////////////////
