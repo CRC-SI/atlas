@@ -3,10 +3,9 @@ define([
   'atlas/util/DeveloperError',
   'atlas/events/Event',
   'atlas/events/EventTarget',
-  'atlas/lib/utility/Arrays',
   'atlas/lib/utility/Log',
   'underscore'
-], function(Manager, DeveloperError, Event, EventTarget, Arrays, Log, _) {
+], function(Manager, DeveloperError, Event, EventTarget, Log, _) {
 
   /**
    * @typedef atlas.selection.SelectionManager
@@ -220,8 +219,8 @@ define([
 
     _handleSelectionChange: function(existingSelection) {
       var currentSelection = this.getSelectionIds();
-      var newSelection = Arrays.difference(currentSelection, existingSelection);
-      var newDeselection = Arrays.difference(existingSelection, currentSelection);
+      var newSelection = _.difference(currentSelection, existingSelection);
+      var newDeselection = _.difference(existingSelection, currentSelection);
       if (newSelection.length > 0 || newDeselection.length > 0) {
         this._managers.event.dispatchEvent(new Event(new EventTarget(),
             'entity/selection/change', {
@@ -320,12 +319,12 @@ define([
       if (!event.modifiers) event.modifiers = {};
       var targetEntities = this._managers.entity.getEntitiesFromArgs(event);
       var ids = _.map(targetEntities, function(entity) { return entity.getId() });
-      var keepSelection = 'shift' in event.modifiers && event.modifiers['shift'];
+      var keepSelection = !!event.modifiers.shift;
       if (targetEntities.length > 0) {
         if (keepSelection) {
           this.toggleEntities(ids);
         } else {
-          this.selectEntity(ids[0], keepSelection, event.position);
+          this.selectEntities(ids, keepSelection);
         }
       } else if (!keepSelection) {
         this.clearSelection();

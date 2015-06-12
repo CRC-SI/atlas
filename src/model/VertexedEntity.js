@@ -29,7 +29,7 @@ define([
     _vertices: null,
 
     /**
-     * An array of vertices in counter-clockwise order without transformations.
+     * An array of vertices in counter-clockwise order before transformations.
      * @type {Array.<atlas.model.GeoPoint>}
      */
     _initialVertices: null,
@@ -66,7 +66,6 @@ define([
         }
       }
 
-      // Call super constructor after vertices are set.
       this._super(id, data, args);
       // This will also reset the transformations applied in the super constructor.
       this.setVertices(this._getSanitizedVertices(data.vertices));
@@ -144,7 +143,7 @@ define([
     // -------------------------------------------
 
     translate: function(translation) {
-      this._copyInitialVertices();
+      this._maybeCopyInitialVertices();
       this._vertices.forEach(function(vertex) {
         vertex.set(vertex.translate(translation));
       });
@@ -155,7 +154,7 @@ define([
     },
 
     scale: function(scale) {
-      this._copyInitialVertices();
+      this._maybeCopyInitialVertices();
       var centroid = this.getCentroid();
       this._vertices.forEach(function(vertex, i) {
         var diff = vertex.subtract(centroid).toVertex();
@@ -177,7 +176,7 @@ define([
     // matrix transformations in Atlas, which is more work for now.
 
     // rotate: function(rotation) {
-    //   this._copyInitialVertices();
+    //   this._maybeCopyInitialVertices();
     //   this._super(rotation);
     // },
 
@@ -252,7 +251,7 @@ define([
     },
 
     /**
-     * @return {Array.<atlas.model.GeoPoint>} A shallow copy of the vertices.
+     * @return {Array.<atlas.model.GeoPoint>} A reference to the transformed vertices.
      */
     getVertices: function() {
       return this._vertices;
@@ -262,7 +261,7 @@ define([
      * @return {Array.<atlas.model.GeoPoint>} A shallow copy of the initial vertices.
      */
     getInitialVertices: function() {
-      this._copyInitialVertices();
+      this._maybeCopyInitialVertices();
       return this._initialVertices;
     },
 
@@ -271,7 +270,7 @@ define([
      * are shared references.
      * @return {Boolean} Whether the initial vertices were created.
      */
-    _copyInitialVertices: function() {
+    _maybeCopyInitialVertices: function() {
       var isRef = this._initialVertices === this._vertices;
       if (isRef) {
         this._initialVertices = _.map(this._vertices, function(vertex) {
