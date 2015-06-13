@@ -82,6 +82,13 @@ define([
       return value;
     },
 
+    _sanitizeObject: function(obj) {
+      if (!(obj instanceof GeoPoint)) {
+        obj = new GeoPoint(obj);
+      }
+      return obj;
+    },
+
     _validate: function() {
       var longitude = this.longitude;
       var latitude = this.latitude;
@@ -106,6 +113,7 @@ define([
      * @returns {atlas.model.GeoPoint}
      */
     subtract: function(other) {
+      other = this._sanitizeObject(other);
       return new GeoPoint(this.longitude - other.longitude, this.latitude - other.latitude,
           this.elevation - other.elevation);
     },
@@ -116,6 +124,7 @@ define([
      * @returns {atlas.model.GeoPoint}
      */
     translate: function(other) {
+      other = this._sanitizeObject(other);
       return new GeoPoint(this.longitude + other.longitude,
           this.latitude + other.latitude, this.elevation + other.elevation);
     },

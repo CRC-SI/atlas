@@ -1,8 +1,9 @@
 define([
   'atlas/model/GeoPoint',
+  'atlas/model/Vertex',
   // Code under test.
   'atlas/model/Ellipse'
-], function(GeoPoint, Ellipse) {
+], function(GeoPoint, Vertex, Ellipse) {
   describe ('An Ellipse', function() {
     var ellipse,
         data,
@@ -12,7 +13,8 @@ define([
       data = {
         centroid: new GeoPoint(0, 0, 0),
         semiMajor: 20,
-        semiMinor: 10
+        semiMinor: 10,
+        show: false
       };
 
     });
@@ -29,7 +31,7 @@ define([
         expect(ellipse).not.toBeNull();
         expect(ellipse.getId()).toEqual('id');
         expect(ellipse.getCentroid()).toEqual(data.centroid);
-        expect(ellipse.getRotation()).toEqual(10);
+        expect(ellipse.getRotation().equals({x: 10, y: 0, z: 0})).toBe(true);
         expect(ellipse.getSemiMajorAxis()).toEqual(data.semiMajor);
         expect(ellipse.getSemiMinorAxis()).toEqual(data.semiMinor);
       });
@@ -39,7 +41,7 @@ define([
         ellipse = new Ellipse('id', data, {});
         expect(ellipse.getId()).toEqual('id');
         expect(ellipse.getCentroid()).toEqual(data.centroid);
-        expect(ellipse.getRotation()).toEqual(0);
+        expect(ellipse.getRotation().equals({x: 0, y: 0, z: 0})).toBe(true);
         expect(ellipse.getSemiMajorAxis()).toEqual(data.semiMajor);
         expect(ellipse.getSemiMinorAxis()).toEqual(data.semiMinor);
       });
@@ -84,24 +86,17 @@ define([
       describe ('by translation', function() {
         it ('in both axis', function() {
           ellipse.translate({latitude: 5, longitude: 10});
-          expect(ellipse.getCentroid()).toEqual(new GeoPoint(5, 10, 0));
+          expect(ellipse.getCentroid()).toEqual(new GeoPoint(10, 5, 0));
         });
 
         it ('in semi major axis', function() {
           ellipse.translate({latitude: 5});
-          expect(ellipse.getCentroid()).toEqual(new GeoPoint(5, 0, 0));
+          expect(ellipse.getCentroid()).toEqual(new GeoPoint(0, 5, 0));
         });
 
         it ('in semi minor axis', function() {
           ellipse.translate({longitude: 10});
-          expect(ellipse.getCentroid()).toEqual(new GeoPoint(0, 10, 0));
-        });
-
-        it ('fails without an arg', function() {
-          var f = function() {
-            ellipse.translate();
-          };
-          expect(f).toThrow();
+          expect(ellipse.getCentroid()).toEqual(new GeoPoint(10, 0, 0));
         });
       }); // End 'by translation'
 
@@ -128,7 +123,7 @@ define([
           ellipse.scale({x: 1, y: 3});
           expect(ellipse.getSemiMajorAxis()).toEqual(3 * data.semiMinor);
           expect(ellipse.getSemiMinorAxis()).toEqual(data.semiMajor);
-          expect(ellipse.getRotation()).toEqual(90);
+          expect(ellipse.getRotation()).toEqual(new Vertex({z: 90}));
         });
       }); // End 'by scale'
     }); // End 'can be modified'
