@@ -3,6 +3,7 @@ define([
   'atlas/core/ItemStore',
   'atlas/events/Event',
   'atlas/lib/Q',
+  'atlas/lib/utility/Counter',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Strings',
@@ -21,9 +22,9 @@ define([
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'underscore'
-], function(Manager, ItemStore, Event, Q, Log, Setter, Strings, Types, topsort, Collection, Ellipse,
-            Feature, GeoEntity, Mesh, Point, Polygon, Line, Image, GeoPoint, Vertex, DeveloperError,
-            _) {
+], function(Manager, ItemStore, Event, Q, Counter, Log, Setter, Strings, Types, topsort, Collection,
+            Ellipse, Feature, GeoEntity, Mesh, Point, Polygon, Line, Image, GeoPoint, Vertex,
+            DeveloperError, _) {
 
   /**
    * @typedef atlas.entity.EntityManager
@@ -70,10 +71,13 @@ define([
      */
     _origDisplayModes: null,
 
+    _idCounter: null,
+
     _init: function(managers) {
       this._super(managers);
       this._origDisplayModes = {};
       this._entities = new ItemStore();
+      this._idCounter = new Counter({count: 1});
     },
 
     /**
@@ -344,7 +348,7 @@ define([
     },
 
     /**
-     * @param {String} id
+     * @param {String|null} id - The ID of the collection. If null, a unique ID is generated.
      * @param {Object} data
      * @param {Array.<String>} data.entities - A series of entity IDs to add as children in the
      *     collection.
@@ -354,6 +358,9 @@ define([
     createCollection: function(id, data) {
       var args = this._bindDeps();
       data.entities = data.children || data.entities;
+      if (id == null) {
+        id = this.generateUniqueId();
+      }
       return new this._entityTypes.Collection(id, data, args);
     },
 
@@ -796,6 +803,18 @@ define([
      */
     getInRect: function(point1, point2) {
       throw new DeveloperError('EntityManager.getInRect not yet implemented.');
+    },
+
+    /**
+     * @return {Number} A unique ID for a {@link atlas.model.GeoEntity} which
+     *     has not been added to this manager.
+     */
+    generateUniqueId: function() {
+      var id = null;
+      while (!id || this.getById(id)) {
+        id = this._idCounter.increment();
+      }
+      return id;
     },
 
     // -------------------------------------------

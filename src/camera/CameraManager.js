@@ -4,10 +4,12 @@ define([
   'atlas/model/GeoPoint',
   'atlas/model/Rectangle',
   'atlas/lib/Q',
+  'atlas/lib/utility/Counter',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/util/DeveloperError'
-], function(Camera, Manager, GeoPoint, Rectangle, Q, Log, Setter, DeveloperError) {
+], function(Camera, Manager, GeoPoint, Rectangle, Q, Counter, Log, Setter,
+            DeveloperError) {
 
   /**
    * @typedef atlas.camera.CameraManager
@@ -78,6 +80,19 @@ define([
             } else if (args.rectangle) {
               args.rectangle = new Rectangle(args.rectangle);
               this._current.zoomTo(args);
+            } else if (args.ids) {
+              var collection = this._managers.entity.createCollection(null, {entities: args.ids});
+              collection.ready().then(function() {
+                var boundingBox = collection.getBoundingBox();
+                if (boundingBox) {
+                  boundingBox.scale(1.5);
+                  args.rectangle = boundingBox;
+                  this._current.zoomTo(args);
+                } else {
+                  Log.warn('Could not zoom to collection - no bounding box', collection);
+                }
+                collection.remove();
+              });
             } else {
               return new Error('Invalid arguments for event "camera/zoomTo"');
             }

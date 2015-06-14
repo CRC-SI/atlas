@@ -1,10 +1,11 @@
 define([
+  'atlas/lib/utility/Setter',
   'atlas/model/Feature',
   'atlas/model/GeoEntity',
   // Code under test.
   'atlas/entity/EntityManager',
   '../../lib/AtlasBuilder.js'
-], function(Feature, GeoEntity, EntityManager, AtlasBuilder) {
+], function(Setter, Feature, GeoEntity, EntityManager, AtlasBuilder) {
 
   describe('An EntityManager', function() {
     var em;
@@ -145,6 +146,13 @@ define([
 
       });
 
+      it('can generate unique IDs', function() {
+        em.add(createTestEntity({id: 1}));
+        em.add(createTestEntity({id: 3}));
+        expect(em.generateUniqueId()).toEqual(2);
+        expect(em.generateUniqueId()).toEqual(4);
+      });
+
     });
 
     describe('Events:', function() {
@@ -192,7 +200,7 @@ define([
   // AUXILIARY
 
   function createTestEntity(args) {
-    args = args || {show: false};
+    args = Setter.merge({show: false}, args);
     return new GeoEntity(args.id || 'id', args, {});
   }
 
