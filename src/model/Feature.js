@@ -1,5 +1,6 @@
 define([
   'atlas/events/Event',
+  'atlas/lib/utility/Log',
   'atlas/lib/utility/Objects',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Strings',
@@ -13,8 +14,8 @@ define([
   'atlas/util/DeveloperError',
   // Base class.
   'atlas/model/GeoEntity'
-], function(Event, Objects, Setter, Strings, Types, Ellipse, Image, Line, Mesh, Point, Polygon,
-            DeveloperError, GeoEntity) {
+], function(Event, Log, Objects, Setter, Strings, Types, Ellipse, Image, Line,
+            Mesh, Point, Polygon, DeveloperError, GeoEntity) {
 
   /**
    * @typedef atlas.model.Feature
@@ -297,7 +298,7 @@ define([
           return 'ellipse';
         } else {
           // TODO(aramk) We need to refactor this so display modes and forms are the same concept.
-          Logger.warn('Unrecognized form for display mode: ' + displayMode);
+          Log.warn('Unrecognized form for display mode: ' + displayMode);
           return null;
         }
       } else {
