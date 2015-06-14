@@ -61,6 +61,13 @@ define([
       this.z = parseFloat(z) || 0.0;
     },
 
+    _sanitizeObject: function(obj) {
+      if (!(obj instanceof Vertex)) {
+        obj = new Vertex(obj);
+      }
+      return obj;
+    },
+
     /**
      * Adds a given Vertex to this Vertex.
      * @param {atlas.model.Vertex} other
@@ -87,6 +94,7 @@ define([
      * @returns {atlas.model.Vertex}
      */
     subtract: function(other) {
+      other = this._sanitizeObject(other);
       return new Vertex(this.x - other.x, this.y - other.y, this.z - other.z);
     },
 
@@ -95,6 +103,7 @@ define([
      * @param {atlas.model.Vertex} other
      */
     translate: function(other) {
+      other = this._sanitizeObject(other);
       return new Vertex(this.x + other.x, this.y + other.y, this.z + other.z);
     },
 
