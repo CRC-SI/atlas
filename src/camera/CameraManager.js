@@ -92,7 +92,7 @@ define([
                   Log.warn('Could not zoom to collection - no bounding box', collection);
                 }
                 collection.remove();
-              });
+              }.bind(this));
             } else {
               return new Error('Invalid arguments for event "camera/zoomTo"');
             }
