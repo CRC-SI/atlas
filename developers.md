@@ -51,6 +51,9 @@ associated tools.
 `/src`          | The source code of the Atlas library.
 `/test`         | Unit and integration tests of the Atlas library.
 
+For more detailed information about the Atlas managers, consult the [JSDocs][atlas-jsdocs].
+
+
 ## Building
 
 Atlas uses [Grunt][grunt] to automate the build process, and Grunt requires the [Node package
@@ -73,6 +76,8 @@ Building Atlas performs the following tasks:
 3. Compiles all of the Less styles into a single CSS file.
 4. Copies the compiled code and resources to the `dist` directory.
 
+To leave the code unminified, call `grunt build:no-minify` instead of `grunt build`.
+
 ### Building JSDocs
 
 JavaScript documentation can be compiled using [JSDoc][jsdoc] by running:
@@ -87,3 +92,4 @@ The output of the JSDoc build will be placed in the `jsdoc` directory.
 [rjs]: http://requirejs.org/docs/optimization.html
 [jsdoc]: http://usejsdoc.org/
 [bower]: http://bower.io/
+[atlas-jsdocs]: http://jsdocs.atlas.urbanetic.net/

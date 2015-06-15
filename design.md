@@ -4,6 +4,8 @@ title: Atlas Design
 permalink: /design/
 ---
 
+> WIP
+
 When integrated within a "host" application, Atlas behaves like a component: it is completely
 self-sufficient and will run by itself once started. The host application communicates with Atlas in
 simple JavaScript by publishing and subscribing to events.
@@ -84,7 +86,5 @@ complexities of GIS:
 the standard [WGS 84][wgs84] using latitude, longitude and elevation.
 
 
-> WIP
-
-[jsdocs]: TODO
+[jsdocs]: http://jsdocs.atlas.urbanetic.net/
 [wgs84]: https://en.wikipedia.org/wiki/World_Geodetic_System
