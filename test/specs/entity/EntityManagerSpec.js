@@ -1,10 +1,11 @@
 define([
+  'atlas/lib/utility/Setter',
   'atlas/model/Feature',
   'atlas/model/GeoEntity',
   // Code under test.
   'atlas/entity/EntityManager',
   '../../lib/AtlasBuilder.js'
-], function(Feature, GeoEntity, EntityManager, AtlasBuilder) {
+], function(Setter, Feature, GeoEntity, EntityManager, AtlasBuilder) {
 
   describe('An EntityManager', function() {
     var em;
@@ -56,15 +57,15 @@ define([
 
     describe('Entities:', function() {
       it('can add GeoEntity objects to its store when the Entitys ID is not in use ', function() {
-        var expected = new GeoEntity('id', {}, {});
+        var expected = createTestEntity();
         em.add(expected);
         var actual = em.getById('id');
         expect(actual).toEqual(expected);
       });
 
       it('cannot add GeoEntity objects if it\'s ID is in use ', function() {
-        var entity1 = new GeoEntity('id', {}, {});
-        var entity2 = new GeoEntity('id', {}, {});
+        var entity1 = createTestEntity({id: 'foo', show: false});
+        var entity2 = createTestEntity({id: 'foo', show: false});
         // Add original
         em.add(entity1);
         expect(function() {
@@ -92,7 +93,7 @@ define([
       it('can get all registered GeoEntitys as an array', function() {
         var expecteds = [];
         [0, 1, 2, 3].forEach(function(i) {
-          expecteds.push(new GeoEntity('id' + i, {}, {}));
+          expecteds.push(createTestEntity({id: 'id' + i, show: false}));
           em.add(expecteds[i]);
         });
         em.getEntities().forEach(function(actual, i) {
@@ -101,28 +102,29 @@ define([
       });
 
       it('shall get the exact object reference when an Entity has been added', function() {
-        var expected = new GeoEntity({id: 'entity'});
+        var expected = createTestEntity({id: 'entity', show: false})
         em.add(expected);
         var actual = em.getById('entity');
         expect(actual).toBe(expected);
       });
 
       it('can remove GeoEntitys when they have been added', function() {
-        em.add(new GeoEntity({id: 'id'}));
+        em.add(createTestEntity({id: 'id', show: false}));
         expect(em.getById('id')).toBeDefined();
         em.remove('id');
         expect(em.getById('id')).toBeUndefined();
       });
 
       it('can show a GeoEntity by ID when it has been added', function() {
-        var args = {id: 'id0'};
-        var entity = new Feature(args);
+        var args = {show: false};
+        var entity = new Feature('id0', args);
         em.add(entity);
 
+        var toggleArgs = {id: entity.getId()};
         expect(entity.isVisible()).toBe(false);
-        em.toggleEntityVisibility(true, args);
+        em.toggleEntityVisibility(true, toggleArgs);
         expect(entity.isVisible()).toBe(true);
-        em.toggleEntityVisibility(false, args);
+        em.toggleEntityVisibility(false, toggleArgs);
         expect(entity.isVisible()).toBe(false);
       });
 
@@ -142,6 +144,13 @@ define([
           });
         });
 
+      });
+
+      it('can generate unique IDs', function() {
+        em.add(createTestEntity({id: 1}));
+        em.add(createTestEntity({id: 3}));
+        expect(em.generateUniqueId()).toEqual(2);
+        expect(em.generateUniqueId()).toEqual(4);
       });
 
     });
@@ -187,5 +196,12 @@ define([
     });
 
   });
+
+  // AUXILIARY
+
+  function createTestEntity(args) {
+    args = Setter.merge({show: false}, args);
+    return new GeoEntity(args.id || 'id', args, {});
+  }
 
 });

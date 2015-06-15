@@ -1,4 +1,5 @@
 define([
+  'atlas/lib/OpenLayers',
   'atlas/lib/utility/Setter',
   'atlas/material/Color',
   'atlas/model/GeoPoint',
@@ -7,7 +8,7 @@ define([
   // Base class
   'atlas/model/GeoEntity',
   'atlas/util/DeveloperError'
-], function(Setter, Color, GeoPoint, Style, Vertex, GeoEntity, DeveloperError) {
+], function(OpenLayers, Setter, Color, GeoPoint, Style, Vertex, GeoEntity, DeveloperError) {
 
   /**
    * @classdesc Represents a 2D ellipse.
@@ -72,7 +73,6 @@ define([
       this._centroid = new GeoPoint(data.centroid);
       this._semiMajor = parseFloat(data.semiMajor);
       this._semiMinor = parseFloat(data.semiMinor) || this._semiMajor;
-      this._rotation = new Vertex(data.rotation);
       this._height = parseFloat(data.height) || this._height;
     },
 
@@ -160,6 +160,11 @@ define([
       return this._semiMinor;
     },
 
+    _invalidateGeometry: function() {
+      // Keep centroid property since it's provided.
+      this._area = null;
+    },
+
     // -------------------------------------------
     // MODIFIERS
     // -------------------------------------------
@@ -201,7 +206,7 @@ define([
         var tempMinor = minor;
         minor = major;
         major = tempMinor;
-        this._rotation += 90;
+        this.rotate({z: 90});
       }
       this._semiMajor = major;
       this._semiMinor = minor;
