@@ -806,8 +806,8 @@ define([
     },
 
     /**
-     * @return {Number} A unique ID for a {@link atlas.model.GeoEntity} which
-     *     has not been added to this manager.
+     * @return {Number} A unique ID for a {@link atlas.model.GeoEntity} which has not been added to
+     *     this manager.
      */
     generateUniqueId: function() {
       var id = null;

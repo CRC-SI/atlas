@@ -66,6 +66,10 @@ define([
         {
           source: 'extern',
           name: 'camera/zoomTo',
+          /**
+           * @param {ExternalEvent#event:camera/zoomTo} args
+           * @listens ExternalEvent#camera/zoomTo
+           */
           callback: function(args) {
             var df = Q.defer();
             var position = args.position;
@@ -87,11 +91,10 @@ define([
               var collection = this._managers.entity.createCollection(null, {entities: ids});
               collection.ready().then(function() {
                 var boundingBox = collection.getBoundingBox({
-                  // For more than 300 entities, use the centroids for better performance.
                   useCentroid: Setter.def(args.useCentroid, ids.length > 300)
                 });
                 if (boundingBox) {
-                  boundingBox.scale(1.5);
+                  boundingBox.scale(Setter.def(args.boundingBoxScale, 1.5));
                   args.rectangle = boundingBox;
                   promise = this._current.zoomTo(args);
                 } else {
