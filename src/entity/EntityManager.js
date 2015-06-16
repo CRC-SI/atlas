@@ -127,10 +127,8 @@ define([
             var promise = null;
             if (args.features) {
               promise = Q(this.bulkCreate(args.features));
-            } else if (args.ids) {
-              promise = Q(args.ids);
             } else {
-              promise = Q.reject('Either features or ids must be provided for bulk show.');
+              promise = Q.reject('No features argument provided for bulk create.');
             }
             promise.fin(function(ids) {
               Log.timeEnd('entity/create/bulk');
@@ -380,12 +378,33 @@ define([
     },
 
     /**
-     * Allows for creation of multiple Features. Skips features which already exist.
+     * Creates entities in bulk.
      * @param {Array} c3mls - An array of objects, with each object containing
-     *     an entity description conforming to the C3ML standard.
+     *     an entity description conforming to the C3ML standard. If an entity with a given ID is
+     *     already rendered, it is ignored.
+     * @param {Object} [options]
+     * @param {Boolean} [options.batch=true] - Whether to batch the render. If false, all entities
+     *     are rendered synchronously.
+     * @param {Number} [options.batchSize=50] - The size of a single batch which is rendered
+     *     synchronously.
+     * @param {Number} [options.batchDelay=100] - The delay in milliseconds between completing
+     *     one batch and proceeding with the next.
+     * @param {Number} [options.batchTimeout=1000] - The maximum time in milliseconds to wait for a
+     *     batch to complete rendering before moving onto the next.
      * @returns {Array} The IDs of the created entities.
      */
-    bulkCreate: function(c3mls) {
+    bulkCreate: function(c3mls, options) {
+      options = Setter.merge({
+        batch: true,
+        batchSize: 50,
+        batchDelay: 100,
+        batchTimeout: 1000
+      }, options);
+      if (options.batch === false) {
+        // Handles rendering in a single batch.
+        options.batchSize = c3mls.length;
+      }
+
       var edges = [];
       var sortMap = {};
       var c3mlMap = {};
@@ -430,25 +449,105 @@ define([
     },
 
     /**
-     * @param {Array} c3mls - A topologically sorted (in descending order so children appear first)
-     *     array of C3ML objects.
-     * @returns {Array} The IDs of the created entities.
+     * @param {Array.<Object>} c3mls - The C3ML entities to create.
+     * @param {Object} options - See {@link #bulkCreate}.
+     * @return {Promise.<Array.<String>>} - A promise containing the IDs of created entities.
      */
-    _bulkCreate: function(c3mls) {
-      var ids = [];
+    _bulkCreate: function(c3mls, options) {
+      var idMap = {};
+      var tasks = [];
+      var batchItems = [];
+      var createBatchTask = function() {
+        if (batchItems.length > 0) {
+          this._createBatchTask(batchItems, options);
+          batchItems = [];
+        }
+      }.bind(this);
       _.each(c3mls, function(c3ml) {
-        var id = c3ml.id;
-        // Catch errors when rendering to avoid a single entity causing a failure for the entire
-        // set.
-        try {
-          var data = this._parseC3ml(c3ml);
-          this.createEntity(id, data);
-          ids.push(id);
-        } catch (e) {
-          Log.error('Failed to render entity during bulk render', e);
+        var item = this._addBatchItem(c3ml, idMap, options);
+        if (item) {
+          batchItems.push(item);
+          idMap[c3ml.id] = c3ml;
+          if (batchItems.length >= options.batchSize) { createBatchTask() }
         }
       }, this);
-      return ids;
+      // For any remaining entities.
+      createBatchTask();
+
+      var origTaskCount = tasks.length;
+      var entityTotalCount = origTaskCount * options.batchSize;
+      var df = Q.defer();
+
+      var notifyProgress = function() {
+        var taskDoneCount = (origTaskCount - tasks.length);
+        var entityDoneCount = taskDoneCount * options.batchSize;
+        var percent = taskDoneCount / origTaskCount;
+        df.notify({
+          value: entityDoneCount,
+          total: entityTotalCount,
+          percent: percent
+        });
+      };
+
+      var runTask = function() {
+        var task = tasks.pop();
+        if (!task) {
+          df.resolve(_.keys(idMap));
+          return;
+        };
+
+        var sendNextTask = _.once(function() {
+          notifyProgress();
+          var promise = Q(this._runBatchTask(task, options));
+          promise.fail(function(e) {
+            Log.error('Error while bulk rendering a batch', e, e.stack);
+          }).fin(function() {
+            setTimeout(sendNextTask, options.batchDelay);
+          }).done();
+        }.bind(this));
+      }.bind(this);
+      
+      runTask();
+      return df.promise;
+    },
+
+    /**
+     * @param {Object} c3ml - A C3ML entity.
+     * @param {Object.<String, Boolean>} idMap - A map of the entity IDs which have been prepared
+     *     for bulk creation.
+     * @param {Object} options - See {@link #bulkCreate}.
+     * @param {Object} A represnetation
+     */
+    _addBatchItem: function(c3ml, idMap, options) {
+      return c3ml;
+    },
+
+    /**
+     * @param {Array.<Object>} items - A batch of items returned from {@link #_addBatchItem}.
+     * @param {Object} options - See {@link #bulkCreate}.
+     * @return {Function} A function to run the batch task.
+     */
+    _createBatchTask: function(items, options) {
+      return function() {
+        _.each(items, function(c3ml) {
+          try {
+            var data = this._parseC3ml(c3ml);
+            this.createEntity(id, data);
+          } catch (e) {
+            Log.error('Failed to render entity during bulk render', e);
+          }
+        }, this);
+      }.bind(this);
+    },
+
+    /**
+     * @param {Function} task - A function to run the batch task returned from
+     *     {@link #_createBatchTask}.
+     * @param {Object} options - See {@link #bulkCreate}.
+     * @return {Promise} A promise which is resolved once the task has completed running.
+     */
+    _runBatchTask: function(task, options) {
+      return task();
     },
 
     /**
