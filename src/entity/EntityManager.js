@@ -445,7 +445,7 @@ define([
           sortedC3mls.push(c3ml);
         }
       }, this);
-      return this._bulkCreate(sortedC3mls);
+      return this._bulkCreate(sortedC3mls, options);
     },
 
     /**
@@ -459,7 +459,8 @@ define([
       var batchItems = [];
       var createBatchTask = function() {
         if (batchItems.length > 0) {
-          this._createBatchTask(batchItems, options);
+          var task = this._createBatchTask(batchItems, options);
+          tasks.push(task);
           batchItems = [];
         }
       }.bind(this);
@@ -495,16 +496,16 @@ define([
           df.resolve(_.keys(idMap));
           return;
         };
-
         var sendNextTask = _.once(function() {
           notifyProgress();
-          var promise = Q(this._runBatchTask(task, options));
-          promise.fail(function(e) {
-            Log.error('Error while bulk rendering a batch', e, e.stack);
-          }).fin(function() {
-            setTimeout(sendNextTask, options.batchDelay);
-          }).done();
-        }.bind(this));
+          runTask();
+        });
+        var promise = Q(this._runBatchTask(task, options));
+        promise.fail(function(e) {
+          Log.error('Error while bulk rendering a batch', e, e.stack);
+        }).fin(function() {
+          setTimeout(sendNextTask, options.batchDelay);
+        }).done();
       }.bind(this);
       
       runTask();
@@ -516,7 +517,7 @@ define([
      * @param {Object.<String, Boolean>} idMap - A map of the entity IDs which have been prepared
      *     for bulk creation.
      * @param {Object} options - See {@link #bulkCreate}.
-     * @param {Object} A represnetation
+     * @param {Object} An item processed for batch creation. If false, this C3ML entity is ignored.
      */
     _addBatchItem: function(c3ml, idMap, options) {
       return c3ml;
