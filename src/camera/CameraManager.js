@@ -4,10 +4,12 @@ define([
   'atlas/model/GeoPoint',
   'atlas/model/Rectangle',
   'atlas/lib/Q',
+  'atlas/lib/utility/Counter',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
   'atlas/util/DeveloperError'
-], function(Camera, Manager, GeoPoint, Rectangle, Q, Log, Setter, DeveloperError) {
+], function(Camera, Manager, GeoPoint, Rectangle, Q, Counter, Log, Setter,
+            DeveloperError) {
 
   /**
    * @typedef atlas.camera.CameraManager
@@ -64,23 +66,49 @@ define([
         {
           source: 'extern',
           name: 'camera/zoomTo',
+          /**
+           * @param {ExternalEvent#event:camera/zoomTo} args
+           * @listens ExternalEvent#camera/zoomTo
+           */
           callback: function(args) {
+            var df = Q.defer();
             var position = args.position;
+            var ids = args.ids;
+            var promise;
             if (position) {
               // Use the default elevation if only latitude and longitude are provided.
               if (position.elevation === undefined) {
                 position.elevation = Camera.getDefaultPosition().elevation;
               }
               args.position = new GeoPoint(position);
-              this._current.zoomTo(args);
+              promise = this._current.zoomTo(args);
             } else if (args.address) {
-              this._current.zoomToAddress(args.address);
+              promise = this._current.zoomToAddress(args.address);
             } else if (args.rectangle) {
               args.rectangle = new Rectangle(args.rectangle);
-              this._current.zoomTo(args);
+              promise = this._current.zoomTo(args);
+            } else if (ids) {
+              var collection = this._managers.entity.createCollection(null, {entities: ids});
+              collection.ready().then(function() {
+                var boundingBox = collection.getBoundingBox({
+                  useCentroid: Setter.def(args.useCentroid, ids.length > 300)
+                });
+                if (boundingBox) {
+                  boundingBox.scale(Setter.def(args.boundingBoxScale, 1.5));
+                  args.rectangle = boundingBox;
+                  promise = this._current.zoomTo(args);
+                } else {
+                  promise = Q.reject('Could not zoom to collection - no bounding box');
+                }
+                collection.remove();
+                df.resolve(promise);
+              }.bind(this));
             } else {
-              return new Error('Invalid arguments for event "camera/zoomTo"');
+              promise = Q.reject('Invalid arguments for event "camera/zoomTo"');
             }
+            // "ids" is handled asynchronously, so this resolves the promise only if it is defined.
+            promise && df.resolve(promise);
+            args.callback && args.callback(df.promise);
           }.bind(this)
         },
         {

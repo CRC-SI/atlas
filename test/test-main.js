@@ -7,7 +7,7 @@ var specsConfig = [
   {name: 'dom/PopupFaculty', run: false, fix: 'Requires Overlay to be fixed'},
   {name: 'dom/Overlay', run: false, fix: 'problems with jquery'},
   {name: 'edit/EditManager', run: false, fix: 'tests totally out of date'},
-  {name: 'entity/EntityManager', run: false, fix: 'abstract GeoEntity functions being called'},
+  {name: 'entity/EntityManager', run: true},
   {name: 'material/Color', run: true},
   {name: 'material/Style', run: true},
   {name: 'model/Collection', run: true},
