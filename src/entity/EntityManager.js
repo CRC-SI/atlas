@@ -533,7 +533,7 @@ define([
         _.each(items, function(c3ml) {
           try {
             var data = this._parseC3ml(c3ml);
-            this.createEntity(id, data);
+            this.createEntity(c3ml.id, data);
           } catch (e) {
             Log.error('Failed to render entity during bulk render', e);
           }
