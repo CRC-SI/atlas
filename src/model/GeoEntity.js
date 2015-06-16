@@ -377,7 +377,7 @@ define([
       this.translate(diff);
     },
 
-    
+
     _calcCentroid: function(args) {
       var wkt = WKT.getInstance();
       var centroid = this.getOpenLayersGeometry(args).getCentroid();
@@ -857,7 +857,6 @@ define([
     /**
      * Removes the GeoEntity from rendering. This function should be overridden on subclasses to
      * accomplish any cleanup that may be required.
-     *
      * @fires InternalEvent#entity/remove
      */
     remove: function() {

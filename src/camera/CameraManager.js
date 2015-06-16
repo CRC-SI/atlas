@@ -100,6 +100,10 @@ define([
                 } else {
                   promise = Q.reject('Could not zoom to collection - no bounding box');
                 }
+                // Remove children before reming the
+                _.each(collection.getChildren(), function(child) {
+                  collection.removeEntity(child);
+                });
                 collection.remove();
                 df.resolve(promise);
               }.bind(this));
