@@ -93,6 +93,8 @@ define([
     },
 
     bindEvents: function() {
+      // A map of the entity IDs which are under the mouse.
+      var mouseOverIds = {};
       var handlers = [
         {
           source: 'extern',
@@ -252,34 +254,64 @@ define([
             }
           }.bind(this)
         },
-        // TODO(aramk) Disabled due to lack of use.
-        // {
-        //   source: 'intern',
-        //   name: 'input/mousemove',
-        //   /**
-        //    * @param {InternalEvent#event:input/mousemove} args
-        //    * @listens InternalEvent#input/mousemove
-        //    * @fires InternalEvent#entity/mousemove
-        //    * @ignore
-        //    */
-        //   callback: _.debounce(function(args) {
-        //     // Debounce to prevent excessive calls to getAt().
-        //     var position = args.position;
-        //     var entities = this.getAt(position);
-        //     entities.forEach(function(entity) {
-        //       /**
-        //        * The mouse was moved over the {@link atlas.model.GeoEntity}.
-        //        *
-        //        * @event InternalEvent#entity/mousemove
-        //        * @type {atlas.events.Event}
-        //        * @property {String} args.id - The ID of the entity.
-        //        */
-        //       this._managers.event.dispatchEvent(new Event(entity, 'entity/mousemove', {
-        //         id: entity.getId()
-        //       }));
-        //     }, this);
-        //   }.bind(this), 100)
-        // }
+        {
+          source: 'intern',
+          name: 'input/mousemove',
+          /**
+           * @param {InternalEvent#event:input/mousemove} args
+           * @listens InternalEvent#input/mousemove
+           * @fires InternalEvent#entity/mousemove
+           * @ignore
+           */
+          callback: _.debounce(function(args) {
+            // Debounce to prevent excessive calls to getAt().
+            var position = args.position;
+            var entities = this.getAt(position);
+            var newMouseOverIds = {};
+            entities.forEach(function(entity) {
+              var id = entity.getId();
+              var isMouseOver = mouseOverIds[id];
+              if (!isMouseOver) {
+                /**
+                 * The mouse was moved into the {@link atlas.model.GeoEntity}.
+                 *
+                 * @event InternalEvent#entity/mouseenter
+                 * @type {atlas.events.Event}
+                 * @property {String} args.id - The ID of the entity.
+                 */
+                this._managers.event.dispatchEvent(new Event(entity, 'entity/mouseenter', {
+                  id: id
+                }));
+              }
+              newMouseOverIds[id] = entity;
+              /**
+               * The mouse was moved over the {@link atlas.model.GeoEntity}.
+               *
+               * @event InternalEvent#entity/mousemove
+               * @type {atlas.events.Event}
+               * @property {String} args.id - The ID of the entity.
+               */
+              this._managers.event.dispatchEvent(new Event(entity, 'entity/mousemove', {
+                id: id
+              }));
+            }, this);
+            _.each(mouseOverIds, function(entity, id) {
+              if (!newMouseOverIds[id]) {
+                /**
+                 * The mouse was moved out of the {@link atlas.model.GeoEntity}.
+                 *
+                 * @event InternalEvent#entity/mouseleave
+                 * @type {atlas.events.Event}
+                 * @property {String} args.id - The ID of the entity.
+                 */
+                this._managers.event.dispatchEvent(new Event(entity, 'entity/mouseleave', {
+                  id: id
+                }));
+              }
+            }, this);
+            mouseOverIds = newMouseOverIds;
+          }.bind(this), 100)
+        }
       ];
       this._eventHandlers = this._managers.event.addEventHandlers(handlers);
     },
@@ -507,7 +539,7 @@ define([
           setTimeout(sendNextTask, options.batchDelay);
         }).done();
       }.bind(this);
-      
+
       runTask();
       return df.promise;
     },
