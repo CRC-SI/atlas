@@ -108,7 +108,7 @@ define([
                 }
                 // Remove children before reming the
                 _.each(collection.getChildren(), function(child) {
-                  collection.removeEntity(child);
+                  collection.removeEntity(child.getId());
                 });
                 collection.remove();
                 df.resolve(promise);
