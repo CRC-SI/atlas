@@ -71,12 +71,29 @@ define([
      */
     _origDisplayModes: null,
 
+    /**
+     * A map of the entity IDs to entities which are under the mouse.
+     * @type {Object.<String, atlas.mode.GeoEntity>}
+     */
+    _hoveredEntities: null,
+
+    /**
+     * Counter used for generating unique IDs.
+     * @type {Counter}
+     */
     _idCounter: null,
+
+    /**
+     * Whether to highlight entities when hovering over them.
+     * @type {Boolean}
+     */
+    _hoverEnabled: false,
 
     _init: function(managers) {
       this._super(managers);
       this._origDisplayModes = {};
       this._entities = new ItemStore();
+      this._hoveredEntities = new ItemStore();
       this._idCounter = new Counter({count: 1});
     },
 
@@ -92,9 +109,26 @@ define([
       this.bindEvents();
     },
 
+    /**
+     * Allows overriding of the default Atlas GeoEntity types with implementation specific
+     * GeoEntity types.
+     * @param {Object.<String, Function>} constructors - A map of entity type names to entity
+     *     constructors.
+     */
+    setGeoEntityTypes: function(constructors) {
+      for (var key in constructors) {
+        if (key in this._entityTypes) {
+          //noinspection JSUnfilteredForInLoop
+          this._entityTypes[key] = constructors[key];
+        }
+      }
+    },
+
+    // -------------------------------------------
+    // EVENTS
+    // -------------------------------------------
+
     bindEvents: function() {
-      // A map of the entity IDs which are under the mouse.
-      var mouseOverIds = {};
       var handlers = [
         {
           source: 'extern',
@@ -267,10 +301,10 @@ define([
             // Debounce to prevent excessive calls to getAt().
             var position = args.position;
             var entities = this.getAt(position);
-            var newMouseOverIds = {};
+            var newHoveredEntities = {};
             entities.forEach(function(entity) {
               var id = entity.getId();
-              var isMouseOver = mouseOverIds[id];
+              var isMouseOver = this._hoveredEntities.get(id);
               if (!isMouseOver) {
                 /**
                  * The mouse was moved into the {@link atlas.model.GeoEntity}.
@@ -282,8 +316,8 @@ define([
                 this._managers.event.dispatchEvent(new Event(entity, 'entity/mouseenter', {
                   id: id
                 }));
+                this._hoverEnabled && entity.setHighlighted(true);
               }
-              newMouseOverIds[id] = entity;
               /**
                * The mouse was moved over the {@link atlas.model.GeoEntity}.
                *
@@ -294,9 +328,10 @@ define([
               this._managers.event.dispatchEvent(new Event(entity, 'entity/mousemove', {
                 id: id
               }));
+              newHoveredEntities[id] = entity;
             }, this);
-            _.each(mouseOverIds, function(entity, id) {
-              if (!newMouseOverIds[id]) {
+            this._hoveredEntities.forEach(function(entity, id) {
+              if (!newHoveredEntities[id]) {
                 /**
                  * The mouse was moved out of the {@link atlas.model.GeoEntity}.
                  *
@@ -307,28 +342,32 @@ define([
                 this._managers.event.dispatchEvent(new Event(entity, 'entity/mouseleave', {
                   id: id
                 }));
+                this._hoverEnabled && entity.setHighlighted(false);
               }
             }, this);
-            mouseOverIds = newMouseOverIds;
+            this._hoveredEntities.purge();
+            _.each(newHoveredEntities, function(entity, id) {
+              this._hoveredEntities.add(entity);
+            }, this);
           }.bind(this), 100)
         }
       ];
       this._eventHandlers = this._managers.event.addEventHandlers(handlers);
     },
 
-    /**
-     * Allows overriding of the default Atlas GeoEntity types with implementation specific
-     * GeoEntity types.
-     * @param {Object.<String, Function>} constructors - A map of entity type names to entity
-     *     constructors.
-     */
-    setGeoEntityTypes: function(constructors) {
-      for (var key in constructors) {
-        if (key in this._entityTypes) {
-          //noinspection JSUnfilteredForInLoop
-          this._entityTypes[key] = constructors[key];
+    setHoverEnabled: function(enabled) {
+      if (this._hoverEnabled !== enabled) {
+        this._hoverEnabled = enabled;
+        if (!enabled) {
+          this._hoveredEntities.forEach(function(entity, id) {
+            entity.setHighlighted(false);
+          }, this);
         }
       }
+    },
+
+    getHoverEnabled: function() {
+      return this._hoverEnabled;
     },
 
     // -------------------------------------------

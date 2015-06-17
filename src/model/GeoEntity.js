@@ -4,6 +4,7 @@ define([
   // Base class
   'atlas/events/EventTarget',
   'atlas/lib/Q',
+  'atlas/lib/tinycolor',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Strings',
   'atlas/lib/utility/Types',
@@ -16,7 +17,7 @@ define([
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(ItemStore, Event, EventTarget, Q, Setter, Strings, Types, Rectangle, Color,
+], function(ItemStore, Event, EventTarget, Q, tinycolor, Setter, Strings, Types, Rectangle, Color,
             CheckPattern, Material, Style, GeoPoint, Vertex, DeveloperError, WKT) {
   /**
    * @typedef atlas.model.GeoEntity
@@ -172,6 +173,13 @@ define([
     _preSelectStyle: null,
 
     /**
+     * The style of the GeoEntity before it was highlighted.
+     * @type {atlas.material.Style}
+     * @protected
+     */
+    _preHighlightStyle: null,
+
+    /**
      * Metadata for the GeoEntity which gives it context
      * @type {Object}
      * @protected
@@ -190,6 +198,12 @@ define([
      * @protected
      */
     _selected: false,
+
+    /**
+     * Whether the entity is highlighted.
+     * @type {Boolean}
+     */
+    _highlighted: false,
 
     /**
      * {@link atlas.model.Handle} objects used for editing.
@@ -968,6 +982,21 @@ define([
     },
 
     /**
+     * @return {Boolean} Whether the entity is highlighted.
+     */
+    isHighlighted: function() {
+      return this._highlighted;
+    },
+
+    setHighlighted: function(highlighted) {
+      if (this._highlighted === highlighted) {
+        return null;
+      }
+      this._highlighted = highlighted;
+      highlighted ? this._onHighlight() : this._onUnhighlight();
+    },
+
+    /**
      * @param {Boolean} Whether updating the GeoEntity will cause it to rebuild its geometry.
      */
     setBuildOnChanges: function(buildOnChanges) {
@@ -1027,6 +1056,39 @@ define([
     },
 
     _revertSelectStyle: function() {
+      this.setStyle(this._preSelectStyle);
+    },
+
+    /**
+     * Handles the behaviour when this entity is highlighted.
+     */
+    _onHighlight: function() {
+      this._setHighlightStyle();
+    },
+
+    /**
+     * Handles the behaviour when this entity is unhighlighted.
+     */
+    _onUnhighlight: function() {
+      this._revertHighlightStyle();
+    },
+
+    _setHighlightStyle: function() {
+      // TODO(aramk) Only supports Colors, not other Materials.
+      var style = this._preHighlightStyle = this.getStyle();
+      var fillColor = style.getFillMaterial();
+      if (!(fillColor instanceof Color)) {
+        return;
+      }
+      var newStyle = this._parseStyle(style.toJson());
+      fillColor = newStyle.getFillMaterial();
+      var newFillColorStr = new tinycolor(fillColor.toString()).darken(10).toHexString();
+      var newFillColor = new Color(newFillColorStr);
+      newStyle.setFillColor(newFillColor);
+      this.setStyle(newStyle);
+    },
+
+    _revertHighlightStyle: function() {
       this.setStyle(this._preSelectStyle);
     },
 
