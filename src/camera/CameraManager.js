@@ -7,9 +7,10 @@ define([
   'atlas/lib/utility/Counter',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Setter',
-  'atlas/util/DeveloperError'
+  'atlas/util/DeveloperError',
+  'underscore'
 ], function(Camera, Manager, GeoPoint, Rectangle, Q, Counter, Log, Setter,
-            DeveloperError) {
+            DeveloperError, _) {
 
   /**
    * @typedef atlas.camera.CameraManager
@@ -88,10 +89,15 @@ define([
               args.rectangle = new Rectangle(args.rectangle);
               promise = this._current.zoomTo(args);
             } else if (ids) {
-              var collection = this._managers.entity.createCollection(null, {entities: ids});
+              var entityManager = this._managers.entity;
+              var rootIds = _.filter(ids, function(id) {
+                var entity = entityManager.getById(id);
+                return entity && !entity.getParent();
+              });
+              var collection = entityManager.createCollection(null, {entities: rootIds});
               collection.ready().then(function() {
                 var boundingBox = collection.getBoundingBox({
-                  useCentroid: Setter.def(args.useCentroid, ids.length > 300)
+                  useCentroid: Setter.def(args.useCentroid, rootIds.length > 300)
                 });
                 if (boundingBox) {
                   boundingBox.scale(Setter.def(args.boundingBoxScale, 1.5));
@@ -110,7 +116,7 @@ define([
             } else {
               promise = Q.reject('Invalid arguments for event "camera/zoomTo"');
             }
-            // "ids" is handled asynchronously, so this resolves the promise only if it is defined.
+            // "ids" are handled asynchronously, so this resolves the promise only if it is defined.
             promise && df.resolve(promise);
             args.callback && args.callback(df.promise);
           }.bind(this)
