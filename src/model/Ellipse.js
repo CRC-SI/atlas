@@ -57,9 +57,9 @@ define([
      */
     _setup: function(id, data, args) {
       if (!data || !data.centroid) {
-        throw new DeveloperError('Can not construct ellipse without centre.');
+        throw new DeveloperError('Cannot construct ellipse without centre.');
       } else if (!parseFloat(data.semiMajor)) {
-        throw new DeveloperError('Can not construct ellipse without semi major axis.');
+        throw new DeveloperError('Cannot construct ellipse without semi major axis.');
       }
       args = Setter.mixin({}, args);
       data = Setter.mixin({
