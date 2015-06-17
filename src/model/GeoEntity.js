@@ -165,19 +165,13 @@ define([
      */
     _style: null,
 
-    /**
-     * The style of the GeoEntity before it was selected.
-     * @type {atlas.material.Style}
-     * @protected
-     */
-    _preSelectStyle: null,
 
     /**
-     * The style of the GeoEntity before it was highlighted.
+     * The style of the GeoEntity before it was selected or highlighted.
      * @type {atlas.material.Style}
      * @protected
-     */
-    _preHighlightStyle: null,
+     */    
+    _preStyle: null,
 
     /**
      * Metadata for the GeoEntity which gives it context
@@ -1016,7 +1010,8 @@ define([
      * @fires InternalEvent#entity/select
      */
     _onSelect: function() {
-      this._setSelectStyle();
+      this._setPreStyle();
+      this._updateHighlightStyle();
 
       /**
        * Selection of an entity.
@@ -1036,7 +1031,7 @@ define([
      * @fires InternalEvent#entity/deselect
      */
     _onDeselect: function() {
-      this._revertSelectStyle();
+      this._updateHighlightStyle();
 
       /**
        * Deselection of an entity.
@@ -1050,46 +1045,50 @@ define([
       }));
     },
 
-    _setSelectStyle: function() {
-      this._preSelectStyle = this.getStyle();
-      this.setStyle(Style.getDefaultSelected());
+    _setPreStyle: function() {
+      // NOTE: Bitwise XOR.
+      if (this.isSelected() ^ this.isHighlighted()) {
+        this._preStyle = this.getStyle();
+      }
     },
 
-    _revertSelectStyle: function() {
-      this.setStyle(this._preSelectStyle);
+    /**
+     * Handles the logic for updating the style of the entity on selection and highlight.
+     */
+    _updateHighlightStyle: function() {
+      var style;
+      if (this.isSelected()) {
+        style = Style.getDefaultSelected();
+      } else {
+        // TODO(aramk) Clones the style - the parse logic should reside in Style, not GeoEntity.
+        style = this._parseStyle(this._preStyle.toJson());
+      }
+      if (this.isHighlighted()) {
+        // TODO(aramk) Only supports Colors, not other Materials.
+        var fillColor = style.getFillMaterial();
+        if (fillColor instanceof Color) {
+          fillColor = style.getFillMaterial();
+          var newFillColorStr = new tinycolor(fillColor.toString()).darken(10).toHexString();
+          var newFillColor = new Color(newFillColorStr);
+          style.setFillMaterial(newFillColor);
+        }
+      }
+      this.setStyle(style);
     },
 
     /**
      * Handles the behaviour when this entity is highlighted.
      */
     _onHighlight: function() {
-      this._setHighlightStyle();
+      this._setPreStyle();
+      this._updateHighlightStyle();
     },
 
     /**
      * Handles the behaviour when this entity is unhighlighted.
      */
     _onUnhighlight: function() {
-      this._revertHighlightStyle();
-    },
-
-    _setHighlightStyle: function() {
-      // TODO(aramk) Only supports Colors, not other Materials.
-      var style = this._preHighlightStyle = this.getStyle();
-      var fillColor = style.getFillMaterial();
-      if (!(fillColor instanceof Color)) {
-        return;
-      }
-      var newStyle = this._parseStyle(style.toJson());
-      fillColor = newStyle.getFillMaterial();
-      var newFillColorStr = new tinycolor(fillColor.toString()).darken(10).toHexString();
-      var newFillColor = new Color(newFillColorStr);
-      newStyle.setFillMaterial(newFillColor);
-      this.setStyle(newStyle);
-    },
-
-    _revertHighlightStyle: function() {
-      this.setStyle(this._preHighlightStyle);
+      this._updateHighlightStyle();
     },
 
     /**
