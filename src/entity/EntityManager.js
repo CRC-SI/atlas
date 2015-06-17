@@ -349,7 +349,7 @@ define([
             _.each(newHoveredEntities, function(entity, id) {
               this._hoveredEntities.add(entity);
             }, this);
-          }.bind(this), 100)
+          }.bind(this), 20)
         }
       ];
       this._eventHandlers = this._managers.event.addEventHandlers(handlers);
