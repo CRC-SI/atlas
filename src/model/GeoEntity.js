@@ -1084,12 +1084,12 @@ define([
       fillColor = newStyle.getFillMaterial();
       var newFillColorStr = new tinycolor(fillColor.toString()).darken(10).toHexString();
       var newFillColor = new Color(newFillColorStr);
-      newStyle.setFillColor(newFillColor);
+      newStyle.setFillMaterial(newFillColor);
       this.setStyle(newStyle);
     },
 
     _revertHighlightStyle: function() {
-      this.setStyle(this._preSelectStyle);
+      this.setStyle(this._preHighlightStyle);
     },
 
     /**
