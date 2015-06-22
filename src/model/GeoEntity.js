@@ -4,6 +4,7 @@ define([
   // Base class
   'atlas/events/EventTarget',
   'atlas/lib/Q',
+  'atlas/lib/tinycolor',
   'atlas/lib/utility/Setter',
   'atlas/lib/utility/Strings',
   'atlas/lib/utility/Types',
@@ -16,7 +17,7 @@ define([
   'atlas/model/Vertex',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(ItemStore, Event, EventTarget, Q, Setter, Strings, Types, Rectangle, Color,
+], function(ItemStore, Event, EventTarget, Q, tinycolor, Setter, Strings, Types, Rectangle, Color,
             CheckPattern, Material, Style, GeoPoint, Vertex, DeveloperError, WKT) {
   /**
    * @typedef atlas.model.GeoEntity
@@ -164,12 +165,13 @@ define([
      */
     _style: null,
 
+
     /**
-     * The style of the GeoEntity before it was selected.
+     * The style of the GeoEntity before it was selected or highlighted.
      * @type {atlas.material.Style}
      * @protected
-     */
-    _preSelectStyle: null,
+     */    
+    _preStyle: null,
 
     /**
      * Metadata for the GeoEntity which gives it context
@@ -190,6 +192,12 @@ define([
      * @protected
      */
     _selected: false,
+
+    /**
+     * Whether the entity is highlighted.
+     * @type {Boolean}
+     */
+    _highlighted: false,
 
     /**
      * {@link atlas.model.Handle} objects used for editing.
@@ -968,6 +976,21 @@ define([
     },
 
     /**
+     * @return {Boolean} Whether the entity is highlighted.
+     */
+    isHighlighted: function() {
+      return this._highlighted;
+    },
+
+    setHighlighted: function(highlighted) {
+      if (this._highlighted === highlighted) {
+        return null;
+      }
+      this._highlighted = highlighted;
+      highlighted ? this._onHighlight() : this._onUnhighlight();
+    },
+
+    /**
      * @param {Boolean} Whether updating the GeoEntity will cause it to rebuild its geometry.
      */
     setBuildOnChanges: function(buildOnChanges) {
@@ -987,7 +1010,8 @@ define([
      * @fires InternalEvent#entity/select
      */
     _onSelect: function() {
-      this._setSelectStyle();
+      this._setPreStyle();
+      this._updateHighlightStyle();
 
       /**
        * Selection of an entity.
@@ -1007,7 +1031,7 @@ define([
      * @fires InternalEvent#entity/deselect
      */
     _onDeselect: function() {
-      this._revertSelectStyle();
+      this._updateHighlightStyle();
 
       /**
        * Deselection of an entity.
@@ -1021,13 +1045,50 @@ define([
       }));
     },
 
-    _setSelectStyle: function() {
-      this._preSelectStyle = this.getStyle();
-      this.setStyle(Style.getDefaultSelected());
+    _setPreStyle: function() {
+      // NOTE: Bitwise XOR.
+      if (this.isSelected() ^ this.isHighlighted()) {
+        this._preStyle = this.getStyle();
+      }
     },
 
-    _revertSelectStyle: function() {
-      this.setStyle(this._preSelectStyle);
+    /**
+     * Handles the logic for updating the style of the entity on selection and highlight.
+     */
+    _updateHighlightStyle: function() {
+      var style;
+      if (this.isSelected()) {
+        style = Style.getDefaultSelected();
+      } else {
+        // TODO(aramk) Clones the style - the parse logic should reside in Style, not GeoEntity.
+        style = this._parseStyle(this._preStyle.toJson());
+      }
+      if (this.isHighlighted()) {
+        // TODO(aramk) Only supports Colors, not other Materials.
+        var fillColor = style.getFillMaterial();
+        if (fillColor instanceof Color) {
+          fillColor = style.getFillMaterial();
+          var newFillColorStr = new tinycolor(fillColor.toString()).darken(10).toHexString();
+          var newFillColor = new Color(newFillColorStr);
+          style.setFillMaterial(newFillColor);
+        }
+      }
+      this.setStyle(style);
+    },
+
+    /**
+     * Handles the behaviour when this entity is highlighted.
+     */
+    _onHighlight: function() {
+      this._setPreStyle();
+      this._updateHighlightStyle();
+    },
+
+    /**
+     * Handles the behaviour when this entity is unhighlighted.
+     */
+    _onUnhighlight: function() {
+      this._updateHighlightStyle();
     },
 
     /**
