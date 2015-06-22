@@ -594,6 +594,15 @@ define([
      * @returns {atlas.material.Style} The old style, or null if it was not changed.
      */
     setStyle: function(style) {
+      if (this.isSelected() || this.isHighlighted()) {
+        this._setPreStyle(style);
+        return null;
+      } else {
+        return this._setStyle(style);
+      }
+    },
+
+    _setStyle: function(style) {
       var previousStyle = this.getStyle();
       if (previousStyle && previousStyle.equals(style)) {
         return null;
@@ -609,6 +618,14 @@ define([
      */
     getStyle: function() {
       return this._style;
+    },
+
+    /**
+     * Sets the style of the GeoEntity before it was selected or highlighted.
+     * @param {atlas.material.Style} style
+     */
+    _setPreStyle: function(style) {
+      this._preStyle = style;
     },
 
     /**
@@ -1010,7 +1027,7 @@ define([
      * @fires InternalEvent#entity/select
      */
     _onSelect: function() {
-      this._setPreStyle();
+      this._maybeSetPreStyle();
       this._updateHighlightStyle();
 
       /**
@@ -1045,10 +1062,10 @@ define([
       }));
     },
 
-    _setPreStyle: function() {
+    _maybeSetPreStyle: function() {
       // NOTE: Bitwise XOR.
       if (this.isSelected() ^ this.isHighlighted()) {
-        this._preStyle = this.getStyle();
+        this._setPreStyle(this.getStyle());
       }
     },
 
@@ -1073,14 +1090,14 @@ define([
           style.setFillMaterial(newFillColor);
         }
       }
-      this.setStyle(style);
+      this._setStyle(style);
     },
 
     /**
      * Handles the behaviour when this entity is highlighted.
      */
     _onHighlight: function() {
-      this._setPreStyle();
+      this._maybeSetPreStyle();
       this._updateHighlightStyle();
     },
 
