@@ -589,7 +589,7 @@ define([
     },
 
     /**
-     * Sets the Style for the GeoEntity.
+     * Sets the Style for the GeoEntity when it is not selected or highlighted.
      * @param {atlas.material.Style} style - The new style to use.
      * @returns {atlas.material.Style} The old style, or null if it was not changed.
      */
@@ -603,7 +603,7 @@ define([
     },
 
     _setStyle: function(style) {
-      var previousStyle = this.getStyle();
+      var previousStyle = this._style;
       if (previousStyle && previousStyle.equals(style)) {
         return null;
       }
@@ -614,10 +614,11 @@ define([
     },
 
     /**
-     * @returns {atlas.material.Style}
+     * @returns {atlas.material.Style} The style of the GeoEntity before any selection or
+     *     highlighting.
      */
     getStyle: function() {
-      return this._style;
+      return this._preStyle || this._style;
     },
 
     /**
@@ -1065,7 +1066,7 @@ define([
     _maybeSetPreStyle: function() {
       // NOTE: Bitwise XOR.
       if (this.isSelected() ^ this.isHighlighted()) {
-        this._setPreStyle(this.getStyle());
+        this._setPreStyle(this._style);
       }
     },
 
