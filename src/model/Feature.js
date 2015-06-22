@@ -345,7 +345,7 @@ define([
     },
 
     getStyle: function() {
-      return this._delegateToForm('getStyle') || this._style;
+      return this._delegateToForm('getStyle') || this._super();
     },
 
     /**
