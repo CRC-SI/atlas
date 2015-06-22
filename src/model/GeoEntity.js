@@ -591,12 +591,11 @@ define([
     /**
      * Sets the Style for the GeoEntity when it is not selected or highlighted.
      * @param {atlas.material.Style} style - The new style to use.
-     * @returns {atlas.material.Style} The old style, or null if it was not changed.
+     * @returns {atlas.material.Style} The previous style, or null if it was not changed.
      */
     setStyle: function(style) {
       if (this.isSelected() || this.isHighlighted()) {
-        this._setPreStyle(style);
-        return null;
+        return this._setPreStyle(style);
       } else {
         return this._setStyle(style);
       }
@@ -624,9 +623,13 @@ define([
     /**
      * Sets the style of the GeoEntity before it was selected or highlighted.
      * @param {atlas.material.Style} style
+     * @returns {atlas.material.Style} The previous style of the GeoEntity before it was selected or
+     *     highlighted.
      */
     _setPreStyle: function(style) {
+      var prevPreStyle = this._preStyle;
       this._preStyle = style;
+      return prevPreStyle;
     },
 
     /**
@@ -729,19 +732,19 @@ define([
      * @param {atlas.model.Style|Object} updateStyle - The new values for the Style components.
      *     This should be consistent with the return of {@link atlas.material.Style#toObject()} if
      *     passed as an object. If passed as a Style, this method is called.
-     * @returns {atlas.material.Style} The old style, or null if it was not changed.
+     * @returns {atlas.material.Style} The previous style, or null if it was not changed.
      */
     modifyStyle: function(updateStyle) {
       this.setDirty('style');
-      var oldStyle = this.getStyle();
-      var oldStyleJson = {};
-      if (oldStyle) {
+      var prevStyle = this.getStyle();
+      var prevStyleJson = {};
+      if (prevStyle) {
         // TODO(aramk): Use toObject() for now since toJson() cannot be parsed by Style constructor,
         // since it contains material subclasses details.
-        oldStyleJson = oldStyle.toObject();
+        prevStyleJson = prevStyle.toObject();
       }
       var updateStyleJson = updateStyle instanceof Style ? updateStyle.toObject() : updateStyle;
-      var newStyleJson = Setter.mixin(oldStyleJson, updateStyleJson);
+      var newStyleJson = Setter.mixin(prevStyleJson, updateStyleJson);
       var newStyle = new Style(newStyleJson);
       return this.setStyle(newStyle);
     },
