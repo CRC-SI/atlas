@@ -378,7 +378,7 @@ define([
     // -------------------------------------------
 
     modifyStyle: function(args) {
-      var oldStyle = this._super(args);
+      var oldStyle = this._super.apply(this, arguments);
       return this._delegateToForm('modifyStyle', arguments) || oldStyle;
     },
 
