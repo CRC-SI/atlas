@@ -208,7 +208,7 @@ define([
           name: 'entity/remove/all',
           callback: function(args) {
             Log.time('entity/remove/all');
-            this.getEntities().forEach(function(entity) {entity.remove();});
+            this.removeAll();
             Log.timeEnd('entity/remove/all');
           }.bind(this)
         },
@@ -816,6 +816,17 @@ define([
       }
     },
 
+    /**
+     * @return {Array.<atlas.model.GeoEntity>} The removed entities.
+     */
+    removeAll: function() {
+      var entities = this.getEntities();
+      entities.forEach(function(entity) {
+        this.remove(entity.getId());
+      }, this);
+      return entities;
+    },
+
     // -------------------------------------------
     // ENTITY RETRIEVAL
     // -------------------------------------------
@@ -1012,6 +1023,11 @@ define([
         visible ? entity.show() : entity.hide();
       }, this);
       Log.timeEnd('entity/' + action);
+    },
+
+    destroy: function() {
+      this._super();
+      this.removeAll();
     }
 
   });
