@@ -99,8 +99,7 @@ define([
      * @param {Number} elevation - The elevation of the base of the polygon.
      */
     setElevation: function(elevation) {
-      if (typeof elevation === 'number' && this._elevation !== elevation) {
-        this._elevation = elevation;
+      if (this._elevation !== elevation) {
         this.setDirty('vertices');
         this._update();
       }
