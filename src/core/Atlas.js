@@ -222,6 +222,15 @@ define([
      */
     ready: function() {
       return Q.when(this);
+    },
+
+    /**
+     * @returns {Promise} A promise which is resolved once the Atlas instance and all referenced
+     *     objects are unloaded.
+     */
+    destroy: function() {
+      // NOTE: Override in subclasses.
+      return Q.when();
     }
 
   });

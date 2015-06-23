@@ -338,9 +338,10 @@ define([
      * @param {Number} elevation - The elevation of the base of the GeoEntity.
      */
     setElevation: function(elevation) {
-      this._super(elevation);
-      this.setDirty('vertices');
-      this._update();
+      if (this._elevation !== elevation) {
+        this.setDirty('vertices');
+        this._super(elevation);
+      }
     },
 
     /**
