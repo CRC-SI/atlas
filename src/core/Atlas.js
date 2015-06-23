@@ -14,10 +14,11 @@ define([
   'atlas/visualisation/VisualisationManager',
   'atlas/util/DeveloperError',
   'atlas/lib/Q',
-  'atlas/lib/utility/Class'
+  'atlas/lib/utility/Class',
+  'underscore'
 ], function(CameraManager, DomManager, PopupFaculty, PopupManager, OverlayManager, EditManager,
   EntityManager, EventManager, InputManager, RenderManager, TerrainManager, SelectionManager,
-  VisualisationManager, DeveloperError, Q, Class) {
+  VisualisationManager, DeveloperError, Q, Class, _) {
 
   /**
    * @typedef atlas.core.Atlas
@@ -225,12 +226,14 @@ define([
     },
 
     /**
-     * @returns {Promise} A promise which is resolved once the Atlas instance and all referenced
-     *     objects are unloaded.
+     * @returns {Promise} A promise which is resolved once this Atlas instance is unloaded.
      */
     destroy: function() {
-      // NOTE: Override in subclasses.
-      return Q.when();
+      // Destroy the event manager first to prevent sending events during destruction.
+      this._managers.event.destroy();
+      return Q.all(_.map(this._managers, function(manager) {
+        return manager.destroy();
+      }));
     }
 
   });
