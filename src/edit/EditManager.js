@@ -308,6 +308,13 @@ define([
       this._editing ? this.disable() : this.enable();
     },
 
+    /**
+     * @return {Boolean} Whether editing is currently enabled.
+     */
+    isEditing: function() {
+      return this._editing;
+    },
+
     // -------------------------------------------
     // MODULE MANAGEMENT
     // -------------------------------------------
