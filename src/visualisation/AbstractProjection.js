@@ -5,8 +5,9 @@ define([
   'atlas/material/Color',
   'atlas/lib/utility/Class',
   'atlas/util/DeveloperError',
-  'atlas/util/NumberFormatter'
-], function(Setter, Types, Style, Color, Class, DeveloperError, NumberFormatter) {
+  'atlas/util/NumberFormatter',
+  'underscore'
+], function(Setter, Types, Style, Color, Class, DeveloperError, NumberFormatter, _) {
 
   /**
    * @typedef atlas.visualisation.AbstractProjection
@@ -175,7 +176,10 @@ define([
         codomain: this.DEFAULT_CODOMAIN
       }, args);
       if (!args.entities) {
-        throw new DeveloperError('Can not construct Projection without entities');
+        throw new DeveloperError('Cannot construct Projection without entities');
+      }
+      if (_.isEmpty(args.values)) {
+        throw new DeveloperError('Cannot construct Projection without values');
       }
       if (!this.SUPPORTED_PROJECTIONS[args.type]) {
         throw new DeveloperError('Tried to instantiate Projection with unsupported type',
@@ -211,7 +215,7 @@ define([
      * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
      */
     render: function(id) {
-      this._mapToEntitiesById(this._render, id);
+      this._forEachEntity(this._render, id);
       this._rendered = true;
     },
 
@@ -232,7 +236,7 @@ define([
      * @param {String|Array.<String>} [id] - Either a single GeoEntity ID or an array of IDs.
      */
     unrender: function(id) {
-      this._mapToEntitiesById(this._unrender, id);
+      this._forEachEntity(this._unrender, id);
       this._rendered = false;
     },
 
@@ -249,27 +253,31 @@ define([
 
     /**
      * Process all (or a subset) of GeoEntities and applies a given function to them.
-     * @param {atlas.visualisation.AbstractProjection~UpdateEntityCb} f - The function to apply to
-     *     the GeoEntities.
+     * @param {atlas.visualisation.AbstractProjection~UpdateEntityCb} func - The function to apply
+     *     to the GeoEntities.
      * @param {String|Array.<String>} [id] - Either a single GeoEntity ID, an array of IDs, or
      *     nothing.
      * @private
      */
-    _mapToEntitiesById: function(f, id) {
+    _forEachEntity: function(func, id) {
       var ids = this._constructIdList(id);
       // Process each entity for the win.
       ids.forEach(function(id) {
         var theEntity = this._entities[id];
         var theAttributes = this._attributes[id];
         if (theEntity) {
+          // TODO(aramk) The use of this._rendered here is confusing since it uses the previous
+          // state.
           if (theAttributes) {
-            f.call(this, theEntity, theAttributes);
-          } else {
-            if (this._rendered) {
-              this._disableEntity(id);
-            } else if (this._getEffect(id, 'disabled')) {
-              this._enableEntity(id);
-            }
+            func.call(this, theEntity, theAttributes);
+          } else if (!this._rendered) {
+            // Since no method can be called and we are about to render the entity, is is disabled.
+            this._disableEntity(id);
+          }
+          // If we disabled the entity and the projection is rendered, but will be unrendered,
+          // re-enabled it.
+          if (this._rendered && this._getEffect(id, 'disabled')) {
+            this._enableEntity(id);
           }
         }
       }, this);
@@ -531,11 +539,11 @@ define([
     _calculatePopulationStatistics: function() {
       // TODO(bpstudds): Add the ability to specify which IDs to update see HeightProjection#render.
       var ids = Object.keys(this._values);
-      var stats = {'sum': 0};
-      if (ids.length > 0) {
+      var count = ids.length;
+      var stats = {sum: 0, count: count};
+      if (count > 0) {
         stats.min = {id: ids[0], value: this._values[ids[0]]};
         stats.max = {id: ids[0], value: this._values[ids[0]]};
-        stats.count = ids.length;
         // Calculate min, max, and sum values.
         ids.forEach(function(id) {
           var thisValue = this._values[id];
