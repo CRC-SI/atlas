@@ -249,7 +249,7 @@ define([
       options.resetTransformations && this.resetTransformations();
       this.setDirty('vertices');
       this._update();
-      if (!this.isSetUp) {
+      if (this._isSetUp) {
         this._eventManager.dispatchEvent(new Event(this, 'entity/vertices/changed', {
           ids: [this.getId()]
         }));
