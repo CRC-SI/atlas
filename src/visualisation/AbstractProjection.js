@@ -193,7 +193,8 @@ define([
         bins: args.bins,
         codomain: args.codomain
       };
-      this._formatter = new NumberFormatter();
+      this._formatOptions = args.formatOptions;
+      this._formatter = args.formatter || new NumberFormatter();
 
       this._stats = this._calculateBinnedStatistics();
       // TODO(bpstudds): Do we need to calculate this for a discrete projection?
@@ -614,7 +615,7 @@ define([
      */
     _round: function(x) {
       return this._formatter.exponentsToHTML(this._formatter.eNotationToTimes(
-          this._formatter.round(x)));
+          this._formatter.round(x, this._formatOptions)));
     },
 
     // -------------------------------------------

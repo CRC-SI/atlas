@@ -74,7 +74,9 @@ define([
     it('can be selected and deselected', function() {
       var oldStyle = polygon.getStyle();
       polygon.setSelected(true);
-      expect(polygon.getStyle()).not.toEqual(oldStyle);
+      // Selecting an entity doesn't affect the result of getStyle(), despite the entity
+      // changing appearance due to the selection.
+      expect(polygon.getStyle()).toEqual(oldStyle);
       // Selecting again should not lose previous style info.
       polygon.setSelected(true);
       polygon.setSelected(false);

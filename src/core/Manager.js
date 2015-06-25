@@ -1,8 +1,9 @@
 define([
   'atlas/lib/utility/Class',
   'atlas/lib/utility/Objects',
+  'atlas/lib/Q',
   'atlas/util/DeveloperError'
-], function(Class, Objects, DeveloperError) {
+], function(Class, Objects, Q, DeveloperError) {
   /**
    * @typedef atlas.core.Manager
    * @ignore
@@ -71,6 +72,14 @@ define([
       Objects.keys(this._eventHandles, function(handle) {
         handle.cancel();
       });
+    },
+
+    /**
+     * @returns {Promise|undefined} If the destruction is asychronous, a promise which is resolved
+     *     once the manager is unloaded.
+     */
+    destroy: function() {
+      // Override in subclasses.
     }
 
   });

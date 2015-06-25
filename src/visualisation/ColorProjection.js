@@ -2,8 +2,9 @@ define([
   'atlas/material/Color',
   // Base class.
   'atlas/visualisation/AbstractProjection',
-  'atlas/util/DeveloperError'
-], function(Color, AbstractProjection, DeveloperError) {
+  'atlas/util/DeveloperError',
+  'underscore'
+], function(Color, AbstractProjection, DeveloperError, _) {
 
   /**
    * @classdesc A ColorProjection is used to project GeoEntity parameter values
@@ -21,9 +22,15 @@ define([
 
     _init: function(args) {
       this._super(args);
+      var codomain = this._configuration.codomain;
+      // Support codomain colors as any valid argument to the Color constructor.
+      _.each(codomain, function(value, key) {
+        if (value instanceof Color) { return }
+        codomain[key] = new Color(value);
+      });
+      // Support opacity option.
       var opacity = args.opacity;
       if (opacity !== undefined) {
-        var codomain = this._configuration.codomain;
         codomain.startProj.alpha = codomain.endProj.alpha = opacity;
       }
     },

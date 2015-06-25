@@ -228,8 +228,9 @@ define([
           id: 'visman-projection-container',
           parent: this._managers.dom.getDomNode(),
           title: 'Projections',
+          cssClass: 'legends',
           position: {top: 300, left: 0}
-        })
+        });
       }
       return this._legendContainer;
     },

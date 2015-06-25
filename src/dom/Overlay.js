@@ -26,7 +26,7 @@ define([
    * @param {String|HTMLElement} [args.parent=document] - The DOM ID or element instance to place
    *     the Overlay on.
    * @param {String} [args.title] - A title to show in the overlay.
-   * @param {String} [args.class] - The CSS class to apply to the <code><div</code> surrounding
+   * @param {String} [args.cssClass] - The CSS class to apply to the <code>div</code> surrounding
    *     the Overlay.
    * @param {Boolean} [args.hasRemoveBtn=false] - Whether the Overlay should have a remove
    *    button. The default action of this button is to remove and destroy the Overlay.

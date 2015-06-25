@@ -2,8 +2,10 @@ define([
   'atlas/core/Manager',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Types',
-  'atlas/util/DeveloperError'
-], function(Manager, Log, Types, DeveloperError) {
+  'atlas/lib/Q',
+  'atlas/util/DeveloperError',
+  'underscore'
+], function(Manager, Log, Types, Q, DeveloperError, _) {
 
   /**
    * An object that declares a callback function listening for a particular event.
@@ -42,18 +44,16 @@ define([
     _hosts: null,
 
     /**
-     * Mapping of external event names to an array of callback functions registered to the
-     * corresponding event.
+     * Mapping of external event names to a map of handler IDs to the handler object.
      *
-     * @type {Object.<String, Array.<Function>>}
+     * @type {Object.<String, Object.<String, Object>>}
      */
     _externalEventHandlers: null,
 
     /**
-     * Mapping of internal event names to an array of callback functions registered to the
-     * corresponding event.
+     * Mapping of internal event names to a map of handler IDs to the handler object.
      *
-     * @type {Object.<String, Array.<Function>>}
+     * @type {Object.<String, Object.<String, Object>>}
      */
     _internalEventHandlers: null,
 
@@ -280,6 +280,47 @@ define([
     },
 
     /**
+     * @param {String} source - The source of the Event for the EventHandler being removed.
+     * @return {Object.<String, Object.<String, Object>>} The event handlers for the given source.
+     */
+    _getEventHandlers: function(source) {
+      if (source === 'extern') {
+        return this._externalEventHandlers;
+      } else if (source === 'intern') {
+        return this._internalEventHandlers;
+      } else {
+        throw new DeveloperError('Must specify whether event handler is for "intern" or' +
+            '"extern" events.');
+      }
+    },
+
+    /**
+     * Removes the event handlers for the given source.
+     * @param {String} [source] - The source of the Event for the EventHandler being removed. If not
+     *     provided, event handlers from all sources are removed.
+     * @param {String} [name] - The name of the event used to register the handler. If not provided,
+     *     event handlers for all names are removed.
+     */
+    removeHandlers: function(source, name) {
+      var allHandlers = [];
+      if (source) {
+        allHandlers.push(this._getEventHandlers(source));
+      } else {
+        allHandlers.push(this._getEventHandlers('intern'));
+        allHandlers.push(this._getEventHandlers('extern'));
+      }
+      _.each(allHandlers, function(handlers) {
+        var names = name ? [name] : _.keys(handlers);
+        _.each(names, function(eventName) {
+          var eventHandlers = handlers[eventName];
+          _.each(eventHandlers, function(handler) {
+            handler.cancel();
+          });
+        });
+      });
+    },
+
+    /**
      * Calls the registered event handlers for the given event.
      *
      * @param {String} source - The source of the event, either 'extern' or 'intern'.
@@ -327,7 +368,13 @@ define([
      */
     handleExternalEvent: function(name, args) {
       this._handleEvent('extern', name, args);
+    },
+
+    destroy: function() {
+      this._super();
+      this.removeHandlers();
     }
+
   });
 
   return EventManager;
