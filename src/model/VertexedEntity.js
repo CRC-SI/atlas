@@ -1,4 +1,5 @@
 define([
+  'atlas/events/Event',
   'atlas/lib/utility/Types',
   'atlas/lib/utility/Setter',
   'atlas/model/GeoEntity',
@@ -6,7 +7,7 @@ define([
   'atlas/model/Handle',
   'atlas/util/WKT',
   'underscore'
-], function(Types, Setter, GeoEntity, GeoPoint, Handle, WKT, _) {
+], function(Event, Types, Setter, GeoEntity, GeoPoint, Handle, WKT, _) {
   /**
    * @typedef atlas.model.VertexedEntity
    * @ignore
@@ -248,6 +249,11 @@ define([
       options.resetTransformations && this.resetTransformations();
       this.setDirty('vertices');
       this._update();
+      if (!this.isSetUp) {
+        this._eventManager.dispatchEvent(new Event(this, 'entity/vertices/changed', {
+          ids: [this.getId()]
+        }));
+      }
     },
 
     /**

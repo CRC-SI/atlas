@@ -1,4 +1,5 @@
 define([
+  'atlas/events/Event',
   'atlas/lib/utility/Setter',
   'atlas/material/Color',
   'atlas/material/Style',
@@ -6,7 +7,7 @@ define([
   'atlas/model/VertexedEntity',
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
-], function(Setter, Color, Style, VertexedEntity, DeveloperError, WKT) {
+], function(Event, Setter, Color, Style, VertexedEntity, DeveloperError, WKT) {
 
   /**
    * @typedef atlas.model.Polygon
@@ -119,6 +120,11 @@ define([
         this._height = height;
         this.setDirty('vertices');
         this._update();
+        if (!this.isSetUp) {
+          this._eventManager.dispatchEvent(new Event(this, 'entity/height/changed', {
+            ids: [this.getId()]
+          }));
+        }
       }
     },
 
