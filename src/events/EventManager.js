@@ -297,9 +297,9 @@ define([
     /**
      * Removes the event handlers for the given source.
      * @param {String} [source] - The source of the Event for the EventHandler being removed. If not
-     *     provided, all sources are removed.
+     *     provided, event handlers from all sources are removed.
      * @param {String} [name] - The name of the event used to register the handler. If not provided,
-     *     all names are removed.
+     *     event handlers for all names are removed.
      */
     removeHandlers: function(source, name) {
       var allHandlers = [];
