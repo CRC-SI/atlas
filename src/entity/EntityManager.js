@@ -400,9 +400,13 @@ define([
         show: true
       }, data);
       if (id === undefined) {
-        throw new DeveloperError('Can not create Feature without specifying ID');
+        var msg = 'Can not create Feature without specifying ID';
+        Log.error(msg);
+        throw new DeveloperError(msg);
       } else if (this.getById(id)) {
-        throw new DeveloperError('Can not create Feature with a duplicate ID');
+        var msg = 'Can not create Feature with a duplicate ID: ' + id;
+        Log.error(msg);
+        throw new DeveloperError(msg);
       } else {
         Log.debug('Creating entity', id);
         args = this._bindDeps(args);
