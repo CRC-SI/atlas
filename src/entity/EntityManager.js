@@ -72,22 +72,22 @@ define([
     _origDisplayModes: null,
 
     /**
-     * A map of the entity IDs to entities which are under the mouse.
-     * @type {Object.<String, atlas.mode.GeoEntity>}
-     */
-    _hoveredEntities: null,
-
-    /**
      * Counter used for generating unique IDs.
      * @type {Counter}
      */
     _idCounter: null,
 
     /**
+     * A map of the entity IDs to entities which are currently hovered over.
+     * @type {Object.<String, atlas.mode.GeoEntity>}
+     */
+    _hoveredEntities: null,
+
+    /**
      * Whether to highlight entities when hovering over them.
      * @type {Boolean}
      */
-    _hoverEnabled: false,
+    _highlightOnHover: false,
 
     _init: function(managers) {
       this._super(managers);
@@ -316,7 +316,7 @@ define([
                 this._managers.event.dispatchEvent(new Event(entity, 'entity/mouseenter', {
                   id: id
                 }));
-                this._hoverEnabled && entity.setHighlighted(true);
+                this._highlightOnHover && entity.setHighlighted(true);
               }
               /**
                * The mouse was moved over the {@link atlas.model.GeoEntity}.
@@ -342,7 +342,7 @@ define([
                 this._managers.event.dispatchEvent(new Event(entity, 'entity/mouseleave', {
                   id: id
                 }));
-                this._hoverEnabled && entity.setHighlighted(false);
+                this._highlightOnHover && entity.setHighlighted(false);
               }
             }, this);
             this._hoveredEntities.purge();
@@ -355,19 +355,20 @@ define([
       this._eventHandlers = this._managers.event.addEventHandlers(handlers);
     },
 
-    setHoverEnabled: function(enabled) {
-      if (this._hoverEnabled !== enabled) {
-        this._hoverEnabled = enabled;
+    setHighlightOnHover: function(enabled) {
+      if (this._highlightOnHover !== enabled) {
+        this._highlightOnHover = enabled;
         if (!enabled) {
           this._hoveredEntities.forEach(function(entity, id) {
             entity.setHighlighted(false);
           }, this);
+          this._hoveredEntities
         }
       }
     },
 
-    getHoverEnabled: function() {
-      return this._hoverEnabled;
+    getHighlightOnHover: function() {
+      return this._highlightOnHover;
     },
 
     // -------------------------------------------
