@@ -712,8 +712,14 @@ define([
         // TODO(aramk) Do this once we migrate from c3ml to aeon. For now only "color" is supported.
         // json.style = style.toJson();
         var fillMaterial = style.getFillMaterial();
+        var color = null;
         if (fillMaterial instanceof Color) {
-          json.color = fillMaterial.toArray({floatValues: false});
+          color = fillMaterial;
+        } else if (fillMaterial instanceof CheckPattern) {
+          color = fillMaterial.color1;
+        }
+        if (color) {
+          json.color = color.toArray({floatValues: false});
         }
       }
       var parent = this.getParent();
