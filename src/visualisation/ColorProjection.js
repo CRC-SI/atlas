@@ -27,7 +27,7 @@ define([
       var codomain = this._configuration.codomain;
       _.each(codomain, function(value, key) {
         // Support codomain colors as any valid argument to the Color constructor.
-        if (value instanceof String) {
+        if (Types.isString(value)) {
           codomain[key] = new Color(value);
         } else if (Types.isObjectLiteral(value)) {
           _.each(this.CODOMAIN_COLOR_KEYS, function(colorKey) {
@@ -93,15 +93,16 @@ define([
         var codomain = this.getCodomain(i);
         var regression = this._regressProjectionValueFromCodomain({binId: i}, codomain);
         var color = regression.fillMaterial;
-        // var regression = bin.numBins === 1 ? 0.5 : bin.binId / (bin.numBins - 1);
-        // // TODO(bpstudds): This won't work with a fixed projection.
-        // var color = codomain.startProj.interpolate(codomain.endProj, regression);
-        var elements = [
-          {bgColor: color, width: '1em'},
-          {value: '&nbsp;&nbsp;&nbsp;' + Math.round(bin.firstValue)},
-          {value: '&nbsp;&ndash;&nbsp;'},
-          {value: this._round(bin.lastValue)}
-        ];
+        var elements = [{bgColor: color, width: '1em'}];
+        var label = bin.label;
+        if (label) {
+          elements.push({value: label, cssClass: 'label'});
+        } else {
+          elements.push({value: '&nbsp;&nbsp;&nbsp;' + this._round(bin.firstValue),
+              cssClass: 'value'});
+          elements.push({value: '&nbsp;&ndash;&nbsp;', cssClass: 'value'});
+          elements.push({value: this._round(bin.lastValue), cssClass: 'value'});
+        }
         legend.rows.unshift({cells: elements});
       }, this);
       return legend;
@@ -114,7 +115,7 @@ define([
      */
     _buildContinuousLegend: function() {
       var legend = {
-        //'class': 'legend',
+        'class': 'legend',
         rows: []
       };
       // With the way continuous projections work, there can be multiple codomains
@@ -123,17 +124,23 @@ define([
       this._bins.forEach(function(bin, i) {
         var codomain = this.getCodomain(i);
         [0, 0.25, 0.5, 0.75].forEach(function(f, i) {
-          // TODO(bpstudds): This won't work with a fixed projection.
-          var color1 = codomain.startProj.interpolate(codomain.endProj, f).toHexString();
-          var color2 = codomain.startProj.interpolate(codomain.endProj, (f + 0.25)).toHexString();
+          var color1 = this._regressProjectionValueFromCodomain({binId: i, absRatio: f}, codomain)
+              .fillMaterial;
+          var color2 = this._regressProjectionValueFromCodomain({binId: i, absRatio: (f + 0.25)},
+              codomain).fillMaterial;
           var lowerBound = this._round(bin.firstValue + f * bin.range);
           var upperBound = this._round(bin.firstValue + (f + 0.25) * bin.range);
           var elements = [
-            {background: 'linear-gradient(to top,' + color1 + ',' + color2 + ')', width: '1em'},
-            {value: '&nbsp;&nbsp;&nbsp;' + lowerBound},
-            {value: '&nbsp;&ndash;&nbsp;'},
-            {value: upperBound}
+            {background: 'linear-gradient(to top,' + color1 + ',' + color2 + ')', width: '1em'}
           ];
+          var label = bin.label;
+          if (label) {
+            elements.push({value: label, cssClass: 'label'});
+          } else {
+            elements.push({value: '&nbsp;&nbsp;&nbsp;' + lowerBound, cssClass: 'value'});
+            elements.push({value: '&nbsp;&ndash;&nbsp;', cssClass: 'value'});
+            elements.push({value: upperBound, cssClass: 'value'});
+          }
           // TODO(bpstudds): This won't work with more than one bin.
           legend.rows.unshift({cells: elements});
         }, this);
@@ -200,7 +207,7 @@ define([
       if (codomain.fixedProj) {
         return {fillMaterial: codomain.fixedProj};
       } else if (codomain.startProj && codomain.endProj) {
-        // TODO(bpstudds): Allow for more projection types then continuous and discrete?
+        // TODO(bpstudds): Allow for more projection types than continuous and discrete?
         // TODO(bpstudds): The regressionFactor for discrete isn't in [0, 1).
         var regressionFactor = this._type === 'continuous' ?
             attributes.absRatio :

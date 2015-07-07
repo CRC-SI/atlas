@@ -430,16 +430,6 @@ define([
 
       binArray.forEach(function(bin, i) {
         bin.binId = bin.binId || i;
-        // Ensure the first and last bins are configured with firstValue and lastValue set to
-        // infinity if they aren't provided to ensure upper bound values are included in the
-        // projection, since the range is exclusive of lastValue.
-        // TODO(aramk) We could just use the max population value + 1.
-        // if (bin.firstValue === undefined && i === 0) {
-        //   bin.firstValue = Number.NEGATIVE_INFINITY;
-        // }
-        // if (bin.lastValue === undefined && i === numBins - 1) {
-        //   bin.lastValue = Number.POSITIVE_INFINITY;
-        // }
         // Merge default values into bins to fill missing properties.
         _.defaults(bin, defaultBins[i])
         if (i > 0 && (bin.firstValue < bins[i - 1].lastValue || bin.lastValue < bin.firstValue)) {
@@ -501,9 +491,6 @@ define([
               binStats.max = {id: thisId, value: thisValue};
             }
           } // else value to small for this bin, try next value.
-
-          //if (thisValue < bin.firstValue) { continue; }
-          //if (thisValue >= bin.lastValue) { break; }
         }
         // Calculate more stats
         binStats.average =

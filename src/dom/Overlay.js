@@ -500,13 +500,13 @@ define([
    *   rows: [
    *     { id: 'row1_ID',
    *       cells: [
-   *         { value: 'cellContents', class: 'class', bgColor = Color.RED, ... }
+   *         { value: 'cellContents', cssClass: 'class', bgColor = Color.RED, ... }
    *         { value: 'cellContents2', bgColor = Color.GREEN, ... }
    *       ]
    *     },
    *     { id: 'row2_ID',
    *       cells: [
-   *         { value: 'cellContents', class: 'class', bgColor = Color.RED, ... }
+   *         { value: 'cellContents', cssClass: 'class', bgColor = Color.RED, ... }
    *         { value: 'cellContents2', bgColor = Color.GREEN, ... }
    *       ]
    *     }
