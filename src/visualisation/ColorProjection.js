@@ -1,10 +1,11 @@
 define([
+  'atlas/lib/utility/Types',
   'atlas/material/Color',
   // Base class.
   'atlas/visualisation/AbstractProjection',
   'atlas/util/DeveloperError',
   'underscore'
-], function(Color, AbstractProjection, DeveloperError, _) {
+], function(Types, Color, AbstractProjection, DeveloperError, _) {
 
   /**
    * @classdesc A ColorProjection is used to project GeoEntity parameter values
@@ -19,15 +20,21 @@ define([
 
     ARTIFACT: 'color',
     DEFAULT_CODOMAIN: {startProj: Color.RED, endProj: Color.GREEN},
+    CODOMAIN_COLOR_KEYS: ['startProj', 'endProj', 'fixedProj'],
 
     _init: function(args) {
       this._super(args);
       var codomain = this._configuration.codomain;
-      // Support codomain colors as any valid argument to the Color constructor.
       _.each(codomain, function(value, key) {
-        if (value instanceof Color) { return }
-        codomain[key] = new Color(value);
-      });
+        // Support codomain colors as any valid argument to the Color constructor.
+        if (value instanceof String) {
+          codomain[key] = new Color(value);
+        } else if (Types.isObjectLiteral(value)) {
+          _.each(this.CODOMAIN_COLOR_KEYS, function(colorKey) {
+            value[colorKey] = new Color(value[colorKey]);
+          }, this);
+        }
+      }, this);
       // Support opacity option.
       var opacity = args.opacity;
       if (opacity !== undefined) {
@@ -45,14 +52,11 @@ define([
      * @returns {Object} The bin configuration object.
      */
     getCodomain: function(binId) {
-      if (!(this._configuration.codomain instanceof Array)) {
-        return this._configuration.codomain;
+      var codomain = this._configuration.codomain;
+      if (Types.isArrayLiteral(codomain)) {
+        return this._configuration.codomain[binId || 0];
       } else {
-        if (binId) {
-          return this._configuration.codomain[binId];
-        } else {
-          return this._configuration.codomain[0];
-        }
+        return codomain;
       }
     },
 
@@ -83,24 +87,23 @@ define([
         'class': 'legend',
         rows: []
       };
-      var codomain = this.getCodomain();
-
-      // TODO(bpstudds): Does forEach iterate in order?
       // With the way discrete projections currently work, there can only be one codomain
       // per projection and each bin is a discrete element of the legend.
-      for (var i = 0; i < this._bins.length; i++) {
-        var bin = this._bins[i];
-        var regression = bin.numBins === 1 ? 0.5 : bin.binId / (bin.numBins - 1);
-        // TODO(bpstudds): This won't work with a fixed projection.
-        var color = codomain.startProj.interpolate(codomain.endProj, regression);
+      _.each(this._bins, function(bin, i) {
+        var codomain = this.getCodomain(i);
+        var regression = this._regressProjectionValueFromCodomain({binId: i}, codomain);
+        var color = regression.fillMaterial;
+        // var regression = bin.numBins === 1 ? 0.5 : bin.binId / (bin.numBins - 1);
+        // // TODO(bpstudds): This won't work with a fixed projection.
+        // var color = codomain.startProj.interpolate(codomain.endProj, regression);
         var elements = [
           {bgColor: color, width: '1em'},
-          {value: '&nbsp;&nbsp;&nbsp;' + round(bin.firstValue)},
+          {value: '&nbsp;&nbsp;&nbsp;' + Math.round(bin.firstValue)},
           {value: '&nbsp;&ndash;&nbsp;'},
           {value: this._round(bin.lastValue)}
         ];
         legend.rows.unshift({cells: elements});
-      }
+      }, this);
       return legend;
     },
 
@@ -194,20 +197,21 @@ define([
       if (codomain instanceof Array) {
         codomain = codomain[attributes.binId];
       }
-      // TODO(bpstudds): Allow for more projection types then continuous and discrete?
-      // TODO(bpstudds): The regressionFactor for discrete isn't in [0, 1).
-      var regressionFactor = this._type === 'continuous' ?
-          attributes.absRatio :
-              attributes.numBins === 1 ? 0.5 : attributes.binId / (attributes.numBins - 1);
       if (codomain.fixedProj) {
         return {fillMaterial: codomain.fixedProj};
       } else if (codomain.startProj && codomain.endProj) {
+        // TODO(bpstudds): Allow for more projection types then continuous and discrete?
+        // TODO(bpstudds): The regressionFactor for discrete isn't in [0, 1).
+        var regressionFactor = this._type === 'continuous' ?
+            attributes.absRatio :
+                attributes.numBins === 1 ? 0.5 : attributes.binId / (attributes.numBins - 1);
         var startColor = codomain.startProj;
         var endColor = codomain.endProj;
         var newColor = startColor.interpolate(endColor, regressionFactor);
         return {fillMaterial: newColor};
+      } else {
+        throw new DeveloperError('Unsupported codomain supplied.');
       }
-      throw new DeveloperError('Unsupported codomain supplied.');
     }
   });
 });

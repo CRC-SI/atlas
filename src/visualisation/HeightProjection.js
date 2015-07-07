@@ -191,8 +191,9 @@ define([
       } else if ('startProj' in codomain && 'endProj' in codomain) {
         return AtlasMath.lerp(codomain.startProj, codomain.endProj,
             Setter.range(regressionFactor, 0, 1));
+      } else {
+        throw new DeveloperError('Unsupported codomain supplied.');
       }
-      throw new DeveloperError('Unsupported codomain supplied.');
     }
   });
 });

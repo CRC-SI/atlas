@@ -356,14 +356,14 @@ define([
     _configureBins: function() {
       var binConf = this._configuration.bins;
       var bins = [];
+      var populationStats = this._calculatePopulationStatistics();
       if (!binConf || typeof binConf === 'number') {
         // Create bins by splitting up the range of input parameter values into equal divisions.
         var numBins = binConf || 1;
-        var populationStats = this._calculatePopulationStatistics();
         bins = this._configureEqualSizedBins(numBins, populationStats.min.value,
             populationStats.max.value, true);
       } else if (binConf instanceof Array) {
-        bins = this._configureBinsFromArray(binConf);
+        bins = this._configureBinsFromArray(binConf, populationStats, true);
       } else if (binConf.numBins && binConf.firstValue !== undefined &&
           binConf.lastValue !== undefined) {
         bins = this._configureEqualSizedBins(binConf.numBins, binConf.firstValue, binConf.lastValue,
@@ -397,7 +397,7 @@ define([
           range: binStep,
           accept: function(value) {
             if (this.firstValue <= value) {
-              if (value < this.lastValue) {
+              if (value < this.lastValue || (acceptFinal && value <= this.lastValue)) {
                 return 0;
               } else {
                 return 1;
@@ -408,20 +408,6 @@ define([
           }
         });
       }
-      // Set the top bin to be unbounded to ensure the largest value is picked up.
-      if (acceptFinal) {
-        bins[numBins - 1].accept = function(value) {
-          if (this.firstValue <= value) {
-            if (value <= this.lastValue) {
-              return 0;
-            } else {
-              return 1;
-            }
-          } else {
-            return -1
-          }
-        };
-      }
       return bins;
     },
 
@@ -429,37 +415,38 @@ define([
      * Constructs an array of objects describing the bins using configurable data for
      * each bin.
      * @param {Array} binArray
+     * @param {Object} populationStats
+     * @param {Number} acceptFinal - Whether the 'largest' bin should accept the value
+     *     <code>lastValue</code>.
      * @returns {Array}
      * @private
      */
-    _configureBinsFromArray: function(binArray) {
+    _configureBinsFromArray: function(binArray, populationStats, acceptFinal) {
       var bins = [];
-      var previousLastValue = Number.NEGATIVE_INFINITY;
       var numBins = binArray.length;
+
+      var defaultBins = this._configureEqualSizedBins(numBins, populationStats.min.value,
+          populationStats.max.value, acceptFinal);
+
       binArray.forEach(function(bin, i) {
-        if (bin.firstValue === undefined || bin.firstValue === 'smallest') {
-          bin.firstValue = Number.NEGATIVE_INFINITY;
+        bin.binId = bin.binId || i;
+        // Ensure the first and last bins are configured with firstValue and lastValue set to
+        // infinity if they aren't provided to ensure upper bound values are included in the
+        // projection, since the range is exclusive of lastValue.
+        // TODO(aramk) We could just use the max population value + 1.
+        // if (bin.firstValue === undefined && i === 0) {
+        //   bin.firstValue = Number.NEGATIVE_INFINITY;
+        // }
+        // if (bin.lastValue === undefined && i === numBins - 1) {
+        //   bin.lastValue = Number.POSITIVE_INFINITY;
+        // }
+        // Merge default values into bins to fill missing properties.
+        _.defaults(bin, defaultBins[i])
+        if (i > 0 && (bin.firstValue < bins[i - 1].lastValue || bin.lastValue < bin.firstValue)) {
+          throw new DeveloperError('Incorrect bins configuration provided', binArray);
         }
-        if (bin.lastValue === undefined || bin.lastValue === 'largest') {
-          bin.lastValue = Number.POSITIVE_INFINITY;
-        }
-        if (bin.firstValue < previousLastValue || bin.lastValue < bin.firstValue) {
-          throw new DeveloperError('Incorrect bins configuration provided',
-              this._configuration.bins);
-        }
-        bins.push({binId: i, numBins: numBins, firstValue: bin.firstValue,
-          lastValue: bin.lastValue, range: (bin.lastValue - bin.firstValue),
-          accept: function(x) {
-            if (x < this.firstValue) {
-              return -1;
-            }
-            if (x >= this.lastValue) {
-              return 1;
-            }
-            return 0;
-          }
-        });
-        previousLastValue = bin.lastValue;
+        bin = Setter.clone(bin);
+        bins.push(bin);
       }, this);
       return bins;
     },
