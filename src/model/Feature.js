@@ -271,6 +271,12 @@ define([
       return this.getForms();
     },
 
+    ready: function() {
+      return Q.all(this.getRecursiveChildren().map(function(entity) {
+        return entity.ready();
+      }));
+    },
+
     /**
      * @param {atlas.model.Feature.DisplayMode} displayMode
      * @returns {String} The name of the property used for storing the given display mode.
