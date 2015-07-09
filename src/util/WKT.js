@@ -32,8 +32,9 @@ define([
      * @returns {<Array.<atlas.model.Vertex>} The converted vertices.
      */
     verticesFromWKT: function(wktStr) {
-      var points = wktStr.match(/([+-]?\d+(?:\.\d+)?\s*)+/g).map(function(match){
-        return match.split(/\s+/).map(function(component){
+      if (!wktStr) { return [] }
+      var points = wktStr.match(/([+-]?\d+(?:\.\d+)?\s*)+/g).map(function(match) {
+        return match.split(/\s+/).map(function(component) {
           return parseFloat(component);
         });
       });
@@ -56,6 +57,7 @@ define([
         vertices: [],
         holes: []
       };
+      if (!wktStr) { return result }
       var polygons = wktStr.match(/(\([^)]+\))/g);
       if (polygons.length) {
         result.vertices = this.verticesFromWKT(polygons.shift())

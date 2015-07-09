@@ -71,7 +71,7 @@ define([
 
     /**
      * @param {atlas.model.GeoPoint} A point in geographic coordinates (Longitude, Latitude).
-     * @return {atlas.model.Vertex} The local cartesian in Unity point mapped to the given point.
+     * @return {atlas.model.Vertex} The local cartesian point mapped to the given point.
      * @abstract
      */
     worldCoordFromGeoPoint: function(geoPoint) {
@@ -93,6 +93,15 @@ define([
      * @abstract
      */
     geoPointFromScreenCoord: function(screenCoord) {
+      throw new DeveloperError("Can not call functions on abstract RenderManager");
+    },
+
+    /**
+     * @param {atlas.model.GeoPoint} point - The world coordinates in cartographic degrees.
+     * @returns {atlas.model.Vertex} The given coordinates in screen pixels.
+     * @abstract
+     */
+    screenCoordFromGeoPoint: function(screenCoord) {
       throw new DeveloperError("Can not call functions on abstract RenderManager");
     },
 
