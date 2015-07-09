@@ -31,7 +31,10 @@ define([
           codomain[key] = new Color(value);
         } else if (Types.isObjectLiteral(value)) {
           _.each(this.CODOMAIN_COLOR_KEYS, function(colorKey) {
-            value[colorKey] = new Color(value[colorKey]);
+            var colorValue = value[colorKey];
+            if (colorValue) {
+              value[colorKey] = new Color(colorValue);
+            }
           }, this);
         }
       }, this);

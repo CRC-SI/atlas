@@ -431,7 +431,7 @@ define([
       binArray.forEach(function(bin, i) {
         bin.binId = bin.binId || i;
         // Merge default values into bins to fill missing properties.
-        _.defaults(bin, defaultBins[i])
+        _.defaults(bin, defaultBins[i]);
         if (i > 0 && (bin.firstValue < bins[i - 1].lastValue || bin.lastValue < bin.firstValue)) {
           throw new DeveloperError('Incorrect bins configuration provided', binArray);
         }
