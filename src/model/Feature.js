@@ -346,9 +346,9 @@ define([
     },
 
     setStyle: function(style) {
-      var oldStyle = this._style;
+      var previousStyle = this.getStyle();
       this._style = style;
-      return this._delegateToForms('setStyle', arguments) || oldStyle;
+      return this._delegateToForms('setStyle', arguments) || previousStyle;
     },
 
     getStyle: function() {
