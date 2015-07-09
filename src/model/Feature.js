@@ -1,5 +1,6 @@
 define([
   'atlas/events/Event',
+  'atlas/lib/Q',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Objects',
   'atlas/lib/utility/Setter',
@@ -14,7 +15,7 @@ define([
   'atlas/util/DeveloperError',
   // Base class.
   'atlas/model/GeoEntity'
-], function(Event, Log, Objects, Setter, Strings, Types, Ellipse, Image, Line,
+], function(Event, Q, Log, Objects, Setter, Strings, Types, Ellipse, Image, Line,
             Mesh, Point, Polygon, DeveloperError, GeoEntity) {
 
   /**
