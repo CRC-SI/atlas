@@ -384,11 +384,6 @@ define([
     // MODIFIERS
     // -------------------------------------------
 
-    modifyStyle: function(args) {
-      var oldStyle = this._super.apply(this, arguments);
-      return this._delegateToForm('modifyStyle', arguments) || oldStyle;
-    },
-
     /**
      * Renders the Feature using its footprint.
      * @see {@link atlas.model.Polygon}
