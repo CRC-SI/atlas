@@ -288,6 +288,18 @@ define([
       this[methodName](event.ids, true, null);
     },
 
+    _disableEventsDuringCallback: function(callback, disable) {
+      if (!disable) { return callback() }
+      enabled = atlas._managers.event.isEnabled()
+      atlas._managers.event.setEnabled(false)
+      try {
+        callback()
+      } catch(err) {
+        Logger.error('Error during callback while events were disabled', err)
+      }
+      atlas._managers.event.setEnabled(enabled)
+    },
+
     /**
      * Handles an external request for selection and deselection.
      *
@@ -300,11 +312,14 @@ define([
     _handleSelection: function(method, event) {
       if (!this.isEnabled()) return;
 
-      if (event.ids instanceof Array) {
-        this[method + 'Entities'](event.ids, event.keepSelection);
-      } else {
-        this[method + 'Entity'](event.id, event.keepSelection);
-      }
+      var disableEvents = event && event.disableEvents === true;
+      this._disableEventsDuringCallback(function() {
+        if (event.ids instanceof Array) {
+          this[method + 'Entities'](event.ids, event.keepSelection);
+        } else {
+          this[method + 'Entity'](event.id, event.keepSelection);
+        }
+      }.bind(this), disableEvents);
     },
 
     /**
