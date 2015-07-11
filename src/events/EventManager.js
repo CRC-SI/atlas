@@ -82,7 +82,7 @@ define([
      * @param {atlas.events.Event} event - The Event to be propagated.
      */
     dispatchEvent: function(event) {
-      if (!this._enabled) { return }
+      if (!this.isEnabled()) { return }
 
       // If debug logging is enabled, log all dispatched events except mousemove.
       if (event.getType() !== 'input/mousemove') {
@@ -337,7 +337,7 @@ define([
      *     handler callback.
      */
     _handleEvent: function(source, name, args) {
-      if (!this._enabled) { return }
+      if (!this.isEnabled()) { return }
 
       // Retrieve either intern or extern event handlers.
       var allHandlers;
