@@ -277,7 +277,7 @@ define([
     /**
      * Selects or deselects the specified entities.
      *
-     * @param {boolean} selected - True if selection, false if deselection.
+     * @param {Boolean} selected - True if selection, false if deselection.
      * @param {InternalEvent#event:entity/select | InternalEvent#event:entity/deselect} event
      *
      * @listens InternalEvent#entity/select
