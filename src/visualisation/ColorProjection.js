@@ -208,7 +208,13 @@ define([
         codomain = codomain[attributes.binId];
       }
       if (codomain.fixedProj) {
-        return {fillMaterial: codomain.fixedProj};
+        var newBorderColor = new Color(
+          0.9 * codomain.fixedProj.red,
+          0.9 * codomain.fixedProj.green,
+          0.9 * codomain.fixedProj.blue,
+          codomain.fixedProj.alpha
+        )
+        return {fillMaterial: codomain.fixedProj, borderMaterial: newBorderColor};
       } else if (codomain.startProj && codomain.endProj) {
         // TODO(bpstudds): Allow for more projection types than continuous and discrete?
         // TODO(bpstudds): The regressionFactor for discrete isn't in [0, 1).
@@ -218,7 +224,13 @@ define([
         var startColor = codomain.startProj;
         var endColor = codomain.endProj;
         var newColor = startColor.interpolate(endColor, regressionFactor);
-        return {fillMaterial: newColor};
+        var newBorderColor = new Color(
+          0.9 * newColor.red,
+          0.9 * newColor.green,
+          0.9 * newColor.blue,
+          newColor.alpha
+        )
+        return {fillMaterial: newColor, borderMaterial: newBorderColor};
       } else {
         throw new DeveloperError('Unsupported codomain supplied.');
       }
