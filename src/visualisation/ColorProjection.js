@@ -204,17 +204,17 @@ define([
     _regressProjectionValueFromCodomain: function(attributes, codomain) {
       // Check if this is a continuous or discrete projection to set the regression factor.
       // Check if the codomain has been binned and select the correct one.
+      var createBorderColor = function(color) {
+        return color.darken(0.1);
+      }
       if (codomain instanceof Array) {
         codomain = codomain[attributes.binId];
       }
       if (codomain.fixedProj) {
-        var newBorderColor = new Color(
-          0.9 * codomain.fixedProj.red,
-          0.9 * codomain.fixedProj.green,
-          0.9 * codomain.fixedProj.blue,
-          codomain.fixedProj.alpha
-        )
-        return {fillMaterial: codomain.fixedProj, borderMaterial: newBorderColor};
+        return {
+          fillMaterial: codomain.fixedProj,
+          borderMaterial: createBorderColor(codomain.fixedProj)
+        };
       } else if (codomain.startProj && codomain.endProj) {
         // TODO(bpstudds): Allow for more projection types than continuous and discrete?
         // TODO(bpstudds): The regressionFactor for discrete isn't in [0, 1).
@@ -224,13 +224,7 @@ define([
         var startColor = codomain.startProj;
         var endColor = codomain.endProj;
         var newColor = startColor.interpolate(endColor, regressionFactor);
-        var newBorderColor = new Color(
-          0.9 * newColor.red,
-          0.9 * newColor.green,
-          0.9 * newColor.blue,
-          newColor.alpha
-        )
-        return {fillMaterial: newColor, borderMaterial: newBorderColor};
+        return {fillMaterial: newColor, borderMaterial: createBorderColor(newColor)};
       } else {
         throw new DeveloperError('Unsupported codomain supplied.');
       }

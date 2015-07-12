@@ -172,6 +172,22 @@ define([
         blue: this.blue,
         alpha: this.alpha,
       }
+    },
+
+    /**
+     * @param {Number} A value to darken the color by in the range [0, 1].
+     * @return {atlas.model.Color} A new color that is darker by the given amount.
+     */
+    darken: function(value) {
+      return new Color(tinycolor(this.toString()).darken(value * 10).toRgbString());
+    },
+
+    /**
+     * @param {Number} A value to lighten the color by in the range [0, 1].
+     * @return {atlas.model.Color} A new color that is lighter by the given amount.
+     */
+    lighten: function(value) {
+      return new Color(tinycolor(this.toString()).lighten(value * 10).toRgbString());
     }
 
   });
@@ -213,6 +229,9 @@ define([
     var tiny = tinycolor(hsv).toRgb();
     return new Color(tiny.r / 255, tiny.g / 255, tiny.b / 255, 1);
   };
+
+
+
 
   // -------------------------------------------
   // STATICS
