@@ -8,6 +8,12 @@ define([
 ], function(Types, Color, AbstractProjection, DeveloperError, _) {
 
   /**
+   * The factor by which to multiply fill colour values to darken them for default border colours.
+   * @type {number}
+   */
+  var BORDER_DARKEN_FACTOR = 0.9;
+
+  /**
    * @classdesc A ColorProjection is used to project GeoEntity parameter values
    * onto the GeoEntity's color.
    * @class atlas.visualisation.ColorProjection
@@ -202,18 +208,19 @@ define([
      * @private
      */
     _regressProjectionValueFromCodomain: function(attributes, codomain) {
+      var newBorderColor;
       // Check if this is a continuous or discrete projection to set the regression factor.
       // Check if the codomain has been binned and select the correct one.
       if (codomain instanceof Array) {
         codomain = codomain[attributes.binId];
       }
       if (codomain.fixedProj) {
-        var newBorderColor = new Color(
-          0.9 * codomain.fixedProj.red,
-          0.9 * codomain.fixedProj.green,
-          0.9 * codomain.fixedProj.blue,
+        newBorderColor = new Color(
+          BORDER_DARKEN_FACTOR * codomain.fixedProj.red,
+          BORDER_DARKEN_FACTOR * codomain.fixedProj.green,
+          BORDER_DARKEN_FACTOR * codomain.fixedProj.blue,
           codomain.fixedProj.alpha
-        )
+        );
         return {fillMaterial: codomain.fixedProj, borderMaterial: newBorderColor};
       } else if (codomain.startProj && codomain.endProj) {
         // TODO(bpstudds): Allow for more projection types than continuous and discrete?
@@ -224,12 +231,12 @@ define([
         var startColor = codomain.startProj;
         var endColor = codomain.endProj;
         var newColor = startColor.interpolate(endColor, regressionFactor);
-        var newBorderColor = new Color(
-          0.9 * newColor.red,
-          0.9 * newColor.green,
-          0.9 * newColor.blue,
+        newBorderColor = new Color(
+          BORDER_DARKEN_FACTOR * newColor.red,
+          BORDER_DARKEN_FACTOR * newColor.green,
+          BORDER_DARKEN_FACTOR * newColor.blue,
           newColor.alpha
-        )
+        );
         return {fillMaterial: newColor, borderMaterial: newBorderColor};
       } else {
         throw new DeveloperError('Unsupported codomain supplied.');
