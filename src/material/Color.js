@@ -230,6 +230,13 @@ define([
     return new Color(tiny.r / 255, tiny.g / 255, tiny.b / 255, 1);
   };
 
+  /**
+   * @return {atlas.model.Color} A random color.
+   */
+  Color.random = function() {
+    return new Color(tinycolor.random().toHexString());
+  };
+
   // -------------------------------------------
   // STATICS
   // -------------------------------------------
