@@ -400,21 +400,25 @@ define([
       args = Setter.merge({
         useCentroid: false
       }, args);
+      var children = this.getRecursiveChildren();
       if (args.useCentroid) {
-        var stats = {};
-        var longitudes = [];
-        var latitudes = [];
-        _.each(this.getRecursiveChildren(), function(entity) {
+        var centroids = [];
+        _.each(children, function(entity) {
           var centroid = entity.getCentroid();
           if (centroid) {
-            longitudes.push(centroid.longitude);
-            latitudes.push(centroid.latitude);
+            centroids.push(centroid);
           }
         });
-        return new Rectangle(_.max(latitudes), _.min(latitudes), _.max(longitudes),
-            _.min(longitudes));
+        return Rectangle.fromPoints(centroids);
       } else {
-        return this._super();
+        var childBoundingBoxes = [];
+        _.each(children, function(entity) {
+          var boundingBox = entity.getBoundingBox();
+          if (boundingBox) {
+            childBoundingBoxes.push(boundingBox);
+          }
+        });
+        return Rectangle.fromRectangles(childBoundingBoxes);
       }
     },
 
