@@ -1,7 +1,8 @@
 define([
   // Code under test
-  'atlas/model/Rectangle'
-], function(Rectangle) {
+  'atlas/model/Rectangle',
+  'atlas/model/GeoPoint'
+], function(Rectangle, GeoPoint) {
   describe('A Rectangle', function() {
 
     var constructArgs = {
@@ -11,22 +12,38 @@ define([
       west: 5
     };
 
-    function assertRectangle(rectangle) {
-      expect(rectangle.getNorth()).toEqual(constructArgs.north);
-      expect(rectangle.getSouth()).toEqual(constructArgs.south);
-      expect(rectangle.getEast()).toEqual(constructArgs.east);
-      expect(rectangle.getWest()).toEqual(constructArgs.west);
+    function assertRectangle(actual, expected) {
+      expect(actual.getNorth()).toEqual(expected.north);
+      expect(actual.getSouth()).toEqual(expected.south);
+      expect(actual.getEast()).toEqual(expected.east);
+      expect(actual.getWest()).toEqual(expected.west);
     }
 
     describe('can be constructed', function() {
+
       it('with an object', function() {
-        assertRectangle(new Rectangle(constructArgs));
+        assertRectangle(new Rectangle(constructArgs), constructArgs);
       });
 
       it('with an array', function() {
         assertRectangle(new Rectangle(constructArgs.north, constructArgs.south, constructArgs.east,
-            constructArgs.west));
+            constructArgs.west), constructArgs);
       });
+
+      it('with rectangles', function() {
+        var rectA = new Rectangle(5, 1, -2, 4);
+        var rectB = new Rectangle(8, 3, 2, 5);
+        var rectC = Rectangle.fromRectangles([rectA, rectB]);
+        assertRectangle(rectC, {north: 8, south: 1, east: 5, west: -2});
+      });
+
+      it('with points', function() {
+        var pointA = new GeoPoint({latitude: 5, longitude: 1});
+        var pointB = new GeoPoint({latitude: -8, longitude: 3});
+        var rect = Rectangle.fromPoints([pointA, pointB]);
+        assertRectangle(rect, {north: 5, south: -8, east: 3, west: 1});
+      });
+
     });
 
   });

@@ -1,8 +1,9 @@
 define([
   'atlas/lib/utility/Types',
   'atlas/lib/utility/Class',
-  'atlas/model/GeoPoint'
-], function(Types, Class, GeoPoint) {
+  'atlas/model/GeoPoint',
+  'underscore',
+], function(Types, Class, GeoPoint, _) {
 
   /**
    * @typedef atlas.model.Rectangle
@@ -193,6 +194,40 @@ define([
     }
 
   });
+
+  /**
+   * @param {Array.<atlas.model.GeoPoint} rectangles
+   * @return {atlas.model.Rectangle} The rectangle formed by the bounding box around the given
+   * rectangles.
+   */
+  Rectangle.fromPoints = function(points) {
+    var longitudes = [];
+    var latitudes = [];
+    _.each(points, function(point) {
+      latitudes.push(point.latitude);
+      longitudes.push(point.longitude);
+    });
+    return new Rectangle(_.max(latitudes), _.min(latitudes), _.max(longitudes),
+      _.min(longitudes));
+  };
+
+  /**
+   * @param {Array.<atlas.model.Rectangle>} rectangles
+   * @return {atlas.model.Rectangle} The rectangle formed by the bounding box around the given
+   * rectangles.
+   */
+  Rectangle.fromRectangles = function(rectangles) {
+    var longitudes = [];
+    var latitudes = [];
+    _.each(rectangles, function(rectangle) {
+      latitudes.push(rectangle.north);
+      latitudes.push(rectangle.south);
+      longitudes.push(rectangle.east);
+      longitudes.push(rectangle.west);
+    });
+    return new Rectangle(_.max(latitudes), _.min(latitudes), _.max(longitudes),
+      _.min(longitudes));
+  };
 
   return Rectangle;
 });
