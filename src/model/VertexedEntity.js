@@ -340,6 +340,7 @@ define([
     setElevation: function(elevation) {
       if (this._elevation !== elevation) {
         this.setDirty('vertices');
+        this.setDirty('elevation');
         this._super(elevation);
       }
     },
