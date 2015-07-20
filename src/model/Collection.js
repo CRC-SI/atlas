@@ -435,9 +435,7 @@ define([
     },
 
     ready: function() {
-      return Q.all(this.getRecursiveChildren().map(function(entity) {
-        return entity.ready();
-      }));
+      return Q.all(this.getChildren().map(function(entity) { return entity.ready() }));
     },
 
     // -------------------------------------------

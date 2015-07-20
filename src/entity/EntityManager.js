@@ -467,7 +467,7 @@ define([
      *     one batch and proceeding with the next.
      * @param {Number} [options.batchTimeout=1000] - The maximum time in milliseconds to wait for a
      *     batch to complete rendering before moving onto the next.
-     * @param {Boolean} [waitForReady=true] - Whether to wait until the models are ready before
+     * @param {Boolean} [args.waitForReady=true] - Whether to wait until the models are ready before
      *     declaring each batch task as complete.
      * @returns {Array} The IDs of the created entities.
      */
