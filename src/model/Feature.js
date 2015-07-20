@@ -1,5 +1,6 @@
 define([
   'atlas/events/Event',
+  'atlas/lib/Q',
   'atlas/lib/utility/Log',
   'atlas/lib/utility/Objects',
   'atlas/lib/utility/Setter',
@@ -14,7 +15,7 @@ define([
   'atlas/util/DeveloperError',
   // Base class.
   'atlas/model/GeoEntity'
-], function(Event, Log, Objects, Setter, Strings, Types, Ellipse, Image, Line,
+], function(Event, Q, Log, Objects, Setter, Strings, Types, Ellipse, Image, Line,
             Mesh, Point, Polygon, DeveloperError, GeoEntity) {
 
   /**
@@ -271,6 +272,10 @@ define([
       return this.getForms();
     },
 
+    ready: function() {
+      return Q.all(this.getChildren().map(function(entity) { return entity.ready() }));
+    },
+
     /**
      * @param {atlas.model.Feature.DisplayMode} displayMode
      * @returns {String} The name of the property used for storing the given display mode.
@@ -339,9 +344,9 @@ define([
     },
 
     setStyle: function(style) {
-      var oldStyle = this._style;
+      var previousStyle = this.getStyle();
       this._style = style;
-      return this._delegateToForms('setStyle', arguments) || oldStyle;
+      return this._delegateToForms('setStyle', arguments) || previousStyle;
     },
 
     getStyle: function() {

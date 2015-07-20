@@ -162,7 +162,7 @@ define([
             Log.time('entity/create/bulk');
             var promise = null;
             if (args.features) {
-              promise = Q(this.bulkCreate(args.features));
+              promise = Q(this.bulkCreate(args.features, args));
             } else {
               promise = Q.reject('No features argument provided for bulk create.');
             }
@@ -467,6 +467,8 @@ define([
      *     one batch and proceeding with the next.
      * @param {Number} [options.batchTimeout=1000] - The maximum time in milliseconds to wait for a
      *     batch to complete rendering before moving onto the next.
+     * @param {Boolean} [args.waitForReady=true] - Whether to wait until the models are ready before
+     *     declaring each batch task as complete.
      * @returns {Array} The IDs of the created entities.
      */
     bulkCreate: function(c3mls, options) {
@@ -474,7 +476,8 @@ define([
         batch: true,
         batchSize: 50,
         batchDelay: 100,
-        batchTimeout: 1000
+        batchTimeout: 1000,
+        waitForReady: true
       }, options);
       if (options.batch === false) {
         // Handles rendering in a single batch.
@@ -606,14 +609,21 @@ define([
      */
     _createBatchTask: function(items, options) {
       return function() {
+        var promises = [];
         _.each(items, function(c3ml) {
           try {
             var data = this._parseC3ml(c3ml);
-            this.createEntity(c3ml.id, data);
+            var entity = this.createEntity(c3ml.id, data);
+            if (options.waitForReady) {
+              promises.push(entity.ready());
+            }
           } catch (e) {
             Log.error('Failed to render entity during bulk render', e);
           }
         }, this);
+        if (options.waitForReady) {
+          return Q.all(promises);
+        }
       }.bind(this);
     },
 

@@ -170,7 +170,7 @@ define([
      * The style of the GeoEntity before it was selected or highlighted.
      * @type {atlas.material.Style}
      * @protected
-     */    
+     */
     _preStyle: null,
 
     /**
@@ -594,11 +594,16 @@ define([
      * @returns {atlas.material.Style} The previous style, or null if it was not changed.
      */
     setStyle: function(style) {
+      var previousStyle = this.getStyle();
+      var result;
       if (this.isSelected() || this.isHighlighted()) {
-        return this._setPreStyle(style);
+        result = this._setPreStyle(style);
       } else {
-        return this._setStyle(style);
+        result = this._setStyle(style);
       }
+      // Ensure the previous style provided by a call to setStyle() is returned, not the actual
+      // rendered style.
+      return result ? previousStyle : null;
     },
 
     _setStyle: function(style) {
