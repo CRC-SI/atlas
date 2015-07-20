@@ -64,15 +64,6 @@
         }
       }
     }
-    // The 'table' selector is inefficient :(
-    .legend table {
-      margin: 5px;
-      line-height: 150%;
-      border-collapse: collapse;
-      text-align: right;
-      font-size: 0.9em;
-      font-family: "Consolas", monospace;
-    }
     // Necessary for the popup triangle.
     border-color: white;
     &.popup {
@@ -93,6 +84,7 @@
   }
 
   .legend {
+    max-width: 250px;
     .title {
       font-size: 1em;
       font-weight: normal;
@@ -100,6 +92,21 @@
     .legend-caption {
       font-size: 0.8em;
       text-align: right;
+    }
+    table {
+      margin: 5px;
+      line-height: 150%;
+      border-collapse: collapse;
+      .label {
+        padding-left: 10px;
+      }
+      .value {
+        font-family: 'Consolas', monospace;
+        font-size: 0.9em;
+      }
+      td:first-child {
+        border: 1px solid rgba(0, 0, 0, 0.25);
+      }
     }
   }
 
