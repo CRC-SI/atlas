@@ -312,24 +312,11 @@ define([
     },
 
     setSelected: function(selected) {
-      if (!this.isSelectable()) return;
-
-      // Ensure a selection event is fired for the feature as well. Since setSelected alters the
-      // style and it will replace the style of the entity before it is considered selected, and
-      // setting the style of the feature will set the style on the entity a second time. When
-      // deselected, the entity will not revert to the original style. To prevent this, call the
-      // selection on the form first.
-      // When deselecting, the issue is that when the feature is deselected it applies the
-      // wrong pre select style on the entity due to delegation, so we want to ensure the form
-      // itself reverts selection.
-      // TODO(aramk) This is complicated - refactor.
-      if (selected) {
-        this._delegateToForm('setSelected', arguments);
-        this._super(selected);
-      } else {
-        this._super(selected);
+      var result = this._super(selected);
+      if (result !== null) {
         this._delegateToForm('setSelected', arguments);
       }
+      return result;
     },
 
     // TODO(aramk) A lot of these operations below should be calling _super() and being called on

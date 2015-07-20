@@ -64,6 +64,12 @@ define([
      */
     _nextHandlerId: null,
 
+    /**
+     * Whether this manager is enabled and should dispatch and handle events.
+     * @type {Boolean}
+     */
+    _enabled: true,
+
     _init: function(managers) {
       this._super(managers);
       this._internalEventHandlers = {};
@@ -76,6 +82,8 @@ define([
      * @param {atlas.events.Event} event - The Event to be propagated.
      */
     dispatchEvent: function(event) {
+      if (!this.isEnabled()) { return }
+
       // If debug logging is enabled, log all dispatched events except mousemove.
       if (event.getType() !== 'input/mousemove') {
         Log.debug('Dispatching event: ',
@@ -329,6 +337,8 @@ define([
      *     handler callback.
      */
     _handleEvent: function(source, name, args) {
+      if (!this.isEnabled()) { return }
+
       // Retrieve either intern or extern event handlers.
       var allHandlers;
       if (source === 'extern') {
@@ -368,6 +378,21 @@ define([
      */
     handleExternalEvent: function(name, args) {
       this._handleEvent('extern', name, args);
+    },
+
+    /**
+     * @param {Boolean} enabled - Whether this manager is enabled and should dispatch and handle
+     *     events.
+     */
+    setEnabled: function(enabled) {
+      this._enabled = enabled;
+    },
+
+    /**
+     * @return {Boolean} Whether this manager is enabled and should dispatch and handle events.
+     */
+    isEnabled: function() {
+      return this._enabled;
     },
 
     destroy: function() {

@@ -174,11 +174,11 @@ define([
     _preStyle: null,
 
     /**
-     * Metadata for the GeoEntity which gives it context
+     * Properties for the GeoEntity which gives it context
      * @type {Object}
      * @protected
      */
-    _metaData: null,
+    _properties: null,
 
      /* Whether the GeoEntity can be selected.
      * @type {Boolean}
@@ -276,7 +276,6 @@ define([
       this._visible = Setter.def(data.show, true);
       this.setDirty('entity');
       this._setupStyle(data, args);
-      this.setMetaData(data.metaData || {});
       this.setElevation(data.elevation || 0);
       // Use existing values for transformations to allow subclasses to override the default setup
       // behaviour.
@@ -286,7 +285,7 @@ define([
       this._rotation = this._rotation || new Vertex(data.rotation || {x: 0, y: 0, z: 0});
       this._isTransformed = data.translation || data.scale || data.rotation;
       this._selectable = Setter.def(data.selectable, true);
-      this.setMetaData(data.metaData || {});
+      this.setProperties(data.properties || {});
       var selected = data.selected;
       selected !== undefined && this.setSelected(selected);
     },
@@ -640,24 +639,24 @@ define([
     /**
      * @returns {Object}
      */
-    getMetaData: function() {
-      return Setter.clone(this._metaData);
+    getProperties: function() {
+      return Setter.clone(this._properties);
     },
 
     /**
-     * @param {Object} New set of meta data to be assigned
+     * @param {Object} New set of properties to be assigned
      */
-    setMetaData: function(obj) {
+    setProperties: function(obj) {
       // TODO(srafehi) Would type checking be needed in this case?
-      this._metaData = obj;
+      this._properties = obj;
     },
 
     /**
-     * @param {String} Name of the meta data to update
-     * @param {Object} Value of the meta data property being assigned
+     * @param {String} Name of the properties to update
+     * @param {Object} Value of the property being assigned
      */
-    setMetaDataValue: function(name, value) {
-      this._metaData[name] = value;
+    setPropertyValue: function(name, value) {
+      this._properties[name] = value;
     },
 
     /**
@@ -710,7 +709,7 @@ define([
         rotation: this.getRotation().toArray(),
         altitude: this.getElevation(),
         show: this.isVisible(),
-        metaData: this.getMetaData()
+        properties: this.getProperties()
       };
       var style = this.getStyle();
       if (style) {
