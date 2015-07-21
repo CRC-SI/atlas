@@ -1099,7 +1099,7 @@ define([
         var fillColor = style.getFillMaterial();
         if (fillColor instanceof Color) {
           fillColor = style.getFillMaterial();
-          var newFillColor = fillColor.darken(10);
+          var newFillColor = fillColor.darken(0.1);
           style.setFillMaterial(newFillColor);
         }
       }
