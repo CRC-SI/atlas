@@ -119,6 +119,7 @@ define([
       if (this._height !== height) {
         this._height = height;
         this.setDirty('vertices');
+        this.setDirty('height');
         this._update();
         if (this._isSetUp) {
           this._eventManager.dispatchEvent(new Event(this, 'entity/height/changed', {
