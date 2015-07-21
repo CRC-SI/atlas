@@ -416,7 +416,8 @@ define([
 
     createEntity: function(id, data, args) {
       args = this._bindDeps(args);
-      var type = this._sanitizeType(data.type);
+      // var type = this._sanitizeType(data.type);
+      var type = data.type;
       var Constructor = this._entityTypes[Strings.toTitleCase(type)];
       return new Constructor(id, data, args);
     },
