@@ -1099,10 +1099,14 @@ define([
         var fillColor = style.getFillMaterial();
         if (fillColor instanceof Color) {
           fillColor = style.getFillMaterial();
-          var newFillColorStr = new tinycolor(fillColor.toString()).darken(10).toHexString();
-          var newFillColor = new Color(newFillColorStr);
+          var newFillColor = fillColor.darken(10);
           style.setFillMaterial(newFillColor);
         }
+      }
+      // Keep the same opacity as the existing style.
+      var existingFillMaterial = this._style && this._style.getFillMaterial();
+      if (existingFillMaterial instanceof Color && style.getFillMaterial() instanceof Color) {
+        style.getFillMaterial().alpha = existingFillMaterial.alpha;
       }
       this._setStyle(style);
     },
