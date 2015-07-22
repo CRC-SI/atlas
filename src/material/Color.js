@@ -179,7 +179,7 @@ define([
      * @return {atlas.model.Color} A new color that is darker by the given amount.
      */
     darken: function(value) {
-      return new Color(tinycolor(this.toString()).darken(value * 10).toRgbString());
+      return new Color(tinycolor(this.toString()).darken(value * 100).toRgbString());
     },
 
     /**
@@ -187,7 +187,7 @@ define([
      * @return {atlas.model.Color} A new color that is lighter by the given amount.
      */
     lighten: function(value) {
-      return new Color(tinycolor(this.toString()).lighten(value * 10).toRgbString());
+      return new Color(tinycolor(this.toString()).lighten(value * 100).toRgbString());
     }
 
   });

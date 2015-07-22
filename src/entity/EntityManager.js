@@ -390,6 +390,7 @@ define([
      * @param {Boolean} [data.show=true] - Whether the feature should be initially shown when
      *     created.
      * @param {String} [data.displayMode='footprint'] - Initial display mode of feature.
+     * @returns {atlas.model.Feature} A feature constructed from the given arguments.
      */
     createFeature: function(id, data, args) {
       if (typeof id === 'object') {
@@ -414,6 +415,12 @@ define([
       }
     },
 
+    /**
+     * @param {String} - The ID of the entity.
+     * @param {Object} data - Data passed to the entity class constructor.
+     * @param {Object} args - Arguments passed to the entity class constructor.
+     * @return {atlas.model.GeoEntity} - An entity constructe from the given arguments
+     */
     createEntity: function(id, data, args) {
       args = this._bindDeps(args);
       // var type = this._sanitizeType(data.type);
