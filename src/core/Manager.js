@@ -41,7 +41,7 @@ define([
      * Whether this manager has been destroyed.
      * @type {Boolean}
      */
-    _isDestroyed: false
+    _isDestroyed: false,
 
     _init: function(managers) {
       this._managers = managers;
