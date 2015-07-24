@@ -433,7 +433,7 @@ define([
      */
     _getEntityConstructor: function(type) {
       type = this._sanitizeType(type);
-      this._entityTypes[Strings.toTitleCase(type)];
+      return this._entityTypes[Strings.toTitleCase(type)];
     },
 
     /**
