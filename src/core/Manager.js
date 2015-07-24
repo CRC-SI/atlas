@@ -37,6 +37,12 @@ define([
      */
     _eventHandles: null,
 
+    /**
+     * Whether this manager has been destroyed.
+     * @type {Boolean}
+     */
+    _isDestroyed: false,
+
     _init: function(managers) {
       this._managers = managers;
       var id = this._id;
@@ -79,7 +85,7 @@ define([
      *     once the manager is unloaded.
      */
     destroy: function() {
-      // Override in subclasses.
+      this._isDestroyed = true;
     }
 
   });
