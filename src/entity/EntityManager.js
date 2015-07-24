@@ -423,7 +423,7 @@ define([
      */
     createEntity: function(id, data, args) {
       args = this._bindDeps(args);
-      var Constructor = this._getEntityConstructor(type);
+      var Constructor = this._getEntityConstructor(data.type);
       return new Constructor(id, data, args);
     },
 
