@@ -477,6 +477,7 @@ define([
     data.background && (style += 'background:' + data.background + ';');
     data.bgColor && (style += 'background-color:' + data.bgColor.toHexString() + ';');
     data.width && (style += 'width:' + data.width + ';');
+    data.title && (html += 'title="' + data.title + '" ');
     if (style !== '') {
       html += 'style="' + style + '"';
     }
