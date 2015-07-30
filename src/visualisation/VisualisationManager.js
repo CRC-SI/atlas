@@ -224,12 +224,10 @@ define([
 
     getLegendContainer: function() {
       if (!this._legendContainer) {
-        this._legendContainer = new Overlay({
+        this._legendContainer = this._managers.overlay.createOverlay({
           id: 'visman-projection-container',
-          parent: this._managers.dom.getDomNode(),
           title: 'Projections',
-          cssClass: 'legends',
-          position: {top: 300, left: 0}
+          cssClass: 'legends'
         });
       }
       return this._legendContainer;
@@ -351,7 +349,7 @@ define([
       var SLIDER = 'visual-slider';
 
       this._dynamicProjections[target] = dynamic;
-      this._overlays[target] = new Overlay({
+      this._overlays[target] = this._managers.overlay.createOverlay({
         parent: this._managers.dom.getDomNode(),
         position: {top: 0, left: 0},
         content: '<p>' + target + '</p>' +

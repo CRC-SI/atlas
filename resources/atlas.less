@@ -82,6 +82,17 @@
     }
   }
 
+  // Used to contain relatively positioned overlays.
+  .overlays {
+    position: absolute;
+    top: 0;
+    left: 0;
+    .overlay {
+      position: relative;
+      display: inline-block;
+    }
+  }
+
   .legend {
     max-width: 250px;
     .title {
