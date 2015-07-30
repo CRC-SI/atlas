@@ -96,7 +96,7 @@ define([
         var codomain = this.getCodomain(i);
         var regression = this._regressProjectionValueFromCodomain({binId: i}, codomain);
         var color = regression.fillMaterial;
-        var elements = [{bgColor: color, width: '1em'}];
+        var elements = [{bgColor: color}];
         var label = bin.label;
         if (label) {
           elements.push({value: label, cssClass: 'label'});

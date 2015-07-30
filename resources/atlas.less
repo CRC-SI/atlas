@@ -116,6 +116,9 @@
       }
       td:first-child {
         border: 1px solid rgba(0, 0, 0, 0.25);
+        width: 1em;
+        // Prevent width reduction if legend width is constrained.
+        min-width: 1em;
       }
     }
   }
