@@ -232,11 +232,17 @@ define([
 
     /**
      * Deselects all currently selected GeoEntities.
-     *
+     * @param {Object} [args]
+     * @param {Boolean} [args.disableEvents=false] - Whether to prevent triggering and handling
+     *     events while handing the selection. For large numbers of entities this can improve
+     *     performance.
      * @listens ExternalEvent#entity/deselect/all
      */
-    clearSelection: function() {
-      this.deselectEntities(this.getSelectionIds());
+    clearSelection: function(args) {
+      var disableEvents = args && args.disableEvents === true;
+      this._disableEventsDuringCallback(function() {
+        this.deselectEntities(this.getSelectionIds(), args);
+      }.bind(this), disableEvents);
     },
 
     /**
@@ -290,14 +296,14 @@ define([
 
     _disableEventsDuringCallback: function(callback, disable) {
       if (!disable) { return callback() }
-      enabled = atlas._managers.event.isEnabled()
-      atlas._managers.event.setEnabled(false)
+      var enabled = atlas._managers.event.isEnabled();
+      atlas._managers.event.setEnabled(false);
       try {
-        callback()
+        callback();
       } catch(err) {
-        Logger.error('Error during callback while events were disabled', err)
+        Logger.error('Error during callback while events were disabled', err);
       }
-      atlas._managers.event.setEnabled(enabled)
+      atlas._managers.event.setEnabled(enabled);
     },
 
     /**
@@ -305,6 +311,9 @@ define([
      *
      * @param {String} method - Either 'select' or 'deselect' depending on the request.
      * @param {ExternalEvent#event:entity/select | ExternalEvent#event:entity/deselect} event
+     * @param {Boolean} [event.disableEvents=false] - Whether to prevent triggering and handling
+     *     events while handing the selection. For large numbers of entities this can improve
+     *     performance.
      *
      * @listens ExternalEvent#entity/select
      * @listens ExternalEvent#entity/deselect
