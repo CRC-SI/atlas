@@ -94,7 +94,7 @@ define([
 
     _createManagers: function(args) {
       for (var id in this._managerClasses) {
-        if (args && args.managers && args.managers[id] === false) { continue }
+        if (args && args.managers && args.managers[id] === false) continue;
         var ManagerClass = this._managerClasses[id];
         var manager = new ManagerClass(this._managers);
         this.setManager(manager);

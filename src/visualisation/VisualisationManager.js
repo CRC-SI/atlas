@@ -227,7 +227,8 @@ define([
         this._legendContainer = this._managers.overlay.createOverlay({
           id: 'visman-projection-container',
           title: 'Projections',
-          cssClass: 'legends'
+          cssClass: 'legends',
+          contained: true
         });
       }
       return this._legendContainer;
@@ -350,7 +351,7 @@ define([
 
       this._dynamicProjections[target] = dynamic;
       this._overlays[target] = this._managers.overlay.createOverlay({
-        parent: this._managers.dom.getDomNode(),
+        contained: false,
         position: {top: 0, left: 0},
         content: '<p>' + target + '</p>' +
             '<input type="range" id="' + SLIDER + '-fps-' + target + '" min="1" max="30"> </br> ' +

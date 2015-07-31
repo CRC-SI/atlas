@@ -43,13 +43,13 @@ define([
 
     /**
      * @param {Object} [args] - The construction arguments for the Overlay.
-     * @param {Boolean} [args.contained=true] - Whether the overlay should be positioned in the
+     * @param {Boolean} [args.contained=false] - Whether the overlay should be positioned in the
      *     overlays container. If false, it is positioned in the Atlas dom node.
      * @return {atls.model.Overlay}
      */
     createOverlay: function(args) {
       var parentDomNode;
-      if (args && args.contained !== false) {
+      if (args && args.contained) {
         parentDomNode = this._overlayDom;
       } else {
         parentDomNode = this._managers.dom.getDomNode();
