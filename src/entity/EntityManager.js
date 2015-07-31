@@ -423,9 +423,17 @@ define([
      */
     createEntity: function(id, data, args) {
       args = this._bindDeps(args);
-      var type = this._sanitizeType(data.type);
-      var Constructor = this._entityTypes[Strings.toTitleCase(type)];
+      var Constructor = this._getEntityConstructor(data.type);
       return new Constructor(id, data, args);
+    },
+
+    /**
+     * @type {String} type
+     * @returns {Class} The entity class for the given type.
+     */
+    _getEntityConstructor: function(type) {
+      type = this._sanitizeType(type);
+      return this._entityTypes[Strings.toTitleCase(type)];
     },
 
     /**
