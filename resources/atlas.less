@@ -82,6 +82,17 @@
     }
   }
 
+  // Used to contain relatively positioned overlays.
+  .overlays {
+    position: absolute;
+    top: 0;
+    left: 0;
+    .overlay {
+      position: relative;
+      display: inline-block;
+    }
+  }
+
   .legend {
     max-width: 250px;
     .title {
@@ -105,6 +116,9 @@
       }
       td:first-child {
         border: 1px solid rgba(0, 0, 0, 0.25);
+        width: 1em;
+        // Prevent width reduction if legend width is constrained.
+        min-width: 1em;
       }
     }
   }

@@ -64,7 +64,7 @@ define([
      *
      * @private
      */
-    _delayedSetupManagers: ['input', 'terrain'],
+    _delayedSetupManagers: ['input', 'terrain', 'overlay', 'popup'],
 
     _managerClasses: {},
 
@@ -92,8 +92,9 @@ define([
       ].forEach(this.setManagerClass, this);
     },
 
-    _createManagers: function() {
+    _createManagers: function(args) {
       for (var id in this._managerClasses) {
+        if (args && args.managers && args.managers[id] === false) continue;
         var ManagerClass = this._managerClasses[id];
         var manager = new ManagerClass(this._managers);
         this.setManager(manager);
@@ -105,10 +106,8 @@ define([
      */
     _setup: function() {
       // These managers are set up later.
-      var delayedSetupManagers = ['input', 'terrain'];
-      // var ignoredManagersMap = {};
       for (var id in this._managers) {
-        if (delayedSetupManagers.indexOf(id) === -1) {
+        if (this._delayedSetupManagers.indexOf(id) === -1) {
           this._managers[id].setup();
         }
       }

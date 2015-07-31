@@ -1,9 +1,11 @@
 define([
   'atlas/core/ItemStore',
   'atlas/core/Manager',
+  'atlas/dom/Overlay',
   'atlas/lib/utility/Setter',
-  'atlas/lib/utility/Types'
-], function(ItemStore, Manager, Setter, Types) {
+  'atlas/lib/utility/Types',
+  'jquery'
+], function(ItemStore, Manager, Overlay, Setter, Types, $) {
 
   var OverlayManager;
 
@@ -21,13 +23,39 @@ define([
      */
     _counter: 0,
 
+    /**
+     * The DOM element for storing overlays.
+     * @type {HTMLElement}
+     */
+    _overlayDom: null,
+
     _init: function(managers, options) {
       this._super(managers);
       this._overlays = {};
     },
 
     setup: function() {
-      //this._bindEvents();
+      var $domNode = $(this._managers.dom.getDomNode());
+      var $overlays = $('<div class="overlays"></div>');
+      this._overlayDom = $overlays[0];
+      $domNode.prepend($overlays);
+    },
+
+    /**
+     * @param {Object} [args] - The construction arguments for the Overlay.
+     * @param {Boolean} [args.contained=false] - Whether the overlay should be positioned in the
+     *     overlays container. If false, it is positioned in the Atlas dom node.
+     * @return {atls.model.Overlay}
+     */
+    createOverlay: function(args) {
+      var parentDomNode;
+      if (args && args.contained) {
+        parentDomNode = this._overlayDom;
+      } else {
+        parentDomNode = this._managers.dom.getDomNode();
+      }
+      args = Setter.merge({parent: parentDomNode}, args);
+      return new Overlay(args);
     },
 
     _bindEvents: function() {

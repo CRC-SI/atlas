@@ -153,7 +153,6 @@ define([
     _init: function(args) {
       // Set defaults
       args = Setter.merge({
-        parent: document.body,
         cssClass: '',
         title: '',
         position: {},
@@ -166,8 +165,8 @@ define([
       }, args);
       var eventManager = args.eventManager;
       this._super(eventManager);
-      if (typeof args.parent === 'string') {
-        args.parent = document.getElementById(args.parent);
+      if (args.parent) {
+        args.parent = $(args.parent)[0];
       }
       if (!args.parent) { throw new Error('Error attaching to element ' + args.parent); }
 
