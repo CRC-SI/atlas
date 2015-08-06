@@ -15,10 +15,11 @@ define([
   'atlas/util/DeveloperError',
   'atlas/lib/Q',
   'atlas/lib/utility/Class',
+  'atlas/lib/utility/Log',
   'underscore'
 ], function(CameraManager, DomManager, PopupFaculty, PopupManager, OverlayManager, EditManager,
   EntityManager, EventManager, InputManager, RenderManager, TerrainManager, SelectionManager,
-  VisualisationManager, DeveloperError, Q, Class, _) {
+  VisualisationManager, DeveloperError, Q, Class, Log, _) {
 
   /**
    * @typedef atlas.core.Atlas
@@ -231,7 +232,11 @@ define([
       // Destroy the event manager first to prevent sending events during destruction.
       this._managers.event.destroy();
       return Q.all(_.map(this._managers, function(manager) {
-        return manager.destroy();
+        try {
+          return manager.destroy();
+        } catch(err) {
+          Log.error('Failed to destroy manager', manager, err)
+        }
       }));
     }
 
