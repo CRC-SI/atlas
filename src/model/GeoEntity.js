@@ -1137,8 +1137,9 @@ define([
      * Handles the behaviour when this entity is unhighlighted.
      */
     _onUnhighlight: function() {
-      this._maybeUnsetPreStyle();
       this._updateHighlightStyle();
+      // Unset after updating style to ensure it is reverted to preStyle.
+      this._maybeUnsetPreStyle();
     },
 
     /**
