@@ -1063,6 +1063,8 @@ define([
      */
     _onDeselect: function() {
       this._updateHighlightStyle();
+      // Unset after updating style to ensure it is reverted to preStyle.
+      this._maybeUnsetPreStyle();
 
       /**
        * Deselection of an entity.
@@ -1077,9 +1079,17 @@ define([
     },
 
     _maybeSetPreStyle: function() {
-      // NOTE: Bitwise XOR.
+      // NOTE: Bitwise XOR to ensure the style is set before either selection or highlighting but
+      // not when both are active, indicating one was active before the other and would have already
+      // modified _style.
       if (this.isSelected() ^ this.isHighlighted()) {
         this._setPreStyle(this._style);
+      }
+    },
+
+    _maybeUnsetPreStyle: function() {
+      if (!this.isSelected() && !this.isHighlighted()) {
+        this._setPreStyle(null);
       }
     },
 
@@ -1090,10 +1100,14 @@ define([
       var style;
       if (this.isSelected()) {
         style = Style.getDefaultSelected();
-      } else {
+      } else if (this._preStyle) {
         // TODO(aramk) Clones the style - the parse logic should reside in Style, not GeoEntity.
         style = this._parseStyle(this._preStyle.toJson());
+      } else {
+        // If no preStyle exists, then the entity is not highlighted or selected.
+        return;
       }
+      // Applies the highlight on either the selected style or preStyle.
       if (this.isHighlighted()) {
         // TODO(aramk) Only supports Colors, not other Materials.
         var fillColor = style.getFillMaterial();
@@ -1123,6 +1137,7 @@ define([
      * Handles the behaviour when this entity is unhighlighted.
      */
     _onUnhighlight: function() {
+      this._maybeUnsetPreStyle();
       this._updateHighlightStyle();
     },
 
