@@ -570,13 +570,15 @@ define([
       createBatchTask();
 
       var origTaskCount = tasks.length;
-      var entityTotalCount = origTaskCount * options.batchSize;
+      // Use the task count to estimate the number of entities (some might have been skipped)
+      // but never exceed the actual number of entities.
+      var entityTotalCount = Math.min(origTaskCount * options.batchSize, c3mls.length);
       var df = Q.defer();
 
       var notifyProgress = function() {
         var taskDoneCount = (origTaskCount - tasks.length);
-        var entityDoneCount = taskDoneCount * options.batchSize;
-        var percent = taskDoneCount / origTaskCount;
+        var entityDoneCount = Math.min(taskDoneCount * options.batchSize, entityTotalCount);
+        var percent = entityDoneCount / entityTotalCount;
         df.notify({
           value: entityDoneCount,
           total: entityTotalCount,
