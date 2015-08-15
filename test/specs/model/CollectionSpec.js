@@ -6,8 +6,9 @@ define([
   'atlas/model/GeoPoint',
   'atlas/model/Polygon',
   'atlas/model/Rectangle',
-  'atlas/util/WKT'
-], function(EntityManager, EventManager, Collection, GeoPoint, Polygon, Rectangle, WKT) {
+  'atlas/util/WKT',
+  'underscore'
+], function(EntityManager, EventManager, Collection, GeoPoint, Polygon, Rectangle, WKT, _) {
   describe('A Collection', function() {
 
     var collection;
@@ -94,7 +95,42 @@ define([
       expect(boundingBox).toEqual(expectedBoundingBox);
     });
 
+    it('supports large numbers of children', function() {
+      var children = [];
+      var childIds = []
+      _.times(1000, function(i) {
+        var childId = 'child-' + i;
+        children.push(new Polygon(childId, {vertices: []}, constructArgs));
+        childIds.push(childId);
+      });
+      var collection2 = new Collection('c2', {entities: childIds},
+          constructArgs);
+      expect(collection2.getChildren().length).toEqual(childIds.length);
+      expect(collection2.getChildren().length).not.toEqual(0);
 
+      // Ensure selecting a child when group select is disabled has no effect.
+      collection2.getChildren()[100].setSelected(true);
+      expect(collection2.isSelected()).toBe(false);
+
+      // Selecting collection selects all children.
+      collection2.setSelected(true);
+      assertChildrenSelected(collection2, true);
+      collection2.setSelected(false);
+      assertChildrenSelected(collection2, false);
+
+      // Selecting a child selects a collection.
+      collection2.setGroupSelect(true);
+      collection2.getChildren()[100].setSelected(true);
+      assertChildrenSelected(collection2, true);
+      expect(collection2.isSelected()).toBe(true);
+    });
 
   });
 });
+
+var assertChildrenSelected = function(collection, selected) {
+  var allSelected = _.all(collection.getChildren(), function(child) {
+    return child.isSelected() === selected;
+  });
+  expect(allSelected).toBe(true);
+};

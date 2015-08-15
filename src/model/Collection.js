@@ -41,12 +41,18 @@ define([
     _entities: null,
 
     /**
+     * Whether selecting an entity selects the entire collection.
+     * @type {Boolean}
+     */
+    _groupSelect: false,
+
+    /**
      * @param {String} id
      * @param {Object} data
      * @param {Array.<String>} data.entities - A set of {@link GeoEntity} IDs.
      * @param {Boolean} [data.groupSelect=false] - Whether selecting an entity selects the entire
+     *     collection.
      * @param {Object} args
-     * collection.
      * @private
      */
     _setup: function(id, data, args) {
@@ -60,7 +66,8 @@ define([
       entityIds.forEach(this.addEntity, this);
       this._super(id, data, args);
       this._visible = false;
-      data.groupSelect && this._initSelection();
+      this.setGroupSelect(data.groupSelect);
+      this._initSelection();
     },
 
     _setupStyle: function(data, args) {
@@ -213,8 +220,8 @@ define([
         };
       }, this);
       // Call on all entities and the collection.
-      var forSelfMethods = ['remove', 'show', 'hide', 'translate', 'scale', 'setSelected',
-          'setElevation', 'setStyle', 'modifyStyle'];
+      var forSelfMethods = ['remove', 'show', 'hide', 'translate', 'scale', 'setElevation',
+          'setStyle', 'modifyStyle'];
       forSelfMethods.forEach(function(method) {
         var selfMethod = this[method];
         this[method] = function() {
@@ -456,6 +463,13 @@ define([
       });
     },
 
+    setSelected: function(selected) {
+      var result = this._super.apply(this, arguments);
+      if (result === null) return result;
+      this._forEntities('setSelected', arguments);
+      return result;
+    },
+
     _build: function() {
       // Collection does not have geometry to build.
     },
@@ -466,13 +480,9 @@ define([
       Object.keys(actions).forEach(function(name) {
         var action = actions[name];
         var handle = this._eventManager.addEventHandler('intern', 'entity/' + name, function(args) {
-          var match = args.ids.some(function(id) {
-            return collection.getEntity(id);
-          });
-          if (match && collection.isSelectable()) {
-            collection.setSelected(action);
-          }
-        });
+          if (!this._groupSelect) return;
+          collection.setSelected(action);
+        }.bind(this));
         this._bindEventHandle(handle);
       }, this);
     },
@@ -480,6 +490,20 @@ define([
     // Ignore all style since it's handled by the entities. Otherwise, setting the style for this
     // feature applies it to the form and this changes it from the pre-select style.
     _updateHighlightStyle: function() {
+    },
+
+    /**
+     * @return {Boolean} Whether selecting an entity selects the entire collection.
+     */
+    getGroupSelect: function() {
+      return this._groupSelect;
+    },
+
+    /**
+     * @param {Boolean} groupSelect - Whether selecting an entity selects the entire collection.
+     */
+    setGroupSelect: function(groupSelect) {
+      this._groupSelect = groupSelect;
     }
 
   });
