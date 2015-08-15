@@ -906,8 +906,6 @@ define([
      *     <code>undefined</code> if there is no such GeoEntity.
      */
     getById: function(id) {
-      // TODO(bpstudds): Accept either a single id or an array of IDs and return an either a
-      //      single entity or an array or Entities
       return this._entities.get(id);
     },
 
