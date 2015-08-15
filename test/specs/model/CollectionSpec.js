@@ -123,6 +123,13 @@ define([
       collection2.getChildren()[100].setSelected(true);
       assertChildrenSelected(collection2, true);
       expect(collection2.isSelected()).toBe(true);
+
+      // Ensure selecting a child when group select is disabled has no effect (after enabling
+      // group selection).
+      collection2.setSelected(false);
+      collection2.setGroupSelect(false);
+      collection2.getChildren()[100].setSelected(true);
+      expect(collection2.isSelected()).toBe(false);
     });
 
   });
