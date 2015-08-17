@@ -115,9 +115,10 @@ define([
     },
 
     /**
-     * Prevents the Event from being handled by any more EventTargets (a combination
-     * of preventDefault and stopPropagation from the DOM event model).
-     * @param {boolean} [cancelHost=false] - If true, the EventManager will not propagate this Event to the host application.
+     * Prevents the Event from being handled by any more EventTargets (a combination of
+     * preventDefault and stopPropagation from the DOM event model).
+     * @param {boolean} [cancelHost=false] - If true, the EventManager will not propagate this Event
+     *     to the host application.
      */
     cancel: function(cancelHost) {
       this._cancelHost = this._cancelHost || cancelHost;

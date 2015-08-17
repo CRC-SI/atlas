@@ -1004,6 +1004,7 @@ define([
       }
       this._selected = selected;
       selected ? this._onSelect() : this._onDeselect();
+      return !selected;
     },
 
     /**
@@ -1019,6 +1020,7 @@ define([
       }
       this._highlighted = highlighted;
       highlighted ? this._onHighlight() : this._onUnhighlight();
+      return !highlighted;
     },
 
     /**
@@ -1131,6 +1133,17 @@ define([
     _onHighlight: function() {
       this._maybeSetPreStyle();
       this._updateHighlightStyle();
+
+      /**
+       * Highlighting of an entity.
+       *
+       * @event InternalEvent#entity/highlight
+       * @type {atlas.events.Event}
+       * @property {Array.<String>} args.ids - The IDs of the highlighted entities.
+       */
+      this._eventManager.dispatchEvent(new Event(this, 'entity/highlight', {
+        ids: [this.getId()]
+      }));
     },
 
     /**
@@ -1140,6 +1153,17 @@ define([
       this._updateHighlightStyle();
       // Unset after updating style to ensure it is reverted to preStyle.
       this._maybeUnsetPreStyle();
+
+      /**
+       * Unhighlighting of an entity.
+       *
+       * @event InternalEvent#entity/unhighlight
+       * @type {atlas.events.Event}
+       * @property {Array.<String>} args.ids - The IDs of the unhighlighted entities.
+       */
+      this._eventManager.dispatchEvent(new Event(this, 'entity/unhighlight', {
+        ids: [this.getId()]
+      }));
     },
 
     /**

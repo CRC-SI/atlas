@@ -278,6 +278,40 @@ define([
       }.bind(this));
     },
 
+    /**
+     * Listens for selection events on the entities and handles group selection.
+     *
+     * @listens InternalEvent#entity/select
+     * @listens InternalEvent#entity/deselect
+     * @listens InternalEvent#entity/highlight
+     * @listens InternalEvent#entity/unhighlight
+     */
+    _initSelection: function() {
+      var collection = this;
+      var actions = {
+        select: {'select': true, 'deselect': false},
+        highlight: {'highlight': true, 'unhighlight': false},
+      };
+      _.each(actions, function(group, groupName) {
+        _.each(group, function(value, actionName) {
+          var eventName = 'entity/' + actionName;
+          var handle = this.addEventListener(eventName, function(event) {
+            if (this._groupSelect) {
+              if (groupName === 'select') {
+                collection.setSelected(value);
+              } else if (groupName === 'highlight') {
+                collection.setHighlighted(value);
+              }
+            } else {
+              // Prevent the event from bubbling up to parents and causing selections.
+              event.cancel();
+            }
+          }.bind(this));
+          this._bindEventHandle(handle);
+        }, this);
+      }, this);
+    },
+
     // -------------------------------------------
     // GETTERS AND SETTERS
     // -------------------------------------------
@@ -470,21 +504,15 @@ define([
       return result;
     },
 
-    _build: function() {
-      // Collection does not have geometry to build.
+    setHighlighted: function(selected) {
+      var result = this._super.apply(this, arguments);
+      if (result === null) return result;
+      this._forEntities('setHighlighted', arguments);
+      return result;
     },
 
-    _initSelection: function() {
-      var collection = this;
-      var actions = {'select': true, 'deselect': false};
-      Object.keys(actions).forEach(function(name) {
-        var action = actions[name];
-        var handle = this._eventManager.addEventHandler('intern', 'entity/' + name, function(args) {
-          if (!this._groupSelect) return;
-          collection.setSelected(action);
-        }.bind(this));
-        this._bindEventHandle(handle);
-      }, this);
+    _build: function() {
+      // Collection does not have geometry to build.
     },
 
     // Ignore all style since it's handled by the entities. Otherwise, setting the style for this
@@ -504,6 +532,13 @@ define([
      */
     setGroupSelect: function(groupSelect) {
       this._groupSelect = groupSelect;
+      // Group select must be applied to all child collections to ensure events bubble up to
+      // parent collections.
+      this.getChildren().forEach(function(child) {
+        if (child instanceof Collection) {
+          child.setGroupSelect(groupSelect);
+        }
+      });
     }
 
   });
