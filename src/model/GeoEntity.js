@@ -434,12 +434,17 @@ define([
     /**
      * Set the elevation of the base of the GeoEntity.
      * @param {Number} elevation - The elevation of the base of the GeoEntity.
+     * @returns {Number|null} The previous elevation, or null if no change was made.
      */
     setElevation: function(elevation) {
-      if (this._elevation !== elevation) {
+      var prevElevation = this._elevation;
+      if (prevElevation !== elevation) {
         this._elevation = elevation;
         this.setDirty('model');
         this._update();
+        return prevElevation;
+      } else {
+        return null;
       }
     },
 

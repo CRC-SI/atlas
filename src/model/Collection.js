@@ -210,6 +210,7 @@ define([
 
     _initDelegation: function() {
       // TODO(aramk) getHandles should create a new ItemStore and add all.
+      // TODO(aramk) All these methods will lead to stack overflows given many children.
 
       // Call on all entities.
       var forMethods = ['createHandles', 'addHandles', 'clearHandles', 'setHeight',
@@ -220,8 +221,7 @@ define([
         };
       }, this);
       // Call on all entities and the collection.
-      var forSelfMethods = ['remove', 'show', 'hide', 'translate', 'scale', 'setElevation',
-          'setStyle', 'modifyStyle'];
+      var forSelfMethods = ['remove', 'translate', 'scale', 'setStyle', 'modifyStyle'];
       forSelfMethods.forEach(function(method) {
         var selfMethod = this[method];
         this[method] = function() {
@@ -239,14 +239,14 @@ define([
         };
       }, this);
       // Some entities must return true.
-      var someMethods = ['isVisible'];
-      someMethods.forEach(function(method) {
-        this[method] = function() {
-          return this._someEntity(method, arguments, function(value) {
-            return !!value;
-          });
-        };
-      }, this);
+      // var someMethods = ['isVisible'];
+      // someMethods.forEach(function(method) {
+      //   this[method] = function() {
+      //     return this._someEntity(method, arguments, function(value) {
+      //       return !!value;
+      //     });
+      //   };
+      // }, this);
     },
 
     // -------------------------------------------
@@ -297,10 +297,16 @@ define([
           var eventName = 'entity/' + actionName;
           var handle = this.addEventListener(eventName, function(event) {
             if (this._groupSelect) {
-              if (groupName === 'select') {
-                collection.setSelected(value);
-              } else if (groupName === 'highlight') {
-                collection.setHighlighted(value);
+              var parent = this.getParent();
+              // If the parent also supports group selection, defer this logic and allow the event
+              // to continue bubbling up so we reduce the number of redundant setSelected() calls
+              // on children.
+              if (!(parent instanceof Collection && parent.getGroupSelect())) {
+                if (groupName === 'select') {
+                  collection.setSelected(value);
+                } else if (groupName === 'highlight') {
+                  collection.setHighlighted(value);
+                }
               }
             } else {
               // Prevent the event from bubbling up to parents and causing selections.
@@ -487,14 +493,23 @@ define([
     // MODIFIERS
     // -------------------------------------------
 
-    rotate: function(rotation, centroid) {
-      // Rotation should be applied on each child entity around the same centroid - by default, that
-      // of the collection.
-      centroid = centroid || this.getCentroid();
-      this._super(rotation, centroid);
-      this._entities.forEach(function(entity) {
-        entity.rotate(rotation, centroid);
-      });
+    show: function() {
+      if (this.isVisible()) return;
+      this._forEntities('show', arguments);
+      this._super.apply(this, arguments);
+    },
+
+    hide: function() {
+      if (!this.isVisible()) return;
+      this._forEntities('show', arguments);
+      this._super.apply(this, arguments);
+    },
+
+    setElevation: function(selected) {
+      var result = this._super.apply(this, arguments);
+      if (result === null) return result;
+      this._forEntities('setElevation', arguments);
+      return result;
     },
 
     setSelected: function(selected) {
@@ -509,6 +524,16 @@ define([
       if (result === null) return result;
       this._forEntities('setHighlighted', arguments);
       return result;
+    },
+
+    rotate: function(rotation, centroid) {
+      // Rotation should be applied on each child entity around the same centroid - by default, that
+      // of the collection.
+      centroid = centroid || this.getCentroid();
+      this._super(rotation, centroid);
+      this._entities.forEach(function(entity) {
+        entity.rotate(rotation, centroid);
+      });
     },
 
     _build: function() {
@@ -531,6 +556,7 @@ define([
      * @param {Boolean} groupSelect - Whether selecting an entity selects the entire collection.
      */
     setGroupSelect: function(groupSelect) {
+      if (this._groupSelect === groupSelect) return;
       this._groupSelect = groupSelect;
       // Group select must be applied to all child collections to ensure events bubble up to
       // parent collections.
