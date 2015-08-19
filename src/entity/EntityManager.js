@@ -329,6 +329,7 @@ define([
                 id: id
               }));
               newHoveredEntities[id] = entity;
+              this._highlightOnHover && entity.setHighlighted(true);
             }, this);
             this._hoveredEntities.forEach(function(entity, id) {
               if (!newHoveredEntities[id]) {
