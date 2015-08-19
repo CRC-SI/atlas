@@ -131,59 +131,40 @@ define([
     },
 
     /**
-     * Calls the given method on each {@link atlas.model.GeoEntity} in this collection, passing the
-     * given arguments. If the method doesn't exist, it isn't called.
+     * Calls the given method on each recursive {@link atlas.model.GeoEntity} in this collection,
+     * passing the given arguments. If the method doesn't exist, it isn't called. This method
+     * is safe from stack overflows from recursive methods provided any recursion is done with this
+     * method.
      * @param {String} methodName
      * @param {Array} args
+     * @param {String} [iterator='forEach'] - The name of a valid method on Array for iteration.
      * @private
      */
-    _forEntities: function(methodName, args) {
-      return this._entities.forEach(function(item) {
-        var method = item[methodName];
-        method && method.apply(item, args);
-      });
-    },
-
-    /**
-     * Calls the given method on each {@link atlas.model.GeoEntity} in this collection. Passes the
-     * returned value to the given callback. If the method doesn't exist, it isn't called and the
-     * callback receives an undefined value.
-     * @param {String} methodName
-     * @param {Array} args
-     * @param {Function} callback
-     * @returns {Boolean} Whether the given callback succeeds for all entities.
-     * @private
-     */
-    _everyEntity: function(methodName, args, callback) {
-      return this._entities.every(function(item) {
+    _forEntities: function(methodName, args, iterator) {
+      iterator = iterator || 'forEach';
+      // Avoid recursion to avoid stack overflows. All recursive children are handled below so
+      // recursions on collections are ignored.
+      if (this._inRecursion) {
+        return;
+      }
+      var children = this.getRecursiveChildren();
+      return children[iterator](function(item) {
+        var isCollection = item instanceof Collection;
+        if (isCollection) item._inRecursion = true;
         var value;
         var method = item[methodName];
         if (method) {
           value = method.apply(item, args);
         }
-        return callback(value);
+        if (isCollection) delete item._inRecursion;
+        return value;
       });
     },
 
-    /**
-     * Calls the given method on each {@link atlas.model.GeoEntity} in this collection. Passes the
-     * returned value to the given callback. If the method doesn't exist, it isn't called and the
-     * callback receives an undefined value.
-     * @param {String} methodName
-     * @param {Array} args
-     * @param {Function} callback
-     * @returns {Boolean} Whether the given callback succeeds for some entities.
-     * @private
-     */
-    _someEntity: function(methodName, args, callback) {
-      return this._entities.some(function(item) {
-        var value;
-        var method = item[methodName];
-        if (method) {
-          value = method.apply(item, args);
-        }
-        return callback(value);
-      });
+    dispatchEvent: function() {
+      // Prevent dispatching events during recursioon since the root entity event should suffice.
+      if (this._inRecursion) return;
+      return this._super.apply(this, arguments);
     },
 
     /**
@@ -210,7 +191,6 @@ define([
 
     _initDelegation: function() {
       // TODO(aramk) getHandles should create a new ItemStore and add all.
-      // TODO(aramk) All these methods will lead to stack overflows given many children.
 
       // Call on all entities.
       var forMethods = ['createHandles', 'addHandles', 'clearHandles', 'setHeight',
@@ -229,24 +209,6 @@ define([
           return selfMethod.apply(this, arguments);
         };
       }, this);
-      // All entities must return true.
-      var everyMethods = ['isRenderable', 'isSelected'];
-      everyMethods.forEach(function(method) {
-        this[method] = function() {
-          return this._everyEntity(method, arguments, function(value) {
-            return !!value;
-          });
-        };
-      }, this);
-      // Some entities must return true.
-      // var someMethods = ['isVisible'];
-      // someMethods.forEach(function(method) {
-      //   this[method] = function() {
-      //     return this._someEntity(method, arguments, function(value) {
-      //       return !!value;
-      //     });
-      //   };
-      // }, this);
     },
 
     // -------------------------------------------

@@ -250,7 +250,7 @@ define([
       this.setDirty('vertices');
       this._update();
       if (this._isSetUp) {
-        this._eventManager.dispatchEvent(new Event(this, 'entity/vertices/changed', {
+        this.dispatchEvent(new Event(this, 'entity/vertices/changed', {
           ids: [this.getId()]
         }));
       }

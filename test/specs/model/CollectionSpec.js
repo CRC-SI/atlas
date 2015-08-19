@@ -38,112 +38,112 @@ define([
       collection = polygonA = polygonB = null;
     });
 
-    // it('can have entities', function() {
-    //   expect(collection.getEntity('a')).toEqual(polygonA);
-    //   expect(collection.getEntity('b')).toEqual(polygonB);
-    //   expect(collection.getEntities('b').getCount()).toEqual(2);
-    // });
+    it('can have entities', function() {
+      expect(collection.getEntity('a')).toEqual(polygonA);
+      expect(collection.getEntity('b')).toEqual(polygonB);
+      expect(collection.getEntities('b').getCount()).toEqual(2);
+    });
 
-    // it('has centroid', function() {
-    //   expect(collection.getCentroid()).toEqual(centroid);
-    // });
+    it('has centroid', function() {
+      expect(collection.getCentroid()).toEqual(centroid);
+    });
 
-    // it('has no centroid if no entities are added', function() {
-    //   var collection2 = new Collection('c2', {}, constructArgs);
-    //   expect(collection2.getCentroid()).toEqual(null);
-    // });
+    it('has no centroid if no entities are added', function() {
+      var collection2 = new Collection('c2', {}, constructArgs);
+      expect(collection2.getCentroid()).toEqual(null);
+    });
 
-    // it('cannot set centroid if no entities are added', function() {
-    //   var collection2 = new Collection('c2', {}, constructArgs);
-    //   expect(collection2.getCentroid()).toEqual(null);
-    // });
+    it('cannot set centroid if no entities are added', function() {
+      var collection2 = new Collection('c2', {}, constructArgs);
+      expect(collection2.getCentroid()).toEqual(null);
+    });
 
-    // it('has area', function() {
-    //   expect(collection.getArea()).toEqual(polygonA.getArea() + polygonB.getArea());
-    // });
+    it('has area', function() {
+      expect(collection.getArea()).toEqual(polygonA.getArea() + polygonB.getArea());
+    });
 
-    // it('can translate', function() {
-    //   var polyAOldCentroid = polygonA.getCentroid();
-    //   var polyBOldCentroid = polygonB.getCentroid();
-    //   var amount = new GeoPoint({latitude: 0.001, longitude: 0.001});
-    //   collection.translate(amount);
-    //   // Centroid is recalculated and floating point math causes it to vary slightly.
-    //   expect(collection.getCentroid().isCloseTo(centroid.translate(amount))).toBe(true);
-    //   expect(polygonA.getCentroid().isCloseTo(polyAOldCentroid.translate(amount))).toBe(true);
-    //   expect(polygonB.getCentroid().isCloseTo(polyBOldCentroid.translate(amount))).toBe(true);
-    // });
+    it('can translate', function() {
+      var polyAOldCentroid = polygonA.getCentroid();
+      var polyBOldCentroid = polygonB.getCentroid();
+      var amount = new GeoPoint({latitude: 0.001, longitude: 0.001});
+      collection.translate(amount);
+      // Centroid is recalculated and floating point math causes it to vary slightly.
+      expect(collection.getCentroid().isCloseTo(centroid.translate(amount))).toBe(true);
+      expect(polygonA.getCentroid().isCloseTo(polyAOldCentroid.translate(amount))).toBe(true);
+      expect(polygonB.getCentroid().isCloseTo(polyBOldCentroid.translate(amount))).toBe(true);
+    });
 
-    // it('is not initially visible', function() {
-    //   spyOn(polygonA, 'isVisible').and.callThrough();
-    //   spyOn(polygonB, 'isVisible').and.callThrough();
-    //   var isVisible = collection.isVisible();
-    //   expect(isVisible).toBe(false);
-    //   expect(polygonA.isVisible()).toBe(isVisible);
-    //   expect(polygonB.isVisible()).toBe(isVisible);
-    //   expect(polygonA.isVisible.calls.any()).toEqual(true);
-    //   expect(polygonB.isVisible.calls.any()).toEqual(true);
-    // });
+    it('is not initially visible', function() {
+      spyOn(polygonA, 'isVisible').and.callThrough();
+      spyOn(polygonB, 'isVisible').and.callThrough();
+      var isVisible = collection.isVisible();
+      expect(isVisible).toBe(false);
+      expect(polygonA.isVisible()).toBe(isVisible);
+      expect(polygonB.isVisible()).toBe(isVisible);
+      expect(polygonA.isVisible.calls.any()).toEqual(true);
+      expect(polygonB.isVisible.calls.any()).toEqual(true);
+    });
 
-    // it('can calculate bounding box', function() {
-    //   var boundingBox = collection.getBoundingBox();
-    //   var expectedBoundingBox = new Rectangle({
-    //     west: 145.23747355356,
-    //     south: -37.826790372354,
-    //     east: 145.23771058855,
-    //     north: -27.826664658962
-    //   });
-    //   expect(boundingBox).toEqual(expectedBoundingBox);
-    // });
+    it('can calculate bounding box', function() {
+      var boundingBox = collection.getBoundingBox();
+      var expectedBoundingBox = new Rectangle({
+        west: 145.23747355356,
+        south: -37.826790372354,
+        east: 145.23771058855,
+        north: -27.826664658962
+      });
+      expect(boundingBox).toEqual(expectedBoundingBox);
+    });
 
-    // it('supports large numbers of selected children', function() {
-    //   var children = [];
-    //   var childIds = [];
-    //   _.times(1000, function(i) {
-    //     var childId = 'child-' + i;
-    //     children.push(new Polygon(childId, {vertices: []}, constructArgs));
-    //     childIds.push(childId);
-    //   });
-    //   var collection2 = new Collection('c2', {entities: childIds},
-    //       constructArgs);
-    //   expect(collection2.getChildren().length).toEqual(childIds.length);
-    //   expect(collection2.getChildren().length).not.toEqual(0);
+    it('supports large numbers of selected children', function() {
+      var children = [];
+      var childIds = [];
+      _.times(1000, function(i) {
+        var childId = 'child-' + i;
+        children.push(new Polygon(childId, {vertices: []}, constructArgs));
+        childIds.push(childId);
+      });
+      var collection2 = new Collection('c2', {entities: childIds},
+          constructArgs);
+      expect(collection2.getChildren().length).toEqual(childIds.length);
+      expect(collection2.getChildren().length).not.toEqual(0);
 
-    //   // Ensure selecting a child when group select is disabled has no effect.
-    //   collection2.getChildren()[100].setSelected(true);
-    //   expect(collection2.isSelected()).toBe(false);
+      // Ensure selecting a child when group select is disabled has no effect.
+      collection2.getChildren()[100].setSelected(true);
+      expect(collection2.isSelected()).toBe(false);
 
-    //   // Selecting collection selects all children.
-    //   collection2.setSelected(true);
-    //   assertChildrenSelected(collection2, true);
-    //   collection2.setSelected(false);
-    //   assertChildrenSelected(collection2, false);
+      // Selecting collection selects all children.
+      collection2.setSelected(true);
+      assertChildrenSelected(collection2, true);
+      collection2.setSelected(false);
+      assertChildrenSelected(collection2, false);
 
-    //   // Selecting a child selects a collection.
-    //   collection2.setGroupSelect(true);
-    //   collection2.getChildren()[100].setSelected(true);
-    //   assertChildrenSelected(collection2, true);
-    //   expect(collection2.isSelected()).toBe(true);
+      // Selecting a child selects a collection.
+      collection2.setGroupSelect(true);
+      collection2.getChildren()[100].setSelected(true);
+      assertChildrenSelected(collection2, true);
+      expect(collection2.isSelected()).toBe(true);
 
-    //   // Ensure selecting a child when group select is disabled has no effect (after enabling
-    //   // group selection).
-    //   collection2.setSelected(false);
-    //   collection2.setGroupSelect(false);
-    //   collection2.getChildren()[100].setSelected(true);
-    //   expect(collection2.isSelected()).toBe(false);
-    // });
+      // Ensure selecting a child when group select is disabled has no effect (after enabling
+      // group selection).
+      collection2.setSelected(false);
+      collection2.setGroupSelect(false);
+      collection2.getChildren()[100].setSelected(true);
+      expect(collection2.isSelected()).toBe(false);
+    });
 
     it('supports deep hierarchies during selection', function() {
       var collections = [];
       var lastChildId = null;
       var lastChild = null;
-      var entityCount = 10000;
+      var entityCount = 1000;
       _.times(entityCount, function(i) {
         var childId = 'child-' + i;
         var entities = [];
         if (lastChildId) {
           entities.push(lastChildId);
         }
-        lastChild = new Collection(childId, {entities: entities}, constructArgs);
+        lastChild = new Collection(childId, {entities: entities, groupSelect: true}, constructArgs);
         collections.push(lastChild);
         lastChildId = childId;
       });
@@ -151,10 +151,11 @@ define([
       expect(collection2.getChildren().length).toEqual(1);
       expect(collection2.getRecursiveChildren().length).toEqual(entityCount - 1);
       // Select the lowest child in the hierarchy.
-      _.first(collections).setSelected(true);
+      var lowestChild = _.first(collections);
+      lowestChild.setSelected(true);
+      expect(_.contains(collection2.getRecursiveChildren(), lowestChild)).toBe(true);
       expect(collection2.isSelected()).toBe(true);
     });
-
   });
 });
 

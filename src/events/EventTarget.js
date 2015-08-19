@@ -68,7 +68,7 @@ define([
       var newEvent = event.clone();
       newEvent.setTarget(this);
       newEvent.setCurrentTarget(this);
-      this._eventManager.dispatchEvent(newEvent);
+      this._eventManager && this._eventManager.dispatchEvent(newEvent);
     },
 
     /**

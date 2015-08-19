@@ -923,7 +923,7 @@ define([
        * @type {atlas.events.Event}
        * @property {String} args.id - The ID of the removed entity.
        */
-      this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'entity/remove', {
+      this.dispatchEvent(new Event(this, 'entity/remove', {
         id: this.getId()
       }));
     },
@@ -1058,7 +1058,7 @@ define([
        * @type {atlas.events.Event}
        * @property {Array.<String>} args.ids - The IDs of the selected entities.
        */
-      this._eventManager.dispatchEvent(new Event(this, 'entity/select', {
+      this.dispatchEvent(new Event(this, 'entity/select', {
         ids: [this.getId()]
       }));
     },
@@ -1080,7 +1080,7 @@ define([
        * @type {atlas.events.Event}
        * @property {Array.<String>} args.ids - The IDs of the selected entities.
        */
-      this._eventManager.dispatchEvent(new Event(this, 'entity/deselect', {
+      this.dispatchEvent(new Event(this, 'entity/deselect', {
         ids: [this.getId()]
       }));
     },
@@ -1146,7 +1146,7 @@ define([
        * @type {atlas.events.Event}
        * @property {Array.<String>} args.ids - The IDs of the highlighted entities.
        */
-      this._eventManager.dispatchEvent(new Event(this, 'entity/highlight', {
+      this.dispatchEvent(new Event(this, 'entity/highlight', {
         ids: [this.getId()]
       }));
     },
@@ -1166,7 +1166,7 @@ define([
        * @type {atlas.events.Event}
        * @property {Array.<String>} args.ids - The IDs of the unhighlighted entities.
        */
-      this._eventManager.dispatchEvent(new Event(this, 'entity/unhighlight', {
+      this.dispatchEvent(new Event(this, 'entity/unhighlight', {
         ids: [this.getId()]
       }));
     },
