@@ -30,7 +30,7 @@
     "Requirejs": "requirejs#2.1.x",
     "tinycolor": "~1.0.0",
     "underscore": "~1.7.0",
-    "utility": "https://bitbucket.org/mutopia/utility.git#e7b358720485772587e05c05876b6e1ad057225c",
+    "utility": "https://bitbucket.org/mutopia/utility.git#86d47f8a8be5603b303c2087d7cb2d6670d724f8",
     "topsort": "https://github.com/aramk/topsort.git#bower",
     "utm-converter": "https://github.com/urbanetic/utm-converter.git#v0.1.1"
   }

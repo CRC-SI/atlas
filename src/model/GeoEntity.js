@@ -137,12 +137,18 @@ define([
     _renderable: false,
 
     /**
-     * Components of the GeoEntity which have been changed and need to be updated when
-     * the GeoEntity is re-rendered.
+     * Components of the GeoEntity which have been changed and need to be updated when the GeoEntity
+     * is re-rendered.
      * @type {Object.<String, Boolean>}
      * @protected
      */
     _dirty: null,
+
+    /**
+     * The number of components in <code>_dirty</code>. Used for performance.
+     * @type {Number}
+     */
+    _dirtyCount: 0,
 
     /**
      * Geometry data for the GeoEntity that allows it to be rendered.
@@ -521,20 +527,27 @@ define([
      *     object literal of component names to set to dirty.
      */
     setDirty: function(component) {
-      if (typeof component === 'string') {
-        this._dirty[component] = true;
-      } else if (typeof component === 'object') {
+      if (Types.isString(component)) {
+        this._setDirty(component);
+      } else if (Types.isObjectLiteral(component)) {
         var components = component;
         if (!(component instanceof Array)) {
           components = Object.keys(component);
         }
         components.forEach(function(key) {
-          this._dirty[key] = true;
+          this._setDirty(component);
         }, this);
       }
       if (this.isDirty('entity') || this.isDirty('vertices') || this.isDirty('model')) {
         this._invalidateGeometry();
       }
+    },
+
+    _setDirty: function(component) {
+      if (!this._dirty[component]) {
+        this._dirtyCount++;
+      }
+      this._dirty[component] = true;
     },
 
     /**
@@ -553,6 +566,9 @@ define([
      *     is marked clean.
      */
     setClean: function(component) {
+      if (this._dirty[component]) {
+        this._dirtyCount--;
+      }
       delete this._dirty[component];
     },
 
@@ -562,10 +578,7 @@ define([
      * <code>component</code> is not given, the GeoEntity as a whole.
      */
     isDirty: function(component) {
-      if (component === undefined) {
-        return Object.keys(this._dirty).length > 0;
-      }
-      return component in this._dirty;
+      return component === undefined ? this._dirtyCount > 0 : this._dirty[component];
     },
 
     /**
@@ -574,6 +587,7 @@ define([
      */
     clean: function() {
       this._dirty = {};
+      this._dirtyCount = 0;
     },
 
     /**
@@ -667,7 +681,7 @@ define([
      * @returns {Boolean} Whether the GeoEntity is currently renderable.
      */
     isRenderable: function() {
-      return Object.keys(this._dirty).length === 0;
+      return !this.isDirty();
     },
 
     /**

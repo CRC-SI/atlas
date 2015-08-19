@@ -1,6 +1,7 @@
 define([
+  'atlas/lib/utility/Numbers',
   'atlas/lib/utility/Types'
-], function(Types) {
+], function(Numbers, Types) {
 
   /**
    * Defines a bunch of handy math functions. That are probably defined elsewhere.
@@ -18,7 +19,7 @@ define([
      * @returns {Number}
      */
     toDegrees: function(radians) {
-      radians = parseFloat(radians) || 0.0;
+      radians = Numbers.parse(radians) || 0.0;
       return radians / Math.PI * 180.0;
     },
 
@@ -40,7 +41,7 @@ define([
      * @returns {Number}
      */
     toRadians: function(degrees) {
-      degrees = parseFloat(degrees) || 0.0;
+      degrees = Numbers.parse(degrees) || 0.0;
       return degrees * Math.PI / 180.0;
     },
 
@@ -83,9 +84,9 @@ define([
      * @returns {Number}
      */
     limit: function(x, lo, hi) {
-      x  = parseFloat(x);
-      lo = parseFloat(lo) || 0.0;
-      hi = parseFloat(hi) || 1.0;
+      x  = Numbers.parse(x);
+      lo = Numbers.parse(lo) || 0.0;
+      hi = Numbers.parse(hi) || 1.0;
 
       if (x < lo) return lo;
       if (x > hi) return hi;
