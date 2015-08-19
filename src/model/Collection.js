@@ -151,20 +151,17 @@ define([
       return children[iterator](function(item) {
         var isCollection = item instanceof Collection;
         if (isCollection) item._inRecursion = true;
+        var eventsEnabled = item.getEventsEnabled();
+        item.setEventsEnabled(false);
         var value;
         var method = item[methodName];
         if (method) {
           value = method.apply(item, args);
         }
-        if (isCollection) delete item._inRecursion;
+        if (isCollection) item._inRecursion = false;
+        item.setEventsEnabled(eventsEnabled);
         return value;
       });
-    },
-
-    dispatchEvent: function() {
-      // Prevent dispatching events during recursioon since the root entity event should suffice.
-      if (this._inRecursion) return;
-      return this._super.apply(this, arguments);
     },
 
     /**

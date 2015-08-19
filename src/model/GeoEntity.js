@@ -165,7 +165,6 @@ define([
      */
     _style: null,
 
-
     /**
      * The style of the GeoEntity before it was selected or highlighted.
      * @type {atlas.material.Style}

@@ -14,6 +14,14 @@ define([
     }
   }
 
+  // TODO(aramk) Make this into an ItemCache and add a size limit.
+  /**
+   * A cache containing color data useful for reducing the need to reconstruct the same colors
+   * repeatedly.
+   * @type {Object.<String, *>}
+   */
+  var cache = {};
+
   /**
    * @typedef atlas.material.Color
    * @ignore
@@ -68,11 +76,17 @@ define([
     },
 
     _fromStr: function(str) {
+      var colorArray = this._getCachedColor(str, this.__fromStr, str);
+      this._fromRgba.apply(this, colorArray);
+    },
+
+    __fromStr: function(str) {
       var c = tinycolor(str).toRgb();
-      var toFloat = function(x) {
-        return x / 255;
-      };
-      this._fromRgba(toFloat(c.r), toFloat(c.g), toFloat(c.b), c.a);
+      return [this._toFloat(c.r), this._toFloat(c.g), this._toFloat(c.b), c.a];
+    },
+
+    _toFloat: function(x) {
+      return x / 255;
     },
 
     // -------------------------------------------
@@ -179,7 +193,14 @@ define([
      * @return {atlas.model.Color} A new color that is darker by the given amount.
      */
     darken: function(value) {
-      return new Color(tinycolor(this.toString()).darken(value * 100).toRgbString());
+      var str = this.toString();
+      var name = 'darken_' + str + '_' + value;
+      var hexString = this._getCachedColor(name, this._darken);
+      return new Color(hexString);
+    },
+
+    _darken: function(value) {
+      return tinycolor(this.toString()).darken(value * 100).toRgbString();
     },
 
     /**
@@ -187,7 +208,28 @@ define([
      * @return {atlas.model.Color} A new color that is lighter by the given amount.
      */
     lighten: function(value) {
-      return new Color(tinycolor(this.toString()).lighten(value * 100).toRgbString());
+      var str = this.toString();
+      var name = 'lighten_' + str + '_' + value;
+      var hexString = this._getCachedColor(name, this._lighten);
+      return new Color(hexString);
+    },
+
+    _lighten: function(value) {
+      return tinycolor(this.toString()).lighten(value * 100).toRgbString();
+    },
+
+    /**
+     * @param {String} name - A unique name for the cached item.
+     * @param {Function} callback - A function which creates the item. If not found in the cache,
+     *     this function is invoked and the result is cached.
+     * @param {*} args - Any object which should be passed to the callback. This is more efficient
+     *     than binding to the callback function with bind().
+     * @return {*} The cached item, if any.
+     */
+    _getCachedColor: function(name, callback, args) {
+      var value = cache[name];
+      if (value != null) return value;
+      return cache[name] = callback.call(this, args);
     }
 
   });

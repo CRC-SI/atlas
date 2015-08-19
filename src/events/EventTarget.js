@@ -41,6 +41,12 @@ define([
      */
     _parent: null,
 
+    /**
+     * Whether this entity can dispatch events.
+     * @type {Boolean}
+     */
+    _eventsEnabled: true,
+
     _init: function(eventManager, parent) {
       this._eventManager = Setter.def(eventManager, null);
       this._eventHandlers = {};
@@ -65,6 +71,7 @@ define([
      * @param {atlas.events.Event} event - The Event object to be propagated.
      */
     dispatchEvent: function(event) {
+      if (!this.getEventsEnabled()) return;
       var newEvent = event.clone();
       newEvent.setTarget(this);
       newEvent.setCurrentTarget(this);
@@ -147,6 +154,20 @@ define([
         }
       }
       return event;
+    },
+
+    /**
+     * @param {Boolean} enabled - Whether this entity can dispatch events.
+     */
+    setEventsEnabled: function(enabled) {
+      this._eventsEnabled = enabled;
+    },
+
+    /**
+     * @return {Boolean} Whether this entity can dispatch events.
+     */
+    getEventsEnabled: function() {
+      return this._eventsEnabled;
     },
 
     /**
