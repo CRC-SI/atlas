@@ -193,14 +193,22 @@ define([
       return [];
     },
 
-    getRecursiveChildren: function() {
+    /**
+     * @param {Object} [options]
+     * @param {Function} [options.filter] - A filter function which is used to determine whether a
+     *     child should be explored and returned. A value of <code>false</code> indicates the child
+     *     should be ignored.
+     * @return {Array.<atlas.model.GeoEntity>}
+     */
+    getRecursiveChildren: function(options) {
       var children = [];
       var childrenMap = {};
       var stack = this.getChildren();
+      var filter = options && options.filter;
       var child;
       while (stack.length > 0) {
         child = stack.pop();
-        if (childrenMap[child.getId()]) continue;
+        if (childrenMap[child.getId()] || (filter && filter(child) === false)) continue;
         children.push(child);
         childrenMap[child.getId()] = true;
         child.getChildren().forEach(function(recursiveChild) {

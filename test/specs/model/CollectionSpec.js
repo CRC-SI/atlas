@@ -143,18 +143,30 @@ define([
         if (lastChildId) {
           entities.push(lastChildId);
         }
-        lastChild = new Collection(childId, {entities: entities, groupSelect: true}, constructArgs);
+        lastChild = new Collection(childId, {entities: entities, groupSelect: true},
+            constructArgs);
         collections.push(lastChild);
         lastChildId = childId;
       });
       var collection2 = _.last(collections);
       expect(collection2.getChildren().length).toEqual(1);
       expect(collection2.getRecursiveChildren().length).toEqual(entityCount - 1);
+      lastChild = collection2.getRecursiveChildren()[entityCount - 2];
+
       // Select the lowest child in the hierarchy.
       var lowestChild = _.first(collections);
       lowestChild.setSelected(true);
       expect(_.contains(collection2.getRecursiveChildren(), lowestChild)).toBe(true);
       expect(collection2.isSelected()).toBe(true);
+
+      // Ensure setting group select without recursion works.
+      collection2.setGroupSelect(false);
+      expect(lastChild.getGroupSelect()).toBe(false);
+      collection2.setGroupSelect(true, {recursive: false});
+      expect(lastChild.getGroupSelect()).toBe(false);
+      collection2.setGroupSelect(false);
+      collection2.setGroupSelect(true);
+      expect(lastChild.getGroupSelect()).toBe(true);
     });
   });
 });

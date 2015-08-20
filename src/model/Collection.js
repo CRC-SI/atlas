@@ -137,18 +137,31 @@ define([
      * method.
      * @param {String} methodName
      * @param {Array} args
-     * @param {String} [iterator='forEach'] - The name of a valid method on Array for iteration.
+     * @param {Object} [options]
+     * @param {String} [options.iterator='forEach'] - The name of a valid method on Array for
+     *     iteration.
+     * @param {Object} [options.recursive=true] - Whether to iterate over recursive children. If
+     *     false, only direct children are used.
+     * @param {Function} [options.filter] - A filter function which is used to determine whether a
+     *     child should be explored and returned.
      * @private
      */
-    _forEntities: function(methodName, args, iterator) {
-      iterator = iterator || 'forEach';
+    _forEntities: function(methodName, args, options) {
       // Avoid recursion to avoid stack overflows. All recursive children are handled below so
       // recursions on collections are ignored.
       if (this._inRecursion) {
         return;
       }
-      var children = this.getRecursiveChildren();
-      return children[iterator](function(item) {
+      var children;
+      if (!options || options.recursive !== false) {
+        children = this.getRecursiveChildren(options);
+      } else {
+        var filter = options && options.filter;
+        children = this.getChildren();
+        if (filter) children = children.filter(filter);
+      }
+      var iterator = (options && options.iterator) || 'forEach';
+      return children[iterator](function(item, i) {
         var isCollection = item instanceof Collection;
         if (isCollection) item._inRecursion = true;
         var eventsEnabled = item.getEventsEnabled();
@@ -460,7 +473,7 @@ define([
 
     hide: function() {
       if (!this.isVisible()) return;
-      this._forEntities('show', arguments);
+      this._forEntities('hide', arguments);
       this._super.apply(this, arguments);
     },
 
@@ -505,25 +518,30 @@ define([
     },
 
     /**
+     * @param {Boolean} groupSelect - Whether selecting an entity selects the entire collection.
+     * @returns {Boolean|null} The previous value of groupSelect, or null if unchanged.
+     */
+    setGroupSelect: function(groupSelect, options) {
+      var prevValue = this._groupSelect;
+      if (prevValue === groupSelect) return null;
+      this._groupSelect = groupSelect;
+      // Group select must be applied to all child collections to ensure events bubble up to
+      // parent collections.
+      if (!options || options.recursive !== false) {
+        this._forEntities('setGroupSelect', [groupSelect], {
+          filter: function(entity) {
+            return entity instanceof Collection && entity.getGroupSelect() !== groupSelect;
+          }
+        });
+      }
+      return prevValue;
+    },
+
+    /**
      * @return {Boolean} Whether selecting an entity selects the entire collection.
      */
     getGroupSelect: function() {
       return this._groupSelect;
-    },
-
-    /**
-     * @param {Boolean} groupSelect - Whether selecting an entity selects the entire collection.
-     */
-    setGroupSelect: function(groupSelect) {
-      if (this._groupSelect === groupSelect) return;
-      this._groupSelect = groupSelect;
-      // Group select must be applied to all child collections to ensure events bubble up to
-      // parent collections.
-      this.getChildren().forEach(function(child) {
-        if (child instanceof Collection) {
-          child.setGroupSelect(groupSelect);
-        }
-      });
     }
 
   });
