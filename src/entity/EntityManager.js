@@ -843,8 +843,11 @@ define([
       if (this._entities.get(id)) {
         Log.debug('entityManager: deleted entity', id);
         var entity = this._entities.remove(id);
-        // Call this last to prevent infinite loops if this method is called from within.
-        entity.remove();
+        // If entity manager will be destroyed, avoid unnecessary removal logic for performance.
+        if (!this._isDestroyed) {
+          // Call this last to prevent infinite loops if this method is called from within.
+          entity.remove();
+        }
       }
     },
 
