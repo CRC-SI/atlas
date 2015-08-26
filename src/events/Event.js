@@ -44,7 +44,7 @@ define([
 
     /**
      * Type of this event.
-     * @type {string}
+     * @type {String}
      * @private
      */
     _type: null,
