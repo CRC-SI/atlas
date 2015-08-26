@@ -200,6 +200,13 @@ define([
     _highlighted: false,
 
     /**
+     * Whether the opacity should be preserved when the entity is selected. If false, the selected
+     * opacity matches the select style opacity. Deselecting will revert to the original opacity.
+     * @type {Boolean}
+     */
+    _preserveOpacityOnSelect: true,
+
+    /**
      * {@link atlas.model.Handle} objects used for editing.
      * @type {atlas.core.ItemStore}
      * @protected
@@ -284,8 +291,11 @@ define([
       this._scale = this._scale || new Vertex(data.scale || {x: 1, y: 1, z: 1});
       this._rotation = this._rotation || new Vertex(data.rotation || {x: 0, y: 0, z: 0});
       this._isTransformed = data.translation || data.scale || data.rotation;
-      this._selectable = Setter.def(data.selectable, true);
       this.setProperties(data.properties || {});
+      var preserveOpacityOnSelect = data.preserveOpacityOnSelect;
+      preserveOpacityOnSelect !== undefined && this.setPreserveOpacityOnSelect(preserveOpacityOnSelect);
+      var selectable = data.selectable;
+      selectable !== undefined && this.setSelectable(selectable);
       var selected = data.selected;
       selected !== undefined && this.setSelected(selected);
     },
@@ -577,6 +587,7 @@ define([
      * @param {Boolean} selectable - True iff the GeoEntity can be selected.
      */
     setSelectable: function(selectable) {
+      if (!selectable && this.isSelected()) this.setSelected(false);
       this._selectable = selectable;
     },
 
@@ -585,6 +596,14 @@ define([
      */
     isSelectable: function() {
       return this._selectable;
+    },
+
+    setPreserveOpacityOnSelect: function(preserve) {
+      this._preserveOpacityOnSelect = preserve;
+    },
+
+    getPreserveOpacityOnSelect: function() {
+      return this._preserveOpacityOnSelect;
     },
 
     /**
@@ -1117,10 +1136,13 @@ define([
           style.setFillMaterial(newFillColor);
         }
       }
-      // Keep the same opacity as the existing style.
-      var existingFillMaterial = this._style && this._style.getFillMaterial();
-      if (existingFillMaterial instanceof Color && style.getFillMaterial() instanceof Color) {
-        style.getFillMaterial().alpha = existingFillMaterial.alpha;
+      // Keep the same opacity as the existing style if preserving opacity and the entity is
+      // selected. Ignore when deselecting to ensure the preStyle is reverted correctly.
+      if (this.isSelected() && this._preserveOpacityOnSelect) {
+        var existingFillMaterial = this._style && this._style.getFillMaterial();
+        if (existingFillMaterial instanceof Color && style.getFillMaterial() instanceof Color) {
+          style.getFillMaterial().alpha = existingFillMaterial.alpha;
+        }
       }
       this._setStyle(style);
     },
