@@ -171,14 +171,20 @@ define([
      * @private
      */
     _initDelegation: function() {
-      var methods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
+      var formMethods = ['isRenderable', 'isDirty', 'setDirty', 'clean', 'createHandles',
         'createHandle', 'addHandles', 'addHandle', 'clearHandles', 'setHandles', 'getHandles',
         'getCentroid', 'getArea', 'getVertices', 'getOpenLayersGeometry', 'getBoundingBox',
         'translate', 'scale', 'rotate', 'setScale', 'setRotation', 'setHeight', 'getHeight',
         'enableExtrusion', 'disableExtrusion'];
-      methods.forEach(function(method) {
+      formMethods.forEach(function(method) {
         this[method] = function() {
           return this._delegateToForm(method, arguments);
+        };
+      }, this);
+      var formsMethods = ['setSelectable'];
+      formsMethods.forEach(function(method) {
+        this[method] = function() {
+          return this._delegateToForms(method, arguments);
         };
       }, this);
     },
