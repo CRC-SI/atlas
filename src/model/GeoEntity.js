@@ -546,8 +546,8 @@ define([
     _setDirty: function(component) {
       if (!this._dirty[component]) {
         this._dirtyCount++;
+        this._dirty[component] = true;
       }
-      this._dirty[component] = true;
     },
 
     /**
@@ -568,8 +568,8 @@ define([
     setClean: function(component) {
       if (this._dirty[component]) {
         this._dirtyCount--;
+        delete this._dirty[component];
       }
-      delete this._dirty[component];
     },
 
     /**

@@ -202,15 +202,16 @@ define([
      */
     getRecursiveChildren: function(options) {
       var children = [];
-      var childrenMap = {};
+      // A map of child IDs to booleans for whether they are visited.
+      var visitedChildrenMap = {};
       var stack = this.getChildren();
       var filter = options && options.filter;
       var child;
       while (stack.length > 0) {
         child = stack.pop();
-        if (childrenMap[child.getId()] || (filter && filter(child) === false)) continue;
+        if (visitedChildrenMap[child.getId()] || (filter && filter(child) === false)) continue;
         children.push(child);
-        childrenMap[child.getId()] = true;
+        visitedChildrenMap[child.getId()] = true;
         child.getChildren().forEach(function(recursiveChild) {
           stack.push(recursiveChild);
         });

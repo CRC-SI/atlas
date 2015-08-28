@@ -133,8 +133,8 @@ define([
     /**
      * Calls the given method on each recursive {@link atlas.model.GeoEntity} in this collection,
      * passing the given arguments. If the method doesn't exist, it isn't called. This method
-     * is safe from stack overflows from recursive methods provided any recursion is done with this
-     * method.
+     * is safe from stack overflows from recursive methods provided all recursion is performed with
+     * this method.
      * @param {String} methodName
      * @param {Array} args
      * @param {Object} [options]
@@ -149,9 +149,7 @@ define([
     _forEntities: function(methodName, args, options) {
       // Avoid recursion to avoid stack overflows. All recursive children are handled below so
       // recursions on collections are ignored.
-      if (this._inRecursion) {
-        return;
-      }
+      if (this._inRecursion) return;
       var children;
       if (!options || options.recursive !== false) {
         children = this.getRecursiveChildren(options);
@@ -519,6 +517,9 @@ define([
 
     /**
      * @param {Boolean} groupSelect - Whether selecting an entity selects the entire collection.
+     * @param {Object} [options]
+     * @param {Boolean} [options.recursive=true] - Whether to call this method on the entities
+     *     of this collection.
      * @returns {Boolean|null} The previous value of groupSelect, or null if unchanged.
      */
     setGroupSelect: function(groupSelect, options) {
@@ -528,7 +529,7 @@ define([
       // Group select must be applied to all child collections to ensure events bubble up to
       // parent collections.
       if (!options || options.recursive !== false) {
-        this._forEntities('setGroupSelect', [groupSelect], {
+        this._forEntities('setGroupSelect', [groupSelect, options], {
           filter: function(entity) {
             return entity instanceof Collection && entity.getGroupSelect() !== groupSelect;
           }
