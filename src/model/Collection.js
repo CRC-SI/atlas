@@ -41,12 +41,18 @@ define([
     _entities: null,
 
     /**
+     * Whether selecting an entity selects the entire collection.
+     * @type {Boolean}
+     */
+    _groupSelect: false,
+
+    /**
      * @param {String} id
      * @param {Object} data
      * @param {Array.<String>} data.entities - A set of {@link GeoEntity} IDs.
      * @param {Boolean} [data.groupSelect=false] - Whether selecting an entity selects the entire
+     *     collection.
      * @param {Object} args
-     * collection.
      * @private
      */
     _setup: function(id, data, args) {
@@ -60,7 +66,8 @@ define([
       entityIds.forEach(this.addEntity, this);
       this._super(id, data, args);
       this._visible = false;
-      data.groupSelect && this._initSelection();
+      this.setGroupSelect(data.groupSelect);
+      this._initSelection();
     },
 
     _setupStyle: function(data, args) {
@@ -124,58 +131,47 @@ define([
     },
 
     /**
-     * Calls the given method on each {@link atlas.model.GeoEntity} in this collection, passing the
-     * given arguments. If the method doesn't exist, it isn't called.
+     * Calls the given method on each recursive {@link atlas.model.GeoEntity} in this collection,
+     * passing the given arguments. If the method doesn't exist, it isn't called. This method
+     * is safe from stack overflows from recursive methods provided all recursion is performed with
+     * this method.
      * @param {String} methodName
      * @param {Array} args
+     * @param {Object} [options]
+     * @param {String} [options.iterator='forEach'] - The name of a valid method on Array for
+     *     iteration.
+     * @param {Object} [options.recursive=true] - Whether to iterate over recursive children. If
+     *     false, only direct children are used.
+     * @param {Function} [options.filter] - A filter function which is used to determine whether a
+     *     child should be explored and returned.
      * @private
      */
-    _forEntities: function(methodName, args) {
-      return this._entities.forEach(function(item) {
-        var method = item[methodName];
-        method && method.apply(item, args);
-      });
-    },
-
-    /**
-     * Calls the given method on each {@link atlas.model.GeoEntity} in this collection. Passes the
-     * returned value to the given callback. If the method doesn't exist, it isn't called and the
-     * callback receives an undefined value.
-     * @param {String} methodName
-     * @param {Array} args
-     * @param {Function} callback
-     * @returns {Boolean} Whether the given callback succeeds for all entities.
-     * @private
-     */
-    _everyEntity: function(methodName, args, callback) {
-      return this._entities.every(function(item) {
+    _forEntities: function(methodName, args, options) {
+      // Avoid recursion to avoid stack overflows. All recursive children are handled below so
+      // recursions on collections are ignored.
+      if (this._inRecursion) return;
+      var children;
+      if (!options || options.recursive !== false) {
+        children = this.getRecursiveChildren(options);
+      } else {
+        var filter = options && options.filter;
+        children = this.getChildren();
+        if (filter) children = children.filter(filter);
+      }
+      var iterator = (options && options.iterator) || 'forEach';
+      return children[iterator](function(item, i) {
+        var isCollection = item instanceof Collection;
+        if (isCollection) item._inRecursion = true;
+        var eventsEnabled = item.getEventsEnabled();
+        item.setEventsEnabled(false);
         var value;
         var method = item[methodName];
         if (method) {
           value = method.apply(item, args);
         }
-        return callback(value);
-      });
-    },
-
-    /**
-     * Calls the given method on each {@link atlas.model.GeoEntity} in this collection. Passes the
-     * returned value to the given callback. If the method doesn't exist, it isn't called and the
-     * callback receives an undefined value.
-     * @param {String} methodName
-     * @param {Array} args
-     * @param {Function} callback
-     * @returns {Boolean} Whether the given callback succeeds for some entities.
-     * @private
-     */
-    _someEntity: function(methodName, args, callback) {
-      return this._entities.some(function(item) {
-        var value;
-        var method = item[methodName];
-        if (method) {
-          value = method.apply(item, args);
-        }
-        return callback(value);
+        if (isCollection) item._inRecursion = false;
+        item.setEventsEnabled(eventsEnabled);
+        return value;
       });
     },
 
@@ -213,31 +209,12 @@ define([
         };
       }, this);
       // Call on all entities and the collection.
-      var forSelfMethods = ['remove', 'show', 'hide', 'translate', 'scale', 'setSelected',
-          'setElevation', 'setStyle', 'modifyStyle'];
+      var forSelfMethods = ['remove', 'translate', 'scale', 'setStyle', 'modifyStyle'];
       forSelfMethods.forEach(function(method) {
         var selfMethod = this[method];
         this[method] = function() {
           this._forEntities(method, arguments);
           return selfMethod.apply(this, arguments);
-        };
-      }, this);
-      // All entities must return true.
-      var everyMethods = ['isRenderable', 'isSelected'];
-      everyMethods.forEach(function(method) {
-        this[method] = function() {
-          return this._everyEntity(method, arguments, function(value) {
-            return !!value;
-          });
-        };
-      }, this);
-      // Some entities must return true.
-      var someMethods = ['isVisible'];
-      someMethods.forEach(function(method) {
-        this[method] = function() {
-          return this._someEntity(method, arguments, function(value) {
-            return !!value;
-          });
         };
       }, this);
     },
@@ -269,6 +246,46 @@ define([
         // need to worry about its children.
         event.cancel();
       }.bind(this));
+    },
+
+    /**
+     * Listens for selection events on the entities and handles group selection.
+     *
+     * @listens InternalEvent#entity/select
+     * @listens InternalEvent#entity/deselect
+     * @listens InternalEvent#entity/highlight
+     * @listens InternalEvent#entity/unhighlight
+     */
+    _initSelection: function() {
+      var collection = this;
+      var actions = {
+        select: {'select': true, 'deselect': false},
+        highlight: {'highlight': true, 'unhighlight': false},
+      };
+      _.each(actions, function(group, groupName) {
+        _.each(group, function(value, actionName) {
+          var eventName = 'entity/' + actionName;
+          var handle = this.addEventListener(eventName, function(event) {
+            if (this._groupSelect) {
+              var parent = this.getParent();
+              // If the parent also supports group selection, defer this logic and allow the event
+              // to continue bubbling up so we reduce the number of redundant setSelected() calls
+              // on children.
+              if (!(parent instanceof Collection && parent.getGroupSelect())) {
+                if (groupName === 'select') {
+                  collection.setSelected(value);
+                } else if (groupName === 'highlight') {
+                  collection.setHighlighted(value);
+                }
+              }
+            } else {
+              // Prevent the event from bubbling up to parents and causing selections.
+              event.cancel();
+            }
+          }.bind(this));
+          this._bindEventHandle(handle);
+        }, this);
+      }, this);
     },
 
     // -------------------------------------------
@@ -446,6 +463,39 @@ define([
     // MODIFIERS
     // -------------------------------------------
 
+    show: function() {
+      if (this.isVisible()) return;
+      this._forEntities('show', arguments);
+      this._super.apply(this, arguments);
+    },
+
+    hide: function() {
+      if (!this.isVisible()) return;
+      this._forEntities('hide', arguments);
+      this._super.apply(this, arguments);
+    },
+
+    setElevation: function(selected) {
+      var result = this._super.apply(this, arguments);
+      if (result === null) return result;
+      this._forEntities('setElevation', arguments);
+      return result;
+    },
+
+    setSelected: function(selected) {
+      var result = this._super.apply(this, arguments);
+      if (result === null) return result;
+      this._forEntities('setSelected', arguments);
+      return result;
+    },
+
+    setHighlighted: function(selected) {
+      var result = this._super.apply(this, arguments);
+      if (result === null) return result;
+      this._forEntities('setHighlighted', arguments);
+      return result;
+    },
+
     rotate: function(rotation, centroid) {
       // Rotation should be applied on each child entity around the same centroid - by default, that
       // of the collection.
@@ -460,26 +510,39 @@ define([
       // Collection does not have geometry to build.
     },
 
-    _initSelection: function() {
-      var collection = this;
-      var actions = {'select': true, 'deselect': false};
-      Object.keys(actions).forEach(function(name) {
-        var action = actions[name];
-        var handle = this._eventManager.addEventHandler('intern', 'entity/' + name, function(args) {
-          var match = args.ids.some(function(id) {
-            return collection.getEntity(id);
-          });
-          if (match && collection.isSelectable()) {
-            collection.setSelected(action);
-          }
-        });
-        this._bindEventHandle(handle);
-      }, this);
-    },
-
     // Ignore all style since it's handled by the entities. Otherwise, setting the style for this
     // feature applies it to the form and this changes it from the pre-select style.
     _updateHighlightStyle: function() {
+    },
+
+    /**
+     * @param {Boolean} groupSelect - Whether selecting an entity selects the entire collection.
+     * @param {Object} [options]
+     * @param {Boolean} [options.recursive=true] - Whether to call this method on the entities
+     *     of this collection.
+     * @returns {Boolean|null} The previous value of groupSelect, or null if unchanged.
+     */
+    setGroupSelect: function(groupSelect, options) {
+      var prevValue = this._groupSelect;
+      if (prevValue === groupSelect) return null;
+      this._groupSelect = groupSelect;
+      // Group select must be applied to all child collections to ensure events bubble up to
+      // parent collections.
+      if (!options || options.recursive !== false) {
+        this._forEntities('setGroupSelect', [groupSelect, options], {
+          filter: function(entity) {
+            return entity instanceof Collection && entity.getGroupSelect() !== groupSelect;
+          }
+        });
+      }
+      return prevValue;
+    },
+
+    /**
+     * @return {Boolean} Whether selecting an entity selects the entire collection.
+     */
+    getGroupSelect: function() {
+      return this._groupSelect;
     }
 
   });

@@ -6,8 +6,9 @@ define([
   'atlas/model/GeoPoint',
   'atlas/model/Polygon',
   'atlas/model/Rectangle',
-  'atlas/util/WKT'
-], function(EntityManager, EventManager, Collection, GeoPoint, Polygon, Rectangle, WKT) {
+  'atlas/util/WKT',
+  'underscore'
+], function(EntityManager, EventManager, Collection, GeoPoint, Polygon, Rectangle, WKT, _) {
   describe('A Collection', function() {
 
     var collection;
@@ -94,7 +95,85 @@ define([
       expect(boundingBox).toEqual(expectedBoundingBox);
     });
 
+    it('supports large numbers of selected children', function() {
+      var children = [];
+      var childIds = [];
+      _.times(1000, function(i) {
+        var childId = 'child-' + i;
+        children.push(new Polygon(childId, {vertices: []}, constructArgs));
+        childIds.push(childId);
+      });
+      var collection2 = new Collection('c2', {entities: childIds},
+          constructArgs);
+      expect(collection2.getChildren().length).toEqual(childIds.length);
+      expect(collection2.getChildren().length).not.toEqual(0);
 
+      // Ensure selecting a child when group select is disabled has no effect.
+      collection2.getChildren()[100].setSelected(true);
+      expect(collection2.isSelected()).toBe(false);
 
+      // Selecting collection selects all children.
+      collection2.setSelected(true);
+      assertChildrenSelected(collection2, true);
+      collection2.setSelected(false);
+      assertChildrenSelected(collection2, false);
+
+      // Selecting a child selects a collection.
+      collection2.setGroupSelect(true);
+      collection2.getChildren()[100].setSelected(true);
+      assertChildrenSelected(collection2, true);
+      expect(collection2.isSelected()).toBe(true);
+
+      // Ensure selecting a child when group select is disabled has no effect (after enabling
+      // group selection).
+      collection2.setSelected(false);
+      collection2.setGroupSelect(false);
+      collection2.getChildren()[100].setSelected(true);
+      expect(collection2.isSelected()).toBe(false);
+    });
+
+    it('supports deep hierarchies during selection', function() {
+      var collections = [];
+      var lastChildId = null;
+      var lastChild = null;
+      var entityCount = 1000;
+      _.times(entityCount, function(i) {
+        var childId = 'child-' + i;
+        var entities = [];
+        if (lastChildId) {
+          entities.push(lastChildId);
+        }
+        lastChild = new Collection(childId, {entities: entities, groupSelect: true},
+            constructArgs);
+        collections.push(lastChild);
+        lastChildId = childId;
+      });
+      var collection2 = _.last(collections);
+      expect(collection2.getChildren().length).toEqual(1);
+      expect(collection2.getRecursiveChildren().length).toEqual(entityCount - 1);
+      lastChild = collection2.getRecursiveChildren()[entityCount - 2];
+
+      // Select the lowest child in the hierarchy.
+      var lowestChild = _.first(collections);
+      lowestChild.setSelected(true);
+      expect(_.contains(collection2.getRecursiveChildren(), lowestChild)).toBe(true);
+      expect(collection2.isSelected()).toBe(true);
+
+      // Ensure setting group select without recursion works.
+      collection2.setGroupSelect(false);
+      expect(lastChild.getGroupSelect()).toBe(false);
+      collection2.setGroupSelect(true, {recursive: false});
+      expect(lastChild.getGroupSelect()).toBe(false);
+      collection2.setGroupSelect(false);
+      collection2.setGroupSelect(true);
+      expect(lastChild.getGroupSelect()).toBe(true);
+    });
   });
 });
+
+var assertChildrenSelected = function(collection, selected) {
+  var allSelected = _.all(collection.getChildren(), function(child) {
+    return child.isSelected() === selected;
+  });
+  expect(allSelected).toBe(true);
+};

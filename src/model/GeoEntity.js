@@ -137,12 +137,18 @@ define([
     _renderable: false,
 
     /**
-     * Components of the GeoEntity which have been changed and need to be updated when
-     * the GeoEntity is re-rendered.
+     * Components of the GeoEntity which have been changed and need to be updated when the GeoEntity
+     * is re-rendered.
      * @type {Object.<String, Boolean>}
      * @protected
      */
     _dirty: null,
+
+    /**
+     * The number of components in <code>_dirty</code>. Used for performance.
+     * @type {Number}
+     */
+    _dirtyCount: 0,
 
     /**
      * Geometry data for the GeoEntity that allows it to be rendered.
@@ -164,7 +170,6 @@ define([
      * @protected
      */
     _style: null,
-
 
     /**
      * The style of the GeoEntity before it was selected or highlighted.
@@ -444,12 +449,17 @@ define([
     /**
      * Set the elevation of the base of the GeoEntity.
      * @param {Number} elevation - The elevation of the base of the GeoEntity.
+     * @returns {Number|null} The previous elevation, or null if no change was made.
      */
     setElevation: function(elevation) {
-      if (this._elevation !== elevation) {
+      var prevElevation = this._elevation;
+      if (prevElevation !== elevation) {
         this._elevation = elevation;
         this.setDirty('model');
         this._update();
+        return prevElevation;
+      } else {
+        return null;
       }
     },
 
@@ -527,19 +537,26 @@ define([
      *     object literal of component names to set to dirty.
      */
     setDirty: function(component) {
-      if (typeof component === 'string') {
-        this._dirty[component] = true;
-      } else if (typeof component === 'object') {
+      if (Types.isString(component)) {
+        this._setDirty(component);
+      } else if (Types.isObjectLiteral(component)) {
         var components = component;
         if (!(component instanceof Array)) {
           components = Object.keys(component);
         }
         components.forEach(function(key) {
-          this._dirty[key] = true;
+          this._setDirty(component);
         }, this);
       }
       if (this.isDirty('entity') || this.isDirty('vertices') || this.isDirty('model')) {
         this._invalidateGeometry();
+      }
+    },
+
+    _setDirty: function(component) {
+      if (!this._dirty[component]) {
+        this._dirtyCount++;
+        this._dirty[component] = true;
       }
     },
 
@@ -559,7 +576,10 @@ define([
      *     is marked clean.
      */
     setClean: function(component) {
-      delete this._dirty[component];
+      if (this._dirty[component]) {
+        this._dirtyCount--;
+        delete this._dirty[component];
+      }
     },
 
     /**
@@ -568,10 +588,7 @@ define([
      * <code>component</code> is not given, the GeoEntity as a whole.
      */
     isDirty: function(component) {
-      if (component === undefined) {
-        return Object.keys(this._dirty).length > 0;
-      }
-      return component in this._dirty;
+      return component === undefined ? this._dirtyCount > 0 : this._dirty[component];
     },
 
     /**
@@ -580,6 +597,7 @@ define([
      */
     clean: function() {
       this._dirty = {};
+      this._dirtyCount = 0;
     },
 
     /**
@@ -682,7 +700,7 @@ define([
      * @returns {Boolean} Whether the GeoEntity is currently renderable.
      */
     isRenderable: function() {
-      return Object.keys(this._dirty).length === 0;
+      return !this.isDirty();
     },
 
     /**
@@ -937,7 +955,7 @@ define([
        * @type {atlas.events.Event}
        * @property {String} args.id - The ID of the removed entity.
        */
-      this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'entity/remove', {
+      this.dispatchEvent(new Event(this, 'entity/remove', {
         id: this.getId()
       }));
     },
@@ -1023,6 +1041,7 @@ define([
       }
       this._selected = selected;
       selected ? this._onSelect() : this._onDeselect();
+      return !selected;
     },
 
     /**
@@ -1038,6 +1057,7 @@ define([
       }
       this._highlighted = highlighted;
       highlighted ? this._onHighlight() : this._onUnhighlight();
+      return !highlighted;
     },
 
     /**
@@ -1070,7 +1090,7 @@ define([
        * @type {atlas.events.Event}
        * @property {Array.<String>} args.ids - The IDs of the selected entities.
        */
-      this._eventManager.dispatchEvent(new Event(this, 'entity/select', {
+      this.dispatchEvent(new Event(this, 'entity/select', {
         ids: [this.getId()]
       }));
     },
@@ -1092,7 +1112,7 @@ define([
        * @type {atlas.events.Event}
        * @property {Array.<String>} args.ids - The IDs of the selected entities.
        */
-      this._eventManager.dispatchEvent(new Event(this, 'entity/deselect', {
+      this.dispatchEvent(new Event(this, 'entity/deselect', {
         ids: [this.getId()]
       }));
     },
@@ -1153,6 +1173,17 @@ define([
     _onHighlight: function() {
       this._maybeSetPreStyle();
       this._updateHighlightStyle();
+
+      /**
+       * Highlighting of an entity.
+       *
+       * @event InternalEvent#entity/highlight
+       * @type {atlas.events.Event}
+       * @property {Array.<String>} args.ids - The IDs of the highlighted entities.
+       */
+      this.dispatchEvent(new Event(this, 'entity/highlight', {
+        ids: [this.getId()]
+      }));
     },
 
     /**
@@ -1162,6 +1193,17 @@ define([
       this._updateHighlightStyle();
       // Unset after updating style to ensure it is reverted to preStyle.
       this._maybeUnsetPreStyle();
+
+      /**
+       * Unhighlighting of an entity.
+       *
+       * @event InternalEvent#entity/unhighlight
+       * @type {atlas.events.Event}
+       * @property {Array.<String>} args.ids - The IDs of the unhighlighted entities.
+       */
+      this.dispatchEvent(new Event(this, 'entity/unhighlight', {
+        ids: [this.getId()]
+      }));
     },
 
     /**

@@ -320,7 +320,7 @@ define([
        * @event InternalEvent#overlay/hide
        * @type {atlas.events.Event}
        */
-      this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/hide'));
+      this.dispatchEvent(new Event(this, 'overlay/hide'));
     },
 
     /**
@@ -340,7 +340,7 @@ define([
        * @event InternalEvent#overlay/show
        * @type {atlas.events.Event}
        */
-      this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/show'));
+      this.dispatchEvent(new Event(this, 'overlay/show'));
     },
 
     /**
@@ -385,7 +385,7 @@ define([
        * @event InternalEvent#overlay/remove
        * @type {atlas.events.Event}
        */
-      this._eventManager && this._eventManager.dispatchEvent(new Event(this, 'overlay/remove'));
+      this.dispatchEvent(new Event(this, 'overlay/remove'));
     },
 
     /**

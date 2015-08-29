@@ -14,6 +14,14 @@ define([
     }
   }
 
+  // TODO(aramk) Make this into an ItemCache and add a size limit.
+  /**
+   * A cache containing color data useful for reducing the need to reconstruct the same colors
+   * repeatedly.
+   * @type {Object.<String, *>}
+   */
+  var cache = {};
+
   /**
    * @typedef atlas.material.Color
    * @ignore
@@ -67,12 +75,27 @@ define([
       this.alpha = obj.alpha || 1;
     },
 
+    /**
+     * Sets the color properties by using a cache if available.
+     * @param {String} Any valid string argument for the tinycolor constructor.
+     */
     _fromStr: function(str) {
+      var colorArray = this._getCachedColor(str, this.__fromStr, str);
+      this._fromRgba.apply(this, colorArray);
+    },
+
+    /**
+     * Sets the color properties using the tinycolor constructor.
+     * @param {String} Any valid string argument for the tinycolor constructor.
+     * @returns {Array.<Number>} An array of RGBA values in the range [0, 1].
+     */
+    __fromStr: function(str) {
       var c = tinycolor(str).toRgb();
-      var toFloat = function(x) {
-        return x / 255;
-      };
-      this._fromRgba(toFloat(c.r), toFloat(c.g), toFloat(c.b), c.a);
+      return [this._toFloat(c.r), this._toFloat(c.g), this._toFloat(c.b), c.a];
+    },
+
+    _toFloat: function(x) {
+      return x / 255;
     },
 
     // -------------------------------------------
@@ -179,7 +202,7 @@ define([
      * @return {atlas.model.Color} A new color that is darker by the given amount.
      */
     darken: function(value) {
-      return new Color(tinycolor(this.toString()).darken(value * 100).toRgbString());
+      return this._createFromCachedMethod('_darken', value);
     },
 
     /**
@@ -187,7 +210,52 @@ define([
      * @return {atlas.model.Color} A new color that is lighter by the given amount.
      */
     lighten: function(value) {
-      return new Color(tinycolor(this.toString()).lighten(value * 100).toRgbString());
+      return this._createFromCachedMethod('_lighten', value);
+    },
+
+    _darken: function(value) {
+      return this._createFromTinyColorMethod('darken', value * 100);
+    },
+
+    _lighten: function(value) {
+      return this._createFromTinyColorMethod('lighten', value * 100);
+    },
+
+    /**
+     * @param {String} methodName - A method name of a tinycolor object.
+     * @param {*} value - A value to pass to the method.
+     * @return {String} The RGBA string from creating a tinycolor object for this color and applying
+     *     the given method and passing the given value.
+     */
+    _createFromTinyColorMethod: function(methodName, value) {
+      return tinycolor(this.toString())[methodName](value).toRgbString();
+    },
+
+    /**
+     * @param {String} methodName - The name of a method which exists for this class.
+     * @param {*} value - A value to pass to the method.
+     * @return {atlas.material.Color} A new color created from the given method and value. Uses
+     *     a cached output from the method call if available.
+     */
+    _createFromCachedMethod: function(methodName, value) {
+      var str = this.toString();
+      var name = methodName + '_' + str + '_' + value;
+      var hexString = this._getCachedColor(name, this[methodName], value);
+      return new Color(hexString);
+    },
+
+    /**
+     * @param {String} name - A unique name for the cached object.
+     * @param {Function} callback - A function which creates the object. If not found in the cache,
+     *     this function is invoked and the result is cached.
+     * @param {*} args - Any object which should be passed to the callback. This is more efficient
+     *     than binding to the callback function with bind().
+     * @return {*} The cached object, if any.
+     */
+    _getCachedColor: function(name, callback, args) {
+      var value = cache[name];
+      if (value != null) return value;
+      return cache[name] = callback.call(this, args);
     }
 
   });

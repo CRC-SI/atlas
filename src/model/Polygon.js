@@ -122,7 +122,7 @@ define([
         this.setDirty('height');
         this._update();
         if (this._isSetUp) {
-          this._eventManager.dispatchEvent(new Event(this, 'entity/height/changed', {
+          this.dispatchEvent(new Event(this, 'entity/height/changed', {
             ids: [this.getId()]
           }));
         }

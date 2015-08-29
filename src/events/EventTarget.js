@@ -41,6 +41,12 @@ define([
      */
     _parent: null,
 
+    /**
+     * Whether this entity can dispatch events.
+     * @type {Boolean}
+     */
+    _eventsEnabled: true,
+
     _init: function(eventManager, parent) {
       this._eventManager = Setter.def(eventManager, null);
       this._eventHandlers = {};
@@ -65,10 +71,11 @@ define([
      * @param {atlas.events.Event} event - The Event object to be propagated.
      */
     dispatchEvent: function(event) {
+      if (!this.getEventsEnabled()) return;
       var newEvent = event.clone();
       newEvent.setTarget(this);
       newEvent.setCurrentTarget(this);
-      this._eventManager.dispatchEvent(newEvent);
+      this._eventManager && this._eventManager.dispatchEvent(newEvent);
     },
 
     /**
@@ -150,6 +157,20 @@ define([
     },
 
     /**
+     * @param {Boolean} enabled - Whether this entity can dispatch events.
+     */
+    setEventsEnabled: function(enabled) {
+      this._eventsEnabled = enabled;
+    },
+
+    /**
+     * @return {Boolean} Whether this entity can dispatch events.
+     */
+    getEventsEnabled: function() {
+      return this._eventsEnabled;
+    },
+
+    /**
      * @param {atlas.model.GeoEntity} parent
      */
     setParent: function(parent) {
@@ -172,18 +193,26 @@ define([
       return [];
     },
 
-    getRecursiveChildren: function() {
+    /**
+     * @param {Object} [options]
+     * @param {Function} [options.filter] - A filter function which is used to determine whether a
+     *     child should be explored and returned. A value of <code>false</code> indicates the child
+     *     should be ignored.
+     * @return {Array.<atlas.model.GeoEntity>}
+     */
+    getRecursiveChildren: function(options) {
       var children = [];
-      var childrenMap = {};
+      // A map of child IDs to booleans for whether they are visited.
+      var visitedChildrenMap = {};
       var stack = this.getChildren();
+      var filter = options && options.filter;
       var child;
       while (stack.length > 0) {
         child = stack.pop();
-        if (childrenMap[child.getId()]) continue;
-        
+        if (visitedChildrenMap[child.getId()] || (filter && filter(child) === false)) continue;
         children.push(child);
-        childrenMap[child.getId()] = true;
-        child.getRecursiveChildren().forEach(function(recursiveChild) {
+        visitedChildrenMap[child.getId()] = true;
+        child.getChildren().forEach(function(recursiveChild) {
           stack.push(recursiveChild);
         });
       }
