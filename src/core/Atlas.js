@@ -183,8 +183,8 @@ define([
     /**
      * Allows the Host application to publish an event to the internal
      * Atlas event system.
-     * @param  {String} eventName - The type of the event to be published.
-     * @param  {Object} [args] - Arguments relevant to the event.
+     * @param {String} eventName - The type of the event to be published.
+     * @param {Object} [args] - Arguments relevant to the event.
      */
     publish: function(eventName, args) {
       this._managers.event.handleExternalEvent(eventName, args);
@@ -193,8 +193,8 @@ define([
     /**
      * Allows the Host application to subscribe to internal events of the Atlas
      * event system.
-     * @param  {String}   eventName - The event type to subscribe to.
-     * @param  {Function} callback - The callback that will be called when the event occurs.
+     * @param {String} eventName - The event type to subscribe to.
+     * @param {Function} callback - The callback that will be called when the event occurs.
      * @returns {Object} An EventListener object that can be used to cancel the EventHandler.
      */
     subscribe: function(eventName, callback) {
@@ -203,7 +203,7 @@ define([
 
     /**
      * Causes a given GeoEntity to be set to visible Atlas.
-     * @param {string} id - The ID of the GeoEntity to show.
+     * @param {String} id - The ID of the GeoEntity to show.
      */
     showEntity: function(id) {
       this._managers.render.show(id);
@@ -211,7 +211,7 @@ define([
 
     /**
      * Causes a given GeoEntity to be set to hidden Atlas.
-     * @param {string} id - The ID of the GeoEntity to hide.
+     * @param {String} id - The ID of the GeoEntity to hide.
      */
     hideEntity: function(id) {
       this._managers.render.hide(id);

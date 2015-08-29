@@ -8,9 +8,10 @@ define([
   'atlas/visualisation/ColorProjection',
   'atlas/visualisation/DynamicProjection',
   'atlas/visualisation/HeightProjection',
-  'atlas/lib/utility/Log'
+  'atlas/lib/utility/Log',
+  'underscore'
 ], function(Manager, ItemStore, Event, DeveloperError, Overlay, AbstractProjection, ColorProjection,
-            DynamicProjection, HeightProjection, Log) {
+            DynamicProjection, HeightProjection, Log, _) {
 
   /**
    * @typedef atlas.visualisation.VisualisationManager
@@ -222,6 +223,14 @@ define([
     // Getters and Setters
     // -------------------------------------------
 
+    /**
+     * @return {Array.<atlas.visualisation.AbstractProjection>} The static and dynamic projections
+     *     that are being managed.
+     */
+    getProjections: function() {
+      return _.union(this._staticProjections.asArray(), this._dynamicProjections.asArray());
+    },
+
     getLegendContainer: function() {
       if (!this._legendContainer) {
         this._legendContainer = this._managers.overlay.createOverlay({
@@ -382,6 +391,7 @@ define([
     /**
      * Removes the projection affecting the given artifact.
      * @param {string} id - The id of the projection to be removed.
+     * @fires InternalEvent#projection/remove
      * @returns {atlas.visualisation.AbstractProjection|null} The Projection removed, or null
      *    if a projection does not existing for the given artifact.
      */
@@ -400,6 +410,10 @@ define([
       if (this._staticProjections.isEmpty()) {
         this.getLegendContainer().hide();
       }
+      this._managers.event.dispatchEvent(new Event(null, 'projection/remove' , {
+        id: id,
+        artifact: prj.ARTIFACT
+      }));
       return prj;
     },
 
