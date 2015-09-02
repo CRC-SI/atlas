@@ -182,8 +182,8 @@ define([
 
     // TODO(aramk) Re-render mesh when changing height.
     setElevation: function(elevation) {
-      this._super(elevation);
       this._geoLocation.elevation = elevation;
+      this._super(elevation);
     },
 
     isGltf: function() {
