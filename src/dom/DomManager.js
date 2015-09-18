@@ -47,8 +47,8 @@ define([
      */
     _visible: null,
 
-    _init: function(managers) {
-      this._super(managers);
+    _init: function() {
+      this._super.apply(this, arguments);
       this._rendered = false;
       this._visible = false;
     },

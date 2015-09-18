@@ -43,6 +43,10 @@ define([
    * managers used in the implementation. It exposes an API to the host
    * application to control Atlas' behaviour.
    *
+   * @param {Object} [args]
+   * @param {Object} [args.managerOptions] - A map of manager IDs to objects passed as arguments
+   *     when they are constructed.
+   *
    * @abstract
    * @class atlas.core.Atlas
    */
@@ -95,9 +99,10 @@ define([
 
     _createManagers: function(args) {
       for (var id in this._managerClasses) {
-        if (args && args.managers && args.managers[id] === false) continue;
+        var options = args && args.managers && args.managers[id];
+        if (options === false) continue;
         var ManagerClass = this._managerClasses[id];
-        var manager = new ManagerClass(this._managers);
+        var manager = new ManagerClass(this._managers, options);
         this.setManager(manager);
       }
     },

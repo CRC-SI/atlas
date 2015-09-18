@@ -36,10 +36,6 @@ define([
      */
     _terrainEnabled: false,
 
-    _init: function(managers) {
-      this._super(managers);
-    },
-
     /**
      * Show the given entity
      * @param {Number} entity The ID of the Entity to show.

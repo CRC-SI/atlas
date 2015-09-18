@@ -31,14 +31,14 @@ define([
 
     /**
      * @param {Object} managers - A map of Atlas manager types to the manager instance.
-     * @param {Object} [args] - Arguments to creating the TranslationModule.
-     * @param {Number} [args.moveSensitivity] - Minimum number of screen pixels to move so a drag is recognised.
+     * @param {Object} [options] - Arguments to creating the TranslationModule.
+     * @param {Number} [options.moveSensitivity] - Minimum number of screen pixels to move so a drag is recognised.
      * @private
      */
-    _init: function(managers, args) {
-      this._super(managers, args);
-      args = Setter.def(args, {});
-      this._MOVE_SENSITIVITY = Setter.def(args.moveSensitivity, 5);
+    _init: function(managers, options) {
+      this._super.apply(this, arguments);
+      options = Setter.def(options, {});
+      this._MOVE_SENSITIVITY = Setter.def(options.moveSensitivity, 5);
       this._managers = managers;
       this._reset();
       // TODO(aramk) Abstract this into a method in BaseEditModule.
@@ -49,11 +49,11 @@ define([
       }.bind(this);
       this.bindEvents({
         'input/leftdown': provideTarget(this._start),
-        'input/mousemove': function(args) {
-          this._target && this._update(args);
+        'input/mousemove': function(options) {
+          this._target && this._update(options);
         }.bind(this),
-        'input/leftup': function(args) {
-          this._target && this._stop(args);
+        'input/leftup': function(options) {
+          this._target && this._stop(options);
         }.bind(this)
       });
     },
