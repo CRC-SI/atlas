@@ -65,7 +65,6 @@ define([
       var entityIds = data.entities || [];
       entityIds.forEach(this.addEntity, this);
       this._super(id, data, args);
-      this._visible = false;
       this.setGroupSelect(data.groupSelect);
       this._initSelection();
     },
@@ -464,14 +463,16 @@ define([
     // -------------------------------------------
 
     show: function() {
-      if (this.isVisible()) return;
-      this._forEntities('show', arguments);
+      if (!this.isVisible()) {
+        this._forEntities('show', arguments);
+      }
       this._super.apply(this, arguments);
     },
 
     hide: function() {
-      if (!this.isVisible()) return;
-      this._forEntities('hide', arguments);
+      if (this.isVisible()) {
+        this._forEntities('hide', arguments);
+      }
       this._super.apply(this, arguments);
     },
 
