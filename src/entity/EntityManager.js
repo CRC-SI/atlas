@@ -89,8 +89,8 @@ define([
      */
     _highlightOnHover: false,
 
-    _init: function(managers) {
-      this._super(managers);
+    _init: function() {
+      this._super.apply(this, arguments);
       this._origDisplayModes = {};
       this._entities = new ItemStore();
       this._hoveredEntities = new ItemStore();

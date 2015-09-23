@@ -43,7 +43,7 @@ define([
      */
     _isDestroyed: false,
 
-    _init: function(managers) {
+    _init: function(managers, options) {
       this._managers = managers;
       var id = this._id;
       if (id) {
@@ -52,6 +52,7 @@ define([
         throw new DeveloperError('Unresolved manager ID');
       }
       this._eventHandles = {};
+      this._options = options || {};
     },
 
     /**

@@ -29,8 +29,8 @@ define([
      */
     _overlayDom: null,
 
-    _init: function(managers, options) {
-      this._super(managers);
+    _init: function() {
+      this._super.apply(this, arguments);
       this._overlays = {};
     },
 

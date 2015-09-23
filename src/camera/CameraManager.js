@@ -46,7 +46,7 @@ define([
     _bookmarks: null,
 
     _init: function(managers, options) {
-      this._super(managers);
+      this._super.apply(this, arguments);
       this._options = Setter.mixin({
         forceCustomControl: true
       }, options);

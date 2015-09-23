@@ -46,7 +46,7 @@ define([
     _isExclusive: true,
 
     _init: function(managers, options) {
-      this._super(managers);
+      this._super.apply(this, arguments);
       options = Setter.mixin({
         isExclusive: true
       }, options);

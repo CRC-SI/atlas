@@ -92,8 +92,8 @@ define([
      */
     _wasTranslationModuleEnabled: false,
 
-    _init: function(managers) {
-      this._super(managers);
+    _init: function() {
+      this._super.apply(this, arguments);
       this._entities = new ItemStore();
       this._entitiesMeta = {};
       this._handles = new ItemStore();

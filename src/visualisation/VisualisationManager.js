@@ -65,8 +65,8 @@ define([
      */
     _legendStore: null,
 
-    _init: function(managers) {
-      this._super(managers);
+    _init: function() {
+      this._super.apply(this, arguments);
       this._staticProjections = new ItemStore();
       this._dynamicProjections = new ItemStore();
       this._legendStore = new ItemStore();

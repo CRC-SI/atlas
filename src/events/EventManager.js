@@ -70,8 +70,8 @@ define([
      */
     _enabled: true,
 
-    _init: function(managers) {
-      this._super(managers);
+    _init: function() {
+      this._super.apply(this, arguments);
       this._internalEventHandlers = {};
       this._externalEventHandlers = {};
     },
