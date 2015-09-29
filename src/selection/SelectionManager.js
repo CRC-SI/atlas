@@ -156,7 +156,7 @@ define([
           // Even though the entity may be selected directly, it may not be registered as selected
           // until the event is caught by this manager, hence the need to check the registry rather
           // than the entity.
-          if (!this.isSelected(id)) {
+          if (!entity.isSelected()) {
             toSelectIds.push(id);
             toSelectEntities[id] = entity;
           }
@@ -170,12 +170,18 @@ define([
           if (!keepSelection) {
             this.clearSelection();
           }
+          var selectedIds = [];
           toSelectIds.forEach(function(id) {
             var entity = toSelectEntities[id];
-            this._selection[id] = entity;
-            entity.setSelected(true);
+            var result = entity.setSelected(true);
+            if (entity.isSelected(id)) {
+              this._selection[id] = entity;
+            }
+            if (result !== null) {
+              selectedIds.push(id);
+            }
           }.bind(this));
-          Log.debug('Selected entities', toSelectIds);
+          Log.debug('Selected entities', selectedIds);
         }
       }
       this._handleSelectionChange(existingSelection);
@@ -192,9 +198,11 @@ define([
       if (entities.length > 0) {
         entities.forEach(function(entity) {
           var id = entity.getId();
-          if (this.isSelected(id)) {
+          var result = entity.setSelected(false);
+          if (!entity.isSelected(id)) {
             delete this._selection[id];
-            entity.setSelected(false);
+          }
+          if (result !== null) {
             deselectedIds.push(id);
           }
         }.bind(this));
