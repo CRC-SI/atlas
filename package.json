@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "ssh://git@bitbucket.org/mutopia/atlas.git"
+    "url": "ssh://git@bitbucket.org/urbanetic/atlas.git"
   },
   "devDependencies": {
     "bower": "~1.3.12",
