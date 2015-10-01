@@ -100,8 +100,7 @@ define([
                   useCentroid: Setter.def(args.useCentroid, rootIds.length > 300)
                 });
                 if (boundingBox) {
-                  boundingBox.scale(Setter.def(args.boundingBoxScale, 1.5));
-                  args.rectangle = boundingBox;
+                  args.rectangle = boundingBox.scale(Setter.def(args.boundingBoxScale, 1.5));
                   promise = this._current.zoomTo(args);
                 } else {
                   promise = Q.reject('Could not zoom to collection - no bounding box');
