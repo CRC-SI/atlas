@@ -3,7 +3,7 @@ Package.describe({
   name: 'urbanetic:atlas',
   version: '0.8.2',
   summary: 'An API for a 3D Volumetric rendering library.',
-  git: 'https://bitbucket.org/mutopia/atlas.git'
+  git: 'https://bitbucket.org/urbanetic/atlas.git'
 });
 
 Package.onUse(function(api) {
