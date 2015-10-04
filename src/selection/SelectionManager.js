@@ -156,7 +156,7 @@ define([
           // Even though the entity may be selected directly, it may not be registered as selected
           // until the event is caught by this manager, hence the need to check the registry rather
           // than the entity.
-          if (!entity.isSelected()) {
+          if (!entity.isSelected() || !this.isSelected(id)) {
             toSelectIds.push(id);
             toSelectEntities[id] = entity;
           }
