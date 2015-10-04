@@ -14,9 +14,10 @@ define([
   'atlas/model/Polygon',
   'atlas/util/DeveloperError',
   // Base class.
-  'atlas/model/GeoEntity'
+  'atlas/model/GeoEntity',
+  'underscore'
 ], function(Event, Q, Log, Objects, Setter, Strings, Types, Ellipse, Image, Line,
-            Mesh, Point, Polygon, DeveloperError, GeoEntity) {
+            Mesh, Point, Polygon, DeveloperError, GeoEntity, _) {
 
   /**
    * @typedef atlas.model.Feature
@@ -85,6 +86,17 @@ define([
      */
     _image: null,
 
+    /** A map of the DisplayMode for each feature to its GeoEntity.
+     * @type {Object.<atlas.model.Feature.DisplayMode, atlas.model.GeoEntity>}
+     */
+    _formsMap: null,
+
+    /**
+     * The GeoEntity objects for each unique form.
+     * @type {Array.<atlas.model.GeoEntity>}
+     */
+    _forms: null,
+
     /**
      * The display mode of the Feature.
      * Mesh trumps Footprint, which trumps Line if they are both defined in terms of which is
@@ -111,6 +123,8 @@ define([
     },
 
     _setup: function(id, data, args) {
+      this._formsMap = {};
+      this._forms = [];
       // Delegation is necessary for calling setHeight().
       this._initDelegation();
       this._initEvents();
@@ -121,10 +135,12 @@ define([
         var formData = data[prop];
         if (formData) {
           // Don't render the form until the feature is rendered.
-          formData.show = false;
-          formData.buildOnChanges = Setter.def(data.buildOnChanges, formData.buildOnChanges);
-          if (this.isSelected()) {
-            formData.selected = true;
+          if (Types.isObject(formData) && !(formData instanceof GeoEntity)) {
+            formData.show = false;
+            formData.buildOnChanges = Setter.def(data.buildOnChanges, formData.buildOnChanges);
+            if (this.isSelected()) {
+              formData.selected = true;
+            }
           }
           var form = this._getOrCreateForm(id, prop, formData, args);
           this.setForm(mode, form);
@@ -153,6 +169,8 @@ define([
           throw new Error('Cannot find form with ID ' + data);
         }
         return form;
+      } else if (data instanceof GeoEntity) {
+        return data;
       }
       var Constructor = this._formConstructors[Strings.toTitleCase(prop)];
       if (data.gltf || data.gltfUrl) {
@@ -210,8 +228,14 @@ define([
      * @param {atlas.model.GeoEntity} entity
      */
     setForm: function(displayMode, entity) {
-      var property = this._getFormPropertyName(displayMode);
+      var property = Feature.getFormPropertyName(displayMode);
       if (!property) throw new Error('Invalid display mode: ' + displayMode);
+      var existing = this._formsMap[displayMode];
+      if (existing !== entity) {
+        if (existing) this.removeForm(displayMode);
+        this._forms.push(entity);
+        this._formsMap[displayMode] = entity;
+      }
       this[property] = entity;
       entity.setParent(this);
       this.isVisible() && this.show();
@@ -225,7 +249,7 @@ define([
     getForm: function(displayMode) {
       displayMode = displayMode || this._displayMode;
       if (displayMode) {
-        var property = this._getFormPropertyName(displayMode);
+        var property = Feature.getFormPropertyName(displayMode);
         if (!property) throw new Error('Invalid display mode: ' + displayMode);
         return this[property];
       } else {
@@ -235,28 +259,20 @@ define([
 
     removeForm: function(displayMode) {
       var form = this.getForm(displayMode);
-      if (!form) return;
-      var property = this._getFormPropertyName(displayMode);
+      if (!form) return false;
+      var property = Feature.getFormPropertyName(displayMode);
+      this._forms = _.without(this._forms, form);
+      delete this._formsMap[displayMode];
       delete this[property];
       form.setParent(null);
+      return true;
     },
 
     /**
      * @return {Array.<atlas.model.GeoEntity>} The GeoEntity objects for each unique form.
      */
     getForms: function() {
-      var formIdMap = {};
-      var formsMap = this._getFormsMap();
-      var forms = [];
-      Object.keys(formsMap).map(function(prop) {
-        var form = formsMap[prop];
-        var id = form.getId();
-        if (!formIdMap[id]) {
-          formIdMap[id] = form;
-          forms.push(form);
-        }
-      });
-      return forms;
+      return this._forms;
     },
 
     /**
@@ -264,14 +280,7 @@ define([
      *     DisplayMode for each feature to its GeoEntity.
      */
     _getFormsMap: function() {
-      var forms = {};
-      Feature.getDisplayModeIds().forEach(function(displayMode) {
-        var form = this.getForm(displayMode);
-        if (form) {
-          forms[displayMode] = form;
-        }
-      }, this);
-      return forms;
+      return this._formsMap;
     },
 
     getChildren: function() {
@@ -280,23 +289,6 @@ define([
 
     ready: function() {
       return Q.all(this.getChildren().map(function(entity) { return entity.ready() }));
-    },
-
-    /**
-     * @param {atlas.model.Feature.DisplayMode} displayMode
-     * @returns {String} The name of the property used for storing the given display mode.
-     * @private
-     */
-    _getFormPropertyName: function(displayMode) {
-      // TODO(aramk) Extrusion is a special case. If there are more, create a map instead.
-      if (displayMode === Feature.DisplayMode.EXTRUSION) {
-        displayMode = Feature.DisplayMode.FOOTPRINT;
-      }
-      if (Feature.DisplayMode[displayMode.toUpperCase()]) {
-        return '_' + displayMode;
-      } else {
-        throw new DeveloperError('Invalid display mode ' + displayMode);
-      }
     },
 
     getJsonPropertyFromDisplayMode: function(displayMode) {
@@ -344,6 +336,10 @@ define([
 
     getStyle: function() {
       return this._delegateToForm('getStyle') || this._super();
+    },
+
+    getVisibleStyle: function() {
+      return this._delegateToForm('getVisibleStyle') || this._super();
     },
 
     /**
@@ -414,7 +410,7 @@ define([
     remove: function(recursive) {
       recursive = Setter.def(recursive, true);
       Feature.getDisplayModeIds().forEach(function(displayMode) {
-        var propName = this._getFormPropertyName(displayMode);
+        var propName = Feature.getFormPropertyName(displayMode);
         var form = this.getForm(displayMode);
         if (form) {
           recursive && form.remove();
@@ -506,7 +502,7 @@ define([
      * @param {atlas.model.Feature.DisplayMode} displayMode
      */
     setDisplayMode: function(displayMode) {
-      if (displayMode && !this._getFormPropertyName(displayMode)) {
+      if (displayMode && !Feature.getFormPropertyName(displayMode)) {
         throw new Error('Invalid display mode: ' + displayMode);
       }
       this._displayMode = displayMode;
@@ -594,14 +590,14 @@ define([
    * @typedef {Object} atlas.model.Feature.DisplayMode
    * @static
    */
-  Feature.DisplayMode = {
+  Feature.DisplayMode = Object.freeze({
     POINT: 'point',
     LINE: 'line',
     FOOTPRINT: 'footprint',
     EXTRUSION: 'extrusion',
     MESH: 'mesh',
     IMAGE: 'image'
-  };
+  });
 
   Feature.JsonPropertyToDisplayMode = {
     mesh: Feature.DisplayMode.MESH,
@@ -616,9 +612,26 @@ define([
    * @returns {Array.<String>} The possible display mode IDs.
    * @static
    */
-  Feature.getDisplayModeIds = function() {
-    return Objects.values(this.DisplayMode);
-  };
+  Feature.getDisplayModeIds = _.once(function() {
+    return Object.freeze(Objects.values(this.DisplayMode));
+  });
+
+  /**
+   * @param {atlas.model.Feature.DisplayMode} displayMode
+   * @returns {String} The name of the property used for storing the given display mode.
+   * @static
+   */
+  Feature.getFormPropertyName = _.memoize(function(displayMode) {
+    // TODO(aramk) Extrusion is a special case. If there are more, create a map instead.
+    if (displayMode === Feature.DisplayMode.EXTRUSION) {
+      displayMode = Feature.DisplayMode.FOOTPRINT;
+    }
+    if (Feature.DisplayMode[displayMode.toUpperCase()]) {
+      return '_' + displayMode;
+    } else {
+      throw new DeveloperError('Invalid display mode ' + displayMode);
+    }
+  });
 
   return Feature;
 });
