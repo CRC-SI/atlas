@@ -36,6 +36,13 @@ define([
     _fillMaterial: null,
 
     /**
+     * Gradient material of this Style.
+     * @type {atlas.material.Material}
+     * @private
+     */
+    _gradientMaterial: null,
+
+    /**
      * Border material of this Style.
      * @type {atlas.material.Material}
      * @private
@@ -105,6 +112,13 @@ define([
      */
     getFillMaterial: function() {
       return this._fillMaterial;
+    },
+
+    /**
+     * @returns {atlas.material.Material} The Style's gradients material.
+     */
+    getGradientMaterial: function() {
+      return this._gradientMaterial;
     },
 
     /**
