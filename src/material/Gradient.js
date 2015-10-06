@@ -28,7 +28,7 @@ define([
         colors: []
       }, args);
       this.colors = _.map(args.colors, function(color) {
-        return {pivot: color.pivot, color: new Color(color)};
+        return {pivot: color.pivot, color: new Color(color.color)};
       });
     },
 
