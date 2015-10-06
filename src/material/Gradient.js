@@ -27,7 +27,9 @@ define([
       args = Setter.merge({
         colors: []
       }, args);
-      this.colors = Setter.clone(args.colors);
+      this.colors = _.map(args.colors, function(color) {
+        return {pivot: color.pivot, color: new Color(color)};
+      });
     },
 
     equals: function(other) {
