@@ -44,8 +44,8 @@ define([
     toJson: function() {
       return {
         type: 'Gradient',
-        colors: _.map(colors, function(color) {
-          return {pivot: color.pivot, color: color.toString()}
+        colors: _.map(this.colors, function(color) {
+          return {pivot: color.pivot, color: color.color.toString()}
         })
       }
     }
