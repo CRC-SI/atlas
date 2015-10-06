@@ -59,6 +59,7 @@ define([
     _init: function(args) {
       args = args || {};
       this.setFillMaterial(args.fillMaterial || Style.getDefaultFillMaterial());
+      this.setGradientMaterial(args.gradientMaterial || Style.getDefaultGradientMaterial());
       this.setBorderMaterial(args.borderMaterial || Style.getDefaultBorderMaterial());
       this.setBorderWidth(Setter.def(args.borderWidth, Style.DEFAULT_BORDER_WIDTH));
     },
@@ -78,6 +79,20 @@ define([
       }
       var original = this.getFillMaterial();
       this._fillMaterial = material;
+      return original;
+    },
+
+    /**
+     * Sets the Style's gradient material.
+     * @param {atlas.material.Material} material - The new gradient material.
+     * @returns {atlas.material.Material} The original material.
+     */
+    setGradientMaterial: function(material) {
+      if (material && !(material instanceof Material)) {
+        throw new DeveloperError('Invalid material');
+      }
+      var original = this.getGradientMaterial();
+      this._gradientMaterial = material;
       return original;
     },
 
@@ -200,6 +215,14 @@ define([
    */
   Style.getDefaultFillMaterial = function() {
     return new Color('#ddd');
+  };
+
+  /**
+   * @return {atlas.model.Material} The default gradient {@link atlas.model.Material} used when
+   *     constructing a {@link atlas.model.Style}.
+   */
+  Style.getDefaultGradientMaterial = function() {
+    return [{color: new Color('#ddd'), pivot: 0.0}];
   };
 
   /**
