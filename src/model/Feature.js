@@ -86,13 +86,14 @@ define([
      */
     _image: null,
 
-    /** A map of the DisplayMode for each feature to its GeoEntity.
+    /** A map of the DisplayMode for each form to its GeoEntity.
      * @type {Object.<atlas.model.Feature.DisplayMode, atlas.model.GeoEntity>}
      */
     _formsMap: null,
 
     /**
-     * The GeoEntity objects for each unique form.
+     * The unique forms. {@link #_formsMap} can reference the same entity for two forms, whereas
+     * this array only contains the entity once.
      * @type {Array.<atlas.model.GeoEntity>}
      */
     _forms: null,
@@ -134,8 +135,8 @@ define([
         var mode = Feature.JsonPropertyToDisplayMode[prop];
         var formData = data[prop];
         if (formData) {
-          // Don't render the form until the feature is rendered.
           if (Types.isObject(formData) && !(formData instanceof GeoEntity)) {
+          // Don't render the form until the feature is rendered based on the dislay mode.
             formData.show = false;
             formData.buildOnChanges = Setter.def(data.buildOnChanges, formData.buildOnChanges);
             if (this.isSelected()) {
@@ -163,14 +164,14 @@ define([
      *     is an ID.
      */
     _getOrCreateForm: function(id, prop, data, args) {
-      if (Types.isString(data)) {
+      if (data instanceof GeoEntity) {
+        return data;
+      } else if (Types.isString(data)) {
         var form = this._entityManager.getById(data);
         if (!form) {
           throw new Error('Cannot find form with ID ' + data);
         }
         return form;
-      } else if (data instanceof GeoEntity) {
-        return data;
       }
       var Constructor = this._formConstructors[Strings.toTitleCase(prop)];
       if (data.gltf || data.gltfUrl) {
@@ -228,15 +229,14 @@ define([
      * @param {atlas.model.GeoEntity} entity
      */
     setForm: function(displayMode, entity) {
-      var property = Feature.getFormPropertyName(displayMode);
-      if (!property) throw new Error('Invalid display mode: ' + displayMode);
+      this._assertDisplayMode(displayMode);
       var existing = this._formsMap[displayMode];
-      if (existing !== entity) {
-        if (existing) this.removeForm(displayMode);
+      if (existing === entity) return;
+      if (existing) this.removeForm(displayMode);
+      if (!_.contains(this._forms, entity)) {
         this._forms.push(entity);
-        this._formsMap[displayMode] = entity;
       }
-      this[property] = entity;
+      this._formsMap[displayMode] = entity;
       entity.setParent(this);
       this.isVisible() && this.show();
     },
@@ -248,22 +248,16 @@ define([
      */
     getForm: function(displayMode) {
       displayMode = displayMode || this._displayMode;
-      if (displayMode) {
-        var property = Feature.getFormPropertyName(displayMode);
-        if (!property) throw new Error('Invalid display mode: ' + displayMode);
-        return this[property];
-      } else {
-        return null;
-      }
+      if (displayMode) this._assertDisplayMode(displayMode);
+      return displayMode ? this._formsMap[displayMode] : null;
     },
 
     removeForm: function(displayMode) {
+      this._assertDisplayMode(displayMode);
       var form = this.getForm(displayMode);
       if (!form) return false;
-      var property = Feature.getFormPropertyName(displayMode);
       this._forms = _.without(this._forms, form);
       delete this._formsMap[displayMode];
-      delete this[property];
       form.setParent(null);
       return true;
     },
@@ -409,14 +403,12 @@ define([
      */
     remove: function(recursive) {
       recursive = Setter.def(recursive, true);
-      Feature.getDisplayModeIds().forEach(function(displayMode) {
-        var propName = Feature.getFormPropertyName(displayMode);
-        var form = this.getForm(displayMode);
-        if (form) {
-          recursive && form.remove();
-          this[propName] = null;
-        }
-      }, this);
+      if (recursive) {
+        _.each(this._getFormsMap(), function(form, displayMode) {
+          this.removeForm(displayMode);
+          form.remove();
+        }, this);
+      }
       this._super();
     },
 
@@ -428,56 +420,30 @@ define([
      * Shows the Feature depending on its current <code>_displayMode</code>.
      */
     show: function() {
-      if (this._displayMode === Feature.DisplayMode.POINT) {
-        this._mesh && this._mesh.hide();
-        this._footprint && this._footprint.hide();
-        this._image && this._image.hide();
-        if (this._point) {
-          this._point.show();
+      // Since _formsMap can reference the same entity twice, keep track of the unique forms to
+      // hide.
+      var toHideIds = {};
+      var toHide = [];
+      _.each(this._formsMap, function(form, displayMode) {
+        var formId = form.getId();
+        if (this._displayMode === displayMode) {
+          form.show();
+          if (displayMode === Feature.DisplayMode.FOOTPRINT) {
+            form.disableExtrusion && form.disableExtrusion();
+          } else if (displayMode === Feature.DisplayMode.EXTRUSION) {
+            form.enableExtrusion && form.enableExtrusion();
+          }
+        // Ensure toHide only contains unique entities. Avoid hiding entities which were shown due
+        // to matching the given displayMode.
+        } else if (!toHideIds[formId] &&
+            this._formsMap[displayMode] !== this._formsMap[this._displayMode]) {
+          toHideIds[formId] = true;
+          toHide.push(form);
         }
-      } else if (this._displayMode === Feature.DisplayMode.LINE) {
-        this._point && this._point.hide();
-        this._mesh && this._mesh.hide();
-        this._footprint && this._footprint.hide();
-        this._image && this._image.hide();
-        if (this._line) {
-          this._line.show();
-        }
-      } else if (this._displayMode === Feature.DisplayMode.FOOTPRINT) {
-        this._point && this._point.hide();
-        this._mesh && this._mesh.hide();
-        this._line && this._line.hide();
-        this._image && this._image.hide();
-        if (this._footprint) {
-          this._footprint.disableExtrusion();
-          this._footprint.show();
-        }
-      } else if (this._displayMode === Feature.DisplayMode.EXTRUSION) {
-        this._point && this._point.hide();
-        this._mesh && this._mesh.hide();
-        this._line && this._line.hide();
-        this._image && this._image.hide();
-        if (this._footprint) {
-          this._footprint.enableExtrusion();
-          this._footprint.show();
-        }
-      } else if (this._displayMode === Feature.DisplayMode.MESH) {
-        this._point && this._point.hide();
-        this._footprint && this._footprint.hide();
-        this._line && this._line.hide();
-        this._image && this._image.hide();
-        if (this._mesh) {
-          this._mesh.show();
-        }
-      } else if (this._displayMode === Feature.DisplayMode.IMAGE) {
-        this._point && this._point.hide();
-        this._footprint && this._footprint.hide();
-        this._line && this._line.hide();
-        this._image && this._image.hide();
-        if (this._image) {
-          this._image.show();
-        }
-      }
+      }, this);
+      _.each(toHide, function(form) {
+        form.hide();
+      });
       // Call this afterwards to avoid calling clean() on the form, which would prevent show()
       // calling _build().
       this._super();
@@ -502,9 +468,7 @@ define([
      * @param {atlas.model.Feature.DisplayMode} displayMode
      */
     setDisplayMode: function(displayMode) {
-      if (displayMode && !Feature.getFormPropertyName(displayMode)) {
-        throw new Error('Invalid display mode: ' + displayMode);
-      }
+      if (displayMode) this._assertDisplayMode(displayMode);
       this._displayMode = displayMode;
       this.isVisible() ? this.show() : this.hide();
     },
@@ -514,6 +478,12 @@ define([
      */
     getDisplayMode: function() {
       return this._displayMode;
+    },
+
+    _assertDisplayMode: function(displayMode) {
+      if (!Feature.isDisplayMode(displayMode)) {
+        throw new Error('Invalid display mode: ' + displayMode);
+      }
     },
 
     _build: function() {
@@ -616,22 +586,14 @@ define([
     return Object.freeze(Objects.values(this.DisplayMode));
   });
 
-  /**
-   * @param {atlas.model.Feature.DisplayMode} displayMode
-   * @returns {String} The name of the property used for storing the given display mode.
-   * @static
-   */
-  Feature.getFormPropertyName = _.memoize(function(displayMode) {
-    // TODO(aramk) Extrusion is a special case. If there are more, create a map instead.
-    if (displayMode === Feature.DisplayMode.EXTRUSION) {
-      displayMode = Feature.DisplayMode.FOOTPRINT;
-    }
-    if (Feature.DisplayMode[displayMode.toUpperCase()]) {
-      return '_' + displayMode;
-    } else {
-      throw new DeveloperError('Invalid display mode ' + displayMode);
-    }
+  var displayModes = {}
+  _.each(Feature.DisplayMode, function(displayMode) {
+    displayModes[displayMode] = true;
   });
+
+  Feature.isDisplayMode = function(displayMode) {
+    return displayModes[displayMode] != null;
+  };
 
   return Feature;
 });

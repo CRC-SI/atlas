@@ -69,16 +69,34 @@ define([
       }, constructArgs);
       // Avoid rendering meshes since they rely on the provider implementation.
       mesh._build = function() {};
-      var multiFeature = new Feature(123, {
+      var feature = new Feature(123, {
         polygon: polygon,
-        mesh: mesh
+        mesh: mesh,
+        displayMode: 'mesh'
       }, constructArgs);
-      expect(multiFeature.getDisplayMode()).toEqual(Feature.DisplayMode.MESH);
-      expect(multiFeature.getForm(Feature.DisplayMode.MESH)).toEqual(mesh);
-      expect(multiFeature.getForm(Feature.DisplayMode.EXTRUSION)).toEqual(polygon);
-      expect(multiFeature.getForms()).toEqual([mesh, polygon]);
-      multiFeature.setDisplayMode(Feature.DisplayMode.EXTRUSION);
-      expect(multiFeature.getDisplayMode()).toEqual(Feature.DisplayMode.EXTRUSION);
+      expect(feature.getDisplayMode()).toEqual(Feature.DisplayMode.MESH);
+      expect(feature.getForm(Feature.DisplayMode.MESH)).toEqual(mesh);
+      expect(feature.getForm(Feature.DisplayMode.MESH).isVisible()).toBe(true);
+      expect(feature.getForm(Feature.DisplayMode.EXTRUSION).isVisible()).toBe(false);
+      expect(feature.getForm(Feature.DisplayMode.EXTRUSION)).toEqual(polygon);
+
+      expect(feature.getForms()).toEqual([mesh, polygon]);
+
+      feature.setDisplayMode(Feature.DisplayMode.EXTRUSION);
+      expect(feature.getDisplayMode()).toEqual(Feature.DisplayMode.EXTRUSION);
+      expect(feature.getForm(Feature.DisplayMode.EXTRUSION)).toEqual(polygon);
+      expect(feature.getForm(Feature.DisplayMode.MESH).isVisible()).toBe(false);
+      expect(feature.getForm(Feature.DisplayMode.EXTRUSION).isVisible()).toBe(true);
+    });
+
+    it('can reuse the same entity for multiple forms', function() {
+      var feature = new Feature(123, {}, constructArgs);
+      expect(feature.isVisible()).toBe(true);
+      feature.setForm('extrusion', polygon);
+      feature.setForm('footprint', polygon);
+      feature.setDisplayMode('extrusion');
+      expect(polygon.isVisible()).toBe(true);
+      expect(feature.getForms()).toEqual([polygon]);
     });
 
     // TODO(aramk) Add remaining tests from DOH spec.
