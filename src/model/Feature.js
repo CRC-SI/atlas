@@ -136,7 +136,7 @@ define([
         var formData = data[prop];
         if (formData) {
           if (Types.isObject(formData) && !(formData instanceof GeoEntity)) {
-          // Don't render the form until the feature is rendered based on the dislay mode.
+            // Don't render the form until the feature is rendered based on the dislay mode.
             formData.show = false;
             formData.buildOnChanges = Setter.def(data.buildOnChanges, formData.buildOnChanges);
             if (this.isSelected()) {
@@ -427,12 +427,12 @@ define([
       _.each(this._formsMap, function(form, displayMode) {
         var formId = form.getId();
         if (this._displayMode === displayMode) {
-          form.show();
           if (displayMode === Feature.DisplayMode.FOOTPRINT) {
             form.disableExtrusion && form.disableExtrusion();
           } else if (displayMode === Feature.DisplayMode.EXTRUSION) {
             form.enableExtrusion && form.enableExtrusion();
           }
+          form.show();
         // Ensure toHide only contains unique entities. Avoid hiding entities which were shown due
         // to matching the given displayMode.
         } else if (!toHideIds[formId] &&
