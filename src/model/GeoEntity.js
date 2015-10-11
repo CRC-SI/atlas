@@ -663,6 +663,14 @@ define([
     },
 
     /**
+     * @returns {atlas.material.Style} The style of the GeoEntity after any selection or
+     *     highlighting.
+     */
+    getVisibleStyle: function() {
+      return this._style;
+    },
+
+    /**
      * Sets the style of the GeoEntity before it was selected or highlighted.
      * @param {atlas.material.Style} style
      * @returns {atlas.material.Style} The previous style of the GeoEntity before it was selected or

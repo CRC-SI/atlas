@@ -13,7 +13,7 @@ var specsConfig = [
   {name: 'material/Style', run: true},
   {name: 'model/Collection', run: true},
   {name: 'model/Ellipse', run: false},
-  {name: 'model/Feature', run: false},
+  {name: 'model/Feature', run: true},
   {name: 'model/GeoPoint', run: true},
   {name: 'model/Handle', run: false},
   {name: 'model/HeightMap', run: true},
