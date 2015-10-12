@@ -16,13 +16,13 @@ define([
           fillMaterial: {
             type: 'Gradient',
             colors: [{
-              color: [125, 233, 80, 255],
+              color: [0.80, 0.05, 0.05, 1],
               pivot: 0.0
             }, {
-              color: [233, 233, 80, 255],
+              color: [0.80, 0.80, 0.05, 1],
               pivot: 0.5
             }, {
-              color: [233, 120, 80, 255],
+              color: [0.05, 0.80, 0.05, 1],
               pivot: 1.0
             }]
           }
@@ -35,13 +35,13 @@ define([
             type: 'Gradient',
             colors: [{
               pivot: 0,
-              color: 'rgba(0, 0, 0, 1)'
+              color: 'rgba(204, 12.75, 12.75, 1)'
             }, {
               pivot: 0.5,
-              color: 'rgba(0, 0, 0, 1)'
+              color: 'rgba(204, 204, 12.75, 1)'
             }, {
               pivot: 1,
-              color: 'rgba(0, 0, 0, 1)'
+              color: 'rgba(12.75, 204, 12.75, 1)'
             }]
           })
       });
