@@ -149,6 +149,15 @@ define([
         }
       }, this);
       this.setDisplayMode(displayMode);
+      // Ensure extrusion is also made available as a footprint if no explicit footprint form is
+      // specified, and vice versa.
+      var extrusionForm = this._formsMap[Feature.DisplayMode.EXTRUSION];
+      var footprintForm = this._formsMap[Feature.DisplayMode.FOOTPRINT];
+      if (extrusionForm && !footprintForm) {
+        this.setForm(Feature.DisplayMode.FOOTPRINT, extrusionForm);
+      } else if (!extrusionForm && footprintForm) {
+        this.setForm(Feature.DisplayMode.EXTRUSION, footprintForm);
+      }
       var height = data.height;
       if (height !== undefined) this.setHeight(height);
     },
@@ -256,8 +265,8 @@ define([
       this._assertDisplayMode(displayMode);
       var form = this.getForm(displayMode);
       if (!form) return false;
-      this._forms = _.without(this._forms, form);
       delete this._formsMap[displayMode];
+      this._forms = _.unique(_.values(this._formsMap));
       form.setParent(null);
       return true;
     },

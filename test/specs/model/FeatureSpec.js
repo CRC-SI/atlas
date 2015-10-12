@@ -87,6 +87,13 @@ define([
       expect(feature.getForm(Feature.DisplayMode.EXTRUSION)).toEqual(polygon);
       expect(feature.getForm(Feature.DisplayMode.MESH).isVisible()).toBe(false);
       expect(feature.getForm(Feature.DisplayMode.EXTRUSION).isVisible()).toBe(true);
+
+      feature.setDisplayMode(Feature.DisplayMode.FOOTPRINT);
+      expect(feature.getDisplayMode()).toEqual(Feature.DisplayMode.FOOTPRINT);
+      expect(feature.getForm(Feature.DisplayMode.FOOTPRINT)).toEqual(polygon);
+      expect(feature.getForm(Feature.DisplayMode.MESH).isVisible()).toBe(false);
+      expect(feature.getForm(Feature.DisplayMode.FOOTPRINT).isVisible()).toBe(true);
+      expect(feature.getForm(Feature.DisplayMode.EXTRUSION).isVisible()).toBe(true);
     });
 
     it('can reuse the same entity for multiple forms', function() {
