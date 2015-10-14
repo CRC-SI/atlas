@@ -316,7 +316,7 @@ define([
     },
 
     /**
-     * @returns {Array.<atlas.model.GeoPoint>}
+     * @returns {Array.<Array.<atlas.model.GeoPoint>>}
      */
     getHoles: function() {
       return this._holes;
