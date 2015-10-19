@@ -162,6 +162,10 @@ define([
         var isCollection = item instanceof Collection;
         if (isCollection) item._inRecursion = true;
         var eventsEnabled = item.getEventsEnabled();
+        // For performance we prevent events within collections from being fired.
+        // TODO(aramk) This causes features within collections not to be considered selected when
+        // using SelectionManager to check. However, since this collection is selected, the
+        // selection of children can be inferred.
         item.setEventsEnabled(false);
         var value;
         var method = item[methodName];
