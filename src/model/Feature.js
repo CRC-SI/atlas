@@ -320,6 +320,14 @@ define([
       return result;
     },
 
+    setHighlighted: function(highlighted) {
+      var result = this._super(highlighted);
+      if (result !== null) {
+        this._delegateToForm('setHighlighted', arguments);
+      }
+      return result;
+    },
+
     // TODO(aramk) A lot of these operations below should be calling _super() and being called on
     // each form (even those which are not visible)?
 
