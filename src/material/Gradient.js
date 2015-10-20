@@ -12,9 +12,9 @@ define([
   var Gradient;
 
   /**
-   * @classdesc A checkered pattern.
+   * @classdesc A gradient transition between multiple colors.
    *
-   * @param {Array.<atlas.material.Gradient.Color>} colors
+   * @param {Array.<atlas.material.Gradient.Color>} colors - An array of gradient color points.
    *
    * @class atlas.material.Gradient
    * @extends atlas.material.Material
