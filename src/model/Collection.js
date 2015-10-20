@@ -162,6 +162,10 @@ define([
         var isCollection = item instanceof Collection;
         if (isCollection) item._inRecursion = true;
         var eventsEnabled = item.getEventsEnabled();
+        // For performance we prevent events within collections from being fired.
+        // TODO(aramk) This causes features within collections not to be considered selected when
+        // using SelectionManager to check. However, since this collection is selected, the
+        // selection of children can be inferred.
         item.setEventsEnabled(false);
         var value;
         var method = item[methodName];
@@ -476,21 +480,21 @@ define([
       this._super.apply(this, arguments);
     },
 
-    setElevation: function(selected) {
+    setElevation: function() {
       var result = this._super.apply(this, arguments);
       if (result === null) return result;
       this._forEntities('setElevation', arguments);
       return result;
     },
 
-    setSelected: function(selected) {
+    setSelected: function() {
       var result = this._super.apply(this, arguments);
       if (result === null) return result;
       this._forEntities('setSelected', arguments);
       return result;
     },
 
-    setHighlighted: function(selected) {
+    setHighlighted: function() {
       var result = this._super.apply(this, arguments);
       if (result === null) return result;
       this._forEntities('setHighlighted', arguments);

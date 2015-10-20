@@ -636,7 +636,7 @@ define([
               promises.push(entity.ready());
             }
           } catch (e) {
-            Log.error('Failed to render entity during bulk render', e);
+            Log.error('Failed to render entity during bulk render', e.stack || e);
           }
         }, this);
         if (options.waitForReady) {

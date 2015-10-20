@@ -11,6 +11,7 @@ define([
   'atlas/model/Rectangle',
   'atlas/material/Color',
   'atlas/material/CheckPattern',
+  'atlas/material/Gradient',
   'atlas/material/Material',
   'atlas/material/Style',
   'atlas/model/GeoPoint',
@@ -18,7 +19,7 @@ define([
   'atlas/util/DeveloperError',
   'atlas/util/WKT'
 ], function(ItemStore, Event, EventTarget, Q, tinycolor, Setter, Strings, Types, Rectangle, Color,
-            CheckPattern, Material, Style, GeoPoint, Vertex, DeveloperError, WKT) {
+            CheckPattern, Gradient, Material, Style, GeoPoint, Vertex, DeveloperError, WKT) {
   /**
    * @typedef atlas.model.GeoEntity
    * @ignore
@@ -1253,7 +1254,8 @@ define([
       var type = args.type;
       var typeMap = {
         Color: Color,
-        CheckPattern: CheckPattern
+        CheckPattern: CheckPattern,
+        Gradient: Gradient
       };
       var MaterialClass = typeMap[type];
       if (MaterialClass) {

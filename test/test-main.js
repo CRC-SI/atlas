@@ -9,6 +9,7 @@ var specsConfig = [
   {name: 'edit/EditManager', run: false, fix: 'tests totally out of date'},
   {name: 'entity/EntityManager', run: true},
   {name: 'material/Color', run: true},
+  {name: 'material/Gradient', run: true},
   {name: 'material/Style', run: true},
   {name: 'model/Collection', run: true},
   {name: 'model/Ellipse', run: false},
