@@ -480,21 +480,21 @@ define([
       this._super.apply(this, arguments);
     },
 
-    setElevation: function(selected) {
+    setElevation: function() {
       var result = this._super.apply(this, arguments);
       if (result === null) return result;
       this._forEntities('setElevation', arguments);
       return result;
     },
 
-    setSelected: function(selected) {
+    setSelected: function() {
       var result = this._super.apply(this, arguments);
       if (result === null) return result;
       this._forEntities('setSelected', arguments);
       return result;
     },
 
-    setHighlighted: function(selected) {
+    setHighlighted: function() {
       var result = this._super.apply(this, arguments);
       if (result === null) return result;
       this._forEntities('setHighlighted', arguments);
