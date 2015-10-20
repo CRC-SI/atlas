@@ -46,5 +46,19 @@ define([
 
     });
 
+    describe('cannot be constructed', function() {
+
+      it('with no rectangles', function() {
+        expect(function() {Rectangle.fromRectangles([]);}).toThrow();
+        expect(function() {Rectangle.fromRectangles();}).toThrow();
+      });
+
+      it('with no points', function() {
+        expect(function() {Rectangle.fromPoints([]);}).toThrow();
+        expect(function() {Rectangle.fromPoints();}).toThrow();
+      });
+
+    });
+
   });
 });

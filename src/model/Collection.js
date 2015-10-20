@@ -438,7 +438,11 @@ define([
             childBoundingBoxes.push(boundingBox);
           }
         });
-        return Rectangle.fromRectangles(childBoundingBoxes);
+        if (childBoundingBoxes.length > 0) {
+          return Rectangle.fromRectangles(childBoundingBoxes);
+        } else {
+          return null;
+        }
       }
     },
 

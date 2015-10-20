@@ -84,6 +84,12 @@ define([
       expect(boundingBox).toEqual(expectedBoundingBox);
     });
 
+    it('has no bounding box without children', function() {
+      var collection2 = new Collection('c2', {}, constructArgs);
+      var boundingBox = collection2.getBoundingBox();
+      expect(boundingBox).toEqual(null);
+    });
+
     it('supports large numbers of selected children', function() {
       var children = [];
       var childIds = [];

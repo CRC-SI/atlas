@@ -201,6 +201,9 @@ define([
    * rectangles.
    */
   Rectangle.fromPoints = function(points) {
+    if (_.isEmpty(points)) {
+      throw new Error('No points provided');
+    }
     var longitudes = [];
     var latitudes = [];
     _.each(points, function(point) {
@@ -217,6 +220,9 @@ define([
    * rectangles.
    */
   Rectangle.fromRectangles = function(rectangles) {
+    if (_.isEmpty(rectangles)) {
+      throw new Error('No rectangles provided');
+    }
     var longitudes = [];
     var latitudes = [];
     _.each(rectangles, function(rectangle) {
