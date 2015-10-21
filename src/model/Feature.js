@@ -278,7 +278,7 @@ define([
      * @return {Array.<atlas.model.GeoEntity>} The GeoEntity objects for each unique form.
      */
     getForms: function() {
-      return this._forms;
+      return _.toArray(this._forms);
     },
 
     /**

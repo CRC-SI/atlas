@@ -104,6 +104,9 @@ define([
       feature.setDisplayMode('extrusion');
       expect(polygon.isVisible()).toBe(true);
       expect(feature.getForms()).toEqual([polygon]);
+      // Ensure getting children is idempotent.
+      expect(feature.getRecursiveChildren()).toEqual([polygon]);
+      expect(feature.getForms()).toEqual([polygon]);
     });
 
     // TODO(aramk) Add remaining tests from DOH spec.
