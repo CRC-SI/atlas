@@ -209,9 +209,12 @@ define([
           return this._delegateToForm(method, arguments);
         };
       }, this);
+      // Delegate to all forms and also run on the feature.
       var formsMethods = ['setSelectable'];
       formsMethods.forEach(function(method) {
+        var featureMethod = this[method];
         this[method] = function() {
+          featureMethod.apply(this, arguments);
           return this._delegateToForms(method, arguments);
         };
       }, this);
