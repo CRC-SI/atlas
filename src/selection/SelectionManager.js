@@ -309,7 +309,7 @@ define([
       try {
         callback();
       } catch(err) {
-        Logger.error('Error during callback while events were disabled', err);
+        Log.error('Error during callback while events were disabled', err);
       }
       atlas._managers.event.setEnabled(enabled);
     },
