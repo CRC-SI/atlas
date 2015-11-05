@@ -308,7 +308,7 @@ define([
       atlas._managers.event.setEnabled(false);
       try {
         callback();
-      } catch(err) {
+      } catch (err) {
         Log.error('Error during callback while events were disabled', err);
       }
       atlas._managers.event.setEnabled(enabled);
