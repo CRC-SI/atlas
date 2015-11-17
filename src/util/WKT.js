@@ -77,9 +77,8 @@ define([
     },
 
     /**
-     * @param {String} wktStr - The WKT string to convert
-     * @returns {Object} args
-     * @returns {OpenLayers.Geometry} args.geometry
+     * @param {String} wktStr
+     * @returns {OpenLayers.Geometry} The OpenLayers geometry from the given WKT string.
      */
     openLayersGeometryFromWKT: function(wktStr) {
       var result = this.parser.read(wktStr);
