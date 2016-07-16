@@ -33,8 +33,12 @@ define([
           df.reject('Could not load Google API.');
           return;
         }
+        var otherParams = 'sensor=false';
+        if (window.GOOGLE_MAPS_API_KEY) {
+          otherParams += '&key=' + window.GOOGLE_MAPS_API_KEY;
+        }
         google.load('maps', '3.6', {
-          other_params: 'sensor=false',
+          other_params: otherParams,
           callback: function() {
             Log.debug('Loaded Google Maps');
             var geocoder = new google.maps.Geocoder();
