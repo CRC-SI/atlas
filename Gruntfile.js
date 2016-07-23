@@ -170,7 +170,7 @@ module.exports = function(grunt) {
       },
       continuous: {
         singleRun: true,
-        browsers: ['PhantomJS']
+        browsers: ['PhantomJS', 'Firefox']
       },
       debug: {
         // Click DEBUG on Karma page and open Dev Tools. Refresh to re-run.
