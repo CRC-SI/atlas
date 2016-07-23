@@ -30,6 +30,7 @@
     "postinstall": "grunt install",
     "build": "npm install && grunt build",
     "buildDev": "npm install && grunt build:no-minify",
+    "docs": "grunt doc",
     "test": "grunt test",
     "test-ci": "grunt test-ci"
   },
