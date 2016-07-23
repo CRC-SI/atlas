@@ -31,7 +31,7 @@ define([
       polygonB = new Polygon('b', {vertices: footprintB, show: false}, constructArgs);
       collection = new Collection('c', {entities: ['a', 'b']}, constructArgs);
       centroid =
-          new GeoPoint({longitude: 145.2375891232596, latitude: -33.24677037183316, elevation: 0});
+          new GeoPoint({longitude: 145.2375891231028, latitude: -33.246760164082104, elevation: 0});
     });
 
     afterEach(function() {

@@ -5,11 +5,10 @@ node_js:
 before_install: npm install -g grunt-cli
 install:
   - npm install
-  - grunt install
 before_script:
-  - grunt build
+  - npm run build
 script:
-  - echo "skipping tests"
+  - npm test
 after_success:
   - cat ./coverage/lcov.dat | ./node_modules/coveralls/bin/coveralls.js
   - grunt doc
