@@ -9,7 +9,7 @@ module.exports = function(config) {
     basePath: '../..',
 
     // frameworks to use
-    frameworks: ['jasmine', 'requirejs', 'phantomjs-shim'],
+    frameworks: ['jasmine', 'requirejs'],
 
     // list of files / patterns to load in the browser
     files: [
