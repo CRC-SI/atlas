@@ -142,6 +142,9 @@ module.exports = function(grunt) {
     },
 
     clean: {
+      options: {
+        force: true
+      },
       doc: JSDOCS_DIR,
       dist: DIST_DIR,
       resourcesLess: {
@@ -170,7 +173,7 @@ module.exports = function(grunt) {
       },
       continuous: {
         singleRun: true,
-        browsers: ['PhantomJS']
+        browsers: ['PhantomJS', 'Firefox']
       },
       debug: {
         // Click DEBUG on Karma page and open Dev Tools. Refresh to re-run.

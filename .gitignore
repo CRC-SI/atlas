@@ -13,6 +13,8 @@ assets/*
 /src/main.js
 /.build*
 /.sonar
+/.sass-cache
+/_site
 
 # Misc #
 ########
