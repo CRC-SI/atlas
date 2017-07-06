@@ -1,5 +1,6 @@
 assets/*
 *.unity3d
+atlas
 
 # Generated files #
 ###################
