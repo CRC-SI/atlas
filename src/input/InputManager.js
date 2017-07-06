@@ -197,6 +197,17 @@ define([
       // -------------------------------------------
       var /** atlas.events.Event*/ event;
 
+      // Mouse button click
+      this._mouseHandlers.push({
+        name: 'click',
+        cback: function(e) {
+          event = makeMouseEvent(buttonIds[e.button] + 'click', e);
+          this.__lastX = event.getArgs().position.x;
+          this.__lastY = event.getArgs().position.y;
+          eventManager.dispatchEvent(event);
+        }.bind(this)
+      });
+
       // Mouse button down
       this._mouseHandlers.push({
         name: 'mousedown',
