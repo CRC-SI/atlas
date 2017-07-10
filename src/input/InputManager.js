@@ -1,8 +1,9 @@
 define([
   'atlas/core/Manager',
   'atlas/events/Event',
-  'atlas/lib/keycode'
-], function(Manager, Event, Keycode) {
+  'atlas/lib/keycode',
+  'atlas/lib/utility/Log',
+], function(Manager, Event, Keycode, Log) {
 
   /**
    * Atlas wrapper around a browser input event containing a standard set of properties.
@@ -85,7 +86,8 @@ define([
     setup: function() {
       // TODO(bpstudds): Pretty sure InputManager should respond to an 'dom/set' event, rather
       // than be imperative.
-      this._element = this._managers.dom.getDomNode();
+      this._element = this._managers.dom.getDomNode();    
+
     },
 
     /**
@@ -101,9 +103,11 @@ define([
      * @fires InternalEvent#input/left/dblclick
      */
     createHtmlMouseBindings: function() {
+
       // Buttons to add event handlers for.
       var buttonIds = ['left', 'middle', 'right'];
       var eventManager = this._managers.event;
+      var event;
 
       /**
        * The left mouse button was pressed.
@@ -159,17 +163,21 @@ define([
        * @returns {Object}
        */
       var makeMouseEventArgs = function(name, e) {
+        // Log.info("makemouseeventards starts oldX: " + this.__lastX + " oldY: " + this.__lastY);
+
         var absPosition = {x: e.clientX, y: e.clientY};
         var relPosition = this._managers.dom.translateEventCoords(absPosition);
-        var x = relPosition.x;
-        var y = relPosition.y;
+        // var x = relPosition.x;
+        // var y = relPosition.y;
+        // Note, AlexGLeith 2017 - movement was not working, as in this method, __lastX/Y are 0.
         var args = {
           name: 'input/' + name,
           button: buttonIds[e.button],
           modifiers: {},
           absPosition: absPosition,
-          position: relPosition,
-          movement: {dx: x - this.__lastX, dy: y - this.__lastY}
+          position: relPosition
+          //movement: {dx: Math.abs(x - this.__lastX), dy: Math.abs(y - this.__lastY)},
+          //prevPosition: {x: this.__lastX, y: this.__lastY}
         };
         e.shiftKey && (args.modifiers.shift = true);
         e.metaKey && (args.modifiers.meta = true);
@@ -192,46 +200,71 @@ define([
         return event;
       };
 
+      var mousePointDown = function(e) {
+        event = makeMouseEvent(buttonIds[e.button] + 'down', e);
+        this.__lastX = event.getArgs().position.x;
+        this.__lastY = event.getArgs().position.y;
+        eventManager.dispatchEvent(event);
+      };
+
+      var mousePointUp = function(e) {
+        event = makeMouseEvent(buttonIds[e.button] + 'up', e);
+
+        // Check if we haven't moved very far, and if so, fire off a click
+        var position = event.getArgs().position;
+        var dx = Math.abs(position.x - this.__lastX);
+        var dy = Math.abs(position.y - this.__lastY);
+        if (dx + dy < InputManager.CLICK_SENSITIVITY) {
+          var clickEvent =  makeMouseEvent(buttonIds[e.button] + 'click', e);
+          eventManager.dispatchEvent(clickEvent);
+        }
+        
+        // Fire off the up event.
+        eventManager.dispatchEvent(event);
+        Log.info("Code keeps running here");
+      };
+
       // -------------------------------------------
       // Construct mouse event handlers
       // -------------------------------------------
-      var /** atlas.events.Event*/ event;
+      //var /** atlas.events.Event*/ event;
 
-      // Mouse button click
-      this._mouseHandlers.push({
-        name: 'click',
-        cback: function(e) {
-          event = makeMouseEvent(buttonIds[e.button] + 'click', e);
-          this.__lastX = event.getArgs().position.x;
-          this.__lastY = event.getArgs().position.y;
-          eventManager.dispatchEvent(event);
-        }.bind(this)
-      });
+      // // Mouse button click
+      // this._mouseHandlers.push({
+      //   name: 'click',
+      //   cback: function(e) {
+      //     Log.info("Click fired");
+      //     // If mouse moved less than the sensitivity, also emit a click event.
+      //     event = makeMouseEvent(buttonIds[e.button] + 'click', e);
+      //     Log.info(event);
+      //     var movement = event.getArgs().movement;
+      //     var dxy = movement.dx + movement.dy;
+      //     if (dxy < 1000) {
+      //       eventManager.dispatchEvent(event);
+      //     }
+      //   }.bind(this)
+      // });
 
       // Mouse button down
       this._mouseHandlers.push({
         name: 'mousedown',
-        cback: function(e) {
-          event = makeMouseEvent(buttonIds[e.button] + 'down', e);
-          this.__lastX = event.getArgs().position.x;
-          this.__lastY = event.getArgs().position.y;
-          eventManager.dispatchEvent(event);
-        }.bind(this)
+        cback: mousePointDown
+      });
+      // Also handle Chrome's pointer
+      this._mouseHandlers.push({
+        name: 'pointerdown',
+        cback: mousePointDown
       });
 
       // Mouse button up
       this._mouseHandlers.push({
         name: 'mouseup',
-        cback: function(e) {
-          event = makeMouseEvent(buttonIds[e.button] + 'up', e);
-          var dxy = event.getArgs().movement.dx + event.getArgs().movement.dy;
-          if (Math.abs(dxy) < InputManager.CLICK_SENSITIVITY) {
-            // If mouse moved less than the sensitivity, also emit a click event.
-            var args = makeMouseEventArgs(buttonIds[e.button] + 'click', e);
-            eventManager.dispatchEvent(new Event(null, args.name, args));
-          }
-          eventManager.dispatchEvent(event);
-        }
+        cback: mousePointUp
+      });
+      // Also handle Chrome's pointer
+      this._mouseHandlers.push({
+        name: 'pointerup',
+        cback: mousePointUp
       });
 
       // Mouse move handler
@@ -297,7 +330,7 @@ define([
    * @type {number}
    * @static
    */
-  InputManager.CLICK_SENSITIVITY = 3;
+  InputManager.CLICK_SENSITIVITY = 10;
 
   return InputManager;
 });
