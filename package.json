@@ -61,5 +61,12 @@
     "load-grunt-tasks": "~0.2.1",
     "logfile-grunt": "^0.1.5",
     "requirejs": "~2.1.11"
+  },
+  "dependencies": {
+    "fstream": "^1.0.11",
+    "fstream-ignore": "^1.0.5",
+    "lockfile": "^1.0.3",
+    "nopt": "^4.0.1",
+    "read": "^1.0.7"
   }
 }

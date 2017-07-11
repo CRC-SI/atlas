@@ -1,6 +1,7 @@
 assets/*
 *.unity3d
 atlas
+.meteor
 
 # Generated files #
 ###################
