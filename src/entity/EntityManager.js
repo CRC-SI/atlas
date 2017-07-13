@@ -299,57 +299,59 @@ define([
            */
           callback: _.debounce(function(args) {
             // Debounce to prevent excessive calls to getAt().
-            var position = args.position;
-            var entities = this.getAt(position);
-            var newHoveredEntities = {};
-            entities.forEach(function(entity) {
-              var id = entity.getId();
-              var isMouseOver = this._hoveredEntities.get(id);
-              if (!isMouseOver) {
+            if (this._highlightOnHover) {
+              var position = args.position;
+              var entities = this.getAt(position);
+              var newHoveredEntities = {};
+              entities.forEach(function(entity) {
+                var id = entity.getId();
+                var isMouseOver = this._hoveredEntities.get(id);
+                if (!isMouseOver) {
+                  /**
+                   * The mouse was moved into the {@link atlas.model.GeoEntity}.
+                   *
+                   * @event InternalEvent#entity/mouseenter
+                   * @type {atlas.events.Event}
+                   * @property {String} args.id - The ID of the entity.
+                   */
+                  this._managers.event.dispatchEvent(new Event(entity, 'entity/mouseenter', {
+                    id: id
+                  }));
+                  this._highlightOnHover && entity.setHighlighted(true);
+                }
                 /**
-                 * The mouse was moved into the {@link atlas.model.GeoEntity}.
+                 * The mouse was moved over the {@link atlas.model.GeoEntity}.
                  *
-                 * @event InternalEvent#entity/mouseenter
+                 * @event InternalEvent#entity/mousemove
                  * @type {atlas.events.Event}
                  * @property {String} args.id - The ID of the entity.
                  */
-                this._managers.event.dispatchEvent(new Event(entity, 'entity/mouseenter', {
+                this._managers.event.dispatchEvent(new Event(entity, 'entity/mousemove', {
                   id: id
                 }));
+                newHoveredEntities[id] = entity;
                 this._highlightOnHover && entity.setHighlighted(true);
-              }
-              /**
-               * The mouse was moved over the {@link atlas.model.GeoEntity}.
-               *
-               * @event InternalEvent#entity/mousemove
-               * @type {atlas.events.Event}
-               * @property {String} args.id - The ID of the entity.
-               */
-              this._managers.event.dispatchEvent(new Event(entity, 'entity/mousemove', {
-                id: id
-              }));
-              newHoveredEntities[id] = entity;
-              this._highlightOnHover && entity.setHighlighted(true);
-            }, this);
-            this._hoveredEntities.forEach(function(entity, id) {
-              if (!newHoveredEntities[id]) {
-                /**
-                 * The mouse was moved out of the {@link atlas.model.GeoEntity}.
-                 *
-                 * @event InternalEvent#entity/mouseleave
-                 * @type {atlas.events.Event}
-                 * @property {String} args.id - The ID of the entity.
-                 */
-                this._managers.event.dispatchEvent(new Event(entity, 'entity/mouseleave', {
-                  id: id
-                }));
-                this._highlightOnHover && entity.setHighlighted(false);
-              }
-            }, this);
-            this._hoveredEntities.purge();
-            _.each(newHoveredEntities, function(entity, id) {
-              this._hoveredEntities.add(entity);
-            }, this);
+              }, this);
+              this._hoveredEntities.forEach(function(entity, id) {
+                if (!newHoveredEntities[id]) {
+                  /**
+                   * The mouse was moved out of the {@link atlas.model.GeoEntity}.
+                   *
+                   * @event InternalEvent#entity/mouseleave
+                   * @type {atlas.events.Event}
+                   * @property {String} args.id - The ID of the entity.
+                   */
+                  this._managers.event.dispatchEvent(new Event(entity, 'entity/mouseleave', {
+                    id: id
+                  }));
+                  this._highlightOnHover && entity.setHighlighted(false);
+                }
+              }, this);
+              this._hoveredEntities.purge();
+              _.each(newHoveredEntities, function(entity, id) {
+                this._hoveredEntities.add(entity);
+              }, this);
+            }
           }.bind(this), 20)
         }
       ];
