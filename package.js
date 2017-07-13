@@ -1,7 +1,7 @@
 // Meteor package definition.
 Package.describe({
   name: 'crc4si:atlas',
-  version: '0.9.0_7',
+  version: '0.9.0_8',
   summary: 'An API for a 3D Volumetric rendering library.',
   git: 'https://github.com/crc-si/atlas.git'
 });
