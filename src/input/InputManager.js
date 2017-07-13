@@ -219,9 +219,8 @@ define([
           eventManager.dispatchEvent(clickEvent);
         }
         
-        // Fire off the up event.
+        // Fire off the mouseup event.
         eventManager.dispatchEvent(event);
-        Log.info("Code keeps running here");
       };
 
       // -------------------------------------------
